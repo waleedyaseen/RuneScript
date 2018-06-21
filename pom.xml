@@ -14,5 +14,6 @@
 	</properties>
 	<modules>
 		<module>runescript-commons</module>
+		<module>runescript-compiler</module>
 	</modules>
 </project>
