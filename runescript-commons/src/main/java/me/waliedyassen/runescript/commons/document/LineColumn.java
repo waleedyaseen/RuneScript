@@ -94,7 +94,7 @@ public final class LineColumn {
 	}
 
 	/**
-	 * The column number within the line.
+	 * Gets the column number within the line.
 	 * 
 	 * @return the column number.
 	 */
