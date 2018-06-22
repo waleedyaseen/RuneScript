@@ -85,6 +85,31 @@ public final class Tokenizer {
 				case STRING_LITERAL:
 					if (current == NULL) {
 						throwError("String literal is not properly closed by a double-quote");
+					} else if (current == '\\') {
+						stream.take();
+						switch (next) {
+							case 'b':
+								builder.append('\b');
+								break;
+							case 't':
+								builder.append('\t');
+								break;
+							case 'n':
+								builder.append('\n');
+								break;
+							case 'f':
+								builder.append('\f');
+								break;
+							case '"':
+								builder.append('\"');
+								break;
+							case '\\':
+								builder.append('\\');
+								break;
+							default:
+								throwError("Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\'  \\\\)");
+								break;
+						}
 					} else if (current == '\"') {
 						return new Token(TokenKind.STRING_LITERAL, range(), builder.toString());
 					} else {
