@@ -14,8 +14,10 @@ import java.util.Arrays;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
+import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.token.CommentToken;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.lexer.token.TokenKind;
 
 /**
  * Represents the tokenizer tool, takes {@link CharStream} object then turns it's content into {@link Token} objects.
@@ -23,6 +25,8 @@ import me.waliedyassen.runescript.compiler.lexer.token.Token;
  * @author Walied K. Yassen
  */
 public final class Tokenizer {
+
+	// Note: using the ECJ/JavaC tools error messages for now.
 
 	/**
 	 * The characters input stream.
@@ -51,7 +55,7 @@ public final class Tokenizer {
 	}
 
 	/**
-	 * Tokenize the next sequence of characters into some meaningful {@link Token} object.
+	 * Tokenizes the next sequence of characters into some meaningful {@link Token} object.
 	 * 
 	 * @return the {@link Token} object or {@code null} if none could be tokenized.
 	 */
@@ -66,25 +70,45 @@ public final class Tokenizer {
 					if (Character.isWhitespace(current)) {
 						continue;
 					} else {
-						// considered as the token start position, mark it to be used later in #range() method.
 						mark();
-						if (current == '/' && next == '/') {
-							// the single line comment token, starts with // until the end of the line
+						resetBuilder();
+						if (current == '\"') {
+							// the string token, starts with '"' until we meet another unescaped '"'
+							state = State.STRING_LITERAL;
+						} else if (current == '/' && next == '/') {
+							// the single line comment token, starts with '//' until the end of the line
 							stream.take();
 							state = State.LINE_COMMENT;
 						}
 					}
-				break;
+					break;
+				case STRING_LITERAL:
+					if (current == NULL) {
+						throwError("String literal is not properly closed by a double-quote");
+					} else if (current == '\"') {
+						return new Token(TokenKind.STRING_LITERAL, range(), builder.toString());
+					} else {
+						builder.append(current);
+					}
+					break;
 				case LINE_COMMENT:
 					if (current == NULL || current == '\n') {
-						state = State.NONE;
 						return new CommentToken(range(), Arrays.asList(builder.toString()));
 					} else {
 						builder.append(current);
 					}
-				break;
+					break;
 
 			}
+		}
+	}
+
+	/**
+	 * Resets the lexeme builder state.
+	 */
+	private void resetBuilder() {
+		if (builder.length() > 0) {
+			builder.setLength(0);
 		}
 	}
 
@@ -98,7 +122,7 @@ public final class Tokenizer {
 	/**
 	 * Creates a {@link Range} object starting at the current marked position and ending at the current position.
 	 * 
-	 * @return the creasted {@link Range} object.
+	 * @return the created {@link Range} object.
 	 * @see #mark()
 	 */
 	private Range range() {
@@ -106,17 +130,33 @@ public final class Tokenizer {
 	}
 
 	/**
-	 * Repesents the parser state.
+	 * Creates and throws a parser error ranging from the marked position to the current position.
+	 * 
+	 * @param message
+	 *                the error message of why the error has occurred.
+	 */
+	private void throwError(String message) {
+		throw new LexicalError(range(), message);
+	}
+
+	/**
+	 * Represents the parser state.
 	 * 
 	 * @author Walied K. Yassen
 	 */
 	private static enum State {
 		/**
-		 * The parser is currently trying to find what kind of token is next.
+		 * Indicates that the parser is currently not parsing anything.
 		 */
 		NONE,
+
 		/**
-		 * The parser is currently parsing a single line comment.
+		 * Indicates that the parser is currently parsing a string literal.
+		 */
+		STRING_LITERAL,
+
+		/**
+		 * Indicates that the parser is currently parsing a line comment.
 		 */
 		LINE_COMMENT,
 	}

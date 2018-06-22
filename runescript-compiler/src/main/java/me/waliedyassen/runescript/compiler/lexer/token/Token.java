@@ -29,16 +29,36 @@ public class Token {
 	private final Range range;
 
 	/**
+	 * The token lexeme value.
+	 */
+	private final String lexeme;
+
+	/**
 	 * Constructs a new {@link Token} type object instance.
 	 * 
 	 * @param kind
-	 *              the token kind which tells what the token is.
+	 *               the token kind which tells what the token is.
 	 * @param range
-	 *              the token source code range.
+	 *               the token source code range.
+	 * @param lexeme
+	 *               the token lexeme value
 	 */
-	public Token(TokenKind kind, Range range) {
+	public Token(TokenKind kind, Range range, String lexeme) {
 		this.kind = kind;
 		this.range = range;
+		this.lexeme = lexeme;
+	}
+
+	/**
+	 * Constructs a new {@link Token} type object instance.
+	 * 
+	 * @param kind
+	 *               the token kind which tells what the token is.
+	 * @param range
+	 *               the token source code range.
+	 */
+	public Token(TokenKind kind, Range range) {
+		this(kind, range, null);
 	}
 
 	/**
@@ -57,6 +77,15 @@ public class Token {
 	 */
 	public Range getRange() {
 		return range;
+	}
+
+	/**
+	 * Gets the token lexeme value.
+	 * 
+	 * @return the lexeme value.
+	 */
+	public String getLexeme() {
+		return lexeme;
 	}
 
 }

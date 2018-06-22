@@ -16,14 +16,14 @@ package me.waliedyassen.runescript.compiler.lexer.token;
 public enum TokenKind {
 
 	/**
+	 * The string token kind.
+	 */
+	STRING_LITERAL,
+
+	/**
 	 * The comment token kind.
 	 */
 	COMMENT,
-
-	/**
-	 * The identifier token kind.
-	 */
-	IDENTIFIER,
 
 	/**
 	 * The end of file token kind.

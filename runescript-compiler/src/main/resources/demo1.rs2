@@ -7,3 +7,4 @@ if ($my_bool = true) {
 	msg("my_bool is false");
 }
 // I am a single line comment :)
+"Test\tAsd"
