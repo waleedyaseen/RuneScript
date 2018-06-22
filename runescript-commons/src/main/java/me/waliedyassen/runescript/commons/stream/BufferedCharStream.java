@@ -59,9 +59,9 @@ public final class BufferedCharStream implements CharStream {
 	 * Constructs a new {@link BufferedCharStream} type object instance.
 	 * 
 	 * @param stream
-	 *                   the source code input stream.
+	 *               the source code input stream.
 	 * @throws IOException
-	 *                         if anything occurs while reading the data from the specified {@link InputStream}.
+	 *                     if anything occurs while reading the data from the specified {@link InputStream}.
 	 */
 	public BufferedCharStream(InputStream stream) throws IOException {
 		this(stream, DEFAULT_TABSIZE);
@@ -71,12 +71,12 @@ public final class BufferedCharStream implements CharStream {
 	 * Constructs a new {@link BufferedCharStream} type object instance.
 	 * 
 	 * @param stream
-	 *                    the source code input stream.
+	 *                the source code input stream.
 	 * @param tabSize
-	 *                    the tab size, reprsents how many spaces should we increase the column pointer by after the tab
-	 *                    special character.
+	 *                the tab size, reprsents how many spaces should we increase the column pointer by after the tab
+	 *                special character.
 	 * @throws IOException
-	 *                         if anything occurs while reading the data from the specified {@link InputStream}.
+	 *                     if anything occurs while reading the data from the specified {@link InputStream}.
 	 */
 	public BufferedCharStream(InputStream stream, int tabSize) throws IOException {
 		this.tabSize = tabSize;
@@ -84,8 +84,6 @@ public final class BufferedCharStream implements CharStream {
 		for (int index = 0; index < buffer.length; index++) {
 			buffer[index] = (char) stream.read();
 		}
-		// Skips the CR and LF characters in-case they are present as the first characters in the file.
-		skipCrLf();
 	}
 
 	/*
@@ -97,32 +95,20 @@ public final class BufferedCharStream implements CharStream {
 		if (pos >= buffer.length) {
 			return NULL;
 		}
+		// assuming we are always using CRLF for now.
+		if (peek() == '\r') {
+			pos++;
+		}
 		char ch = buffer[pos++];
-		if (ch == '\t') {
+		if (ch == '\n') {
+			line++;
+			column = 1;
+		} else if (ch == '\t') {
 			column += tabSize - (column - 1) % tabSize;
 		} else {
 			column++;
 		}
-		skipCrLf();
 		return ch;
-	}
-
-	/**
-	 * Skips the carriage return and line feed special characters.
-	 */
-	private void skipCrLf() {
-		do {
-			if (peek() == '\r') {
-				pos++;
-			}
-			if (peek() == '\n') {
-				pos++;
-				line++;
-				column = 1;
-				continue;
-			}
-			break;
-		} while (true);
 	}
 
 	/*
@@ -143,7 +129,6 @@ public final class BufferedCharStream implements CharStream {
 	 */
 	@Override
 	public void mark() {
-		// TODO: we can just save the line and colum positions to save time
 		m_pos = pos;
 		m_line = line;
 		m_column = column;
@@ -162,6 +147,15 @@ public final class BufferedCharStream implements CharStream {
 		line = m_line;
 		column = m_column;
 		m_pos = m_line = m_column = -1;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see me.waliedyassen.runescript.commons.stream.CharStream#hasRemaining()
+	 */
+	@Override
+	public boolean hasRemaining() {
+		return pos < buffer.length;
 	}
 
 	/*

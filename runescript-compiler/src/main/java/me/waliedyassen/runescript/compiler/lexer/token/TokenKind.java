@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.token;
+package me.waliedyassen.runescript.compiler.lexer.token;
 
 /**
  * Represents the token kind, which tells us what each token is, whether an identifier, or a number, or a string, or a
@@ -14,6 +14,11 @@ package me.waliedyassen.runescript.compiler.token;
  * @author Walied K. Yassen
  */
 public enum TokenKind {
+
+	/**
+	 * The comment token kind.
+	 */
+	COMMENT,
 
 	/**
 	 * The identifier token kind.

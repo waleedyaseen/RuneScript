@@ -5,9 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.token;
+package me.waliedyassen.runescript.compiler.lexer.token;
 
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 
 /**
  * Represents the base class of the {@link Tokenizer} output. A token is the smallest unit of the source code in the

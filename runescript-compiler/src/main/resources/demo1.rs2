@@ -6,5 +6,4 @@ if ($my_bool = true) {
 } else {
 	msg("my_bool is false");
 }
-// I am a single line comment :) 
- 
+// I am a single line comment :)

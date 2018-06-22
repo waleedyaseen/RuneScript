@@ -50,6 +50,13 @@ public interface CharStream {
 	void reset();
 
 	/**
+	 * Checks whether or not this stream has oneor more character(s) available.
+	 * 
+	 * @return <code>true</code> if it has otherwise <code>false</code>.
+	 */
+	boolean hasRemaining();
+
+	/**
 	 * Gets the current position within the document.
 	 * 
 	 * @return the current position as {@link LineColumn} object.
