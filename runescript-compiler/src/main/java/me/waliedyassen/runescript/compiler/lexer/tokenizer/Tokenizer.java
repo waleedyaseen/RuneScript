@@ -9,7 +9,9 @@ package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import static me.waliedyassen.runescript.commons.stream.CharStream.NULL;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
@@ -61,6 +63,7 @@ public final class Tokenizer {
 	 */
 	public Token parse() {
 		State state = State.NONE;
+		List<String> comment = null;
 		char current, next;
 		while (true) {
 			current = stream.take();
@@ -73,12 +76,14 @@ public final class Tokenizer {
 						mark();
 						resetBuilder();
 						if (current == '\"') {
-							// the string token, starts with '"' until we meet another unescaped '"'
 							state = State.STRING_LITERAL;
 						} else if (current == '/' && next == '/') {
-							// the single line comment token, starts with '//' until the end of the line
 							stream.take();
 							state = State.LINE_COMMENT;
+						} else if (current == '/' && next == '*') {
+							stream.take();
+							comment = new ArrayList<String>();
+							state = State.MULTI_COMMENT;
 						}
 					}
 					break;
@@ -118,7 +123,23 @@ public final class Tokenizer {
 					break;
 				case LINE_COMMENT:
 					if (current == NULL || current == '\n') {
-						return new CommentToken(range(), Arrays.asList(builder.toString()));
+						return new CommentToken(range(), Arrays.asList(trimComment(builder.toString(), false)));
+					} else {
+						builder.append(current);
+					}
+					break;
+				case MULTI_COMMENT:
+					if (current == NULL) {
+						throwError("Unexpected end of comment");
+					} else if (current == '\n') {
+						String line = trimComment(builder.toString(), true);
+						if (comment.size() != 0 || line.length() != 0) {
+							comment.add(line);
+						}
+						resetBuilder();
+					} else if (current == '*' && next == '/') {
+						stream.take();
+						return new CommentToken(range(), comment);
 					} else {
 						builder.append(current);
 					}
@@ -165,6 +186,40 @@ public final class Tokenizer {
 	}
 
 	/**
+	 * Trims the comment from any decoration they have, whether it was the line start decoration character or it was a
+	 * redundant whitespace.
+	 * 
+	 * @param line
+	 *                 the comment line.
+	 * @param trimStar
+	 *                 whether to trim the decorative star or not.
+	 * @return the trimmed comment line content.
+	 */
+	private static String trimComment(String line, boolean trimStar) {
+		int start = -1;
+		for (int chpos = 0; chpos < line.length(); chpos++) {
+			if (!Character.isWhitespace(line.charAt(chpos))) {
+				start = chpos;
+				break;
+			}
+		}
+		if (start == -1) {
+			return "";
+		}
+		if (trimStar && line.charAt(start) == '*') {
+			return trimComment(line.substring(start + 1), false);
+		}
+		int end = -1;
+		for (int chpos = line.length() - 1; chpos >= start; chpos--) {
+			if (!Character.isWhitespace(line.charAt(chpos))) {
+				end = chpos + 1;
+				break;
+			}
+		}
+		return line.substring(start, end);
+	}
+
+	/**
 	 * Represents the parser state.
 	 * 
 	 * @author Walied K. Yassen
@@ -176,6 +231,11 @@ public final class Tokenizer {
 		NONE,
 
 		/**
+		 * Indicates that the parser is currently parsing an identifier.
+		 */
+		IDENTIFIER,
+
+		/**
 		 * Indicates that the parser is currently parsing a string literal.
 		 */
 		STRING_LITERAL,
@@ -184,5 +244,10 @@ public final class Tokenizer {
 		 * Indicates that the parser is currently parsing a line comment.
 		 */
 		LINE_COMMENT,
+
+		/**
+		 * Indicates that the parser is currently parsing a multi-line comment.
+		 */
+		MULTI_COMMENT,
 	}
 }
