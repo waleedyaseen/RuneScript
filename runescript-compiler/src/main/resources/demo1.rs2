@@ -1,0 +1,10 @@
+[label,demo]
+def_int $my_int = 0;
+def_bool $my_bool = false;
+if ($my_bool = true) {
+	msg("my_bool is true");
+} else {
+	msg("my_bool is false");
+}
+// I am a single line comment :) 
+ 

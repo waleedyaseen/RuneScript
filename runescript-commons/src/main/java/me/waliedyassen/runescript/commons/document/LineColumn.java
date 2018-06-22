@@ -28,13 +28,45 @@ public final class LineColumn {
 	 * Constructs a new {@link LineColumn} type object instance.
 	 * 
 	 * @param line
-	 *                   the line number within the document.
+	 *               the line number within the document.
 	 * @param column
-	 *                   the column number within the line.
+	 *               the column number within the line.
 	 */
 	public LineColumn(int line, int column) {
 		this.line = line;
 		this.column = column;
+	}
+
+	/**
+	 * Checks whether or not the given {@linkplain LineColumn position} is lesser than this position.
+	 * 
+	 * @param other
+	 *              the other position to check whether it is lesser or not.
+	 * @return <code>true</code> if the given position is lesser than this position otherwise <code>false</code>.
+	 */
+	public boolean isLesserThan(LineColumn other) {
+		if (line == other.line) {
+			return column < other.column;
+		} else if (line < other.line) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Checks whether or not the given {@linkplain LineColumn position} is greater than this position.
+	 * 
+	 * @param other
+	 *              the other position to check whether it is greater or not.
+	 * @return <code>true</code> if the given position is greater than this position otherwise <code>false</code>.
+	 */
+	public boolean isGreaterThan(LineColumn other) {
+		if (line == other.line) {
+			return column > other.column;
+		} else if (line > other.line) {
+			return true;
+		}
+		return false;
 	}
 
 	/*
