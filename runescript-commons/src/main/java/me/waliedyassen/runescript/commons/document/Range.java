@@ -44,9 +44,9 @@ public final class Range {
 	 *                 the position which we will update this {@link Range} object to include.
 	 */
 	public void add(LineColumn position) {
-		if (start.isLesserThan(position)) {
+		if (position.isLesserThan(start)) {
 			start = position;
-		} else if (end.isGreaterThan(position)) {
+		} else if (position.isGreaterThan(end)) {
 			end = position;
 		}
 	}
