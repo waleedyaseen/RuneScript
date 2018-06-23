@@ -80,8 +80,14 @@ public final class Tokenizer {
 						continue;
 					} else {
 						resetBuilder();
-						if (current == '\"') {
+						if (isIdentifierStart(current)) {
+							builder.append(current);
+							state = State.IDENTIFIER;
+						} else if (current == '\"') {
 							state = State.STRING_LITERAL;
+						} else if (Character.isDigit(current)) {
+							builder.append(current);
+							state = State.NUMBER_LITERAL;
 						} else if (current == '/' && next == '/') {
 							stream.take();
 							state = State.LINE_COMMENT;
@@ -89,10 +95,16 @@ public final class Tokenizer {
 							stream.take();
 							comment = new ArrayList<String>();
 							state = State.MULTI_COMMENT;
-						} else if (Character.isDigit(current)) {
-							builder.append(current);
-							state = State.NUMBER_LITERAL;
 						}
+					}
+					break;
+				case IDENTIFIER:
+					if (isIdentifierPart(current)) {
+						builder.append(current);
+						stream.mark();
+					} else {
+						stream.reset();
+						return new Token(TokenKind.IDENTIFIER, range(), builder.toString());
 					}
 					break;
 				case STRING_LITERAL:
@@ -132,8 +144,10 @@ public final class Tokenizer {
 				case NUMBER_LITERAL:
 					if (Character.isDigit(current)) {
 						builder.append(current);
+						// mark the last characters position, in-case the next character was invalid.
 						stream.mark();
 					} else {
+						// the character is invalid, reset to the last marked position.
 						stream.reset();
 						return new Token(TokenKind.NUMBER_LITERAL, range(), builder.toString());
 					}
@@ -233,6 +247,28 @@ public final class Tokenizer {
 			}
 		}
 		return line.substring(start, end);
+	}
+
+	/**
+	 * Checks whether or not the specified character can be used as the identifier's starting character.
+	 * 
+	 * @param ch
+	 *           the character to check.
+	 * @return <code>true</code> if it can otherwise <code>false</code>.
+	 */
+	public static boolean isIdentifierStart(char ch) {
+		return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch == '_';
+	}
+
+	/**
+	 * Checks whether or not the specified character can be used as an identifier's character.
+	 * 
+	 * @param ch
+	 *           the character to check.
+	 * @return <code>true</code> if it can otherwise <code>false</code>.
+	 */
+	public static boolean isIdentifierPart(char ch) {
+		return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_';
 	}
 
 	/**

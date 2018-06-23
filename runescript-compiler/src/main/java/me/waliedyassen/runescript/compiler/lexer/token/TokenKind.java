@@ -16,6 +16,11 @@ package me.waliedyassen.runescript.compiler.lexer.token;
 public enum TokenKind {
 
 	/**
+	 * The identifier token kind.
+	 */
+	IDENTIFIER,
+	
+	/**
 	 * The number token kind.
 	 */
 	NUMBER_LITERAL,

@@ -84,6 +84,17 @@ class TokenizerTest {
 		assertEquals(token.getLexeme(), String.valueOf(7654321));
 	}
 
+	@Test
+	void testIdentifier() {
+		Tokenizer tokenizer = fromString("654321myIdentifier");
+		Token token = tokenizer.parse();
+		assertEquals(token.getKind(), TokenKind.NUMBER_LITERAL);
+		assertEquals(token.getLexeme(), String.valueOf(654321));
+		token = tokenizer.parse();
+		assertEquals(token.getKind(), TokenKind.IDENTIFIER);
+		assertEquals(token.getLexeme(), "myIdentifier");
+		
+	}
 	private Tokenizer fromString(String text) {
 		try (InputStream stream = new StringBufferInputStream(text)) {
 			Tokenizer tokenizer = new Tokenizer(new BufferedCharStream(stream));
@@ -100,7 +111,6 @@ class TokenizerTest {
 			Tokenizer tokenizer = new Tokenizer(new BufferedCharStream(stream));
 			return tokenizer;
 		} catch (IOException e) {
-			// won't happen anyways
 			e.printStackTrace();
 			return null;
 		}
