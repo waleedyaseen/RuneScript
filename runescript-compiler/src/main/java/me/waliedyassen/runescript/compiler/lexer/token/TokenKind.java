@@ -9,12 +9,17 @@ package me.waliedyassen.runescript.compiler.lexer.token;
 
 /**
  * Represents the token kind, which tells us what each token is, whether an identifier, or a number, or a string, or a
- * keywrod etc..
+ * keyword etc..
  * 
  * @author Walied K. Yassen
  */
 public enum TokenKind {
 
+	/**
+	 * The number token kind.
+	 */
+	NUMBER_LITERAL,
+	
 	/**
 	 * The string token kind.
 	 */

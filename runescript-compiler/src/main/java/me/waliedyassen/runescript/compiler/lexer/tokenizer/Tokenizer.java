@@ -66,14 +66,19 @@ public final class Tokenizer {
 		List<String> comment = null;
 		char current, next;
 		while (true) {
+			// mark the current position if we have no state yet.
+			if (state == State.NONE) {
+				mark();
+			}
+			// take the current and next characters from the stream.
 			current = stream.take();
 			next = stream.peek();
+			// parse the current character depending on the current state.
 			switch (state) {
 				case NONE:
 					if (Character.isWhitespace(current)) {
 						continue;
 					} else {
-						mark();
 						resetBuilder();
 						if (current == '\"') {
 							state = State.STRING_LITERAL;
@@ -84,6 +89,9 @@ public final class Tokenizer {
 							stream.take();
 							comment = new ArrayList<String>();
 							state = State.MULTI_COMMENT;
+						} else if (Character.isDigit(current)) {
+							builder.append(current);
+							state = State.NUMBER_LITERAL;
 						}
 					}
 					break;
@@ -121,6 +129,15 @@ public final class Tokenizer {
 						builder.append(current);
 					}
 					break;
+				case NUMBER_LITERAL:
+					if (Character.isDigit(current)) {
+						builder.append(current);
+						stream.mark();
+					} else {
+						stream.reset();
+						return new Token(TokenKind.NUMBER_LITERAL, range(), builder.toString());
+					}
+					break;
 				case LINE_COMMENT:
 					if (current == NULL || current == '\n') {
 						return new CommentToken(range(), Arrays.asList(trimComment(builder.toString(), false)));
@@ -144,7 +161,6 @@ public final class Tokenizer {
 						builder.append(current);
 					}
 					break;
-
 			}
 		}
 	}
@@ -239,6 +255,11 @@ public final class Tokenizer {
 		 * Indicates that the parser is currently parsing a string literal.
 		 */
 		STRING_LITERAL,
+
+		/**
+		 * Indicates that the parser is currently parsing a number literal.
+		 */
+		NUMBER_LITERAL,
 
 		/**
 		 * Indicates that the parser is currently parsing a line comment.

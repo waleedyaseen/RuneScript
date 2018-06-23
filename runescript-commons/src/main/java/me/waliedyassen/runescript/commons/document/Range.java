@@ -64,6 +64,15 @@ public final class Range {
 
 	/*
 	 * (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Range [start=" + start + ", end=" + end + "]";
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override

@@ -41,7 +41,7 @@ class TokenizerTest {
 		Tokenizer tokenizer = fromString("\"Escaped\\t\\\"Sample\"");
 		Token token = tokenizer.parse();
 		assertEquals(token.getKind(), TokenKind.STRING_LITERAL);
-		assertEquals("Basic\t\"Sample", token.getLexeme());
+		assertEquals("Escaped\t\"Sample", token.getLexeme());
 	}
 
 	@Test
@@ -71,6 +71,17 @@ class TokenizerTest {
 		assertEquals(comment.getLines().get(1), "Line without the star decoration.");
 		assertEquals(comment.getLines().get(2), "");
 
+	}
+
+	@Test
+	void testNumber() {
+		Tokenizer tokenizer = fromString("1234567 7654321  ");
+		Token token = tokenizer.parse();
+		assertEquals(token.getKind(), TokenKind.NUMBER_LITERAL);
+		assertEquals(token.getLexeme(), String.valueOf(1234567));
+		token = tokenizer.parse();
+		assertEquals(token.getKind(), TokenKind.NUMBER_LITERAL);
+		assertEquals(token.getLexeme(), String.valueOf(7654321));
 	}
 
 	private Tokenizer fromString(String text) {
