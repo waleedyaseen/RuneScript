@@ -50,6 +50,14 @@ public interface CharStream {
 	void reset();
 
 	/**
+	 * Rolls back the characters buffer pointer by the specified amount of characters.
+	 * 
+	 * @param count
+	 *              the amount of characters to roll back by.
+	 */
+	void rollback(int count);
+
+	/**
 	 * Checks whether or not this stream has oneor more character(s) available.
 	 * 
 	 * @return <code>true</code> if it has otherwise <code>false</code>.

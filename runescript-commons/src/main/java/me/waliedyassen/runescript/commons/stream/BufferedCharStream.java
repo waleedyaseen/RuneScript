@@ -141,12 +141,29 @@ public final class BufferedCharStream implements CharStream {
 	@Override
 	public void reset() {
 		if (pos == -1) {
-			throw new IllegalStateException("The stream has no marker currently!");
+			throw new IllegalStateException("The stream has no marker set");
 		}
 		pos = m_pos;
 		line = m_line;
 		column = m_column;
 		m_pos = m_line = m_column = -1;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see me.waliedyassen.runescript.commons.stream.CharStream#rollback(int)
+	 */
+	@Override
+	public void rollback(int count) {
+		while (count-- > 0) {
+			char ch = buffer[pos--];
+			// TODO: line position rolling back
+			if (ch == '\t') {
+				column -= tabSize - (column - 1) % tabSize;
+			} else {
+				column--;
+			}
+		}
 	}
 
 	/*

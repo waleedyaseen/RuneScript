@@ -32,8 +32,6 @@ public enum Kind {
 	 */
 	STRING,
 
-	// the keywords chunk.
-
 	/**
 	 * The boolean literal token kind.
 	 */
@@ -71,6 +69,23 @@ public enum Kind {
 	 */
 	RBRACE,
 
+	/**
+	 * The comma separator token kind.
+	 */
+	COMMA,
+
+	/**
+	 * The semicolon separator token kind.
+	 */
+	SEMICOLON,
+
+	/* the operators chunk */
+	
+	/**
+	 * The equal operator token kind.
+	 */
+	EQUAL,
+	
 	// the misc chunk.
 
 	/**

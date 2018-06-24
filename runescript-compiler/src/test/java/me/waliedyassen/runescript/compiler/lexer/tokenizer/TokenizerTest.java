@@ -117,6 +117,15 @@ class TokenizerTest {
 		}
 	}
 
+	@Test
+	void testOperatorsSimple() {
+		Tokenizer tokenizer = fromString("test = \"Hello\";");
+		assertEquals(tokenizer.parse().getKind(), Kind.IDENTIFIER);
+		assertEquals(tokenizer.parse().getKind(), Kind.EQUAL);
+		assertEquals(tokenizer.parse().getKind(), Kind.STRING);
+		assertEquals(tokenizer.parse().getKind(), Kind.SEMICOLON);
+	}
+
 	private Tokenizer fromString(String text) {
 		try (InputStream stream = new StringBufferInputStream(text)) {
 			Tokenizer tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));

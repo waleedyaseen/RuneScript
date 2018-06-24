@@ -34,7 +34,22 @@ public final class LexicalTable {
 	/**
 	 * The registered separators.
 	 */
-	private final Map<Character, Kind> seperators = new HashMap<Character, Kind>();
+	private final Map<Character, Kind> separators = new HashMap<Character, Kind>();
+
+	/**
+	 * The registered operators.
+	 */
+	private final Map<String, Kind> operators = new HashMap<String, Kind>();
+
+	/**
+	 * The operator max size.
+	 */
+	private int operatorSize;
+
+	/**
+	 * The operator starts.
+	 */
+	private String operatorStarts;
 
 	/**
 	 * Constructs a new {@link LexicalTable} type object instance.
@@ -62,6 +77,10 @@ public final class LexicalTable {
 		registerSeparator(']', Kind.RBRACKET);
 		registerSeparator('{', Kind.LBRACE);
 		registerSeparator('}', Kind.RBRACE);
+		registerSeparator(',', Kind.COMMA);
+		registerSeparator(';', Kind.SEMICOLON);
+		// the operators chunk.
+		registerOperator("=", Kind.EQUAL);
 	}
 
 	/**
@@ -118,10 +137,10 @@ public final class LexicalTable {
 	 */
 	public void registerSeparator(char character, Kind kind) {
 		Objects.requireNonNull(kind, "kind");
-		if (seperators.containsKey(character)) {
+		if (separators.containsKey(character)) {
 			throw new IllegalArgumentException("The specified separator was already registered.");
 		}
-		seperators.put(character, kind);
+		separators.put(character, kind);
 	}
 
 	/**
@@ -132,7 +151,7 @@ public final class LexicalTable {
 	 * @return the {@link Kind} of the separator if it was present otherwise {@code null}.
 	 */
 	public Kind lookupSeparator(char character) {
-		return seperators.get(character);
+		return separators.get(character);
 	}
 
 	/**
@@ -143,6 +162,79 @@ public final class LexicalTable {
 	 * @return <code>true</code> if the specified <code>character</code> is a separator otherwise {@code null}.
 	 */
 	public boolean isSeparator(char character) {
-		return seperators.containsKey(character);
+		return separators.containsKey(character);
 	}
+
+	/**
+	 * Registers a new operator into the table.
+	 * 
+	 * @param character
+	 *                  the operator sequence.
+	 * @param kind
+	 *                  the operator token kind.
+	 * @throws IllegalArgumentException
+	 *                                  if the operator was already registered.
+	 */
+	public void registerOperator(String sequence, Kind kind) {
+		Objects.requireNonNull(sequence, "sequence");
+		Objects.requireNonNull(kind, "kind");
+		if (sequence.length() < 1) {
+			throw new IllegalArgumentException("The operator size must be greater than zero!");
+		}
+		if (operators.containsKey(sequence)) {
+			throw new IllegalArgumentException("The specifie operator was already registered.");
+		}
+		operators.put(sequence, kind);
+		operatorStarts += sequence.charAt(0);
+		if (sequence.length() > operatorSize) {
+			operatorSize = sequence.length();
+		}
+	}
+
+	/**
+	 * Looks-up the operator token {@link Kind} for the specified operator sequence.
+	 * 
+	 * @param sequence
+	 *                 the operator sequence.
+	 * @return the {@link Kind} of the operator if it was present otherwise {@code null}.
+	 */
+	public Kind lookupOperator(String sequence) {
+		return operators.get(sequence);
+	}
+
+	/**
+	 * Checks whether or not the specified {@code sequence} is registered as a operator.
+	 * 
+	 * @param sequence
+	 *                 the word to check if it is whether a operator or not
+	 * @return <code>true</code> if the specified <code>sequence</code> is a operator otherwise {@code null}.
+	 */
+	public boolean isOperator(String sequence) {
+		return operators.containsKey(sequence);
+	}
+
+	/**
+	 * Checks whether the specified character is a start of an operator character or not.
+	 * 
+	 * @param character
+	 *                  the character value to check.
+	 * @return <code>true</code> if it was otherwise <code>false</code>.
+	 */
+	public boolean isOperatorStart(char character) {
+		if (operatorStarts == null) {
+			// no operators were registered.
+			return false;
+		}
+		return operatorStarts.indexOf(character) != -1;
+	}
+
+	/**
+	 * Gets the maximum operator size.
+	 * 
+	 * @return the maximum operator size.
+	 */
+	public int getOperatorSize() {
+		return operatorSize;
+	}
+
 }

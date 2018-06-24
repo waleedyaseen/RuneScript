@@ -106,6 +106,25 @@ public final class Tokenizer {
 							state = State.MULTI_COMMENT;
 						} else if (table.isSeparator(current)) {
 							return new Token(table.lookupSeparator(current), range(), Character.toString(current));
+						} else {
+							if (table.isOperatorStart(current)) {
+								builder.append(current);
+								for (int index = 1; index < table.getOperatorSize(); index++) {
+									if (!stream.hasRemaining()) {
+										break;
+									}
+									builder.append(stream.take());
+								}
+								while (builder.length() > 0) {
+									String sequence = builder.toString();
+									if (table.isOperator(sequence)) {
+										return new Token(table.lookupOperator(sequence), range(), sequence);
+									}
+									builder.setLength(builder.length() - 1);
+									stream.rollback(1);
+								}
+							}
+							throwError("Unexpected character: " + current);
 						}
 					}
 					break;
