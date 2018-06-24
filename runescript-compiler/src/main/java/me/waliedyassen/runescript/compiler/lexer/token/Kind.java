@@ -13,7 +13,7 @@ package me.waliedyassen.runescript.compiler.lexer.token;
  * 
  * @author Walied K. Yassen
  */
-public enum TokenKind {
+public enum Kind {
 
 	/**
 	 * The identifier token kind.
@@ -23,17 +23,17 @@ public enum TokenKind {
 	/**
 	 * The boolean token kind.
 	 */
-	BOOL_LITERAL,
+	BOOL,
 
 	/**
 	 * The number token kind.
 	 */
-	NUMBER_LITERAL,
+	NUMBER,
 
 	/**
 	 * The string token kind.
 	 */
-	STRING_LITERAL,
+	STRING,
 
 	/**
 	 * The comment token kind.

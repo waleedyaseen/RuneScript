@@ -21,7 +21,7 @@ public class Token {
 	/**
 	 * The token kind.
 	 */
-	private final TokenKind kind;
+	private final Kind kind;
 
 	/**
 	 * The token source code range.
@@ -43,7 +43,7 @@ public class Token {
 	 * @param lexeme
 	 *               the token lexeme value
 	 */
-	public Token(TokenKind kind, Range range, String lexeme) {
+	public Token(Kind kind, Range range, String lexeme) {
 		this.kind = kind;
 		this.range = range;
 		this.lexeme = lexeme;
@@ -57,7 +57,7 @@ public class Token {
 	 * @param range
 	 *              the token source code range.
 	 */
-	public Token(TokenKind kind, Range range) {
+	public Token(Kind kind, Range range) {
 		this(kind, range, null);
 	}
 
@@ -75,7 +75,7 @@ public class Token {
 	 * 
 	 * @return the token kind.
 	 */
-	public TokenKind getKind() {
+	public Kind getKind() {
 		return kind;
 	}
 

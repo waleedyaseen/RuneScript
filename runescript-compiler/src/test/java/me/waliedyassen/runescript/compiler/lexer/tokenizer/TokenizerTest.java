@@ -20,7 +20,7 @@ import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.CommentToken;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
-import me.waliedyassen.runescript.compiler.lexer.token.TokenKind;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 
 /**
  * Holds all of the test cases for {@link Tokenizer} type.
@@ -33,7 +33,7 @@ class TokenizerTest {
 	void testStringLiteralUnescaped() {
 		Tokenizer tokenizer = fromString("\"Basic Sample\"");
 		Token token = tokenizer.parse();
-		assertEquals(token.getKind(), TokenKind.STRING_LITERAL);
+		assertEquals(token.getKind(), Kind.STRING);
 		assertEquals("Basic Sample", token.getLexeme());
 	}
 
@@ -41,7 +41,7 @@ class TokenizerTest {
 	void testStringLiteralEscaped() {
 		Tokenizer tokenizer = fromString("\"Escaped\\t\\\"Sample\"");
 		Token token = tokenizer.parse();
-		assertEquals(token.getKind(), TokenKind.STRING_LITERAL);
+		assertEquals(token.getKind(), Kind.STRING);
 		assertEquals("Escaped\t\"Sample", token.getLexeme());
 	}
 
@@ -49,9 +49,9 @@ class TokenizerTest {
 	void testLineComment() {
 		Tokenizer tokenizer = fromString("\"Test\"// I am a comment");
 		Token token = tokenizer.parse();
-		assertEquals(token.getKind(), TokenKind.STRING_LITERAL);
+		assertEquals(token.getKind(), Kind.STRING);
 		token = tokenizer.parse();
-		assertEquals(token.getKind(), TokenKind.COMMENT);
+		assertEquals(token.getKind(), Kind.COMMENT);
 		assertEquals(((CommentToken) token).getLines().get(0), "I am a comment");
 	}
 
@@ -65,7 +65,7 @@ class TokenizerTest {
 										"		 */");
 		//@formatter:on
 		Token token = tokenizer.parse();
-		assertEquals(token.getKind(), TokenKind.COMMENT);
+		assertEquals(token.getKind(), Kind.COMMENT);
 		CommentToken comment = (CommentToken) token;
 		assertTrue(comment.getLines().size() == 3);
 		assertEquals(comment.getLines().get(0), "Line with the star decoration.");
@@ -78,10 +78,10 @@ class TokenizerTest {
 	void testNumber() {
 		Tokenizer tokenizer = fromString("1234567 7654321  ");
 		Token token = tokenizer.parse();
-		assertEquals(token.getKind(), TokenKind.NUMBER_LITERAL);
+		assertEquals(token.getKind(), Kind.NUMBER);
 		assertEquals(token.getLexeme(), String.valueOf(1234567));
 		token = tokenizer.parse();
-		assertEquals(token.getKind(), TokenKind.NUMBER_LITERAL);
+		assertEquals(token.getKind(), Kind.NUMBER);
 		assertEquals(token.getLexeme(), String.valueOf(7654321));
 	}
 
@@ -89,10 +89,10 @@ class TokenizerTest {
 	void testIdentifier() {
 		Tokenizer tokenizer = fromString("654321myIdentifier");
 		Token token = tokenizer.parse();
-		assertEquals(token.getKind(), TokenKind.NUMBER_LITERAL);
+		assertEquals(token.getKind(), Kind.NUMBER);
 		assertEquals(token.getLexeme(), String.valueOf(654321));
 		token = tokenizer.parse();
-		assertEquals(token.getKind(), TokenKind.IDENTIFIER);
+		assertEquals(token.getKind(), Kind.IDENTIFIER);
 		assertEquals(token.getLexeme(), "myIdentifier");
 	}
 
@@ -100,10 +100,10 @@ class TokenizerTest {
 	void testKeywords() {
 		Tokenizer tokenizer = fromString("true\tfalse");
 		Token trueToken = tokenizer.parse();
-		assertEquals(trueToken.getKind(), TokenKind.BOOL_LITERAL);
+		assertEquals(trueToken.getKind(), Kind.BOOL);
 		assertEquals(trueToken.getLexeme(), "true");
 		Token falseToken = tokenizer.parse();
-		assertEquals(falseToken.getKind(), TokenKind.BOOL_LITERAL);
+		assertEquals(falseToken.getKind(), Kind.BOOL);
 		assertEquals(falseToken.getLexeme(), "false");
 	}
 

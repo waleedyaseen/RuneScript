@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import me.waliedyassen.runescript.compiler.lexer.token.TokenKind;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 
 /**
  * Represents the symbol table for the lexical phase of the compilation process, it holds all the symbols that we need
@@ -29,7 +29,7 @@ public final class LexicalTable {
 	/**
 	 * The registered keywords.
 	 */
-	private final Map<String, TokenKind> keywords = new HashMap<String, TokenKind>();
+	private final Map<String, Kind> keywords = new HashMap<String, Kind>();
 
 	/**
 	 * Constructs a new {@link LexicalTable} type object instance.
@@ -47,8 +47,8 @@ public final class LexicalTable {
 	 * Initialises the default lexical table content.
 	 */
 	private void initialiseDefault() {
-		registerKeyword("true", TokenKind.BOOL_LITERAL);
-		registerKeyword("false", TokenKind.BOOL_LITERAL);
+		registerKeyword("true", Kind.BOOL);
+		registerKeyword("false", Kind.BOOL);
 	}
 
 	/**
@@ -61,7 +61,7 @@ public final class LexicalTable {
 	 * @throws IllegalArgumentException
 	 *                                  if the keyword was already registered.
 	 */
-	public void registerKeyword(String word, TokenKind kind) {
+	public void registerKeyword(String word, Kind kind) {
 		Objects.requireNonNull(word, "word");
 		Objects.requireNonNull(kind, "kind");
 		word = word.toLowerCase();
@@ -72,13 +72,13 @@ public final class LexicalTable {
 	}
 
 	/**
-	 * Looks-up the {@link TokenKind} for the specified keyword.
+	 * Looks-up the {@link Kind} for the specified keyword.
 	 * 
 	 * @param word
 	 *             the keyword text.
-	 * @return the {@link TokenKind}.
+	 * @return the {@link Kind}.
 	 */
-	public TokenKind lookupKeyword(String word) {
+	public Kind lookupKeyword(String word) {
 		return keywords.get(word);
 	}
 

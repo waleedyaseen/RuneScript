@@ -33,7 +33,7 @@ public final class CommentToken extends Token {
 	 *              the comment content lines list.
 	 */
 	public CommentToken(Range range, List<String> lines) {
-		super(TokenKind.COMMENT, range);
+		super(Kind.COMMENT, range);
 		this.lines = Collections.unmodifiableList(lines);
 	}
 
