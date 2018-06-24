@@ -89,7 +89,9 @@ public final class Tokenizer {
 						continue;
 					} else {
 						resetBuilder();
-						if (isIdentifierStart(current)) {
+						if (current == NULL) {
+							return new Token(Kind.EOF, range());
+						} else if (isIdentifierStart(current)) {
 							builder.append(current);
 							state = State.IDENTIFIER;
 						} else if (current == '\"') {
@@ -110,7 +112,8 @@ public final class Tokenizer {
 							if (table.isOperatorStart(current)) {
 								builder.append(current);
 								for (int index = 1; index < table.getOperatorSize(); index++) {
-									if (!stream.hasRemaining()) {
+									// TODO: update the behaviour of peek() to skip the CR character, the same thing take() does.
+									if (!stream.hasRemaining() || stream.peek() == '\r' && stream.peek() == '\n') {
 										break;
 									}
 									builder.append(stream.take());
@@ -175,11 +178,9 @@ public final class Tokenizer {
 				case NUMBER_LITERAL:
 					if (Character.isDigit(current)) {
 						builder.append(current);
-						// mark the last characters position, in-case the next character was invalid.
-						stream.mark();
 					} else {
-						// the character is invalid, reset to the last marked position.
-						stream.reset();
+						// mark and reset are insufficient in this case.
+						stream.rollback(1);
 						return new Token(Kind.NUMBER, range(), builder.toString());
 					}
 					break;
@@ -195,6 +196,7 @@ public final class Tokenizer {
 						throwError("Unexpected end of comment");
 					} else if (current == '\n') {
 						String line = trimComment(builder.toString(), true);
+						// Ignores the header line if it was empty.
 						if (comment.size() != 0 || line.length() != 0) {
 							comment.add(line);
 						}

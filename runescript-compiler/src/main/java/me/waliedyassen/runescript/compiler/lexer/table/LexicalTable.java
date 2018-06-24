@@ -70,6 +70,10 @@ public final class LexicalTable {
 		// the keywords chunk.
 		registerKeyword("true", Kind.BOOL);
 		registerKeyword("false", Kind.BOOL);
+		registerKeyword("if", Kind.IF);
+		registerKeyword("else", Kind.ELSE);
+		registerKeyword("while", Kind.ELSE);
+		registerKeyword("return", Kind.RETURN);
 		// the separators chunk.
 		registerSeparator('(', Kind.LPAREN);
 		registerSeparator(')', Kind.RPAREN);
@@ -78,9 +82,16 @@ public final class LexicalTable {
 		registerSeparator('{', Kind.LBRACE);
 		registerSeparator('}', Kind.RBRACE);
 		registerSeparator(',', Kind.COMMA);
+		registerSeparator('$', Kind.DOLLAR);
 		registerSeparator(';', Kind.SEMICOLON);
 		// the operators chunk.
-		registerOperator("=", Kind.EQUAL);
+		registerOperator("=", Kind.EQUALS);
+		registerOperator("!", Kind.NOT_EQUALS);
+		registerOperator("<", Kind.LESS_THAN);
+		registerOperator(">", Kind.GREATER_THAN);
+		registerOperator("<=", Kind.LESS_THAN_OR_EQUAL);
+		registerOperator(">=", Kind.GREATER_THAN_OR_EQUAL);
+
 	}
 
 	/**

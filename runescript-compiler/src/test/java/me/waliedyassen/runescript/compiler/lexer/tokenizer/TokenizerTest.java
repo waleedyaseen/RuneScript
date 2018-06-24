@@ -121,9 +121,21 @@ class TokenizerTest {
 	void testOperatorsSimple() {
 		Tokenizer tokenizer = fromString("test = \"Hello\";");
 		assertEquals(tokenizer.parse().getKind(), Kind.IDENTIFIER);
-		assertEquals(tokenizer.parse().getKind(), Kind.EQUAL);
+		assertEquals(tokenizer.parse().getKind(), Kind.EQUALS);
 		assertEquals(tokenizer.parse().getKind(), Kind.STRING);
 		assertEquals(tokenizer.parse().getKind(), Kind.SEMICOLON);
+	}
+
+	@Test
+	void testDemo1() {
+		// make sure the source code is parsable.
+		Tokenizer tokenizer = fromResource("demo1.rs2");
+		while (true) {
+			Token token = tokenizer.parse();
+			if (token.getKind() == Kind.EOF) {
+				break;
+			}
+		}
 	}
 
 	private Tokenizer fromString(String text) {

@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.lexer;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 
@@ -40,7 +41,7 @@ public final class Lexer {
 	public Lexer(Tokenizer tokenizer) {
 		do {
 			Token token = tokenizer.parse();
-			if (token == null) {
+			if (token == null || token.getKind() == Kind.EOF) {
 				break;
 			}
 			tokens.add(token);
