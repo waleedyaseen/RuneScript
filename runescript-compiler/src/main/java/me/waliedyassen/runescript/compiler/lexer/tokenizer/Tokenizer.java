@@ -17,6 +17,7 @@ import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
+import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.CommentToken;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.token.TokenKind;
@@ -29,6 +30,11 @@ import me.waliedyassen.runescript.compiler.lexer.token.TokenKind;
 public final class Tokenizer {
 
 	// Note: using the ECJ/JavaC tools error messages for now.
+
+	/**
+	 * The lexical symbol table.
+	 */
+	private final LexicalTable table;
 
 	/**
 	 * The characters input stream.
@@ -48,10 +54,13 @@ public final class Tokenizer {
 	/**
 	 * Constructs a new {@link Tokenizer} type object instance.
 	 * 
+	 * @param table
+	 *               the lexical symbol table.
 	 * @param stream
 	 *               the source code input characters stream.
 	 */
-	public Tokenizer(CharStream stream) {
+	public Tokenizer(LexicalTable table, CharStream stream) {
+		this.table = table;
 		this.stream = stream;
 		builder = new StringBuilder();
 	}
@@ -104,7 +113,8 @@ public final class Tokenizer {
 						stream.mark();
 					} else {
 						stream.reset();
-						return new Token(TokenKind.IDENTIFIER, range(), builder.toString());
+						String word = builder.toString();
+						return new Token(table.isKeyword(word) ? table.lookupKeyword(word) : TokenKind.IDENTIFIER, range(), builder.toString());
 					}
 					break;
 				case STRING_LITERAL:

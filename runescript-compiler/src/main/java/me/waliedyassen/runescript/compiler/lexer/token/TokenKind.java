@@ -19,12 +19,17 @@ public enum TokenKind {
 	 * The identifier token kind.
 	 */
 	IDENTIFIER,
-	
+
+	/**
+	 * The boolean token kind.
+	 */
+	BOOL_LITERAL,
+
 	/**
 	 * The number token kind.
 	 */
 	NUMBER_LITERAL,
-	
+
 	/**
 	 * The string token kind.
 	 */

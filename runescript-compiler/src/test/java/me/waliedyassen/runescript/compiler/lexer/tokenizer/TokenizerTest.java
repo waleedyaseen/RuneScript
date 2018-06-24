@@ -17,6 +17,7 @@ import java.io.StringBufferInputStream;
 import org.junit.jupiter.api.Test;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.CommentToken;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.token.TokenKind;
@@ -29,7 +30,7 @@ import me.waliedyassen.runescript.compiler.lexer.token.TokenKind;
 class TokenizerTest {
 
 	@Test
-	void testBasicStringLiteral() {
+	void testStringLiteralUnescaped() {
 		Tokenizer tokenizer = fromString("\"Basic Sample\"");
 		Token token = tokenizer.parse();
 		assertEquals(token.getKind(), TokenKind.STRING_LITERAL);
@@ -37,7 +38,7 @@ class TokenizerTest {
 	}
 
 	@Test
-	void testEscapedStringLiteral() {
+	void testStringLiteralEscaped() {
 		Tokenizer tokenizer = fromString("\"Escaped\\t\\\"Sample\"");
 		Token token = tokenizer.parse();
 		assertEquals(token.getKind(), TokenKind.STRING_LITERAL);
@@ -93,11 +94,22 @@ class TokenizerTest {
 		token = tokenizer.parse();
 		assertEquals(token.getKind(), TokenKind.IDENTIFIER);
 		assertEquals(token.getLexeme(), "myIdentifier");
-		
 	}
+
+	@Test
+	void testKeywords() {
+		Tokenizer tokenizer = fromString("true\tfalse");
+		Token trueToken = tokenizer.parse();
+		assertEquals(trueToken.getKind(), TokenKind.BOOL_LITERAL);
+		assertEquals(trueToken.getLexeme(), "true");
+		Token falseToken = tokenizer.parse();
+		assertEquals(falseToken.getKind(), TokenKind.BOOL_LITERAL);
+		assertEquals(falseToken.getLexeme(), "false");
+	}
+
 	private Tokenizer fromString(String text) {
 		try (InputStream stream = new StringBufferInputStream(text)) {
-			Tokenizer tokenizer = new Tokenizer(new BufferedCharStream(stream));
+			Tokenizer tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
 			return tokenizer;
 		} catch (IOException e) {
 			// won't happen anyways
@@ -108,7 +120,7 @@ class TokenizerTest {
 
 	private static Tokenizer fromResource(String name) {
 		try (InputStream stream = ClassLoader.getSystemResourceAsStream(name)) {
-			Tokenizer tokenizer = new Tokenizer(new BufferedCharStream(stream));
+			Tokenizer tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
 			return tokenizer;
 		} catch (IOException e) {
 			e.printStackTrace();
