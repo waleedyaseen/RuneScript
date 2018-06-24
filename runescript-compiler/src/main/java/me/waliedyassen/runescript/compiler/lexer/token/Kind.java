@@ -59,6 +59,16 @@ public enum Kind {
 	 */
 	RETURN,
 
+	/**
+	 * The type keywords token kind.
+	 */
+	TYPE,
+
+	/**
+	 * The type define keywords token kind.
+	 */
+	DEFINE,
+
 	// the separators chunk.
 
 	/**
@@ -100,7 +110,7 @@ public enum Kind {
 	 * The dollar separator token kind.
 	 */
 	DOLLAR,
-	
+
 	/**
 	 * The semicolon separator token kind.
 	 */

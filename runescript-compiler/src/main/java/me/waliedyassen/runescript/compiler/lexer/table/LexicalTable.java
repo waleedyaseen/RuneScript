@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.type.PrimitiveType;
 
 /**
  * Represents the symbol table for the lexical phase of the compilation process, it holds all the symbols that we need
@@ -74,6 +75,10 @@ public final class LexicalTable {
 		registerKeyword("else", Kind.ELSE);
 		registerKeyword("while", Kind.ELSE);
 		registerKeyword("return", Kind.RETURN);
+		for (PrimitiveType type : PrimitiveType.values()) {
+			registerKeyword(type.getName(), Kind.TYPE);
+			registerKeyword("def_" + type.getName(), Kind.DEFINE);
+		}
 		// the separators chunk.
 		registerSeparator('(', Kind.LPAREN);
 		registerSeparator(')', Kind.RPAREN);
