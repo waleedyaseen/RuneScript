@@ -142,7 +142,7 @@ public final class Tokenizer {
 					}
 					break;
 				case STRING_LITERAL:
-					if (current == NULL) {
+					if (current == NULL || current == '\n') {
 						throwError("String literal is not properly closed by a double-quote");
 					} else if (current == '\\') {
 						stream.take();
