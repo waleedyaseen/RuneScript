@@ -19,8 +19,8 @@ import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.CommentToken;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
-import me.waliedyassen.runescript.compiler.lexer.token.TokenKind;
 
 /**
  * Represents the tokenizer tool, takes {@link CharStream} object then turns it's content into {@link Token} objects.
@@ -104,6 +104,8 @@ public final class Tokenizer {
 							stream.take();
 							comment = new ArrayList<String>();
 							state = State.MULTI_COMMENT;
+						} else if (table.isSeparator(current)) {
+							return new Token(table.lookupSeparator(current), range(), Character.toString(current));
 						}
 					}
 					break;
@@ -114,7 +116,7 @@ public final class Tokenizer {
 					} else {
 						stream.reset();
 						String word = builder.toString();
-						return new Token(table.isKeyword(word) ? table.lookupKeyword(word) : TokenKind.IDENTIFIER, range(), builder.toString());
+						return new Token(table.isKeyword(word) ? table.lookupKeyword(word) : Kind.IDENTIFIER, range(), builder.toString());
 					}
 					break;
 				case STRING_LITERAL:
@@ -146,7 +148,7 @@ public final class Tokenizer {
 								break;
 						}
 					} else if (current == '\"') {
-						return new Token(TokenKind.STRING_LITERAL, range(), builder.toString());
+						return new Token(Kind.STRING, range(), builder.toString());
 					} else {
 						builder.append(current);
 					}
@@ -159,7 +161,7 @@ public final class Tokenizer {
 					} else {
 						// the character is invalid, reset to the last marked position.
 						stream.reset();
-						return new Token(TokenKind.NUMBER_LITERAL, range(), builder.toString());
+						return new Token(Kind.NUMBER, range(), builder.toString());
 					}
 					break;
 				case LINE_COMMENT:

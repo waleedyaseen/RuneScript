@@ -15,25 +15,63 @@ package me.waliedyassen.runescript.compiler.lexer.token;
  */
 public enum Kind {
 
+	// the core chunk.
+
 	/**
 	 * The identifier token kind.
 	 */
 	IDENTIFIER,
 
 	/**
-	 * The boolean token kind.
-	 */
-	BOOL,
-
-	/**
-	 * The number token kind.
+	 * The number literal token kind.
 	 */
 	NUMBER,
 
 	/**
-	 * The string token kind.
+	 * The string literal token kind.
 	 */
 	STRING,
+
+	// the keywords chunk.
+
+	/**
+	 * The boolean literal token kind.
+	 */
+	BOOL,
+
+	// the separators chunk,
+
+	/**
+	 * The left parenthesis separator token kind.
+	 */
+	LPAREN,
+
+	/**
+	 * The right parenthesis separator token kind.
+	 */
+	RPAREN,
+
+	/**
+	 * The left bracket separator token kind.
+	 */
+	LBRACKET,
+
+	/**
+	 * The right bracket separator token kind.
+	 */
+	RBRACKET,
+
+	/**
+	 * The left brace separator token kind.
+	 */
+	LBRACE,
+
+	/**
+	 * The right brace separator token kind.
+	 */
+	RBRACE,
+
+	// the misc chunk.
 
 	/**
 	 * The comment token kind.

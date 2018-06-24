@@ -32,6 +32,11 @@ public final class LexicalTable {
 	private final Map<String, Kind> keywords = new HashMap<String, Kind>();
 
 	/**
+	 * The registered separators.
+	 */
+	private final Map<Character, Kind> seperators = new HashMap<Character, Kind>();
+
+	/**
 	 * Constructs a new {@link LexicalTable} type object instance.
 	 * 
 	 * @param defaultTable
@@ -47,8 +52,16 @@ public final class LexicalTable {
 	 * Initialises the default lexical table content.
 	 */
 	private void initialiseDefault() {
+		// the keywords chunk.
 		registerKeyword("true", Kind.BOOL);
 		registerKeyword("false", Kind.BOOL);
+		// the separators chunk.
+		registerSeparator('(', Kind.LPAREN);
+		registerSeparator(')', Kind.RPAREN);
+		registerSeparator('[', Kind.LBRACKET);
+		registerSeparator(']', Kind.RBRACKET);
+		registerSeparator('{', Kind.LBRACE);
+		registerSeparator('}', Kind.RBRACE);
 	}
 
 	/**
@@ -76,7 +89,7 @@ public final class LexicalTable {
 	 * 
 	 * @param word
 	 *             the keyword text.
-	 * @return the {@link Kind}.
+	 * @return the {@link Kind} of the keyword if it was present otherwise {@code null}.
 	 */
 	public Kind lookupKeyword(String word) {
 		return keywords.get(word);
@@ -91,5 +104,45 @@ public final class LexicalTable {
 	 */
 	public boolean isKeyword(String word) {
 		return keywords.containsKey(word);
+	}
+
+	/**
+	 * Registers a new separator into the table.
+	 * 
+	 * @param character
+	 *                  the separator character.
+	 * @param kind
+	 *                  the separator token kind.
+	 * @throws IllegalArgumentException
+	 *                                  if the separator was already registered.
+	 */
+	public void registerSeparator(char character, Kind kind) {
+		Objects.requireNonNull(kind, "kind");
+		if (seperators.containsKey(character)) {
+			throw new IllegalArgumentException("The specified separator was already registered.");
+		}
+		seperators.put(character, kind);
+	}
+
+	/**
+	 * Looks-up the separator token {@link Kind} for the specified separator character.
+	 * 
+	 * @param character
+	 *                  the separator character.
+	 * @return the {@link Kind} of the separator if it was present otherwise {@code null}.
+	 */
+	public Kind lookupSeparator(char character) {
+		return seperators.get(character);
+	}
+
+	/**
+	 * Checks whether or not the specified {@code character} is registered as a separator.
+	 * 
+	 * @param character
+	 *                  the word to check if it is whether a separator or not
+	 * @return <code>true</code> if the specified <code>character</code> is a separator otherwise {@code null}.
+	 */
+	public boolean isSeparator(char character) {
+		return seperators.containsKey(character);
 	}
 }

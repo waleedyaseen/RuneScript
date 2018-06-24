@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.CommentToken;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
 /**
  * Holds all of the test cases for {@link Tokenizer} type.
@@ -105,6 +105,16 @@ class TokenizerTest {
 		Token falseToken = tokenizer.parse();
 		assertEquals(falseToken.getKind(), Kind.BOOL);
 		assertEquals(falseToken.getLexeme(), "false");
+	}
+
+	@Test
+	void testSeparators() {
+		Tokenizer tokenizer = fromString("[label] { }");
+		Kind[] expected = { Kind.LBRACKET, Kind.IDENTIFIER, Kind.RBRACKET, Kind.LBRACE, Kind.RBRACE };
+		for (Kind kind : expected) {
+			Token token = tokenizer.parse();
+			assertEquals(token.getKind(), kind);
+		}
 	}
 
 	private Tokenizer fromString(String text) {
