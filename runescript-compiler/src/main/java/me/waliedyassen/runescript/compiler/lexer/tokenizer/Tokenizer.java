@@ -179,8 +179,11 @@ public final class Tokenizer {
 					if (Character.isDigit(current)) {
 						builder.append(current);
 					} else {
-						// mark and reset are insufficient in this case.
-						stream.rollback(1);
+						if (current == 'L' || current == 'l') {
+							builder.append(current);
+						} else {
+							stream.rollback(1);
+						}
 						return new Token(Kind.NUMBER, range(), builder.toString());
 					}
 					break;
