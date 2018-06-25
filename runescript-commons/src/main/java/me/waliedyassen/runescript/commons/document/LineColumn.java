@@ -15,6 +15,16 @@ package me.waliedyassen.runescript.commons.document;
 public final class LineColumn {
 
 	/**
+	 * The {@link LineColumn} object with the minimum position.
+	 */
+	public static final LineColumn MIN = new LineColumn(0, 0);
+
+	/**
+	 * The {@link LineColumn} object with the maximum position.
+	 */
+	public static final LineColumn MAX = new LineColumn(Short.MAX_VALUE, Short.MAX_VALUE);
+	
+	/**
 	 * The line number within the document.
 	 */
 	private final int line;
@@ -114,6 +124,15 @@ public final class LineColumn {
 			return false;
 		}
 		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public LineColumn clone() {
+		return new LineColumn(line, column);
 	}
 
 	/**

@@ -26,6 +26,13 @@ public final class Range {
 
 	/**
 	 * Constructs a new {@link Range} type object instance.
+	 */
+	public Range() {
+		this(LineColumn.MAX, LineColumn.MIN);
+	}
+
+	/**
+	 * Constructs a new {@link Range} type object instance.
 	 * 
 	 * @param start
 	 *              the start position.
@@ -49,6 +56,17 @@ public final class Range {
 		} else if (position.isGreaterThan(end)) {
 			end = position;
 		}
+	}
+
+	/**
+	 * Updates this position {@link Range} to include the specified {@linkplain Range range}.
+	 * 
+	 * @param range
+	 *              the range which we wil update this {@link Range} object to include.
+	 */
+	public void add(Range range) {
+		add(range.getStart());
+		add(range.getEnd());
 	}
 
 	/**
@@ -115,6 +133,15 @@ public final class Range {
 			return false;
 		}
 		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Range clone() {
+		return new Range(start.clone(), end.clone());
 	}
 
 	/**
