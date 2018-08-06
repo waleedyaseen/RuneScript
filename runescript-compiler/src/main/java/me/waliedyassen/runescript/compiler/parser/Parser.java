@@ -7,10 +7,12 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IDENTIFIER;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.STRING;
 
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
+import me.waliedyassen.runescript.compiler.ast.literal.AstString;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
@@ -39,7 +41,17 @@ public final class Parser {
 	}
 
 	/**
-	 * Attempts to match the next list of tokens to an {@link AstIdentifier} object..
+	 * Attempts to match the next token to an {@link AstString} object.
+	 * 
+	 * @return the parsed {@link AstString} object.
+	 */
+	public AstString string() {
+		Token token = expect(STRING);
+		return new AstString(makeRange(token), token.getLexeme());
+	}
+
+	/**
+	 * Attempts to match the next list of tokens to an {@link AstIdentifier} object.
 	 * 
 	 * @return the parsed {@link AstIdentifier} object.
 	 */
