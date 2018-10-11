@@ -31,38 +31,31 @@ final class ParserTest {
 
 	@Test
 	public void testIntParsing() {
-		assertAll("int parsing",
-		() -> {
+		assertAll("int parsing", () -> {
 			// non-signed integer.
 			assertEquals(fromString("881251628").integerNumber().getValue(), 881251628);
-		},
-		() -> {
+		}, () -> {
 			// negative signed integer.
 			assertEquals(fromString("-1040462968").integerNumber().getValue(), -1040462968);
-		},
-		() -> {
+		}, () -> {
 			// positive signed integer.
 			assertEquals(fromString("1035471165").integerNumber().getValue(), 1035471165);
-		}
-		);
+		});
 	}
-	
+
 	@Test
 	public void testIntRange() {
-		assertAll("int range", 
-		() -> {
+		assertAll("int range", () -> {
 			// integer underflow
 			SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("-2147483649").integerNumber());
 			assertNotNull(error);
 			assertEquals(error.getToken().getKind(), Kind.INTEGER);
-		},
-		() -> {
+		}, () -> {
 			// integer overflow
 			SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("2147483648").integerNumber());
 			assertNotNull(error);
 			assertEquals(error.getToken().getKind(), Kind.INTEGER);
-		},
-		()->{
+		}, () -> {
 			// within range
 			assertEquals(fromString("1785498889").integerNumber().getValue(), 1785498889);
 		});
@@ -70,51 +63,51 @@ final class ParserTest {
 
 	@Test
 	public void testLongParsing() {
-		assertAll("long parsing",
-		() -> {
+		assertAll("long parsing", () -> {
 			// lower case long identifier
 			assertEquals(fromString("4327430278518173700l").longNumber().getValue(), 4327430278518173700l);
-		},
-		() -> {
+		}, () -> {
 			// upper case long identifier
 			assertEquals(fromString("5837188049693458000L").longNumber().getValue(), 5837188049693458000L);
-		},
-		() -> {
+		}, () -> {
 			// non-signed long.
 			assertEquals(fromString("6883184492006257000L").longNumber().getValue(), 6883184492006257000L);
-		},
-		() -> {
+		}, () -> {
 			// negative signed long.
 			assertEquals(fromString("-7226522914666815000L").longNumber().getValue(), -7226522914666815000L);
-		},
-		() -> {
+		}, () -> {
 			// positive signed long.
 			assertEquals(fromString("+4809541778570648000L").longNumber().getValue(), +4809541778570648000L);
-		}
-		);
+		});
 	}
-	
+
 	@Test
 	public void testLongRange() {
-		assertAll("long range", 
-		() -> {
+		assertAll("long range", () -> {
 			// long underflow
 			SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("-9223372036854775809L").longNumber());
 			assertNotNull(error);
 			assertEquals(error.getToken().getKind(), Kind.LONG);
-		},
-		() -> {
+		}, () -> {
 			// long overflow
 			SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("9223372036854775808L").longNumber());
 			assertNotNull(error);
 			assertEquals(error.getToken().getKind(), Kind.LONG);
-		},
-		()->{
+		}, () -> {
 			// within range
 			assertEquals(fromString("8490600559331033000L").longNumber().getValue(), 8490600559331033000L);
 		});
 	}
 
+	@Test
+	public void testString() {
+		assertEquals(fromString("\"my test string\"").string().getValue(), "my test string");
+	}
+
+	@Test
+	public void testIdentifier() {
+		assertEquals(fromString("testKeyword").identifier().getText(), "testKeyword");
+	}
 
 	private static Parser fromString(String text) {
 		try (InputStream stream = new StringBufferInputStream(text)) {

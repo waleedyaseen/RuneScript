@@ -60,10 +60,10 @@ public final class BufferedCharStream implements CharStream {
 	 * Constructs a new {@link BufferedCharStream} type object instance.
 	 * 
 	 * @param stream
-	 *                   the source code input stream.
+	 *               the source code input stream.
 	 * @throws IOException
-	 *                         if anything occurs while reading the data from the
-	 *                         specified {@link InputStream}.
+	 *                     if anything occurs while reading the data from the
+	 *                     specified {@link InputStream}.
 	 */
 	public BufferedCharStream(InputStream stream) throws IOException {
 		this(stream, DEFAULT_TABSIZE);
@@ -73,13 +73,13 @@ public final class BufferedCharStream implements CharStream {
 	 * Constructs a new {@link BufferedCharStream} type object instance.
 	 * 
 	 * @param stream
-	 *                    the source code input stream.
+	 *                the source code input stream.
 	 * @param tabSize
-	 *                    the tab size, reprsents how many spaces should we increase
-	 *                    the column pointer by after the tab special character.
+	 *                the tab size, reprsents how many spaces should we increase the
+	 *                column pointer by after the tab special character.
 	 * @throws IOException
-	 *                         if anything occurs while reading the data from the
-	 *                         specified {@link InputStream}.
+	 *                     if anything occurs while reading the data from the
+	 *                     specified {@link InputStream}.
 	 */
 	public BufferedCharStream(InputStream stream, int tabSize) throws IOException {
 		this.tabSize = tabSize;
