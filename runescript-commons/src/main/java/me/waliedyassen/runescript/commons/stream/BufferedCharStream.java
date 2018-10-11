@@ -13,15 +13,16 @@ import java.io.InputStream;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 
 /**
- * Represents a buffered character stream, it reads all the data from {@link InputStream} and then caches the data into
- * a {@code char[]} object.
+ * Represents a buffered character stream, it reads all the data from
+ * {@link InputStream} and then caches the data into a {@code char[]} object.
  * 
  * @author Walied K. Yassen
  */
 public final class BufferedCharStream implements CharStream {
 
 	/**
-	 * The default tab size, how many spaces the special tab character advaces the column pointer.
+	 * The default tab size, how many spaces the special tab character advaces the
+	 * column pointer.
 	 */
 	private static final int DEFAULT_TABSIZE = 4;
 
@@ -59,9 +60,10 @@ public final class BufferedCharStream implements CharStream {
 	 * Constructs a new {@link BufferedCharStream} type object instance.
 	 * 
 	 * @param stream
-	 *               the source code input stream.
+	 *                   the source code input stream.
 	 * @throws IOException
-	 *                     if anything occurs while reading the data from the specified {@link InputStream}.
+	 *                         if anything occurs while reading the data from the
+	 *                         specified {@link InputStream}.
 	 */
 	public BufferedCharStream(InputStream stream) throws IOException {
 		this(stream, DEFAULT_TABSIZE);
@@ -71,12 +73,13 @@ public final class BufferedCharStream implements CharStream {
 	 * Constructs a new {@link BufferedCharStream} type object instance.
 	 * 
 	 * @param stream
-	 *                the source code input stream.
+	 *                    the source code input stream.
 	 * @param tabSize
-	 *                the tab size, reprsents how many spaces should we increase the column pointer by after the tab
-	 *                special character.
+	 *                    the tab size, reprsents how many spaces should we increase
+	 *                    the column pointer by after the tab special character.
 	 * @throws IOException
-	 *                     if anything occurs while reading the data from the specified {@link InputStream}.
+	 *                         if anything occurs while reading the data from the
+	 *                         specified {@link InputStream}.
 	 */
 	public BufferedCharStream(InputStream stream, int tabSize) throws IOException {
 		this.tabSize = tabSize;
@@ -88,6 +91,7 @@ public final class BufferedCharStream implements CharStream {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see me.waliedyassen.runescript.commons.stream.CharStream#take()
 	 */
 	@Override
@@ -113,6 +117,7 @@ public final class BufferedCharStream implements CharStream {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see me.waliedyassen.runescript.commons.stream.CharStream#peek()
 	 */
 	@Override
@@ -125,6 +130,7 @@ public final class BufferedCharStream implements CharStream {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see me.waliedyassen.runescript.commons.stream.CharStream#mark()
 	 */
 	@Override
@@ -136,6 +142,7 @@ public final class BufferedCharStream implements CharStream {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see me.waliedyassen.runescript.commons.stream.CharStream#reset()
 	 */
 	@Override
@@ -151,23 +158,29 @@ public final class BufferedCharStream implements CharStream {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see me.waliedyassen.runescript.commons.stream.CharStream#rollback(int)
 	 */
 	@Override
 	public void rollback(int count) {
 		while (count-- > 0) {
-			char ch = buffer[pos--];
-			// TODO: line position rolling back
-			if (ch == '\t') {
-				column -= tabSize - (column - 1) % tabSize;
+			if (!hasRemaining()) {
+				pos--;
 			} else {
-				column--;
+				char ch = buffer[pos--];
+				// TODO: line position rolling back
+				if (ch == '\t') {
+					column -= tabSize - (column - 1) % tabSize;
+				} else {
+					column--;
+				}
 			}
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see me.waliedyassen.runescript.commons.stream.CharStream#hasRemaining()
 	 */
 	@Override
@@ -177,6 +190,7 @@ public final class BufferedCharStream implements CharStream {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see me.waliedyassen.runescript.commons.stream.CharStream#position()
 	 */
 	@Override

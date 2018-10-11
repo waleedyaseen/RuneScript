@@ -8,18 +8,23 @@
 package me.waliedyassen.runescript.compiler.parser;
 
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IDENTIFIER;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.INTEGER;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LONG;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.STRING;
 
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
+import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
+import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
 /**
- * Represents the grammar parser, it takes a {@link Lexer} fed with {@link Token} objects, and then it attempts to apply
- * our RuneScript grammar rules to these tokens.
+ * Represents the grammar parser, it takes a {@link Lexer} fed with
+ * {@link Token} objects, and then it attempts to apply our RuneScript grammar
+ * rules to these tokens.
  * 
  * @author Walied K. Yassen
  */
@@ -38,6 +43,34 @@ public final class Parser {
 	 */
 	public Parser(Lexer lexer) {
 		this.lexer = lexer;
+	}
+
+	/**
+	 * Attempts to match the next token to an {@link AstInteger} object instance.
+	 * 
+	 * @return the parsed {@link AstInteger} object.
+	 */
+	public AstInteger integerNumber() {
+		Token token = expect(INTEGER);
+		try {
+			return new AstInteger(makeRange(token), Integer.parseInt(token.getLexeme()));
+		} catch (NumberFormatException e) {
+			throw createError(token, "The literal " + token.getLexeme() + " of type int is out of range");
+		}
+	}
+
+	/**
+	 * Attempts to match the next token to an {@link AstLong} object instance.
+	 * 
+	 * @return the parsed {@link AstLong} object.
+	 */
+	public AstLong longNumber() {
+		Token token = expect(LONG);
+		try {
+			return new AstLong(makeRange(token), Long.parseLong(token.getLexeme()));
+		} catch (NumberFormatException e) {
+			throw createError(token, "The literal " + token.getLexeme() + " of type long is out of range");
+		}
 	}
 
 	/**
@@ -61,8 +94,8 @@ public final class Parser {
 	}
 
 	/**
-	 * Takes the next {@link Token} object and checks whether or not it's {@linkplain Kind kind} matches the specified
-	 * {@linkplain Kind kind}.
+	 * Takes the next {@link Token} object and checks whether or not it's
+	 * {@linkplain Kind kind} matches the specified {@linkplain Kind kind}.
 	 * 
 	 * @param kind
 	 *             the expected token kind.
@@ -79,7 +112,8 @@ public final class Parser {
 	}
 
 	/**
-	 * Creates a new {@link Range} object which includes the range of each one of the specified {@code tokens}.
+	 * Creates a new {@link Range} object which includes the range of each one of
+	 * the specified {@code tokens}.
 	 * 
 	 * @param tokens
 	 *               the tokens which we will take the ranges from.
@@ -102,6 +136,19 @@ public final class Parser {
 	 *                the error message describing why the error has occurred.
 	 */
 	private void throwError(Token token, String message) {
-		throw new SyntaxError(token, message);
+		throw createError(token, message);
+	}
+
+	/**
+	 * Creates a syntax error indicating a mismatched grammar rule.
+	 * 
+	 * @param token
+	 *                the token which the error has occurred at.
+	 * @param message
+	 *                the error message describing why the error has occurred
+	 * @return the created {@link SyntaaxError} object.
+	 */
+	private SyntaxError createError(Token token, String message) {
+		return new SyntaxError(token, message);
 	}
 }

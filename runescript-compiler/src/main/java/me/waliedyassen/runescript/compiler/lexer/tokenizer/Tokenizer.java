@@ -23,7 +23,8 @@ import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
 /**
- * Represents the tokenizer tool, takes {@link CharStream} object then turns it's content into {@link Token} objects.
+ * Represents the tokenizer tool, takes {@link CharStream} object then turns
+ * it's content into {@link Token} objects.
  * 
  * @author Walied K. Yassen
  */
@@ -55,9 +56,9 @@ public final class Tokenizer {
 	 * Constructs a new {@link Tokenizer} type object instance.
 	 * 
 	 * @param table
-	 *               the lexical symbol table.
+	 *                   the lexical symbol table.
 	 * @param stream
-	 *               the source code input characters stream.
+	 *                   the source code input characters stream.
 	 */
 	public Tokenizer(LexicalTable table, CharStream stream) {
 		this.table = table;
@@ -66,7 +67,8 @@ public final class Tokenizer {
 	}
 
 	/**
-	 * Tokenizes the next sequence of characters into some meaningful {@link Token} object.
+	 * Tokenizes the next sequence of characters into some meaningful {@link Token}
+	 * object.
 	 * 
 	 * @return the {@link Token} object or {@code null} if none could be tokenized.
 	 */
@@ -84,133 +86,135 @@ public final class Tokenizer {
 			next = stream.peek();
 			// parse the current character depending on the current state.
 			switch (state) {
-				case NONE:
-					if (Character.isWhitespace(current)) {
-						continue;
-					} else {
-						resetBuilder();
-						if (current == NULL) {
-							return new Token(Kind.EOF, range());
-						} else if (isIdentifierStart(current)) {
-							builder.append(current);
-							state = State.IDENTIFIER;
-						} else if (current == '\"') {
-							state = State.STRING_LITERAL;
-						} else if (Character.isDigit(current)) {
-							builder.append(current);
-							state = State.NUMBER_LITERAL;
-						} else if (current == '/' && next == '/') {
-							stream.take();
-							state = State.LINE_COMMENT;
-						} else if (current == '/' && next == '*') {
-							stream.take();
-							comment = new ArrayList<String>();
-							state = State.MULTI_COMMENT;
-						} else if (table.isSeparator(current)) {
-							return new Token(table.lookupSeparator(current), range(), Character.toString(current));
-						} else {
-							if (table.isOperatorStart(current)) {
-								builder.append(current);
-								for (int index = 1; index < table.getOperatorSize(); index++) {
-									// TODO: update the behaviour of peek() to skip the CR character, the same thing take() does.
-									if (!stream.hasRemaining() || stream.peek() == '\r' && stream.peek() == '\n') {
-										break;
-									}
-									builder.append(stream.take());
-								}
-								while (builder.length() > 0) {
-									String sequence = builder.toString();
-									if (table.isOperator(sequence)) {
-										return new Token(table.lookupOperator(sequence), range(), sequence);
-									}
-									builder.setLength(builder.length() - 1);
-									stream.rollback(1);
-								}
-							}
-							throwError("Unexpected character: " + current);
-						}
-					}
-					break;
-				case IDENTIFIER:
-					if (isIdentifierPart(current)) {
-						builder.append(current);
-						stream.mark();
-					} else {
-						stream.reset();
-						String word = builder.toString();
-						return new Token(table.isKeyword(word) ? table.lookupKeyword(word) : Kind.IDENTIFIER, range(), builder.toString());
-					}
-					break;
-				case STRING_LITERAL:
-					if (current == NULL || current == '\n') {
-						throwError("String literal is not properly closed by a double-quote");
-					} else if (current == '\\') {
-						stream.take();
-						switch (next) {
-							case 'b':
-								builder.append('\b');
-								break;
-							case 't':
-								builder.append('\t');
-								break;
-							case 'n':
-								builder.append('\n');
-								break;
-							case 'f':
-								builder.append('\f');
-								break;
-							case '"':
-								builder.append('\"');
-								break;
-							case '\\':
-								builder.append('\\');
-								break;
-							default:
-								throwError("Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\'  \\\\)");
-								break;
-						}
-					} else if (current == '\"') {
-						return new Token(Kind.STRING, range(), builder.toString());
-					} else {
-						builder.append(current);
-					}
-					break;
-				case NUMBER_LITERAL:
-					if (Character.isDigit(current)) {
-						builder.append(current);
-					} else {
-						if (current == 'L' || current == 'l') {
-							builder.append(current);
-						} else {
-							stream.rollback(1);
-						}
-						return new Token(Kind.NUMBER, range(), builder.toString());
-					}
-					break;
-				case LINE_COMMENT:
-					if (current == NULL || current == '\n') {
-						return new CommentToken(range(), Arrays.asList(trimComment(builder.toString(), false)));
-					} else {
-						builder.append(current);
-					}
-					break;
-				case MULTI_COMMENT:
+			case NONE:
+				if (Character.isWhitespace(current)) {
+					continue;
+				} else {
+					resetBuilder();
 					if (current == NULL) {
-						throwError("Unexpected end of comment");
-					} else if (current == '\n') {
-						String line = trimComment(builder.toString(), true);
-						// Ignores the header line if it was empty.
-						if (comment.size() != 0 || line.length() != 0) {
-							comment.add(line);
-						}
-						resetBuilder();
-					} else if (current == '*' && next == '/') {
-						stream.take();
-						return new CommentToken(range(), comment);
-					} else {
+						return new Token(Kind.EOF, range());
+					} else if (isIdentifierStart(current)) {
 						builder.append(current);
+						state = State.IDENTIFIER;
+					} else if (current == '\"') {
+						state = State.STRING_LITERAL;
+					} else if (Character.isDigit(current) || (current == '-' || current == '+') && Character.isDigit(next)) {
+						builder.append(current);
+						state = State.NUMBER_LITERAL;
+					} else if (current == '/' && next == '/') {
+						stream.take();
+						state = State.LINE_COMMENT;
+					} else if (current == '/' && next == '*') {
+						stream.take();
+						comment = new ArrayList<String>();
+						state = State.MULTI_COMMENT;
+					} else if (table.isSeparator(current)) {
+						return new Token(table.lookupSeparator(current), range(), Character.toString(current));
+					} else {
+						if (table.isOperatorStart(current)) {
+							builder.append(current);
+							for (int index = 1; index < table.getOperatorSize(); index++) {
+								// TODO: update the behaviour of peek() to skip the CR character, the same thing
+								// take() does.
+								if (!stream.hasRemaining() || stream.peek() == '\r' && stream.peek() == '\n') {
+									break;
+								}
+								builder.append(stream.take());
+							}
+							while (builder.length() > 0) {
+								String sequence = builder.toString();
+								if (table.isOperator(sequence)) {
+									return new Token(table.lookupOperator(sequence), range(), sequence);
+								}
+								builder.setLength(builder.length() - 1);
+								stream.rollback(1);
+							}
+						}
+						throwError("Unexpected character: " + current);
 					}
-					break;
+				}
+				break;
+			case IDENTIFIER:
+				if (isIdentifierPart(current)) {
+					builder.append(current);
+					stream.mark();
+				} else {
+					stream.reset();
+					String word = builder.toString();
+					return new Token(table.isKeyword(word) ? table.lookupKeyword(word) : Kind.IDENTIFIER, range(), builder.toString());
+				}
+				break;
+			case STRING_LITERAL:
+				if (current == NULL || current == '\n') {
+					throwError("String literal is not properly closed by a double-quote");
+				} else if (current == '\\') {
+					stream.take();
+					switch (next) {
+					case 'b':
+						builder.append('\b');
+						break;
+					case 't':
+						builder.append('\t');
+						break;
+					case 'n':
+						builder.append('\n');
+						break;
+					case 'f':
+						builder.append('\f');
+						break;
+					case '"':
+						builder.append('\"');
+						break;
+					case '\\':
+						builder.append('\\');
+						break;
+					default:
+						throwError("Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\'  \\\\)");
+						break;
+					}
+				} else if (current == '\"') {
+					return new Token(Kind.STRING, range(), builder.toString());
+				} else {
+					builder.append(current);
+				}
+				break;
+			case NUMBER_LITERAL:
+				if (Character.isDigit(current)) {
+					builder.append(current);
+				} else {
+					Kind kind = Kind.INTEGER;
+					if (current == 'L' || current == 'l') {
+						kind = Kind.LONG;
+					} else if (current != NULL) {
+						stream.rollback(1);
+					}
+					return new Token(kind, range(), builder.toString());
+				}
+				break;
+			case LINE_COMMENT:
+				if (current == NULL || current == '\n') {
+					return new CommentToken(range(), Arrays.asList(trimComment(builder.toString(), false)));
+				} else {
+					builder.append(current);
+				}
+				break;
+			case MULTI_COMMENT:
+				if (current == NULL) {
+					throwError("Unexpected end of comment");
+				} else if (current == '\n') {
+					String line = trimComment(builder.toString(), true);
+					// Ignores the header line if it was empty.
+					if (comment.size() != 0 || line.length() != 0) {
+						comment.add(line);
+					}
+					resetBuilder();
+				} else if (current == '*' && next == '/') {
+					stream.take();
+					return new CommentToken(range(), comment);
+				} else {
+					builder.append(current);
+				}
+				break;
 			}
 		}
 	}
@@ -232,7 +236,8 @@ public final class Tokenizer {
 	}
 
 	/**
-	 * Creates a {@link Range} object starting at the current marked position and ending at the current position.
+	 * Creates a {@link Range} object starting at the current marked position and
+	 * ending at the current position.
 	 * 
 	 * @return the created {@link Range} object.
 	 * @see #mark()
@@ -242,23 +247,24 @@ public final class Tokenizer {
 	}
 
 	/**
-	 * Creates and throws a parser error ranging from the marked position to the current position.
+	 * Creates and throws a parser error ranging from the marked position to the
+	 * current position.
 	 * 
 	 * @param message
-	 *                the error message of why the error has occurred.
+	 *                    the error message of why the error has occurred.
 	 */
 	private void throwError(String message) {
 		throw new LexicalError(range(), message);
 	}
 
 	/**
-	 * Trims the comment from any decoration they have, whether it was the line start decoration character or it was a
-	 * redundant whitespace.
+	 * Trims the comment from any decoration they have, whether it was the line
+	 * start decoration character or it was a redundant whitespace.
 	 * 
 	 * @param line
-	 *                 the comment line.
+	 *                     the comment line.
 	 * @param trimStar
-	 *                 whether to trim the decorative star or not.
+	 *                     whether to trim the decorative star or not.
 	 * @return the trimmed comment line content.
 	 */
 	private static String trimComment(String line, boolean trimStar) {
@@ -286,10 +292,11 @@ public final class Tokenizer {
 	}
 
 	/**
-	 * Checks whether or not the specified character can be used as the identifier's starting character.
+	 * Checks whether or not the specified character can be used as the identifier's
+	 * starting character.
 	 * 
 	 * @param ch
-	 *           the character to check.
+	 *               the character to check.
 	 * @return <code>true</code> if it can otherwise <code>false</code>.
 	 */
 	public static boolean isIdentifierStart(char ch) {
@@ -297,10 +304,11 @@ public final class Tokenizer {
 	}
 
 	/**
-	 * Checks whether or not the specified character can be used as an identifier's character.
+	 * Checks whether or not the specified character can be used as an identifier's
+	 * character.
 	 * 
 	 * @param ch
-	 *           the character to check.
+	 *               the character to check.
 	 * @return <code>true</code> if it can otherwise <code>false</code>.
 	 */
 	public static boolean isIdentifierPart(char ch) {

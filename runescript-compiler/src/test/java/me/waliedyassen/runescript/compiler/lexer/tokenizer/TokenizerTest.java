@@ -75,21 +75,10 @@ class TokenizerTest {
 	}
 
 	@Test
-	void testNumber() {
-		Tokenizer tokenizer = fromString("1234567 7654321  ");
-		Token token = tokenizer.parse();
-		assertEquals(token.getKind(), Kind.NUMBER);
-		assertEquals(token.getLexeme(), String.valueOf(1234567));
-		token = tokenizer.parse();
-		assertEquals(token.getKind(), Kind.NUMBER);
-		assertEquals(token.getLexeme(), String.valueOf(7654321));
-	}
-
-	@Test
 	void testIdentifier() {
 		Tokenizer tokenizer = fromString("654321myIdentifier");
 		Token token = tokenizer.parse();
-		assertEquals(token.getKind(), Kind.NUMBER);
+		assertEquals(token.getKind(), Kind.INTEGER);
 		assertEquals(token.getLexeme(), String.valueOf(654321));
 		token = tokenizer.parse();
 		assertEquals(token.getKind(), Kind.IDENTIFIER);
@@ -124,18 +113,6 @@ class TokenizerTest {
 		assertEquals(tokenizer.parse().getKind(), Kind.EQUALS);
 		assertEquals(tokenizer.parse().getKind(), Kind.STRING);
 		assertEquals(tokenizer.parse().getKind(), Kind.SEMICOLON);
-	}
-
-	@Test
-	void testDemo1() {
-		// make sure the source code is parsable.
-		Tokenizer tokenizer = fromResource("demo1.rs2");
-		while (true) {
-			Token token = tokenizer.parse();
-			if (token.getKind() == Kind.EOF) {
-				break;
-			}
-		}
 	}
 
 	private Tokenizer fromString(String text) {

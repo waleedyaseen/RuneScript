@@ -10,9 +10,12 @@ package me.waliedyassen.runescript.compiler.ast.expr;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
+ * Represents an identifier node, an identifier is any word within the document
+ * that is not a keyword.
+ * 
  * @author Walied K. Yassen
  */
-public class AstIdentifier extends AstExpression {
+public final class AstIdentifier extends AstExpression {
 
 	/**
 	 * The identifier text content.

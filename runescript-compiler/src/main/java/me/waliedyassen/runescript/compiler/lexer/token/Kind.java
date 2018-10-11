@@ -8,8 +8,8 @@
 package me.waliedyassen.runescript.compiler.lexer.token;
 
 /**
- * Represents the token kind, which tells us what each token is, whether an identifier, or a number, or a string, or a
- * keyword etc..
+ * Represents the token kind, which tells us what each token is, whether an
+ * identifier, or a number, or a string, or a keyword etc..
  * 
  * @author Walied K. Yassen
  */
@@ -23,14 +23,19 @@ public enum Kind {
 	IDENTIFIER,
 
 	/**
-	 * The number literal token kind.
-	 */
-	NUMBER,
-
-	/**
 	 * The string literal token kind.
 	 */
 	STRING,
+
+	/**
+	 * The normal integer (32-bit) literal token kind.
+	 */
+	INTEGER,
+
+	/**
+	 * The long integer (64-bit) literal token kind.
+	 */
+	LONG,
 
 	/**
 	 * The boolean literal token kind.
