@@ -6,6 +6,6 @@ cache:
    - $HOME/.m2
 install: true
 script: 
-  - mvn clean install
+  - mvn clean verify cobertura:cobertura
 after_success:
   - bash <(curl -s https://codecov.io/bash)
