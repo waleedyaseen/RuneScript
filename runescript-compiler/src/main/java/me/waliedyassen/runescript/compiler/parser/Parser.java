@@ -10,10 +10,15 @@ package me.waliedyassen.runescript.compiler.parser;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IDENTIFIER;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IF;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.INTEGER;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LBRACE;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LONG;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LPAREN;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.RBRACE;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.RPAREN;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.STRING;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
@@ -21,6 +26,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
@@ -96,11 +102,25 @@ public final class Parser {
 	public AstStatement statement() {
 		Kind kind = peekKind();
 		switch (kind) {
+		// if statement starts with if
 		case IF:
 			return ifStatement();
+		// block statement starts with {
+		case LBRACE:
+			return blockStatement();
 		default:
 			throw createError(token(), "Expecting a statement");
 		}
+	}
+
+	/**
+	 * Checks whether or not the next token is a valid statement start.
+	 * 
+	 * @return <code>true</code> if it is otherwise <code>false</code>.
+	 */
+	private boolean isStatement() {
+		Kind kind = peekKind();
+		return kind == IF || kind == LBRACE;
 	}
 
 	/**
@@ -113,6 +133,31 @@ public final class Parser {
 		AstExpression expression = parExpression();
 		AstStatement statement = statement();
 		return new AstIfStatement(makeRange(start), expression, statement);
+	}
+
+	/**
+	 * Attempts to match the next token set to an block-statement rule.
+	 * 
+	 * @return the matched {@link AstBlockStatement} type object instance.
+	 */
+	public AstBlockStatement blockStatement() {
+		Token start = expect(LBRACE);
+		AstStatement[] statements = unbracedBlockStatement();
+		Token end = expect(RBRACE);
+		return new AstBlockStatement(makeRange(start, end), statements);
+	}
+
+	/**
+	 * Attempts to parse all of the next sequential code-statements.
+	 * 
+	 * @return the parsed code-statements as {@link AstStatement} array object.
+	 */
+	public AstStatement[] unbracedBlockStatement() {
+		List<AstStatement> statements = new ArrayList<AstStatement>();
+		while (isStatement()) {
+			statements.add(statement());
+		}
+		return statements.toArray(new AstStatement[statements.size()]);
 	}
 
 	/**
