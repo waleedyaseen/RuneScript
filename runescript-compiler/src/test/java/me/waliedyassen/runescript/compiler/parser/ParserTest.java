@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,6 +20,9 @@ import java.io.StringBufferInputStream;
 import org.junit.jupiter.api.Test;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
+import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
+import me.waliedyassen.runescript.compiler.ast.literal.AstString;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
@@ -28,6 +32,26 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
  * @author Walied K. Yassen
  */
 final class ParserTest {
+
+	@Test
+	public void testExpression() {
+		assertAll("expression", () -> {
+			// string
+			assertTrue(fromString("\"myString\"").expression() instanceof AstString);
+		}, () -> {
+			// integer
+			assertTrue(fromString("123456").expression() instanceof AstInteger);
+		}, () -> {
+			// long
+			assertTrue(fromString("123456L").expression() instanceof AstLong);
+		}, () -> {
+			// empty
+			assertThrows(SyntaxError.class, () -> fromString("").expression());
+		}, () -> {
+			// not expression
+			assertThrows(SyntaxError.class, () -> fromString("if (true) { }").expression());
+		});
+	}
 
 	@Test
 	public void testIntParsing() {

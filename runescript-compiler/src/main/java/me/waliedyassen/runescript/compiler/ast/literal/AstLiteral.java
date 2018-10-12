@@ -8,14 +8,14 @@
 package me.waliedyassen.runescript.compiler.ast.literal;
 
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.ast.AstNode;
+import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 
 /**
  * Represents a literal expression node.
  * 
  * @author Walied K. Yassen
  */
-public abstract class AstLiteral extends AstNode {
+public abstract class AstLiteral extends AstExpression {
 
 	/**
 	 * Constructs a new {@link AstLiteral} type object instance.

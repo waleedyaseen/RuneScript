@@ -13,6 +13,7 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LONG;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.STRING;
 
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
@@ -30,6 +31,8 @@ import me.waliedyassen.runescript.compiler.lexer.token.Token;
  */
 public final class Parser {
 
+	// TODO: Detailed documentation
+
 	/**
 	 * The lexical phase result object.
 	 */
@@ -43,6 +46,29 @@ public final class Parser {
 	 */
 	public Parser(Lexer lexer) {
 		this.lexer = lexer;
+	}
+
+	/**
+	 * Attempts to match the next token to any {@link AstExpression} sub-class
+	 * object instance.
+	 * 
+	 * @return the parsed {@link AstExpression} object.
+	 */
+	public AstExpression expression() {
+		Kind kind = kind();
+		if (kind == null) {
+			throw createError(lexer.last(), "Expecting an expression");
+		}
+		switch (kind) {
+		case INTEGER:
+			return integerNumber();
+		case LONG:
+			return longNumber();
+		case STRING:
+			return string();
+		default:
+			throw createError(token(), "Expecting an expression");
+		}
 	}
 
 	/**
@@ -104,11 +130,45 @@ public final class Parser {
 	 *                     if the next token does not match the expected token.
 	 */
 	public Token expect(Kind kind) {
-		Token token = lexer.take();
+		Token token = token();
 		if (kind != token.getKind()) {
 			throwError(token, "Unexpected rule: " + token.getKind() + ", expected: " + kind);
 		}
 		return token;
+	}
+
+	/**
+	 * Takes the next {@link Token} object from the lexer.
+	 * 
+	 * @return the next {@link Token} object or {@code null}.
+	 * @see Lexer#take()
+	 */
+	public Token token() {
+		return lexer.take();
+	}
+
+	/**
+	 * Takes the next {@link Token} object without advancing the lexer cursor.
+	 * 
+	 * @return the next {@link Token} object or {@code null}.
+	 * @see Lexer#peek()
+	 */
+	public Token peek() {
+		return lexer.peek();
+	}
+
+	/**
+	 * Gets the next token {@link Kind} from the lexer without advancing the lexer
+	 * cursor.
+	 * 
+	 * @return the next {@link Kind} or {@code null}.
+	 */
+	public Kind kind() {
+		Token token = peek();
+		if (token == null) {
+			return null;// Kind.EOF;
+		}
+		return token.getKind();
 	}
 
 	/**

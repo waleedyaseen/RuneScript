@@ -15,8 +15,9 @@ import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 
 /**
- * Represents the main lexical phase interface, it is responsible for collecting all the {@link Token} objects from
- * a {@link Tokenizer} object and to provide the extra utilities we require in the lexical phase.
+ * Represents the main lexical phase interface, it is responsible for collecting
+ * all the {@link Token} objects from a {@link Tokenizer} object and to provide
+ * the extra utilities we require in the lexical phase.
  * 
  * @author Walied K. Yassen
  */
@@ -36,7 +37,8 @@ public final class Lexer {
 	 * Constructs a new {@link Lexer} type object instance.
 	 * 
 	 * @param tokenizer
-	 *                  the tokenizer which we will take all the {@link Token} objects from.
+	 *                  the tokenizer which we will take all the {@link Token}
+	 *                  objects from.
 	 */
 	public Lexer(Tokenizer tokenizer) {
 		do {
@@ -49,7 +51,8 @@ public final class Lexer {
 	}
 
 	/**
-	 * Gets the {@link Token} object at the current pointer index and then increment the pointer index.
+	 * Gets the {@link Token} object at the current pointer index and then increment
+	 * the pointer index.
 	 * 
 	 * @return the {@link Token} object if it was present otherwise {@code null}.
 	 */
@@ -61,7 +64,8 @@ public final class Lexer {
 	}
 
 	/**
-	 * Gets the {@link Token} object at the current pointer index without incrementing the pointer index.
+	 * Gets the {@link Token} object at the current pointer index without
+	 * incrementing the pointer index.
 	 * 
 	 * @return the {@link Token} object if it was present otherwise {@code null}.
 	 */
@@ -73,6 +77,18 @@ public final class Lexer {
 	}
 
 	/**
+	 * Gets the last {@link Token} object within this lexer.
+	 * 
+	 * @return the last {@link Token} object.
+	 */
+	public Token last() {
+		if (tokens.size() == 0) {
+			return null;
+		}
+		return tokens.get(tokens.size() - 1);
+	}
+
+	/**
 	 * Advances the current pointer index by one.
 	 */
 	public void advance() {
@@ -80,4 +96,5 @@ public final class Lexer {
 			index++;
 		}
 	}
+
 }
