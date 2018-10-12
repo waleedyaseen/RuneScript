@@ -21,6 +21,7 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.STRING;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
@@ -45,6 +46,7 @@ import me.waliedyassen.runescript.compiler.lexer.token.Token;
 public final class Parser {
 
 	// TODO: Detailed documentation
+	// TODO: Add accurate Range in every parsing rule.
 
 	/**
 	 * The lexical phase result object.
@@ -300,16 +302,16 @@ public final class Parser {
 
 	/**
 	 * Creates a new {@link Range} object which includes the range of each one of
-	 * the specified {@code tokens}.
+	 * the specified {@code elements}.
 	 * 
-	 * @param tokens
-	 *               the tokens which we will take the ranges from.
+	 * @param elements
+	 *                 the elements which we will take the ranges from.
 	 * @return the created {@link Range} object.
 	 */
-	private Range makeRange(Token... tokens) {
+	private Range makeRange(Element... elements) {
 		Range range = new Range();
-		for (Token token : tokens) {
-			range.add(token.getRange());
+		for (Element element : elements) {
+			range.add(element.getRange());
 		}
 		return range;
 	}

@@ -7,16 +7,18 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.token;
 
+import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 
 /**
- * Represents the base class of the {@link Tokenizer} output. A token is the smallest unit of the source code in the
- * lexical analysis, usually one token repersents a single symbol.
+ * Represents the base class of the {@link Tokenizer} output. A token is the
+ * smallest unit of the source code in the lexical analysis, usually one token
+ * repersents a single symbol.
  * 
  * @author Walied K. Yassen
  */
-public class Token {
+public class Token implements Element {
 
 	/**
 	 * The token kind.
@@ -63,6 +65,7 @@ public class Token {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -80,10 +83,11 @@ public class Token {
 	}
 
 	/**
-	 * Gets the source code range.
+	 * Gets the token source code range.
 	 * 
-	 * @return the source code range.
+	 * @return the {@link Range} object.
 	 */
+	@Override
 	public Range getRange() {
 		return range;
 	}

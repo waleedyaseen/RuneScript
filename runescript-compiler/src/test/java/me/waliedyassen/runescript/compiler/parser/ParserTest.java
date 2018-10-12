@@ -218,7 +218,7 @@ final class ParserTest {
 			assertFalse(fromString("false").bool().getValue());
 		}, () -> {
 			// invalid boolean
-			assertThrows(SyntaxError.class, ()->fromString("tru").bool());
+			assertThrows(SyntaxError.class, () -> fromString("tru").bool());
 		});
 	}
 
