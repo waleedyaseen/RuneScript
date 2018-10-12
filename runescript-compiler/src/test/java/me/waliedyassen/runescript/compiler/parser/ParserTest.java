@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 Walied K. Yassen, All rights reserved.
  *
- * This Source Code Form is subject to the terms of the Mozilla Public
+ * This Source Code Form is subject to the terms of the Mozilla 
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
@@ -31,10 +31,11 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 /**
  * @author Walied K. Yassen
  */
+@SuppressWarnings("deprecation")
 final class ParserTest {
 
 	@Test
-	public void testExpression() {
+	void testExpression() {
 		assertAll("expression", () -> {
 			// string
 			assertTrue(fromString("\"myString\"").expression() instanceof AstString);
@@ -54,7 +55,18 @@ final class ParserTest {
 	}
 
 	@Test
-	public void testIntParsing() {
+	void testStatement() {
+		assertAll("statement", () -> {
+			// empty
+			assertThrows(SyntaxError.class, () -> fromString("").statement());
+		}, () -> {
+			// not statement
+			assertThrows(SyntaxError.class, () -> fromString("123456").statement());
+		});
+	}
+
+	@Test
+	void testIntParsing() {
 		assertAll("int parsing", () -> {
 			// non-signed integer.
 			assertEquals(fromString("881251628").integerNumber().getValue(), 881251628);
@@ -68,7 +80,7 @@ final class ParserTest {
 	}
 
 	@Test
-	public void testIntRange() {
+	void testIntRange() {
 		assertAll("int range", () -> {
 			// integer underflow
 			SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("-2147483649").integerNumber());
@@ -86,7 +98,7 @@ final class ParserTest {
 	}
 
 	@Test
-	public void testLongParsing() {
+	void testLongParsing() {
 		assertAll("long parsing", () -> {
 			// lower case long identifier
 			assertEquals(fromString("4327430278518173700l").longNumber().getValue(), 4327430278518173700l);
@@ -106,7 +118,7 @@ final class ParserTest {
 	}
 
 	@Test
-	public void testLongRange() {
+	void testLongRange() {
 		assertAll("long range", () -> {
 			// long underflow
 			SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("-9223372036854775809L").longNumber());
@@ -124,12 +136,12 @@ final class ParserTest {
 	}
 
 	@Test
-	public void testString() {
+	void testString() {
 		assertEquals(fromString("\"my test string\"").string().getValue(), "my test string");
 	}
 
 	@Test
-	public void testIdentifier() {
+	void testIdentifier() {
 		assertEquals(fromString("testKeyword").identifier().getText(), "testKeyword");
 	}
 

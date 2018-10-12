@@ -18,6 +18,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
@@ -56,9 +57,6 @@ public final class Parser {
 	 */
 	public AstExpression expression() {
 		Kind kind = kind();
-		if (kind == null) {
-			throw createError(lexer.last(), "Expecting an expression");
-		}
 		switch (kind) {
 		case INTEGER:
 			return integerNumber();
@@ -68,6 +66,19 @@ public final class Parser {
 			return string();
 		default:
 			throw createError(token(), "Expecting an expression");
+		}
+	}
+
+	/**
+	 * Attempts to match the next token set to any valid {@link AstStatement} types.
+	 * 
+	 * @return the matched {@link AstStatement} type object instance.
+	 */
+	public AstStatement statement() {
+		Kind kind = kind();
+		switch (kind) {
+		default:
+			throw createError(token(), "Expecting a statement");
 		}
 	}
 
@@ -161,12 +172,12 @@ public final class Parser {
 	 * Gets the next token {@link Kind} from the lexer without advancing the lexer
 	 * cursor.
 	 * 
-	 * @return the next {@link Kind} or {@code null}.
+	 * @return the next {@link Kind} or {@link Kind#EOF} if there is no more tokens.
 	 */
 	public Kind kind() {
 		Token token = peek();
 		if (token == null) {
-			return null;// Kind.EOF;
+			return Kind.EOF;
 		}
 		return token.getKind();
 	}
