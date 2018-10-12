@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -207,6 +208,18 @@ final class ParserTest {
 	@Test
 	void testString() {
 		assertEquals(fromString("\"my test string\"").string().getValue(), "my test string");
+	}
+
+	@Test
+	void testBool() {
+		assertAll("bool", () -> {
+			// valid boolean
+			assertTrue(fromString("true").bool().getValue());
+			assertFalse(fromString("false").bool().getValue());
+		}, () -> {
+			// invalid boolean
+			assertThrows(SyntaxError.class, () -> fromString("tru").bool());
+		});
 	}
 
 	@Test

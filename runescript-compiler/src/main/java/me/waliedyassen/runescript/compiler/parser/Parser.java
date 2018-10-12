@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.BOOL;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IDENTIFIER;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IF;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.INTEGER;
@@ -23,6 +24,7 @@ import java.util.List;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
+import me.waliedyassen.runescript.compiler.ast.literal.AstBool;
 import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
@@ -74,6 +76,8 @@ public final class Parser {
 			return longNumber();
 		case STRING:
 			return string();
+		case BOOL:
+			return bool();
 		default:
 			throw createError(token(), "Expecting an expression");
 		}
@@ -102,10 +106,8 @@ public final class Parser {
 	public AstStatement statement() {
 		Kind kind = peekKind();
 		switch (kind) {
-		// if statement starts with if
 		case IF:
 			return ifStatement();
-		// block statement starts with {
 		case LBRACE:
 			return blockStatement();
 		default:
@@ -150,13 +152,18 @@ public final class Parser {
 	/**
 	 * Attempts to parse all of the next sequential code-statements.
 	 * 
-	 * @return the parsed code-statements as {@link AstStatement} array object.
+	 * @return the parsed code-statements as {@link AstBlockStatement} object.
 	 */
 	public AstBlockStatement unbracedBlockStatement() {
 		AstStatement[] statements = statementsList();
 		return new AstBlockStatement(null, statements);
 	}
 
+	/**
+	 * Parses a list of sequential code statements.
+	 * 
+	 * @return the parsed code-statements as {@link AstStatement} array object.
+	 */
 	private AstStatement[] statementsList() {
 		List<AstStatement> list = new ArrayList<AstStatement>();
 		while (isStatement()) {
@@ -202,6 +209,16 @@ public final class Parser {
 	public AstString string() {
 		Token token = expect(STRING);
 		return new AstString(makeRange(token), token.getLexeme());
+	}
+
+	/**
+	 * Attempts to the match the next token to an {@link AstBool} object.
+	 * 
+	 * @return the parsed {@link AstBool} object.
+	 */
+	public AstBool bool() {
+		Token token = expect(BOOL);
+		return new AstBool(makeRange(token), Boolean.parseBoolean(token.getLexeme()));
 	}
 
 	/**
