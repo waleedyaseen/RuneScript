@@ -142,7 +142,7 @@ public final class Parser {
 	 */
 	public AstBlockStatement blockStatement() {
 		Token start = expect(LBRACE);
-		AstStatement[] statements = unbracedBlockStatement();
+		AstStatement[] statements = statementsList();
 		Token end = expect(RBRACE);
 		return new AstBlockStatement(makeRange(start, end), statements);
 	}
@@ -152,12 +152,18 @@ public final class Parser {
 	 * 
 	 * @return the parsed code-statements as {@link AstStatement} array object.
 	 */
-	public AstStatement[] unbracedBlockStatement() {
-		List<AstStatement> statements = new ArrayList<AstStatement>();
+	public AstBlockStatement unbracedBlockStatement() {
+		AstStatement[] statements = statementsList();
+		return new AstBlockStatement(null, statements);
+	}
+
+	private AstStatement[] statementsList() {
+		List<AstStatement> list = new ArrayList<AstStatement>();
 		while (isStatement()) {
-			statements.add(statement());
+			list.add(statement());
 		}
-		return statements.toArray(new AstStatement[statements.size()]);
+		return list.toArray(new AstStatement[list.size()]);
+
 	}
 
 	/**

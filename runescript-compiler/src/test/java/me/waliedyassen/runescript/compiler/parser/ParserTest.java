@@ -23,6 +23,8 @@ import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstIfStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
@@ -71,11 +73,64 @@ final class ParserTest {
 	@Test
 	void testStatement() {
 		assertAll("statement", () -> {
-			// empty
+			// valid if statement
+			assertTrue(fromString("if(1234){}").statement() instanceof AstIfStatement);
+		}, () -> {
+			// valid block statement
+			assertTrue(fromString("{}").statement() instanceof AstBlockStatement);
+		}, () -> {
+			// empty statement
 			assertThrows(SyntaxError.class, () -> fromString("").statement());
 		}, () -> {
-			// not statement
+			// invalid statement
 			assertThrows(SyntaxError.class, () -> fromString("123456").statement());
+		});
+	}
+
+	@Test
+	void testIfStatement() {
+		assertAll("if statement", () -> {
+			// valid if statement
+			assertTrue(fromString("if(1){}").ifStatement() instanceof AstIfStatement);
+		}, () -> {
+			// no code statement
+			assertThrows(SyntaxError.class, () -> fromString("if(2)").ifStatement());
+		}, () -> {
+			// no condition expression
+			assertThrows(SyntaxError.class, () -> fromString("if(){}").ifStatement());
+		});
+	}
+
+	@Test
+	void testBlockStatement() {
+		assertAll("braced block", () -> {
+			// valid block
+			AstBlockStatement statements = fromString("{if(1234){}}").blockStatement();
+			assertNotNull(statements);
+			assertTrue(statements.getStatements().length == 1);
+			assertTrue(statements.getStatements()[0] instanceof AstIfStatement);
+		}, () -> {
+			// empty block
+			assertTrue(fromString("{}").blockStatement() instanceof AstBlockStatement);
+		}, () -> {
+
+			// unclosed block
+			assertThrows(SyntaxError.class, () -> fromString("{").blockStatement());
+		});
+	}
+
+	@Test
+	void testUnbracedBlock() {
+		assertAll("unbraced block", () -> {
+			// meaningful block
+			AstBlockStatement statement = fromString("if(1){}if(2){}").unbracedBlockStatement();
+			assertNotNull(statement);
+			assertTrue(statement.getStatements().length == 2);
+			assertTrue(statement.getStatements()[0] instanceof AstIfStatement);
+			assertTrue(statement.getStatements()[1] instanceof AstIfStatement);
+		}, () -> {
+			// empty block
+			assertTrue(fromString("").unbracedBlockStatement() instanceof AstBlockStatement);
 		});
 	}
 
