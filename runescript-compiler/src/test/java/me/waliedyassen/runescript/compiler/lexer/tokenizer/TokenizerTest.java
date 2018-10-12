@@ -7,8 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +27,7 @@ import me.waliedyassen.runescript.compiler.lexer.token.Token;
  * 
  * @author Walied K. Yassen
  */
+@SuppressWarnings("deprecation")
 class TokenizerTest {
 
 	@Test
