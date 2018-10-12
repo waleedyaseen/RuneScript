@@ -8,8 +8,11 @@
 package me.waliedyassen.runescript.compiler.parser;
 
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IDENTIFIER;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IF;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.INTEGER;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LONG;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LPAREN;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.RPAREN;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.STRING;
 
 import me.waliedyassen.runescript.commons.document.Range;
@@ -18,6 +21,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
@@ -56,7 +60,7 @@ public final class Parser {
 	 * @return the parsed {@link AstExpression} object.
 	 */
 	public AstExpression expression() {
-		Kind kind = kind();
+		Kind kind = peekKind();
 		switch (kind) {
 		case INTEGER:
 			return integerNumber();
@@ -70,16 +74,45 @@ public final class Parser {
 	}
 
 	/**
+	 * Attempts to parse an {@link AstExpression} that is surrounded with
+	 * parenthesis. The return value is equal to calling {@link #expression()}
+	 * method, the only difference in this method that it checks for parenthesis
+	 * before and after the expression and consume them.
+	 * 
+	 * @return the parsed {@link AstExpression} object.
+	 */
+	public AstExpression parExpression() {
+		expect(LPAREN);
+		AstExpression expression = expression();
+		expect(RPAREN);
+		return expression;
+	}
+
+	/**
 	 * Attempts to match the next token set to any valid {@link AstStatement} types.
 	 * 
 	 * @return the matched {@link AstStatement} type object instance.
 	 */
 	public AstStatement statement() {
-		Kind kind = kind();
+		Kind kind = peekKind();
 		switch (kind) {
+		case IF:
+			return ifStatement();
 		default:
 			throw createError(token(), "Expecting a statement");
 		}
+	}
+
+	/**
+	 * Attempts to match the next token set to an if-statement rule.
+	 * 
+	 * @return the matched {@link AstIfStatement} type object instance.
+	 */
+	public AstIfStatement ifStatement() {
+		Token start = expect(IF);
+		AstExpression expression = parExpression();
+		AstStatement statement = statement();
+		return new AstIfStatement(makeRange(start), expression, statement);
 	}
 
 	/**
@@ -134,16 +167,17 @@ public final class Parser {
 	 * Takes the next {@link Token} object and checks whether or not it's
 	 * {@linkplain Kind kind} matches the specified {@linkplain Kind kind}.
 	 * 
-	 * @param kind
-	 *             the expected token kind.
+	 * @param expected
+	 *                 the expected token kind.
 	 * @return the expected {@link Token} object.
 	 * @throws SyntaxError
 	 *                     if the next token does not match the expected token.
 	 */
-	public Token expect(Kind kind) {
+	public Token expect(Kind expected) {
 		Token token = token();
-		if (kind != token.getKind()) {
-			throwError(token, "Unexpected rule: " + token.getKind() + ", expected: " + kind);
+		Kind kind = token == null ? Kind.EOF : token.getKind();
+		if (kind != expected) {
+			throwError(token, "Unexpected rule: " + kind + ", expected: " + expected);
 		}
 		return token;
 	}
@@ -156,6 +190,20 @@ public final class Parser {
 	 */
 	public Token token() {
 		return lexer.take();
+	}
+
+	/**
+	 * Takes the next {@link Token} object from the lexer and return it's kind if it
+	 * was present or {@link Kind#EOF}.
+	 * 
+	 * @return the token {@link Kind} or {@link Kind#EOF} if it was not present.
+	 */
+	public Kind kind() {
+		Token token = token();
+		if (token == null) {
+			return Kind.EOF;
+		}
+		return token.getKind();
 	}
 
 	/**
@@ -174,7 +222,7 @@ public final class Parser {
 	 * 
 	 * @return the next {@link Kind} or {@link Kind#EOF} if there is no more tokens.
 	 */
-	public Kind kind() {
+	public Kind peekKind() {
 		Token token = peek();
 		if (token == null) {
 			return Kind.EOF;

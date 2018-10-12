@@ -50,7 +50,21 @@ final class ParserTest {
 			assertThrows(SyntaxError.class, () -> fromString("").expression());
 		}, () -> {
 			// not expression
-			assertThrows(SyntaxError.class, () -> fromString("if (true) { }").expression());
+			assertThrows(SyntaxError.class, () -> fromString("if(123);").expression());
+		});
+	}
+
+	@Test
+	void testParExpression() {
+		assertAll("par expression", () -> {
+			// valid expression
+			assertTrue(fromString("(1234)").parExpression() instanceof AstInteger);
+		}, () -> {
+			// invalid expression 1
+			assertThrows(SyntaxError.class, () -> fromString("(1234").parExpression());
+		}, () -> {
+			// invalid expression 2
+			assertThrows(SyntaxError.class, () -> fromString("1234)").parExpression());
 		});
 	}
 
