@@ -1,0 +1,9 @@
+[trigger,name]
+// the first statement.
+if (true) {
+
+}
+// the second statement.
+if (false) {
+
+}

@@ -46,6 +46,10 @@ public final class Lexer {
 			if (token == null || token.getKind() == Kind.EOF) {
 				break;
 			}
+			if (token.getKind() == Kind.COMMENT) {
+				// we need to ignore the comments for now.
+				continue;
+			}
 			tokens.add(token);
 		} while (true);
 	}
@@ -95,6 +99,15 @@ public final class Lexer {
 		if (index < tokens.size()) {
 			index++;
 		}
+	}
+
+	/**
+	 * Gets the remaining tokens count.
+	 * 
+	 * @return the remaining tokens count.
+	 */
+	public int remaining() {
+		return tokens.size() - index;
 	}
 
 }

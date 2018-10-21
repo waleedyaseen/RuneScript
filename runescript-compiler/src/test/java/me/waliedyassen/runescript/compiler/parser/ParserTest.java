@@ -21,6 +21,7 @@ import java.io.StringBufferInputStream;
 import org.junit.jupiter.api.Test;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
@@ -36,6 +37,18 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
  */
 @SuppressWarnings("deprecation")
 final class ParserTest {
+
+	@Test
+	void testScript() {
+		assertAll("script", () -> {
+			Parser parser = fromResource("parse-script.rs2");
+			AstScript script = parser.script();
+			assertEquals(script.getCode().length, 2);
+			assertTrue(script.getCode()[0] instanceof AstIfStatement);
+			assertTrue(script.getCode()[1] instanceof AstIfStatement);
+			// TODO: Bad scripts testing.
+		});
+	}
 
 	@Test
 	void testExpression() {

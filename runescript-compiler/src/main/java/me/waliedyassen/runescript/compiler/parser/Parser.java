@@ -8,13 +8,16 @@
 package me.waliedyassen.runescript.compiler.parser;
 
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.BOOL;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.COMMA;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IDENTIFIER;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IF;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.INTEGER;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LBRACE;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LBRACKET;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LONG;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LPAREN;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.RBRACE;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.RBRACKET;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.RPAREN;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.STRING;
 
@@ -23,6 +26,7 @@ import java.util.List;
 
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.literal.AstBool;
@@ -64,6 +68,31 @@ public final class Parser {
 	}
 
 	/**
+	 * Attempts to match all of the next tokens to a {@link AstScript} object.
+	 * 
+	 * @return the parsed {@link AstScript} object.
+	 */
+	public AstScript script() {
+		// ------------------ the header parsing ------------------//
+		consume(LBRACKET);
+		AstIdentifier trigger = identifier();
+		consume(COMMA);
+		AstIdentifier name = identifier();
+		consume(RBRACKET);
+		// ------------------ the code parsing ------------------//
+		List<AstStatement> statements = new ArrayList<AstStatement>();
+		// keep parsing until we have no more tokens left in the file.
+		while (lexer.remaining() > 0) {
+			// check whether we reached the end of the file or not.
+			if (peekKind() == Kind.EOF) {
+				break;
+			}
+			statements.add(statement());
+		}
+		return new AstScript(trigger, name, statements.toArray(new AstStatement[statements.size()]));
+	}
+
+	/**
 	 * Attempts to match the next token to any {@link AstExpression} sub-class
 	 * object instance.
 	 * 
@@ -81,7 +110,7 @@ public final class Parser {
 		case BOOL:
 			return bool();
 		default:
-			throw createError(token(), "Expecting an expression");
+			throw createError(consume(), "Expecting an expression");
 		}
 	}
 
@@ -94,9 +123,9 @@ public final class Parser {
 	 * @return the parsed {@link AstExpression} object.
 	 */
 	public AstExpression parExpression() {
-		expect(LPAREN);
+		consume(LPAREN);
 		AstExpression expression = expression();
-		expect(RPAREN);
+		consume(RPAREN);
 		return expression;
 	}
 
@@ -113,7 +142,7 @@ public final class Parser {
 		case LBRACE:
 			return blockStatement();
 		default:
-			throw createError(token(), "Expecting a statement");
+			throw createError(consume(), "Expecting a statement");
 		}
 	}
 
@@ -133,7 +162,7 @@ public final class Parser {
 	 * @return the matched {@link AstIfStatement} type object instance.
 	 */
 	public AstIfStatement ifStatement() {
-		Token start = expect(IF);
+		Token start = consume(IF);
 		AstExpression expression = parExpression();
 		AstStatement statement = statement();
 		return new AstIfStatement(makeRange(start), expression, statement);
@@ -145,9 +174,9 @@ public final class Parser {
 	 * @return the matched {@link AstBlockStatement} type object instance.
 	 */
 	public AstBlockStatement blockStatement() {
-		Token start = expect(LBRACE);
+		Token start = consume(LBRACE);
 		AstStatement[] statements = statementsList();
-		Token end = expect(RBRACE);
+		Token end = consume(RBRACE);
 		return new AstBlockStatement(makeRange(start, end), statements);
 	}
 
@@ -181,7 +210,7 @@ public final class Parser {
 	 * @return the parsed {@link AstInteger} object.
 	 */
 	public AstInteger integerNumber() {
-		Token token = expect(INTEGER);
+		Token token = consume(INTEGER);
 		try {
 			return new AstInteger(makeRange(token), Integer.parseInt(token.getLexeme()));
 		} catch (NumberFormatException e) {
@@ -195,7 +224,7 @@ public final class Parser {
 	 * @return the parsed {@link AstLong} object.
 	 */
 	public AstLong longNumber() {
-		Token token = expect(LONG);
+		Token token = consume(LONG);
 		try {
 			return new AstLong(makeRange(token), Long.parseLong(token.getLexeme()));
 		} catch (NumberFormatException e) {
@@ -209,7 +238,7 @@ public final class Parser {
 	 * @return the parsed {@link AstString} object.
 	 */
 	public AstString string() {
-		Token token = expect(STRING);
+		Token token = consume(STRING);
 		return new AstString(makeRange(token), token.getLexeme());
 	}
 
@@ -219,7 +248,7 @@ public final class Parser {
 	 * @return the parsed {@link AstBool} object.
 	 */
 	public AstBool bool() {
-		Token token = expect(BOOL);
+		Token token = consume(BOOL);
 		return new AstBool(makeRange(token), Boolean.parseBoolean(token.getLexeme()));
 	}
 
@@ -229,7 +258,7 @@ public final class Parser {
 	 * @return the parsed {@link AstIdentifier} object.
 	 */
 	public AstIdentifier identifier() {
-		Token token = expect(IDENTIFIER);
+		Token token = consume(IDENTIFIER);
 		return new AstIdentifier(makeRange(token), token.getLexeme());
 	}
 
@@ -243,8 +272,8 @@ public final class Parser {
 	 * @throws SyntaxError
 	 *                     if the next token does not match the expected token.
 	 */
-	public Token expect(Kind expected) {
-		Token token = token();
+	public Token consume(Kind expected) {
+		Token token = consume();
 		Kind kind = token == null ? Kind.EOF : token.getKind();
 		if (kind != expected) {
 			throwError(token, "Unexpected rule: " + kind + ", expected: " + expected);
@@ -258,7 +287,7 @@ public final class Parser {
 	 * @return the next {@link Token} object or {@code null}.
 	 * @see Lexer#take()
 	 */
-	public Token token() {
+	public Token consume() {
 		return lexer.take();
 	}
 
@@ -269,7 +298,7 @@ public final class Parser {
 	 * @return the token {@link Kind} or {@link Kind#EOF} if it was not present.
 	 */
 	public Kind kind() {
-		Token token = token();
+		Token token = consume();
 		if (token == null) {
 			return Kind.EOF;
 		}
