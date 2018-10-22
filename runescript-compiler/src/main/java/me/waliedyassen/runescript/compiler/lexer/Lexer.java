@@ -109,5 +109,4 @@ public final class Lexer {
 	public int remaining() {
 		return tokens.size() - index;
 	}
-
 }

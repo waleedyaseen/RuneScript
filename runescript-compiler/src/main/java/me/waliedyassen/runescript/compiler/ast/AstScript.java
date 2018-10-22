@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast;
 
 import java.util.Arrays;
 
+import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 
@@ -18,7 +19,7 @@ import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
  * 
  * @author Walied K. Yassen
  */
-public final class AstScript {
+public final class AstScript extends AstNode {
 
 	/**
 	 * The script trigger type. The trigger type controls when the script will be
@@ -41,6 +42,8 @@ public final class AstScript {
 	/**
 	 * Construct a new {@link AstScript} type object instance.
 	 * 
+	 * @param range
+	 *                the script source range.
 	 * @param trigger
 	 *                the script trigger type.
 	 * @param name
@@ -48,7 +51,8 @@ public final class AstScript {
 	 * @param code
 	 *                the script code statements.
 	 */
-	public AstScript(AstIdentifier trigger, AstIdentifier name, AstStatement[] code) {
+	public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstStatement[] code) {
+		super(range);
 		this.trigger = trigger;
 		this.name = name;
 		this.code = code;

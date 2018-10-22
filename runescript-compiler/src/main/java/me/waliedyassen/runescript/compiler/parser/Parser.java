@@ -23,6 +23,8 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.STRING;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Stack;
 
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
@@ -50,7 +52,12 @@ import me.waliedyassen.runescript.compiler.lexer.token.Token;
 public final class Parser {
 
 	// TODO: Detailed documentation
-	// TODO: Add accurate Range in every parsing rule.
+
+	/**
+	 * The {@link Range} object stack. It is used to calculate the nested
+	 * {@link Range}s.
+	 */
+	private final Stack<Range> ranges = new Stack<Range>();
 
 	/**
 	 * The lexical phase result object.
@@ -73,6 +80,7 @@ public final class Parser {
 	 * @return the parsed {@link AstScript} object.
 	 */
 	public AstScript script() {
+		pushRange();
 		// ------------------ the header parsing ------------------//
 		consume(LBRACKET);
 		AstIdentifier trigger = identifier();
@@ -89,7 +97,7 @@ public final class Parser {
 			}
 			statements.add(statement());
 		}
-		return new AstScript(trigger, name, statements.toArray(new AstStatement[statements.size()]));
+		return new AstScript(popRange(), trigger, name, statements.toArray(new AstStatement[statements.size()]));
 	}
 
 	/**
@@ -162,10 +170,11 @@ public final class Parser {
 	 * @return the matched {@link AstIfStatement} type object instance.
 	 */
 	public AstIfStatement ifStatement() {
-		Token start = consume(IF);
+		pushRange();
+		consume(IF);
 		AstExpression expression = parExpression();
 		AstStatement statement = statement();
-		return new AstIfStatement(makeRange(start), expression, statement);
+		return new AstIfStatement(popRange(), expression, statement);
 	}
 
 	/**
@@ -174,10 +183,11 @@ public final class Parser {
 	 * @return the matched {@link AstBlockStatement} type object instance.
 	 */
 	public AstBlockStatement blockStatement() {
-		Token start = consume(LBRACE);
+		pushRange();
+		consume(LBRACE);
 		AstStatement[] statements = statementsList();
-		Token end = consume(RBRACE);
-		return new AstBlockStatement(makeRange(start, end), statements);
+		consume(RBRACE);
+		return new AstBlockStatement(popRange(), statements);
 	}
 
 	/**
@@ -186,8 +196,9 @@ public final class Parser {
 	 * @return the parsed code-statements as {@link AstBlockStatement} object.
 	 */
 	public AstBlockStatement unbracedBlockStatement() {
+		pushRange();
 		AstStatement[] statements = statementsList();
-		return new AstBlockStatement(null, statements);
+		return new AstBlockStatement(popRange(), statements);
 	}
 
 	/**
@@ -210,9 +221,10 @@ public final class Parser {
 	 * @return the parsed {@link AstInteger} object.
 	 */
 	public AstInteger integerNumber() {
+		pushRange();
 		Token token = consume(INTEGER);
 		try {
-			return new AstInteger(makeRange(token), Integer.parseInt(token.getLexeme()));
+			return new AstInteger(popRange(), Integer.parseInt(token.getLexeme()));
 		} catch (NumberFormatException e) {
 			throw createError(token, "The literal " + token.getLexeme() + " of type int is out of range");
 		}
@@ -224,9 +236,10 @@ public final class Parser {
 	 * @return the parsed {@link AstLong} object.
 	 */
 	public AstLong longNumber() {
+		pushRange();
 		Token token = consume(LONG);
 		try {
-			return new AstLong(makeRange(token), Long.parseLong(token.getLexeme()));
+			return new AstLong(popRange(), Long.parseLong(token.getLexeme()));
 		} catch (NumberFormatException e) {
 			throw createError(token, "The literal " + token.getLexeme() + " of type long is out of range");
 		}
@@ -238,8 +251,9 @@ public final class Parser {
 	 * @return the parsed {@link AstString} object.
 	 */
 	public AstString string() {
+		pushRange();
 		Token token = consume(STRING);
-		return new AstString(makeRange(token), token.getLexeme());
+		return new AstString(popRange(), token.getLexeme());
 	}
 
 	/**
@@ -248,8 +262,9 @@ public final class Parser {
 	 * @return the parsed {@link AstBool} object.
 	 */
 	public AstBool bool() {
+		pushRange();
 		Token token = consume(BOOL);
-		return new AstBool(makeRange(token), Boolean.parseBoolean(token.getLexeme()));
+		return new AstBool(popRange(), Boolean.parseBoolean(token.getLexeme()));
 	}
 
 	/**
@@ -258,8 +273,9 @@ public final class Parser {
 	 * @return the parsed {@link AstIdentifier} object.
 	 */
 	public AstIdentifier identifier() {
-		Token token = consume(IDENTIFIER);
-		return new AstIdentifier(makeRange(token), token.getLexeme());
+		pushRange();
+		Token text = consume(IDENTIFIER);
+		return new AstIdentifier(popRange(), text.getLexeme());
 	}
 
 	/**
@@ -288,7 +304,9 @@ public final class Parser {
 	 * @see Lexer#take()
 	 */
 	public Token consume() {
-		return lexer.take();
+		Token token = lexer.take();
+		appendRange(token);
+		return token;
 	}
 
 	/**
@@ -330,17 +348,41 @@ public final class Parser {
 	}
 
 	/**
-	 * Creates a new {@link Range} object which includes the range of each one of
-	 * the specified {@code elements}.
-	 * 
-	 * @param elements
-	 *                 the elements which we will take the ranges from.
-	 * @return the created {@link Range} object.
+	 * Pushes a new {@link Range} into the {@link #ranges} stack. Calls to this
+	 * method should be followed by {@link #popRange()} to remove the pushed
+	 * {@link Range} object from the stack.
 	 */
-	private Range makeRange(Element... elements) {
-		Range range = new Range();
-		for (Element element : elements) {
-			range.add(element.getRange());
+	private void pushRange() {
+		ranges.push(new Range());
+	}
+
+	/**
+	 * Appends the specified {@link Element} range into the last {@link Range} in
+	 * the {@link #ranges} stack. If the element is null or there is no
+	 * {@link Range} object available into the stack, the method will have no
+	 * effect.
+	 * 
+	 * @param element
+	 *                the element to append it's range.
+	 */
+	private void appendRange(Element element) {
+		if (ranges.isEmpty() || element == null) {
+			return;
+		}
+		ranges.lastElement().add(element.getRange());
+	}
+
+	/**
+	 * Pops the last pushed {@link Range} object from the stack. If the stack is
+	 * empty, a {@link NoSuchElementException} will be thrown.
+	 * 
+	 * @return the popped {@link Range} object.
+	 * @throws NoSuchElementException
+	 */
+	private Range popRange() {
+		Range range = ranges.pop();
+		if (!ranges.isEmpty()) {
+			ranges.lastElement().add(range);
 		}
 		return range;
 	}
