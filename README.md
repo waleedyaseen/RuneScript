@@ -7,8 +7,8 @@ RuneScript is a domain-specific-language (DSL) that is designed purely to be a s
 * [Eclipse](https://www.eclipse.org/) - Development Environment
 * [Maven](https://maven.apache.org/) - Dependency Management
 
-## Credits
+## Contributors
 * [waliedyassen](https://github.com/waliedyassen)
 
 ## License
-This projected is licensed under the Mozilla Public License - check [LICENSE](LICENSE) for further details.
+This project is licensed under the Mozilla Public License - check [LICENSE](LICENSE) for further details.
