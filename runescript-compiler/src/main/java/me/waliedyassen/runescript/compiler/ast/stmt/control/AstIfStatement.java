@@ -5,10 +5,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.ast.stmt;
+package me.waliedyassen.runescript.compiler.ast.stmt.control;
 
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 
 /**
  * Represents an if-statement in the Abstract Syntax Tree.

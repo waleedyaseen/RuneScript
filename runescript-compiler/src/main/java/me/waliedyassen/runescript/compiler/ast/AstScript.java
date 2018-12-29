@@ -16,7 +16,7 @@ import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 /**
  * Represents a complete script with header and code statements. Contains
  * unverified AST nodes that represents the signature and the code statements.
- * 
+ *
  * @author Walied K. Yassen
  */
 public final class AstScript extends AstNode {
@@ -41,7 +41,7 @@ public final class AstScript extends AstNode {
 
 	/**
 	 * Construct a new {@link AstScript} type object instance.
-	 * 
+	 *
 	 * @param range
 	 *                the script source range.
 	 * @param trigger
@@ -60,7 +60,7 @@ public final class AstScript extends AstNode {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -75,7 +75,7 @@ public final class AstScript extends AstNode {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -113,7 +113,7 @@ public final class AstScript extends AstNode {
 	/**
 	 * Returns an {@link AstIdentifier} object which contains the name of our script
 	 * trigger.
-	 * 
+	 *
 	 * @return an {@link AstIdentifier} object which represents the script trigger
 	 *         type.
 	 */
@@ -124,7 +124,7 @@ public final class AstScript extends AstNode {
 	/**
 	 * Returns an {@link AstIdentifier} object which contains a string of the script
 	 * name.
-	 * 
+	 *
 	 * @return an {@link AstIdentifier} object which represents the script name.
 	 */
 	public AstIdentifier getName() {
@@ -134,7 +134,7 @@ public final class AstScript extends AstNode {
 	/**
 	 * Returns an array of {@link AstStatement} each statement represents a code
 	 * block or an execution line.
-	 * 
+	 *
 	 * @return an array {@link AstStatement} which represents the script code.
 	 */
 	public AstStatement[] getCode() {

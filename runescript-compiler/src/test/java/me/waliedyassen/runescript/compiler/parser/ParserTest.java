@@ -26,7 +26,7 @@ import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstIfStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.control.AstIfStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
