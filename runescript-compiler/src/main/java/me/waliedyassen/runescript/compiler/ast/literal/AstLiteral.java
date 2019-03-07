@@ -15,7 +15,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
  * 
  * @author Walied K. Yassen
  */
-public abstract class AstLiteral extends AstExpression {
+abstract class AstLiteral extends AstExpression {
 
 	/**
 	 * Constructs a new {@link AstLiteral} type object instance.
@@ -23,7 +23,7 @@ public abstract class AstLiteral extends AstExpression {
 	 * @param range
 	 *              the node source code range.
 	 */
-	public AstLiteral(Range range) {
+	AstLiteral(Range range) {
 		super(range);
 	}
 }

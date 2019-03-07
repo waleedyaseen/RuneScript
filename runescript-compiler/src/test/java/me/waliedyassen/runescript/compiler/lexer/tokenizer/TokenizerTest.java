@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
-import me.waliedyassen.runescript.compiler.lexer.token.CommentToken;
+import me.waliedyassen.runescript.compiler.lexer.token.comment.CommentToken;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 

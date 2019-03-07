@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.stmt.conditional;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
@@ -21,16 +22,19 @@ public final class AstIfStatement extends AstStatement {
 	/**
 	 * The if statement condition expression.
 	 */
-	private final AstExpression expression;
+	@Getter
+	private final AstExpression condition;
 
 	/**
 	 * The if true code statement.
 	 */
+	@Getter
 	private final AstStatement trueStatement;
 
 	/**
 	 * The if false code statement.
 	 */
+	@Getter
 	private final AstStatement falseStatement;
 
 	/**
@@ -38,44 +42,17 @@ public final class AstIfStatement extends AstStatement {
 	 *
 	 * @param range
 	 * 		the node source code range.
-	 * @param expression
-	 * 		the if statement condition expression.
+	 * @param condition
+	 * 		the condition of the if statement.
 	 * @param trueStatement
-	 * 		the if true code statement.
+	 * 		the true code statement of the if statement.
 	 * @param falseStatement
-	 * 		the if false code statement.
+	 * 		the false code statement of the if statement.
 	 */
-	public AstIfStatement(Range range, AstExpression expression, AstStatement trueStatement, AstStatement falseStatement) {
+	public AstIfStatement(Range range, AstExpression condition, AstStatement trueStatement, AstStatement falseStatement) {
 		super(range);
-		this.expression = expression;
+		this.condition = condition;
 		this.trueStatement = trueStatement;
 		this.falseStatement = falseStatement;
-	}
-
-	/**
-	 * Gets the if statement condition expression.
-	 *
-	 * @return the condition expression as {@link AstExpression} object.
-	 */
-	public AstExpression getExpression() {
-		return expression;
-	}
-
-	/**
-	 * Gets the if true code statement.
-	 *
-	 * @return the code statement as {@link AstStatement} object.
-	 */
-	public AstStatement getTrueStatement() {
-		return trueStatement;
-	}
-
-	/**
-	 * Gets the if false code statement.
-	 *
-	 * @return the code statement as {@link AstStatement} object.
-	 */
-	public AstStatement getFalseStatement() {
-		return falseStatement;
 	}
 }

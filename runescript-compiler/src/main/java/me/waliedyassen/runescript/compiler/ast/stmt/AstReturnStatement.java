@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.stmt;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 
@@ -20,6 +21,7 @@ public final class AstReturnStatement extends AstStatement {
 	/**
 	 * The returned expression.
 	 */
+	@Getter
 	private final AstExpression expression;
 
 	/**
@@ -34,14 +36,4 @@ public final class AstReturnStatement extends AstStatement {
 		super(range);
 		this.expression = expression;
 	}
-
-	/**
-	 * Gets the returned {@link AstExpression expression).
-	 * 
-	 * @return the returned expression object.
-	 */
-	public AstExpression getExpression() {
-		return expression;
-	}
-
 }

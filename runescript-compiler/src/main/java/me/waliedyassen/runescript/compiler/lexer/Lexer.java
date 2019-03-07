@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.lexer;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;

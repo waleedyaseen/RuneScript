@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.literal;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
@@ -36,11 +37,11 @@ public final class AstBool extends AstLiteral {
 
 	/**
 	 * Gets this {@link AstBool} literal value.
-	 * 
+	 *
 	 * @return the boolean value of the literal.
 	 */
+	// Note: This method was not converted to lombok to stay consistent with the naming of other literals.
 	public boolean getValue() {
 		return value;
 	}
-
 }

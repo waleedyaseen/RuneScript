@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.literal;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
@@ -19,6 +20,7 @@ public final class AstString extends AstLiteral {
 	/**
 	 * The string content value.
 	 */
+	@Getter
 	private final String value;
 
 	/**
@@ -32,14 +34,5 @@ public final class AstString extends AstLiteral {
 	public AstString(Range range, String value) {
 		super(range);
 		this.value = value;
-	}
-
-	/**
-	 * Gets the string content value.
-	 * 
-	 * @return the string content value.
-	 */
-	public String getValue() {
-		return value;
 	}
 }

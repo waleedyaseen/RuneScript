@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.stmt;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
@@ -20,6 +21,7 @@ public final class AstBlockStatement extends AstStatement {
 	/**
 	 * The child statements in this block.
 	 */
+	@Getter
 	private final AstStatement[] statements;
 
 	/**
@@ -33,14 +35,5 @@ public final class AstBlockStatement extends AstStatement {
 	public AstBlockStatement(Range range, AstStatement[] statements) {
 		super(range);
 		this.statements = statements;
-	}
-
-	/**
-	 * Gets the block statements list.
-	 * 
-	 * @return the statements list as {@link AstStatement} array object.
-	 */
-	public AstStatement[] getStatements() {
-		return statements;
 	}
 }

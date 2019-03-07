@@ -7,6 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.token;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
@@ -18,26 +21,31 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
  * 
  * @author Walied K. Yassen
  */
+@EqualsAndHashCode
+@ToString
 public class Token implements Element {
 
 	/**
 	 * The token kind.
 	 */
+	@Getter
 	private final Kind kind;
 
 	/**
 	 * The token source code range.
 	 */
+	@Getter
 	private final Range range;
 
 	/**
 	 * The token lexeme value.
 	 */
+	@Getter
 	private final String lexeme;
 
 	/**
 	 * Constructs a new {@link Token} type object instance.
-	 * 
+	 *
 	 * @param kind
 	 *               the token kind which tells what the token is.
 	 * @param range
@@ -53,7 +61,7 @@ public class Token implements Element {
 
 	/**
 	 * Constructs a new {@link Token} type object instance.
-	 * 
+	 *
 	 * @param kind
 	 *              the token kind which tells what the token is.
 	 * @param range
@@ -62,43 +70,4 @@ public class Token implements Element {
 	public Token(Kind kind, Range range) {
 		this(kind, range, null);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "Token [kind=" + kind + ", range=" + range + ", lexeme=" + lexeme + "]";
-	}
-
-	/**
-	 * Gets the token kind.
-	 * 
-	 * @return the token kind.
-	 */
-	public Kind getKind() {
-		return kind;
-	}
-
-	/**
-	 * Gets the token source code range.
-	 * 
-	 * @return the {@link Range} object.
-	 */
-	@Override
-	public Range getRange() {
-		return range;
-	}
-
-	/**
-	 * Gets the token lexeme value.
-	 * 
-	 * @return the lexeme value.
-	 */
-	public String getLexeme() {
-		return lexeme;
-	}
-
 }

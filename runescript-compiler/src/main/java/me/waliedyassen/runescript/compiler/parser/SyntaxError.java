@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
 /**
@@ -25,6 +26,7 @@ public class SyntaxError extends RuntimeException {
 	/**
 	 * The token which the error has occurred at.
 	 */
+	@Getter
 	private final Token token;
 
 	/**
@@ -38,14 +40,5 @@ public class SyntaxError extends RuntimeException {
 	public SyntaxError(Token token, String message) {
 		super(message);
 		this.token = token;
-	}
-
-	/**
-	 * Gets the token which the error has occurred at.
-	 * 
-	 * @return the token which the error has occurred at.
-	 */
-	public Token getToken() {
-		return token;
 	}
 }

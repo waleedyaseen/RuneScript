@@ -18,7 +18,7 @@ import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
-import me.waliedyassen.runescript.compiler.lexer.token.CommentToken;
+import me.waliedyassen.runescript.compiler.lexer.token.comment.CommentToken;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
@@ -320,7 +320,7 @@ public final class Tokenizer {
 	 * 
 	 * @author Walied K. Yassen
 	 */
-	private static enum State {
+	private enum State {
 		/**
 		 * Indicates that the parser is currently not parsing anything.
 		 */

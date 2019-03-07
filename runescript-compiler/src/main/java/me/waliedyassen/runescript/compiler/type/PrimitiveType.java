@@ -7,14 +7,18 @@
  */
 package me.waliedyassen.runescript.compiler.type;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.stack.StackType;
 
 /**
  * Represents the primitive types within our type system.
- * 
+ *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public enum PrimitiveType implements Type {
+
 	/**
 	 * The integer primitive type.
 	 */
@@ -36,43 +40,15 @@ public enum PrimitiveType implements Type {
 	BOOL("bool", StackType.INT);
 
 	/**
-	 * The type name.
+	 * The name of the type, used as keywords for the compiler
+	 * parser.
 	 */
+	@Getter
 	private final String name;
 
 	/**
-	 * The type stack type.
+	 * The stack which this type belongs to or encodes to.
 	 */
+	@Getter
 	private final StackType stackType;
-
-	/**
-	 * Constructs a new {@link PrimitiveType} enum constant.
-	 * 
-	 * @param name
-	 *                  the type name.
-	 * @param stackType
-	 *                  the type stack type.
-	 */
-	private PrimitiveType(String name, StackType stackType) {
-		this.name = name;
-		this.stackType = stackType;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see me.waliedyassen.runescript.compiler.type.Type#getName()
-	 */
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see me.waliedyassen.runescript.compiler.type.Type#getStackType()
-	 */
-	@Override
-	public StackType getStackType() {
-		return stackType;
-	}
 }

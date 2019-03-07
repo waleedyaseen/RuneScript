@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.ast;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 
@@ -15,30 +17,12 @@ import me.waliedyassen.runescript.commons.document.Range;
  * 
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public abstract class AstNode implements Element {
 
 	/**
 	 * The node source code range.
 	 */
+	@Getter
 	private final Range range;
-
-	/**
-	 * Constructs a new {@link AstNode} type object instance.
-	 * 
-	 * @param range
-	 *              the node source code range.
-	 */
-	public AstNode(Range range) {
-		this.range = range;
-	}
-
-	/**
-	 * Gets the node source code range
-	 * 
-	 * @return the {@link Range} object.
-	 */
-	@Override
-	public Range getRange() {
-		return range;
-	}
 }

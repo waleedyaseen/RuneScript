@@ -7,31 +7,39 @@
  */
 package me.waliedyassen.runescript.commons.document;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
 /**
- * Represents a ("line and column") structure with additonal utilitiy methods.
+ * Represents a ("line and column") structure with additional utility methods.
  * 
  * @author Walied K. Yassen
  */
+@EqualsAndHashCode
+@ToString
 public final class LineColumn {
 
 	/**
 	 * The {@link LineColumn} object with the minimum position.
 	 */
-	public static final LineColumn MIN = new LineColumn(0, 0);
+	static final LineColumn MIN = new LineColumn(0, 0);
 
 	/**
 	 * The {@link LineColumn} object with the maximum position.
 	 */
-	public static final LineColumn MAX = new LineColumn(Short.MAX_VALUE, Short.MAX_VALUE);
+	static final LineColumn MAX = new LineColumn(Short.MAX_VALUE, Short.MAX_VALUE);
 	
 	/**
 	 * The line number within the document.
 	 */
+	@Getter
 	private final int line;
 
 	/**
 	 * The column number within the line.
 	 */
+	@Getter
 	private final int column;
 
 	/**
@@ -79,77 +87,11 @@ public final class LineColumn {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "line: " + line + ", column: " + column;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + column;
-		result = prime * result + line;
-		return result;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		LineColumn other = (LineColumn) obj;
-		if (column != other.column) {
-			return false;
-		}
-		if (line != other.line) {
-			return false;
-		}
-		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see java.lang.Object#clone()
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public LineColumn clone() {
 		return new LineColumn(line, column);
-	}
-
-	/**
-	 * Gets the line number within the document.
-	 * 
-	 * @return the line number.
-	 */
-	public int getLine() {
-		return line;
-	}
-
-	/**
-	 * Gets the column number within the line.
-	 * 
-	 * @return the column number.
-	 */
-	public int getColumn() {
-		return column;
 	}
 }

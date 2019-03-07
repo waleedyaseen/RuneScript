@@ -7,21 +7,29 @@
  */
 package me.waliedyassen.runescript.commons.document;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
 /**
  * Represents a position range within a document.
  * 
  * @author Walied K. Yassen
  */
+@EqualsAndHashCode
+@ToString
 public final class Range {
 
 	/**
 	 * The range start position.
 	 */
+	@Getter
 	private LineColumn start;
 
 	/**
 	 * The range end position.
 	 */
+	@Getter
 	private LineColumn end;
 
 	/**
@@ -102,86 +110,10 @@ public final class Range {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "Range [start-> " + start + ", end-> " + end + "]";
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (end == null ? 0 : end.hashCode());
-		result = prime * result + (start == null ? 0 : start.hashCode());
-		return result;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Range other = (Range) obj;
-		if (end == null) {
-			if (other.end != null) {
-				return false;
-			}
-		} else if (!end.equals(other.end)) {
-			return false;
-		}
-		if (start == null) {
-			if (other.start != null) {
-				return false;
-			}
-		} else if (!start.equals(other.start)) {
-			return false;
-		}
-		return true;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public Range clone() {
 		return new Range(start.clone(), end.clone());
-	}
-
-	/**
-	 * Gets the start position.
-	 * 
-	 * @return the start position.
-	 */
-	public LineColumn getStart() {
-		return start;
-	}
-
-	/**
-	 * Gets the end position.
-	 * 
-	 * @return the end position.
-	 */
-	public LineColumn getEnd() {
-		return end;
 	}
 }

@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.expr;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
@@ -20,6 +21,7 @@ public final class AstIdentifier extends AstExpression {
 	/**
 	 * The identifier text content.
 	 */
+	@Getter
 	private final String text;
 
 	/**
@@ -33,14 +35,5 @@ public final class AstIdentifier extends AstExpression {
 	public AstIdentifier(Range range, String text) {
 		super(range);
 		this.text = text;
-	}
-
-	/**
-	 * GEts the identifier text content.
-	 * 
-	 * @return the identifier text content.
-	 */
-	public String getText() {
-		return text;
 	}
 }

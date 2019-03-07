@@ -14,7 +14,7 @@ import me.waliedyassen.runescript.commons.document.Range;
  * 
  * @author Walied K. Yassen
  */
-public abstract class AstNumber extends AstLiteral {
+abstract class AstNumber extends AstLiteral {
 
 	/**
 	 * Constructs a new {@link AstNumber} type object instance.
@@ -22,7 +22,7 @@ public abstract class AstNumber extends AstLiteral {
 	 * @param range
 	 *              the node source code range.
 	 */
-	public AstNumber(Range range) {
+	AstNumber(Range range) {
 		super(range);
 	}
 }

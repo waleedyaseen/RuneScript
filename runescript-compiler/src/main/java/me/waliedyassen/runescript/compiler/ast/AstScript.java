@@ -9,6 +9,8 @@ package me.waliedyassen.runescript.compiler.ast;
 
 import java.util.Arrays;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
@@ -19,6 +21,7 @@ import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
  *
  * @author Walied K. Yassen
  */
+@EqualsAndHashCode
 public final class AstScript extends AstNode {
 
 	/**
@@ -26,17 +29,20 @@ public final class AstScript extends AstNode {
 	 * executed, after the occurrence of a specific event or just after a direct
 	 * call from another script.
 	 */
+	@Getter
 	private final AstIdentifier trigger;
 
 	/**
 	 * The script name. The name must be unique all over the current compiling
 	 * scripts, it is used for referring to this script from other scripts.
 	 */
+	@Getter
 	private final AstIdentifier name;
 
 	/**
 	 * The script code statements.
 	 */
+	@Getter
 	private final AstStatement[] code;
 
 	/**
@@ -56,88 +62,5 @@ public final class AstScript extends AstNode {
 		this.trigger = trigger;
 		this.name = name;
 		this.code = code;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Arrays.hashCode(code);
-		result = prime * result + (name == null ? 0 : name.hashCode());
-		result = prime * result + (trigger == null ? 0 : trigger.hashCode());
-		return result;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		AstScript other = (AstScript) obj;
-		if (!Arrays.equals(code, other.code)) {
-			return false;
-		}
-		if (name == null) {
-			if (other.name != null) {
-				return false;
-			}
-		} else if (!name.equals(other.name)) {
-			return false;
-		}
-		if (trigger == null) {
-			if (other.trigger != null) {
-				return false;
-			}
-		} else if (!trigger.equals(other.trigger)) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Returns an {@link AstIdentifier} object which contains the name of our script
-	 * trigger.
-	 *
-	 * @return an {@link AstIdentifier} object which represents the script trigger
-	 *         type.
-	 */
-	public AstIdentifier getTrigger() {
-		return trigger;
-	}
-
-	/**
-	 * Returns an {@link AstIdentifier} object which contains a string of the script
-	 * name.
-	 *
-	 * @return an {@link AstIdentifier} object which represents the script name.
-	 */
-	public AstIdentifier getName() {
-		return name;
-	}
-
-	/**
-	 * Returns an array of {@link AstStatement} each statement represents a code
-	 * block or an execution line.
-	 *
-	 * @return an array {@link AstStatement} which represents the script code.
-	 */
-	public AstStatement[] getCode() {
-		return code;
 	}
 }

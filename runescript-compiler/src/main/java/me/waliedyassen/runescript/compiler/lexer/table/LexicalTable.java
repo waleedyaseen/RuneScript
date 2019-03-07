@@ -184,7 +184,7 @@ public final class LexicalTable {
 	/**
 	 * Registers a new operator into the table.
 	 * 
-	 * @param character
+	 * @param sequence
 	 *                  the operator sequence.
 	 * @param kind
 	 *                  the operator token kind.

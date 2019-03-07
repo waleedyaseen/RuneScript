@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.literal;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
@@ -19,6 +20,7 @@ public final class AstInteger extends AstNumber {
 	/**
 	 * The integer value.
 	 */
+	@Getter
 	private final int value;
 
 	/**
@@ -32,14 +34,5 @@ public final class AstInteger extends AstNumber {
 	public AstInteger(Range range, int value) {
 		super(range);
 		this.value = value;
-	}
-
-	/**
-	 * Gets the integer value.
-	 * 
-	 * @return the integer value.
-	 */
-	public int getValue() {
-		return value;
 	}
 }
