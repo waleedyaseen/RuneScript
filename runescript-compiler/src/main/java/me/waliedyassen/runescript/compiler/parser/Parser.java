@@ -98,7 +98,7 @@ public final class Parser {
 			}
 			statements.add(statement());
 		}
-		return new AstScript(popRange(), trigger, name, statements.toArray(new AstStatement[statements.size()]));
+		return new AstScript(popRange(), trigger, name, statements.toArray(new AstStatement[0]));
 	}
 
 	/**
