@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
 
+import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import org.junit.jupiter.api.Test;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
@@ -26,7 +27,7 @@ import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.control.AstIfStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
@@ -123,6 +124,20 @@ final class ParserTest {
 		}, () -> {
 			// missing false code statement.
 			assertThrows(SyntaxError.class, () -> fromString("if (2) else").ifStatement());
+		});
+	}
+
+	@Test
+	void testWhileStatement() {
+		assertAll("while statement", () -> {
+			// valid while loop statement.
+			assertTrue(fromString("while (true) {}").whileStatement() instanceof AstWhileStatement);
+		}, () -> {
+			// missing condition expression.
+			assertThrows(SyntaxError.class, () -> fromString("while () {}").whileStatement());
+		}, () -> {
+			// missing code statement.
+			assertThrows(SyntaxError.class, () -> fromString("while (true)").whileStatement());
 		});
 	}
 

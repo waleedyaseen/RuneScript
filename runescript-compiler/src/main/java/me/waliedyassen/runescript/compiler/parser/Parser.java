@@ -25,7 +25,8 @@ import me.waliedyassen.runescript.compiler.ast.literal.AstString;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstReturnStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.control.AstIfStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
@@ -132,6 +133,8 @@ public final class Parser {
 		switch (kind) {
 			case IF:
 				return ifStatement();
+			case WHILE:
+				return whileStatement();
 			case LBRACE:
 				return blockStatement();
 			case RETURN:
@@ -163,6 +166,19 @@ public final class Parser {
 		var trueStatement = statement();
 		var falseStatement = safeConsume(ELSE) ? statement() : null;
 		return new AstIfStatement(popRange(), expression, trueStatement, falseStatement);
+	}
+
+	/**
+	 * Attempts to match the next token set to a while-statement rule.
+	 *
+	 * @return the matched {@link AstWhileStatement} type object instance.
+	 */
+	public AstWhileStatement whileStatement() {
+		pushRange();
+		consume(WHILE);
+		var expression = parExpression();
+		var statement = statement();
+		return new AstWhileStatement(popRange(), expression, statement);
 	}
 
 	/**
