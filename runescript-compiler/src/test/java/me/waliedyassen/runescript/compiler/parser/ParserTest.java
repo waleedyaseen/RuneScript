@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018 Walied K. Yassen, All rights reserved.
  *
- * This Source Code Form is subject to the terms of the Mozilla 
+ * This Source Code Form is subject to the terms of the Mozilla
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
@@ -112,6 +112,17 @@ final class ParserTest {
 		}, () -> {
 			// no condition expression
 			assertThrows(SyntaxError.class, () -> fromString("if(){}").ifStatement());
+		});
+	}
+
+	@Test
+	void testIfElseStatement() {
+		assertAll("if else statement", () -> {
+			// valid if else statement.
+			assertTrue(fromString("if(1) {} else if(2) {}").ifStatement().getFalseStatement() instanceof AstIfStatement);
+		}, () -> {
+			// missing false code statement.
+			assertThrows(SyntaxError.class, () -> fromString("if (2) else").ifStatement());
 		});
 	}
 

@@ -7,22 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.BOOL;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.COMMA;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IDENTIFIER;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.IF;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.INTEGER;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LBRACE;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LBRACKET;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LONG;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.LPAREN;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.RBRACE;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.RBRACKET;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.RPAREN;
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.STRING;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
@@ -69,7 +56,7 @@ public final class Parser {
 	 * Constructs a new {@link Parser} type object instance.
 	 *
 	 * @param lexer
-	 *              the lexical phase result object.
+	 * 		the lexical phase result object.
 	 */
 	public Parser(Lexer lexer) {
 		this.lexer = lexer;
@@ -90,12 +77,9 @@ public final class Parser {
 		consume(RBRACKET);
 		// ------------------ the code parsing ------------------//
 		var statements = new ArrayList<AstStatement>();
-		// keep parsing until we have no more tokens left in the file.
-		while (lexer.remaining() > 0) {
-			// check whether we reached the end of the file or not.
-			if (peekKind() == Kind.EOF) {
-				break;
-			}
+		// keep parsing as long as we have a statement next, this allows
+		// the file to contain multiple scripts, and not just only one.
+		while (isStatement()) {
 			statements.add(statement());
 		}
 		return new AstScript(popRange(), trigger, name, statements.toArray(new AstStatement[0]));
@@ -110,16 +94,16 @@ public final class Parser {
 	public AstExpression expression() {
 		var kind = peekKind();
 		switch (kind) {
-		case INTEGER:
-			return integerNumber();
-		case LONG:
-			return longNumber();
-		case STRING:
-			return string();
-		case BOOL:
-			return bool();
-		default:
-			throw createError(consume(), "Expecting an expression");
+			case INTEGER:
+				return integerNumber();
+			case LONG:
+				return longNumber();
+			case STRING:
+				return string();
+			case BOOL:
+				return bool();
+			default:
+				throw createError(consume(), "Expecting an expression");
 		}
 	}
 
@@ -146,14 +130,14 @@ public final class Parser {
 	public AstStatement statement() {
 		var kind = peekKind();
 		switch (kind) {
-		case IF:
-			return ifStatement();
-		case LBRACE:
-			return blockStatement();
-		case RETURN:
-			return returnStatement();
-		default:
-			throw createError(consume(), "Expecting a statement");
+			case IF:
+				return ifStatement();
+			case LBRACE:
+				return blockStatement();
+			case RETURN:
+				return returnStatement();
+			default:
+				throw createError(consume(), "Expecting a statement");
 		}
 	}
 
@@ -176,8 +160,9 @@ public final class Parser {
 		pushRange();
 		consume(IF);
 		var expression = parExpression();
-		var statement = statement();
-		return new AstIfStatement(popRange(), expression, statement);
+		var trueStatement = statement();
+		var falseStatement = safeConsume(ELSE) ? statement() : null;
+		return new AstIfStatement(popRange(), expression, trueStatement, falseStatement);
 	}
 
 	/**
@@ -214,7 +199,7 @@ public final class Parser {
 		while (isStatement()) {
 			list.add(statement());
 		}
-		return list.toArray(new AstStatement[list.size()]);
+		return list.toArray(new AstStatement[0]);
 
 	}
 
@@ -297,10 +282,12 @@ public final class Parser {
 	 * {@linkplain Kind kind} matches the specified {@linkplain Kind kind}.
 	 *
 	 * @param expected
-	 *                 the expected token kind.
+	 * 		the expected token kind.
+	 *
 	 * @return the expected {@link Token} object.
+	 *
 	 * @throws SyntaxError
-	 *                     if the next token does not match the expected token.
+	 * 		if the next token does not match the expected token.
 	 */
 	public Token consume(Kind expected) {
 		var token = consume();
@@ -312,9 +299,32 @@ public final class Parser {
 	}
 
 	/**
+	 * Takes the next {@link Token} object and checks whether or not it's
+	 * {@linkplain Kind kind} matches the specified {@linkplain Kind kind}.
+	 *
+	 * @param expected
+	 * 		the expected token kind.
+	 *
+	 * @return <code>true</code> if the token
+	 *
+	 * @throws SyntaxError
+	 * 		if the next token does not match the expected token.
+	 */
+	public boolean safeConsume(Kind expected) {
+		var token = peek();
+		var kind = token == null ? Kind.EOF : token.getKind();
+		if (kind == expected) {
+			consume();
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Takes the next {@link Token} object from the lexer.
 	 *
 	 * @return the next {@link Token} object or {@code null}.
+	 *
 	 * @see Lexer#take()
 	 */
 	public Token consume() {
@@ -341,6 +351,7 @@ public final class Parser {
 	 * Takes the next {@link Token} object without advancing the lexer cursor.
 	 *
 	 * @return the next {@link Token} object or {@code null}.
+	 *
 	 * @see Lexer#peek()
 	 */
 	public Token peek() {
@@ -377,7 +388,7 @@ public final class Parser {
 	 * effect.
 	 *
 	 * @param element
-	 *                the element to append it's range.
+	 * 		the element to append it's range.
 	 */
 	private void appendRange(Element element) {
 		if (ranges.isEmpty() || element == null) {
@@ -391,6 +402,7 @@ public final class Parser {
 	 * empty, a {@link NoSuchElementException} will be thrown.
 	 *
 	 * @return the popped {@link Range} object.
+	 *
 	 * @throws NoSuchElementException
 	 */
 	private Range popRange() {
@@ -405,9 +417,9 @@ public final class Parser {
 	 * Throws a syntax error indicating a mismatched grammar rule.
 	 *
 	 * @param token
-	 *                the token which the error has occurred at.
+	 * 		the token which the error has occurred at.
 	 * @param message
-	 *                the error message describing why the error has occurred.
+	 * 		the error message describing why the error has occurred.
 	 */
 	private void throwError(Token token, String message) {
 		throw createError(token, message);
@@ -417,9 +429,10 @@ public final class Parser {
 	 * Creates a syntax error indicating a mismatched grammar rule.
 	 *
 	 * @param token
-	 *                the token which the error has occurred at.
+	 * 		the token which the error has occurred at.
 	 * @param message
-	 *                the error message describing why the error has occurred
+	 * 		the error message describing why the error has occurred
+	 *
 	 * @return the created {@link SyntaxError} object.
 	 */
 	private SyntaxError createError(Token token, String message) {
