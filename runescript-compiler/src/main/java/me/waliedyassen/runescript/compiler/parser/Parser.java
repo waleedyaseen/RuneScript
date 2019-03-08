@@ -7,20 +7,13 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
-
-import java.io.IOException;
-import java.io.StringBufferInputStream;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
-import java.util.Stack;
-
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
+import me.waliedyassen.runescript.compiler.ast.expr.var.AstGlobalVariable;
+import me.waliedyassen.runescript.compiler.ast.expr.var.AstLocalVariable;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstReturnStatement;
@@ -28,10 +21,13 @@ import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
-import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
-import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+
+import java.util.ArrayList;
+import java.util.Stack;
+
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
 
 /**
  * Represents the grammar parser, it takes a {@link Lexer} fed with
@@ -48,7 +44,7 @@ public final class Parser {
 	 * The {@link Range} object stack. It is used to calculate the nested
 	 * {@link Range}s.
 	 */
-	private final Stack<Range> ranges = new Stack<Range>();
+	private final Stack<Range> ranges = new Stack<>();
 
 	/**
 	 * The lexical phase result object.
@@ -110,6 +106,10 @@ public final class Parser {
 				return bool();
 			case IDENTIFIER:
 				return identifier();
+			case DOLLAR:
+				return localVariable();
+			case MODULO:
+				return globalVariable();
 			default:
 				throw createError(consume(), "Expecting an expression");
 		}
@@ -122,7 +122,7 @@ public final class Parser {
 	 */
 	public boolean isExpression() {
 		var kind = peekKind();
-		return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER;
+		return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MODULO;
 	}
 
 	/**
@@ -316,7 +316,7 @@ public final class Parser {
 	}
 
 	/**
-	 * Attempts to match the next list of tokens to an {@link AstIdentifier} object.
+	 * Attempts to match the next set of tokens to an {@link AstIdentifier} object.
 	 *
 	 * @return the parsed {@link AstIdentifier} object.
 	 */
@@ -324,6 +324,30 @@ public final class Parser {
 		pushRange();
 		var text = consume(IDENTIFIER);
 		return new AstIdentifier(popRange(), text.getLexeme());
+	}
+
+	/**
+	 * Attempts to match the next set of tokens to an {@link AstLocalVariable} object.
+	 *
+	 * @return the parsed {@link AstLocalVariable} object.
+	 */
+	public AstLocalVariable localVariable() {
+		pushRange();
+		consume(DOLLAR);
+		var name = identifier();
+		return new AstLocalVariable(popRange(), name);
+	}
+
+	/**
+	 * Attempts to match the next set of tokens to an {@link AstGlobalVariable} object.
+	 *
+	 * @return the parsed {@link AstGlobalVariable} object.
+	 */
+	public AstGlobalVariable globalVariable() {
+		pushRange();
+		consume(MODULO);
+		var name = identifier();
+		return new AstGlobalVariable(popRange(), name);
 	}
 
 	/**
@@ -448,11 +472,9 @@ public final class Parser {
 
 	/**
 	 * Pops the last pushed {@link Range} object from the stack. If the stack is
-	 * empty, a {@link NoSuchElementException} will be thrown.
+	 * empty.
 	 *
 	 * @return the popped {@link Range} object.
-	 *
-	 * @throws NoSuchElementException
 	 */
 	private Range popRange() {
 		var range = ranges.pop();

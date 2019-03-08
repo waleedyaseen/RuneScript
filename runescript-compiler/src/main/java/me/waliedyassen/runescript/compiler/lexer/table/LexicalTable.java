@@ -64,6 +64,7 @@ public final class LexicalTable {
 		}
 	}
 
+	//
 	/**
 	 * Initialises the default lexical table content.
 	 */
@@ -87,7 +88,9 @@ public final class LexicalTable {
 		registerSeparator('{', Kind.LBRACE);
 		registerSeparator('}', Kind.RBRACE);
 		registerSeparator(',', Kind.COMMA);
+		registerSeparator('~', Kind.TILDE);
 		registerSeparator('$', Kind.DOLLAR);
+		registerSeparator('%', Kind.MODULO);
 		registerSeparator(';', Kind.SEMICOLON);
 		// the operators chunk.
 		registerOperator("=", Kind.EQUALS);
@@ -96,7 +99,6 @@ public final class LexicalTable {
 		registerOperator(">", Kind.GREATER_THAN);
 		registerOperator("<=", Kind.LESS_THAN_OR_EQUAL);
 		registerOperator(">=", Kind.GREATER_THAN_OR_EQUAL);
-
 	}
 
 	/**

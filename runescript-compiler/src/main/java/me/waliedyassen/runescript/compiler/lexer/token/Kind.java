@@ -129,9 +129,19 @@ public enum Kind {
 	DOLLAR,
 
 	/**
+	 * The modulo separator token.
+	 */
+	MODULO,
+
+	/**
 	 * The semicolon separator token kind.
 	 */
 	SEMICOLON,
+
+	/**
+	 * The tilde separator token kind.
+	 */
+	TILDE,
 
 	// the operators chunk.
 
