@@ -8,10 +8,10 @@
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import static me.waliedyassen.runescript.commons.stream.CharStream.NULL;
+import static me.waliedyassen.runescript.compiler.lexer.tokenizer.Mode.*;
 
 import java.util.*;
 
-import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
@@ -30,29 +30,24 @@ public final class Tokenizer {
 	// Note: using the ECJ/JavaC tools error messages for now.
 
 	/**
+	 * The current states
+	 */
+	private final Stack<State> stack = new Stack<>();
+
+	/**
 	 * The lexical symbol table.
 	 */
 	private final LexicalTable table;
 
 	/**
-	 * The characters input stream.
+	 * The characters stream of the source.
 	 */
 	private final CharStream stream;
 
 	/**
-	 * The current token lexeme builder.
+	 * The current state
 	 */
-	private final StringBuilder builder;
-
-	/**
-	 * The current token start position.
-	 */
-	private LineColumn position;
-
-	/**
-	 * The current state of the parser.
-	 */
-	private State state = State.NONE;
+	private State state = State.emptyState();
 
 	/**
 	 * Constructs a new {@link Tokenizer} type object instance.
@@ -65,7 +60,6 @@ public final class Tokenizer {
 	public Tokenizer(LexicalTable table, CharStream stream) {
 		this.table = table;
 		this.stream = stream;
-		builder = new StringBuilder();
 	}
 
 	/**
@@ -75,21 +69,21 @@ public final class Tokenizer {
 	 * @return the {@link Token} object or {@code null} if none could be tokenized.
 	 */
 	public Token parse() {
-		// the multi-line comment content holder.
-		List<String> comment = null;
+		// grab the builder from the state for ease of access.
+		final var builder = state.builder;
 		// the character queue of the parser.
 		char current, next;
 		// keep parsing until we have a something to return.
 		while (true) {
 			// mark the current position if we have no state yet.
-			if (state == State.NONE) {
+			if (state.mode == Mode.NONE) {
 				mark();
 			}
 			// take the current and next characters from the stream.
 			current = stream.take();
 			next = stream.peek();
 			// parse the current character depending on the current state.
-			switch (state) {
+			switch (state.mode) {
 				case NONE:
 					if (Character.isWhitespace(current)) {
 						continue;
@@ -99,19 +93,19 @@ public final class Tokenizer {
 							return createToken(Kind.EOF);
 						} else if (isIdentifierStart(current)) {
 							builder.append(current);
-							state = State.IDENTIFIER;
+							state.mode = Mode.IDENTIFIER;
 						} else if (current == '\"') {
-							state = State.STRING_LITERAL;
+							state.mode = Mode.STRING_LITERAL;
 						} else if (Character.isDigit(current) || (current == '-' || current == '+') && Character.isDigit(next)) {
 							builder.append(current);
-							state = State.NUMBER_LITERAL;
+							state.mode = Mode.NUMBER_LITERAL;
 						} else if (current == '/' && next == '/') {
 							stream.take();
-							state = State.LINE_COMMENT;
+							state.mode = Mode.LINE_COMMENT;
 						} else if (current == '/' && next == '*') {
 							stream.take();
-							comment = new ArrayList<>();
-							state = State.MULTI_COMMENT;
+							state.lines = new ArrayList<>();
+							state.mode = Mode.MULTI_COMMENT;
 						} else if (table.isSeparator(current)) {
 							return createToken(table.lookupSeparator(current), Character.toString(current));
 						} else {
@@ -141,10 +135,9 @@ public final class Tokenizer {
 				case IDENTIFIER:
 					if (isIdentifierPart(current)) {
 						builder.append(current);
-						stream.mark();
 					} else {
-						stream.reset();
-						String word = builder.toString();
+						stream.rollback(1);
+						var word = builder.toString();
 						return createToken(table.isKeyword(word) ? table.lookupKeyword(word) : Kind.IDENTIFIER, builder.toString());
 					}
 					break;
@@ -213,16 +206,16 @@ public final class Tokenizer {
 						throwError("Unexpected end of comment");
 					} else if (current == '\n') {
 						var line = trimComment(builder.toString(), true);
-						// Ignores the header line if it was empty.
-						if (comment.size() != 0 || line.length() != 0) {
-							comment.add(line);
+						// ignores the header line if it was empty.
+						if (state.lines.size() != 0 || line.length() != 0) {
+							state.lines.add(line);
 						}
 						resetBuilder();
 					} else if (current == '*' && next == '/') {
 						stream.take();
-						return createToken(Kind.COMMENT, String.join("\n", comment));
+						return createToken(Kind.COMMENT, String.join("\n", state.lines));
 					} else {
-						builder.append(current);
+						state.builder.append(current);
 					}
 					break;
 			}
@@ -248,8 +241,8 @@ public final class Tokenizer {
 	 * Creates a new {@link Token} object with the specified
 	 * {@code kind} and {@code lexeme}.
 	 * <p>
-	 * Upon calling this method, the {@link #state} of the parser
-	 * will be reset to it's default which is {@link State#NONE}.
+	 * Upon calling this method, the {@link State#mode} of the parser
+	 * will be reset to it's default which is {@link Mode#NONE}.
 	 *
 	 * @param kind
 	 * 		the kind of the token.
@@ -259,7 +252,7 @@ public final class Tokenizer {
 	 * @return the created {@link Token} object instance.
 	 */
 	private Token createToken(Kind kind, String lexeme) {
-		state = State.NONE;
+		state.mode = Mode.NONE;
 		return new Token(kind, range(), lexeme);
 	}
 
@@ -267,8 +260,8 @@ public final class Tokenizer {
 	 * Creates a new {@link Token} object with the specified
 	 * {@code kind}, {@code range}, and {@code lexeme}.
 	 * <p>
-	 * Upon calling this method, the {@link #state} of the parser
-	 * will be reset to it's default which is {@link State#NONE}.
+	 * Upon calling this method, the {@link State#mode} of the parser
+	 * will be reset to it's default which is {@link Mode#NONE}.
 	 *
 	 * @param kind
 	 * 		the kind of the token.
@@ -280,7 +273,7 @@ public final class Tokenizer {
 	 * @return the created {@link Token} object instance.
 	 */
 	private Token createToken(Kind kind, Range range, String lexeme) {
-		state = State.NONE;
+		state.mode = Mode.NONE;
 		return new Token(kind, range, lexeme);
 	}
 
@@ -288,8 +281,8 @@ public final class Tokenizer {
 	 * Resets the lexeme builder state.
 	 */
 	private void resetBuilder() {
-		if (builder.length() > 0) {
-			builder.setLength(0);
+		if (state.builder.length() > 0) {
+			state.builder.setLength(0);
 		}
 	}
 
@@ -297,7 +290,7 @@ public final class Tokenizer {
 	 * Marks the current position as the token start position.
 	 */
 	private void mark() {
-		position = stream.position();
+		state.position = stream.position();
 	}
 
 	/**
@@ -309,7 +302,32 @@ public final class Tokenizer {
 	 * @see #mark()
 	 */
 	private Range range() {
-		return new Range(position, stream.position());
+		return new Range(state.position, stream.position());
+	}
+
+	/**
+	 * Pushes a new empty state to the stack.
+	 */
+	private void pushState() {
+		if (state == null) {
+			throw new IllegalStateException("There is currently no State object bound.");
+		}
+		stack.push(state);
+		state = State.emptyState();
+	}
+
+	/**
+	 * Pops the next state from the stack and binds it
+	 * as the current active state.
+	 * <p>
+	 * This will completely get rid of the currently bound
+	 * state.
+	 */
+	private void popState() {
+		if (stack.isEmpty()) {
+			throw new IllegalStateException("There is currently no State objects pushed to the stack.");
+		}
+		state = stack.pop();
 	}
 
 	/**
@@ -382,42 +400,5 @@ public final class Tokenizer {
 	 */
 	private static boolean isIdentifierPart(char ch) {
 		return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_';
-	}
-
-	/**
-	 * Represents the parser state.
-	 *
-	 * @author Walied K. Yassen
-	 */
-	private enum State {
-		/**
-		 * Indicates that the parser is currently not parsing anything.
-		 */
-		NONE,
-
-		/**
-		 * Indicates that the parser is currently parsing an identifier.
-		 */
-		IDENTIFIER,
-
-		/**
-		 * Indicates that the parser is currently parsing a string literal.
-		 */
-		STRING_LITERAL,
-
-		/**
-		 * Indicates that the parser is currently parsing a number literal.
-		 */
-		NUMBER_LITERAL,
-
-		/**
-		 * Indicates that the parser is currently parsing a line comment.
-		 */
-		LINE_COMMENT,
-
-		/**
-		 * Indicates that the parser is currently parsing a multi-line comment.
-		 */
-		MULTI_COMMENT,
 	}
 }

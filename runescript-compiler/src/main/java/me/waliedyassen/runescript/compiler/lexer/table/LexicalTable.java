@@ -75,7 +75,7 @@ public final class LexicalTable {
 		registerKeyword("else", Kind.ELSE);
 		registerKeyword("while", Kind.WHILE);
 		registerKeyword("return", Kind.RETURN);
-		for (PrimitiveType type : PrimitiveType.values()) {
+		for (var type : PrimitiveType.values()) {
 			registerKeyword(type.getName(), Kind.TYPE);
 			registerKeyword("def_" + type.getName(), Kind.DEFINE);
 		}
