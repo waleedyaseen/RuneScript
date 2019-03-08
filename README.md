@@ -3,10 +3,6 @@
 
 RuneScript is a domain-specific-language (DSL) that is designed purely to be a scripting language that can be used in RuneScape Private Server frameworks.
 
-## Built With
-* [Eclipse](https://www.eclipse.org/) - Development Environment
-* [Maven](https://maven.apache.org/) - Dependency Management
-
 ## Contributors
 * [waliedyassen](https://github.com/waliedyassen)
 
