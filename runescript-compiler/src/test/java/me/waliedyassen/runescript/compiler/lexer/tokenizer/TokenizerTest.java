@@ -7,20 +7,16 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
-import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringBufferInputStream;
-
-import me.waliedyassen.runescript.compiler.lexer.Lexer;
-import org.junit.jupiter.api.Test;
-
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.StringBufferInputStream;
+
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Holds all of the test cases for {@link Tokenizer} type.

@@ -9,27 +9,29 @@ package me.waliedyassen.runescript.compiler.parser;
 
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
 
+import java.io.IOException;
+import java.io.StringBufferInputStream;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.ast.literal.AstBool;
-import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
-import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
-import me.waliedyassen.runescript.compiler.ast.literal.AstString;
+import me.waliedyassen.runescript.compiler.ast.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstReturnStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
+import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 
 /**
  * Represents the grammar parser, it takes a {@link Lexer} fed with
@@ -102,11 +104,25 @@ public final class Parser {
 				return longNumber();
 			case STRING:
 				return string();
+			case CONCATB:
+				return concatString();
 			case BOOL:
 				return bool();
+			case IDENTIFIER:
+				return identifier();
 			default:
 				throw createError(consume(), "Expecting an expression");
 		}
+	}
+
+	/**
+	 * Checks whether or not the next token is a valid expression start.
+	 *
+	 * @return <code>true</code> if it is otherwise <code>false</code>.
+	 */
+	public boolean isExpression() {
+		var kind = peekKind();
+		return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER;
 	}
 
 	/**
@@ -270,6 +286,22 @@ public final class Parser {
 		pushRange();
 		var token = consume(STRING);
 		return new AstString(popRange(), token.getLexeme());
+	}
+
+	/**
+	 * Attempts to match the next token set to an {@link AstStringConcat} node.
+	 *
+	 * @return the parsed {@link AstStringConcat} object.
+	 */
+	public AstStringConcat concatString() {
+		pushRange();
+		consume(CONCATB);
+		var expressions = new ArrayList<AstExpression>();
+		while (isExpression()) {
+			expressions.add(expression());
+		}
+		consume(CONCATE);
+		return new AstStringConcat(popRange(), expressions.toArray(new AstExpression[0]));
 	}
 
 	/**

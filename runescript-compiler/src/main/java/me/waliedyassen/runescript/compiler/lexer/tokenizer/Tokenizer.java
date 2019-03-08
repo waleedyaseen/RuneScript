@@ -144,8 +144,9 @@ public final class Tokenizer {
 				case IDENTIFIER:
 					if (isIdentifierPart(current)) {
 						builder.append(current);
+						stream.mark();
 					} else {
-						stream.rollback(1);
+						stream.reset();
 						var word = builder.toString();
 						return createToken(table.isKeyword(word) ? table.lookupKeyword(word) : IDENTIFIER, builder.toString());
 					}
@@ -353,11 +354,13 @@ public final class Tokenizer {
 	 * 		the kind of the state that will be pushed as a new state.
 	 */
 	private void pushState(State.StateKind kind) {
-		if (state == null) {
+		var previous = state;
+		if (previous == null) {
 			throw new IllegalStateException("There is currently no State object bound.");
 		}
-		stack.push(state);
+		stack.push(previous);
 		state = State.emptyState(kind);
+		state.position = previous.position;
 	}
 
 	/**

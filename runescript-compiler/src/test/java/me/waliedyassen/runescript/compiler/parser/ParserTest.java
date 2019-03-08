@@ -7,33 +7,25 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringBufferInputStream;
-
-import me.waliedyassen.runescript.commons.stream.CharStream;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
-import org.junit.jupiter.api.Test;
-
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.literal.AstInteger;
 import me.waliedyassen.runescript.compiler.ast.literal.AstLong;
 import me.waliedyassen.runescript.compiler.ast.literal.AstString;
+import me.waliedyassen.runescript.compiler.ast.literal.AstStringConcat;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.StringBufferInputStream;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Walied K. Yassen
@@ -58,6 +50,9 @@ final class ParserTest {
 		assertAll("expression", () -> {
 			// string
 			assertTrue(fromString("\"myString\"").expression() instanceof AstString);
+		}, () -> {
+			// interpolated string.
+			assertTrue(fromString("\"my interpolated string <br>\"").expression() instanceof AstStringConcat);
 		}, () -> {
 			// integer
 			assertTrue(fromString("123456").expression() instanceof AstInteger);
@@ -254,6 +249,15 @@ final class ParserTest {
 	}
 
 	@Test
+	void testStringConcat() {
+		assertEquals(fromString("\"my interpolated <br> text\"").concatString().getExpressions().length, 3);
+		var nested = fromString("\"my nested interpolated string <\"<test>\">\"").concatString().getExpressions();
+		assertEquals(nested.length, 2);
+		assertTrue(nested[0] instanceof AstString);
+		assertTrue(nested[1] instanceof AstStringConcat);
+	}
+
+	@Test
 	void testBool() {
 		assertAll("bool", () -> {
 			// valid boolean
@@ -271,7 +275,7 @@ final class ParserTest {
 	}
 
 	private static Parser fromString(String text) {
-		try (InputStream stream = new StringBufferInputStream(text)) {
+		try (var stream = new StringBufferInputStream(text)) {
 			var tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
 			var lexer = new Lexer(tokenizer);
 			return new Parser(lexer);
@@ -282,7 +286,7 @@ final class ParserTest {
 	}
 
 	private static Parser fromResource(String name) {
-		try (InputStream stream = ClassLoader.getSystemResourceAsStream(name)) {
+		try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
 			Tokenizer tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
 			Lexer lexer = new Lexer(tokenizer);
 			Parser parser = new Parser(lexer);
