@@ -1,8 +1,18 @@
+/*
+ * Copyright (c) 2018 Walied K. Yassen, All rights reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.LineColumn;
-import me.waliedyassen.runescript.commons.stream.CharStream;
+import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -11,11 +21,23 @@ import java.util.List;
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 final class State {
 	/**
 	 * The current lexeme builder, it should be reset after each token.
 	 */
 	final StringBuilder builder = new StringBuilder();
+
+	/**
+	 * The fallback tokens, they are prioritised over parsing new ones
+	 * when we are calling parse().
+	 */
+	final Deque<Token> fallback = new ArrayDeque<>();
+
+	/**
+	 * The kind of this state, defines what this state is mainly for.
+	 */
+	final StateKind kind;
 
 	/**
 	 * The current character position within the document
@@ -36,9 +58,29 @@ final class State {
 	/**
 	 * Creates an empty {@link State} object instance.
 	 *
+	 * @param kind
+	 * 		the kind of this state.
+	 *
 	 * @return the created {@link State} object instance.
 	 */
-	static State emptyState() {
-		return new State();
+	static State emptyState(StateKind kind) {
+		return new State(kind);
 	}
+
+	/**
+	 * Represents the state kind, which defines what this state is for.
+	 *
+	 * @author Walied K. Yassen
+	 */
+	public enum StateKind {
+		/**
+		 * The regular state kind, used for regular parsing.
+		 */
+		REGULAR,
+
+		/**
+		 * The string interpolation state kind, used to parse the content
+		 * between the string interpolation tags.
+		 */
+		INTERPOLATION,}
 }

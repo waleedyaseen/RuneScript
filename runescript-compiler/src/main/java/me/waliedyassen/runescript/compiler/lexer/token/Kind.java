@@ -42,6 +42,18 @@ public enum Kind {
 	 */
 	BOOL,
 
+	// the string interpolation chunk.
+
+	/**
+	 * The concatenation start marker token.
+	 */
+	CONCATB,
+
+	/**
+	 * The concatenation end marker token.
+	 */
+	CONCATE,
+
 	// the keywords chunk.
 
 	/**

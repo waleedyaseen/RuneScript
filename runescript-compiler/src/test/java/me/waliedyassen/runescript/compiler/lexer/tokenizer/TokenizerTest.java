@@ -7,12 +7,14 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
 
+import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import org.junit.jupiter.api.Test;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
@@ -22,7 +24,7 @@ import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
 /**
  * Holds all of the test cases for {@link Tokenizer} type.
- * 
+ *
  * @author Walied K. Yassen
  */
 @SuppressWarnings("deprecation")
@@ -30,18 +32,28 @@ class TokenizerTest {
 
 	@Test
 	void testStringLiteralUnescaped() {
-		Tokenizer tokenizer = fromString("\"Basic Sample\"");
-		Token token = tokenizer.parse();
+		var tokenizer = fromString("\"Basic Sample\"");
+		var token = tokenizer.parse();
 		assertEquals(token.getKind(), Kind.STRING);
 		assertEquals("Basic Sample", token.getLexeme());
 	}
 
 	@Test
 	void testStringLiteralEscaped() {
-		Tokenizer tokenizer = fromString("\"Escaped\\t\\\"Sample\"");
-		Token token = tokenizer.parse();
+		var tokenizer = fromString("\"Escaped\\t\\\"Sample\"");
+		var token = tokenizer.parse();
 		assertEquals(token.getKind(), Kind.STRING);
 		assertEquals("Escaped\t\"Sample", token.getLexeme());
+	}
+
+	@Test
+	void testStringInterpolation() {
+		var tokenizer = fromString("\"Literal <tostring(1)> another literal <tostring(2)> and <function(\"number is <tostring(6)>\">\"");
+		var expected = new Kind[] { CONCATB, STRING, IDENTIFIER, LPAREN, INTEGER, RPAREN, STRING, IDENTIFIER, LPAREN, INTEGER, RPAREN, STRING, IDENTIFIER, LPAREN, CONCATB, STRING, IDENTIFIER, LPAREN, INTEGER, RPAREN, CONCATE, CONCATE, };
+		for (var kind : expected) {
+			var token = tokenizer.parse();
+			assertEquals(token.getKind(), kind);
+		}
 	}
 
 	@Test
@@ -57,13 +69,13 @@ class TokenizerTest {
 	@Test
 	void testMultilineComment() {
 		//@formatter:off
-		Tokenizer tokenizer = fromString("		/*\r\n" +
+		var tokenizer = fromString("		/*\r\n" +
 										"		 * Line with the star decoration.\r\n" +
 										"		   Line without the star decoration.\r\n" +
 										"		 * \r\n" +
 										"		 */");
 		//@formatter:on
-		Token token = tokenizer.parse();
+		var token = tokenizer.parse();
 		assertEquals(token.getKind(), Kind.COMMENT);
 		assertEquals(token.getLexeme(), "Line with the star decoration.\nLine without the star decoration.\n");
 
@@ -71,8 +83,8 @@ class TokenizerTest {
 
 	@Test
 	void testIdentifier() {
-		Tokenizer tokenizer = fromString("654321myIdentifier");
-		Token token = tokenizer.parse();
+		var tokenizer = fromString("654321myIdentifier");
+		var token = tokenizer.parse();
 		assertEquals(token.getKind(), Kind.INTEGER);
 		assertEquals(token.getLexeme(), String.valueOf(654321));
 		token = tokenizer.parse();
@@ -82,28 +94,28 @@ class TokenizerTest {
 
 	@Test
 	void testKeywords() {
-		Tokenizer tokenizer = fromString("true\tfalse");
-		Token trueToken = tokenizer.parse();
+		var tokenizer = fromString("true\tfalse");
+		var trueToken = tokenizer.parse();
 		assertEquals(trueToken.getKind(), Kind.BOOL);
 		assertEquals(trueToken.getLexeme(), "true");
-		Token falseToken = tokenizer.parse();
+		var falseToken = tokenizer.parse();
 		assertEquals(falseToken.getKind(), Kind.BOOL);
 		assertEquals(falseToken.getLexeme(), "false");
 	}
 
 	@Test
 	void testSeparators() {
-		Tokenizer tokenizer = fromString("[label] { }");
-		Kind[] expected = { Kind.LBRACKET, Kind.IDENTIFIER, Kind.RBRACKET, Kind.LBRACE, Kind.RBRACE };
-		for (Kind kind : expected) {
-			Token token = tokenizer.parse();
+		var tokenizer = fromString("[label] { }");
+		var expected = new Kind[] { Kind.LBRACKET, Kind.IDENTIFIER, Kind.RBRACKET, Kind.LBRACE, Kind.RBRACE };
+		for (var kind : expected) {
+			var token = tokenizer.parse();
 			assertEquals(token.getKind(), kind);
 		}
 	}
 
 	@Test
 	void testOperatorsSimple() {
-		Tokenizer tokenizer = fromString("test = \"Hello\";");
+		var tokenizer = fromString("test = \"Hello\";");
 		assertEquals(tokenizer.parse().getKind(), Kind.IDENTIFIER);
 		assertEquals(tokenizer.parse().getKind(), Kind.EQUALS);
 		assertEquals(tokenizer.parse().getKind(), Kind.STRING);
@@ -111,7 +123,7 @@ class TokenizerTest {
 	}
 
 	private Tokenizer fromString(String text) {
-		try (InputStream stream = new StringBufferInputStream(text)) {
+		try (var stream = new StringBufferInputStream(text)) {
 			return new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
 		} catch (IOException e) {
 			// won't happen anyways

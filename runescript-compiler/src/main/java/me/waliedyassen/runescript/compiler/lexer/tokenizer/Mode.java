@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2018 Walied K. Yassen, All rights reserved.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 /**
@@ -21,6 +28,11 @@ public enum Mode {
 	 * Indicates that the parser is currently parsing a string literal.
 	 */
 	STRING_LITERAL,
+
+	/**
+	 * Indicates that the parser is currently parsing an interpolated string literal.
+	 */
+	ISTRING_LITERAL,
 
 	/**
 	 * Indicates that the parser is currently parsing a number literal.

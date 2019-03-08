@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import static me.waliedyassen.runescript.commons.stream.CharStream.NULL;
-import static me.waliedyassen.runescript.compiler.lexer.tokenizer.Mode.*;
+import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
 
 import java.util.*;
 
@@ -27,7 +27,7 @@ import me.waliedyassen.runescript.compiler.lexer.token.Token;
  */
 public final class Tokenizer {
 
-	// Note: using the ECJ/JavaC tools error messages for now.
+	// TODO: Interpolated strings proper range creation.
 
 	/**
 	 * The current states
@@ -47,7 +47,7 @@ public final class Tokenizer {
 	/**
 	 * The current state
 	 */
-	private State state = State.emptyState();
+	private State state = State.emptyState(State.StateKind.REGULAR);
 
 	/**
 	 * Constructs a new {@link Tokenizer} type object instance.
@@ -69,8 +69,13 @@ public final class Tokenizer {
 	 * @return the {@link Token} object or {@code null} if none could be tokenized.
 	 */
 	public Token parse() {
-		// grab the builder from the state for ease of access.
+		// check whether or not we have any fallback tokens.
+		if (!state.fallback.isEmpty()) {
+			return state.fallback.removeFirst();
+		}
+		// grab some vars from the state for ease of access.
 		final var builder = state.builder;
+		final var state_kind = state.kind;
 		// the character queue of the parser.
 		char current, next;
 		// keep parsing until we have a something to return.
@@ -90,7 +95,7 @@ public final class Tokenizer {
 					} else {
 						resetBuilder();
 						if (current == NULL) {
-							return createToken(Kind.EOF);
+							return createToken(EOF);
 						} else if (isIdentifierStart(current)) {
 							builder.append(current);
 							state.mode = Mode.IDENTIFIER;
@@ -109,9 +114,13 @@ public final class Tokenizer {
 						} else if (table.isSeparator(current)) {
 							return createToken(table.lookupSeparator(current), Character.toString(current));
 						} else {
-							if (table.isOperatorStart(current)) {
+							if (state_kind == State.StateKind.INTERPOLATION && current == '>') {
+								popState();
+								state.mode = Mode.ISTRING_LITERAL;
+								continue;
+							} else if (table.isOperatorStart(current)) {
 								builder.append(current);
-								for (int index = 1; index < table.getOperatorSize(); index++) {
+								for (var index = 1; index < table.getOperatorSize(); index++) {
 									// TODO: update the behaviour of peek() to skip the CR character, the same thing
 									// take() does.
 									if (!stream.hasRemaining() || stream.peek() == '\r' && stream.peek() == '\n') {
@@ -120,7 +129,7 @@ public final class Tokenizer {
 									builder.append(stream.take());
 								}
 								while (builder.length() > 0) {
-									String sequence = builder.toString();
+									var sequence = builder.toString();
 									if (table.isOperator(sequence)) {
 										return createToken(table.lookupOperator(sequence), sequence);
 									}
@@ -138,10 +147,11 @@ public final class Tokenizer {
 					} else {
 						stream.rollback(1);
 						var word = builder.toString();
-						return createToken(table.isKeyword(word) ? table.lookupKeyword(word) : Kind.IDENTIFIER, builder.toString());
+						return createToken(table.isKeyword(word) ? table.lookupKeyword(word) : IDENTIFIER, builder.toString());
 					}
 					break;
 				case STRING_LITERAL:
+				case ISTRING_LITERAL:
 					if (current == NULL || current == '\n') {
 						throwError("String literal is not properly closed by a double-quote");
 					} else if (current == '\\') {
@@ -176,7 +186,27 @@ public final class Tokenizer {
 								break;
 						}
 					} else if (current == '\"') {
-						return createToken(Kind.STRING, builder.toString());
+						if (state.mode == Mode.ISTRING_LITERAL) {
+							if (builder.length() > 0) {
+								feed(createToken(CONCATE));
+							} else {
+								return createToken(CONCATE);
+							}
+						}
+						return createToken(STRING, builder.toString());
+					} else if (current == '<') {
+						if (state.mode == Mode.ISTRING_LITERAL) {
+							pushState(State.StateKind.INTERPOLATION);
+							// we are inside an interpolated string already, no
+							// need to feed a concatenation begin token.
+							return createToken(STRING, builder.toString());
+						} else {
+							pushState(State.StateKind.INTERPOLATION);
+							// we were in a regular string and we now identified
+							// the string to be an interpolated string.
+							feed(createToken(STRING, builder.toString()));
+							return createToken(CONCATB);
+						}
 					} else {
 						builder.append(current);
 					}
@@ -185,9 +215,9 @@ public final class Tokenizer {
 					if (Character.isDigit(current)) {
 						builder.append(current);
 					} else {
-						var kind = Kind.INTEGER;
+						var kind = INTEGER;
 						if (current == 'L' || current == 'l') {
-							kind = Kind.LONG;
+							kind = LONG;
 						} else if (current != NULL) {
 							stream.rollback(1);
 						}
@@ -196,7 +226,7 @@ public final class Tokenizer {
 					break;
 				case LINE_COMMENT:
 					if (current == NULL || current == '\n') {
-						return createToken(Kind.COMMENT, trimComment(builder.toString(), false));
+						return createToken(COMMENT, trimComment(builder.toString(), false));
 					} else {
 						builder.append(current);
 					}
@@ -213,7 +243,7 @@ public final class Tokenizer {
 						resetBuilder();
 					} else if (current == '*' && next == '/') {
 						stream.take();
-						return createToken(Kind.COMMENT, String.join("\n", state.lines));
+						return createToken(COMMENT, String.join("\n", state.lines));
 					} else {
 						state.builder.append(current);
 					}
@@ -278,6 +308,17 @@ public final class Tokenizer {
 	}
 
 	/**
+	 * Adds the specified {@link Token} object to the end of the current
+	 * state {@link State#fallback fallback} deque.
+	 *
+	 * @param token
+	 * 		the {@link Token token} object to add.
+	 */
+	private void feed(Token token) {
+		state.fallback.addLast(token);
+	}
+
+	/**
 	 * Resets the lexeme builder state.
 	 */
 	private void resetBuilder() {
@@ -307,13 +348,16 @@ public final class Tokenizer {
 
 	/**
 	 * Pushes a new empty state to the stack.
+	 *
+	 * @param kind
+	 * 		the kind of the state that will be pushed as a new state.
 	 */
-	private void pushState() {
+	private void pushState(State.StateKind kind) {
 		if (state == null) {
 			throw new IllegalStateException("There is currently no State object bound.");
 		}
 		stack.push(state);
-		state = State.emptyState();
+		state = State.emptyState(kind);
 	}
 
 	/**
