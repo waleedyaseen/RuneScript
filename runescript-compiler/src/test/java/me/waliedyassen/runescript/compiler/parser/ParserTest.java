@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.parser;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
+import me.waliedyassen.runescript.compiler.ast.expr.var.AstConstant;
 import me.waliedyassen.runescript.compiler.ast.expr.var.AstGlobalVariable;
 import me.waliedyassen.runescript.compiler.ast.expr.var.AstLocalVariable;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
@@ -71,6 +72,9 @@ final class ParserTest {
 		}, () -> {
 			// local variable.
 			assertTrue(fromString("%global_var").expression() instanceof AstGlobalVariable);
+		}, () -> {
+			// constant.
+			assertTrue(fromString("^constant").expression() instanceof AstConstant);
 		}, () -> {
 			// empty
 			assertThrows(SyntaxError.class, () -> fromString("").expression());

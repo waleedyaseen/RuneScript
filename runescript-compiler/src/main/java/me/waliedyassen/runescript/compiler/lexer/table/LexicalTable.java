@@ -91,6 +91,7 @@ public final class LexicalTable {
 		registerSeparator('~', Kind.TILDE);
 		registerSeparator('$', Kind.DOLLAR);
 		registerSeparator('%', Kind.MODULO);
+		registerSeparator('^', Kind.CARET);
 		registerSeparator(';', Kind.SEMICOLON);
 		// the operators chunk.
 		registerOperator("=", Kind.EQUALS);

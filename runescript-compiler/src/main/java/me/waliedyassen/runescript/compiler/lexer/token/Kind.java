@@ -134,6 +134,11 @@ public enum Kind {
 	MODULO,
 
 	/**
+	 * The caret separator token.
+	 */
+	CARET,
+
+	/**
 	 * The semicolon separator token kind.
 	 */
 	SEMICOLON,

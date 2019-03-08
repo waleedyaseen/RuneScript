@@ -12,6 +12,7 @@ import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
+import me.waliedyassen.runescript.compiler.ast.expr.var.AstConstant;
 import me.waliedyassen.runescript.compiler.ast.expr.var.AstGlobalVariable;
 import me.waliedyassen.runescript.compiler.ast.expr.var.AstLocalVariable;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
@@ -110,6 +111,8 @@ public final class Parser {
 				return localVariable();
 			case MODULO:
 				return globalVariable();
+			case CARET:
+				return constant();
 			default:
 				throw createError(consume(), "Expecting an expression");
 		}
@@ -122,7 +125,7 @@ public final class Parser {
 	 */
 	public boolean isExpression() {
 		var kind = peekKind();
-		return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MODULO;
+		return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MODULO || kind == CARET;
 	}
 
 	/**
@@ -348,6 +351,18 @@ public final class Parser {
 		consume(MODULO);
 		var name = identifier();
 		return new AstGlobalVariable(popRange(), name);
+	}
+
+	/**
+	 * Attempts to match the next set of tokens to an {@link AstConstant} object.
+	 *
+	 * @return the parsed {@link AstConstant} object.
+	 */
+	public AstConstant constant() {
+		pushRange();
+		consume(CARET);
+		var name = identifier();
+		return new AstConstant(popRange(), name);
 	}
 
 	/**
