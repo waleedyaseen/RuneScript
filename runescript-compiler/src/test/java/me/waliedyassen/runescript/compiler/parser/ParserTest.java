@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
 
+import me.waliedyassen.runescript.commons.stream.CharStream;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import org.junit.jupiter.api.Test;
 
@@ -145,13 +147,13 @@ final class ParserTest {
 	void testBlockStatement() {
 		assertAll("braced block", () -> {
 			// valid block
-			AstBlockStatement statements = fromString("{if(1234){}}").blockStatement();
-			assertNotNull(statements);
-			assertTrue(statements.getStatements().length == 1);
-			assertTrue(statements.getStatements()[0] instanceof AstIfStatement);
+			var blockStatement = fromString("{if(1234){}}").blockStatement();
+			assertNotNull(blockStatement);
+			assertEquals(blockStatement.getStatements().length, 1);
+			assertTrue(blockStatement.getStatements()[0] instanceof AstIfStatement);
 		}, () -> {
 			// empty block
-			assertTrue(fromString("{}").blockStatement() instanceof AstBlockStatement);
+			assertNotNull(fromString("{}").blockStatement());
 		}, () -> {
 
 			// unclosed block
@@ -166,8 +168,10 @@ final class ParserTest {
 			AstBlockStatement statement = fromString("if(1){}if(2){}").unbracedBlockStatement();
 			assertNotNull(statement);
 			assertTrue(statement.getStatements().length == 2);
-			assertTrue(statement.getStatements()[0] instanceof AstIfStatement);
-			assertTrue(statement.getStatements()[1] instanceof AstIfStatement);
+			for (var ifStatement : statement.getStatements()) {
+				assertTrue(ifStatement instanceof AstIfStatement);
+				assertTrue(((AstIfStatement) ifStatement).getCondition() instanceof AstInteger);
+			}
 		}, () -> {
 			// empty block
 			assertTrue(fromString("").unbracedBlockStatement() instanceof AstBlockStatement);
@@ -268,10 +272,9 @@ final class ParserTest {
 
 	private static Parser fromString(String text) {
 		try (InputStream stream = new StringBufferInputStream(text)) {
-			Tokenizer tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
-			Lexer lexer = new Lexer(tokenizer);
-			Parser parser = new Parser(lexer);
-			return parser;
+			var tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
+			var lexer = new Lexer(tokenizer);
+			return new Parser(lexer);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

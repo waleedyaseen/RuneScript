@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
-import me.waliedyassen.runescript.compiler.lexer.token.comment.CommentToken;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
@@ -48,12 +46,12 @@ class TokenizerTest {
 
 	@Test
 	void testLineComment() {
-		Tokenizer tokenizer = fromString("\"Test\"// I am a comment");
-		Token token = tokenizer.parse();
+		var tokenizer = fromString("\"Test\"// I am a comment");
+		var token = tokenizer.parse();
 		assertEquals(token.getKind(), Kind.STRING);
 		token = tokenizer.parse();
 		assertEquals(token.getKind(), Kind.COMMENT);
-		assertEquals(((CommentToken) token).getLines().get(0), "I am a comment");
+		assertEquals(token.getLexeme(), "I am a comment");
 	}
 
 	@Test
@@ -67,11 +65,7 @@ class TokenizerTest {
 		//@formatter:on
 		Token token = tokenizer.parse();
 		assertEquals(token.getKind(), Kind.COMMENT);
-		CommentToken comment = (CommentToken) token;
-		assertTrue(comment.getLines().size() == 3);
-		assertEquals(comment.getLines().get(0), "Line with the star decoration.");
-		assertEquals(comment.getLines().get(1), "Line without the star decoration.");
-		assertEquals(comment.getLines().get(2), "");
+		assertEquals(token.getLexeme(), "Line with the star decoration.\nLine without the star decoration.\n");
 
 	}
 
@@ -118,23 +112,11 @@ class TokenizerTest {
 
 	private Tokenizer fromString(String text) {
 		try (InputStream stream = new StringBufferInputStream(text)) {
-			Tokenizer tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
-			return tokenizer;
+			return new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
 		} catch (IOException e) {
 			// won't happen anyways
 			e.printStackTrace();
 			return null;
 		}
 	}
-
-	private static Tokenizer fromResource(String name) {
-		try (InputStream stream = ClassLoader.getSystemResourceAsStream(name)) {
-			Tokenizer tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
-			return tokenizer;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
 }

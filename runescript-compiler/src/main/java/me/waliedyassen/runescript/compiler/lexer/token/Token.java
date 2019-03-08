@@ -17,7 +17,7 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 /**
  * Represents the base class of the {@link Tokenizer} output. A token is the
  * smallest unit of the source code in the lexical analysis, usually one token
- * repersents a single symbol.
+ * represents a single symbol.
  * 
  * @author Walied K. Yassen
  */

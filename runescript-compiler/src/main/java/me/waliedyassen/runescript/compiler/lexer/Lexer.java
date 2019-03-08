@@ -43,8 +43,8 @@ public final class Lexer {
 	 */
 	public Lexer(Tokenizer tokenizer) {
 		do {
-			Token token = tokenizer.parse();
-			if (token == null || token.getKind() == Kind.EOF) {
+			var token = tokenizer.parse();
+			if (token.getKind() == Kind.EOF) {
 				break;
 			}
 			if (token.getKind() == Kind.COMMENT) {

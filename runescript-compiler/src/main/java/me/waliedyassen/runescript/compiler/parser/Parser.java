@@ -83,6 +83,7 @@ public final class Parser {
 		while (isStatement()) {
 			statements.add(statement());
 		}
+		// return the parsed script.
 		return new AstScript(popRange(), trigger, name, statements.toArray(new AstStatement[0]));
 	}
 
@@ -151,7 +152,7 @@ public final class Parser {
 	 */
 	private boolean isStatement() {
 		var kind = peekKind();
-		return kind == IF || kind == LBRACE;
+		return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN;
 	}
 
 	/**
