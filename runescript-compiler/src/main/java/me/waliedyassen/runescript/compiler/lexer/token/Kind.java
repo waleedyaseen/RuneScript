@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.lexer.token;
 /**
  * Represents the token kind, which tells us what each token is, whether an
  * identifier, or a number, or a string, or a keyword etc..
- * 
+ *
  * @author Walied K. Yassen
  */
 public enum Kind {
@@ -190,5 +190,5 @@ public enum Kind {
 	/**
 	 * The end of file token kind.
 	 */
-	EOF,
+	EOF
 }

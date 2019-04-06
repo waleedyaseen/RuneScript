@@ -18,9 +18,10 @@ import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
  * @author Walied K. Yassen
  */
 public final class AstWhileStatement extends AstStatement {
-/**
- * The condition of the while loop.
- */
+
+	/**
+	 * The condition of the while loop.
+	 */
 	@Getter
 	private final AstExpression condition;
 

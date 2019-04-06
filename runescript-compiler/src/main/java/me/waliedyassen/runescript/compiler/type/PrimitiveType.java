@@ -20,6 +20,11 @@ import me.waliedyassen.runescript.compiler.stack.StackType;
 public enum PrimitiveType implements Type {
 
 	/**
+	 * The void primitive type.
+	 */
+	VOID("void", null),
+
+	/**
 	 * The integer primitive type.
 	 */
 	INT("int", StackType.INT),

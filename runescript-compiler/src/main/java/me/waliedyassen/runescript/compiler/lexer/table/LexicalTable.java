@@ -13,11 +13,12 @@ import java.util.Objects;
 
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.type.PrimitiveType;
+import me.waliedyassen.runescript.compiler.util.Operator;
 
 /**
  * Represents the symbol table for the lexical phase of the compilation process, it holds all the symbols that we need
  * during the tokenizing process, whether it is being a separator, a keyword or an operator etc..
- * 
+ *
  * @author Walied K. Yassen
  */
 public final class LexicalTable {
@@ -30,17 +31,17 @@ public final class LexicalTable {
 	/**
 	 * The registered keywords.
 	 */
-	private final Map<String, Kind> keywords = new HashMap<String, Kind>();
+	private final Map<String, Kind> keywords = new HashMap<>();
 
 	/**
 	 * The registered separators.
 	 */
-	private final Map<Character, Kind> separators = new HashMap<Character, Kind>();
+	private final Map<Character, Kind> separators = new HashMap<>();
 
 	/**
 	 * The registered operators.
 	 */
-	private final Map<String, Kind> operators = new HashMap<String, Kind>();
+	private final Map<String, Kind> operators = new HashMap<>();
 
 	/**
 	 * The operator max size.
@@ -54,9 +55,9 @@ public final class LexicalTable {
 
 	/**
 	 * Constructs a new {@link LexicalTable} type object instance.
-	 * 
+	 *
 	 * @param defaultTable
-	 *                     whether should we register the default table content to this table or not.
+	 * 		whether should we register the default table content to this table or not.
 	 */
 	public LexicalTable(boolean defaultTable) {
 		if (defaultTable) {
@@ -64,7 +65,6 @@ public final class LexicalTable {
 		}
 	}
 
-	//
 	/**
 	 * Initialises the default lexical table content.
 	 */
@@ -93,24 +93,22 @@ public final class LexicalTable {
 		registerSeparator('%', Kind.MODULO);
 		registerSeparator('^', Kind.CARET);
 		registerSeparator(';', Kind.SEMICOLON);
-		// the operators chunk.
-		registerOperator("=", Kind.EQUALS);
-		registerOperator("!", Kind.NOT_EQUALS);
-		registerOperator("<", Kind.LESS_THAN);
-		registerOperator(">", Kind.GREATER_THAN);
-		registerOperator("<=", Kind.LESS_THAN_OR_EQUAL);
-		registerOperator(">=", Kind.GREATER_THAN_OR_EQUAL);
+		// register all of the operators.
+		for (var operator : Operator.values()) {
+			registerOperator(operator.getRepresentation(), operator.getKind());
+		}
 	}
 
 	/**
 	 * Registers a new keyword into the table.
-	 * 
+	 *
 	 * @param word
-	 *             the keyword text, will be converted to lower case.
+	 * 		the keyword text, will be converted to lower case.
 	 * @param kind
-	 *             the keyword token kind.
+	 * 		the keyword token kind.
+	 *
 	 * @throws IllegalArgumentException
-	 *                                  if the keyword was already registered.
+	 * 		if the keyword was already registered.
 	 */
 	public void registerKeyword(String word, Kind kind) {
 		Objects.requireNonNull(word, "word");
@@ -124,9 +122,10 @@ public final class LexicalTable {
 
 	/**
 	 * Looks-up the {@link Kind} for the specified keyword.
-	 * 
+	 *
 	 * @param word
-	 *             the keyword text.
+	 * 		the keyword text.
+	 *
 	 * @return the {@link Kind} of the keyword if it was present otherwise {@code null}.
 	 */
 	public Kind lookupKeyword(String word) {
@@ -135,9 +134,10 @@ public final class LexicalTable {
 
 	/**
 	 * Checks whether or not the specified {@code word} is registered as a keyword.
-	 * 
+	 *
 	 * @param word
-	 *             the word to check if it is whether a keyword or not
+	 * 		the word to check if it is whether a keyword or not
+	 *
 	 * @return <code>true</code> if the specified <code>word</code> is a keyword otherwise {@code null}.
 	 */
 	public boolean isKeyword(String word) {
@@ -146,13 +146,14 @@ public final class LexicalTable {
 
 	/**
 	 * Registers a new separator into the table.
-	 * 
+	 *
 	 * @param character
-	 *                  the separator character.
+	 * 		the separator character.
 	 * @param kind
-	 *                  the separator token kind.
+	 * 		the separator token kind.
+	 *
 	 * @throws IllegalArgumentException
-	 *                                  if the separator was already registered.
+	 * 		if the separator was already registered.
 	 */
 	public void registerSeparator(char character, Kind kind) {
 		Objects.requireNonNull(kind, "kind");
@@ -164,9 +165,10 @@ public final class LexicalTable {
 
 	/**
 	 * Looks-up the separator token {@link Kind} for the specified separator character.
-	 * 
+	 *
 	 * @param character
-	 *                  the separator character.
+	 * 		the separator character.
+	 *
 	 * @return the {@link Kind} of the separator if it was present otherwise {@code null}.
 	 */
 	public Kind lookupSeparator(char character) {
@@ -175,9 +177,10 @@ public final class LexicalTable {
 
 	/**
 	 * Checks whether or not the specified {@code character} is registered as a separator.
-	 * 
+	 *
 	 * @param character
-	 *                  the word to check if it is whether a separator or not
+	 * 		the word to check if it is whether a separator or not
+	 *
 	 * @return <code>true</code> if the specified <code>character</code> is a separator otherwise {@code null}.
 	 */
 	public boolean isSeparator(char character) {
@@ -186,13 +189,14 @@ public final class LexicalTable {
 
 	/**
 	 * Registers a new operator into the table.
-	 * 
+	 *
 	 * @param sequence
-	 *                  the operator sequence.
+	 * 		the operator sequence.
 	 * @param kind
-	 *                  the operator token kind.
+	 * 		the operator token kind.
+	 *
 	 * @throws IllegalArgumentException
-	 *                                  if the operator was already registered.
+	 * 		if the operator was already registered.
 	 */
 	public void registerOperator(String sequence, Kind kind) {
 		Objects.requireNonNull(sequence, "sequence");
@@ -212,9 +216,10 @@ public final class LexicalTable {
 
 	/**
 	 * Looks-up the operator token {@link Kind} for the specified operator sequence.
-	 * 
+	 *
 	 * @param sequence
-	 *                 the operator sequence.
+	 * 		the operator sequence.
+	 *
 	 * @return the {@link Kind} of the operator if it was present otherwise {@code null}.
 	 */
 	public Kind lookupOperator(String sequence) {
@@ -223,9 +228,10 @@ public final class LexicalTable {
 
 	/**
 	 * Checks whether or not the specified {@code sequence} is registered as a operator.
-	 * 
+	 *
 	 * @param sequence
-	 *                 the word to check if it is whether a operator or not
+	 * 		the word to check if it is whether a operator or not
+	 *
 	 * @return <code>true</code> if the specified <code>sequence</code> is a operator otherwise {@code null}.
 	 */
 	public boolean isOperator(String sequence) {
@@ -234,9 +240,10 @@ public final class LexicalTable {
 
 	/**
 	 * Checks whether the specified character is a start of an operator character or not.
-	 * 
+	 *
 	 * @param character
-	 *                  the character value to check.
+	 * 		the character value to check.
+	 *
 	 * @return <code>true</code> if it was otherwise <code>false</code>.
 	 */
 	public boolean isOperatorStart(char character) {
@@ -249,7 +256,7 @@ public final class LexicalTable {
 
 	/**
 	 * Gets the maximum operator size.
-	 * 
+	 *
 	 * @return the maximum operator size.
 	 */
 	public int getOperatorSize() {
