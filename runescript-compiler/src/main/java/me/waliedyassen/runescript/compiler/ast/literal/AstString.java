@@ -12,27 +12,27 @@ import me.waliedyassen.runescript.commons.document.Range;
 
 /**
  * Represents a string expression node.
- * 
+ *
  * @author Walied K. Yassen
  */
 public final class AstString extends AstLiteral {
 
-	/**
-	 * The string content value.
-	 */
-	@Getter
-	private final String value;
+    /**
+     * The string content value.
+     */
+    @Getter
+    private final String value;
 
-	/**
-	 * Constructs a new {@link AstString} type object instance.
-	 * 
-	 * @param range
-	 *              the node source code range.
-	 * @param value
-	 *              the string content value.
-	 */
-	public AstString(Range range, String value) {
-		super(range);
-		this.value = value;
-	}
+    /**
+     * Constructs a new {@link AstString} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     * @param value
+     *         the string content value.
+     */
+    public AstString(Range range, String value) {
+        super(range);
+        this.value = value;
+    }
 }

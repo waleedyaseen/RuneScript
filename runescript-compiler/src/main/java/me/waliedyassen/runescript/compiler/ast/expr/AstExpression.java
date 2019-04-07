@@ -12,18 +12,18 @@ import me.waliedyassen.runescript.compiler.ast.AstNode;
 
 /**
  * Represents an expression node, all the language expressions must be subclasses of this class.
- * 
+ *
  * @author Walied K. Yassen
  */
 public abstract class AstExpression extends AstNode {
 
-	/**
-	 * Constructs a new {@link AstExpression} type object instance.
-	 * 
-	 * @param range
-	 *              the expression source code range.
-	 */
-	public AstExpression(Range range) {
-		super(range);
-	}
+    /**
+     * Constructs a new {@link AstExpression} type object instance.
+     *
+     * @param range
+     *         the expression source code range.
+     */
+    public AstExpression(Range range) {
+        super(range);
+    }
 }

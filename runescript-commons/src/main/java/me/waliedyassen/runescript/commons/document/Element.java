@@ -9,15 +9,15 @@ package me.waliedyassen.runescript.commons.document;
 
 /**
  * Represents a document element.
- * 
+ *
  * @author Walied K. Yassen
  */
 public interface Element {
 
-	/**
-	 * Gets the element in-document position range.
-	 * 
-	 * @return the {@link Range} object.
-	 */
-	Range getRange();
+    /**
+     * Gets the element in-document position range.
+     *
+     * @return the {@link Range} object.
+     */
+    Range getRange();
 }

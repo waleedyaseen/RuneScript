@@ -11,22 +11,22 @@ import me.waliedyassen.runescript.compiler.stack.StackType;
 
 /**
  * Represents the main interface for our type system.
- * 
+ *
  * @author Walied K. Yassen
  */
 public interface Type {
 
-	/**
-	 * Gets the type textual representation.
-	 * 
-	 * @return the type textual representation.
-	 */
-	String getRepresentation();
+    /**
+     * Gets the type textual representation.
+     *
+     * @return the type textual representation.
+     */
+    String getRepresentation();
 
-	/**
-	 * Gets the stack type.
-	 * 
-	 * @return the stack type.
-	 */
-	StackType getStackType();
+    /**
+     * Gets the stack type.
+     *
+     * @return the stack type.
+     */
+    StackType getStackType();
 }

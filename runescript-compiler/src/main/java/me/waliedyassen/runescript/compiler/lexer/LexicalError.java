@@ -12,25 +12,25 @@ import me.waliedyassen.runescript.compiler.CompilerError;
 
 /**
  * Represens any error that has occured during the lexical phase (parsing) of the compilation process.
- * 
+ *
  * @author Walied K. Yassen
  */
 public class LexicalError extends CompilerError {
 
-	/**
-	 * The serialisation key of the {@link LexicalError} type.
-	 */
-	private static final long serialVersionUID = -7355707302290328841L;
+    /**
+     * The serialisation key of the {@link LexicalError} type.
+     */
+    private static final long serialVersionUID = -7355707302290328841L;
 
-	/**
-	 * Constructs a new {@link LexicalError} type object instance.
-	 * 
-	 * @param range
-	 *                the error source code range.
-	 * @param message
-	 *                a message describing why the error has occurred.
-	 */
-	public LexicalError(Range range, String message) {
-		super(range, message);
-	}
+    /**
+     * Constructs a new {@link LexicalError} type object instance.
+     *
+     * @param range
+     *         the error source code range.
+     * @param message
+     *         a message describing why the error has occurred.
+     */
+    public LexicalError(Range range, String message) {
+        super(range, message);
+    }
 }

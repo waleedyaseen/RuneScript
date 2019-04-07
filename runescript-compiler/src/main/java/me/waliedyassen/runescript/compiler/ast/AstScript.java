@@ -7,8 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.ast;
 
-import java.util.Arrays;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
@@ -16,55 +14,59 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 
 /**
- * Represents a complete script with header and code statements. Contains
- * unverified AST nodes that represents the signature and the code statements.
+ * Represents a complete script with header and code statements. Contains unverified AST nodes that represents the
+ * signature and the code statements.
  *
  * @author Walied K. Yassen
  */
 @EqualsAndHashCode
 public final class AstScript extends AstNode {
 
-	/**
-	 * The script trigger type. The trigger type controls when the script will be
-	 * executed, after the occurrence of a specific event or just after a direct
-	 * call from another script.
-	 */
-	@Getter
-	private final AstIdentifier trigger;
+    /**
+     * The script trigger type. The trigger type controls when the script will be executed, after the occurrence of a
+     * specific event or just after a direct call from another script.
+     */
+    @Getter
+    private final AstIdentifier trigger;
 
-	/**
-	 * The script name. The name must be unique all over the current compiling
-	 * scripts, it is used for referring to this script from other scripts.
-	 */
-	@Getter
-	private final AstIdentifier name;
+    /**
+     * The script name. The name must be unique all over the current compiling scripts, it is used for referring to this
+     * script from other scripts.
+     */
+    @Getter
+    private final AstIdentifier name;
 
-	/**
-	 * The script parameters.
-	 */
-	@Getter
-	private final AstParameter[] parameters;
+    /**
+     * The script parameters.
+     */
+    @Getter
+    private final AstParameter[] parameters;
 
-	/**
-	 * The script code statements.
-	 */
-	@Getter
-	private final AstStatement[] code;
+    /**
+     * The script code statements.
+     */
+    @Getter
+    private final AstStatement[] code;
 
-	/**
-	 * Construct a new {@link AstScript} type object instance.
-	 *
-	 * @param range      the script source range.
-	 * @param trigger    the script trigger type.
-	 * @param name       the script name.
-	 * @param parameters the script parameters.
-	 * @param code       the script code statements.
-	 */
-	public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, AstStatement[] code) {
-		super(range);
-		this.trigger = trigger;
-		this.name = name;
-		this.parameters = parameters;
-		this.code = code;
-	}
+    /**
+     * Construct a new {@link AstScript} type object instance.
+     *
+     * @param range
+     *         the script source range.
+     * @param trigger
+     *         the script trigger type.
+     * @param name
+     *         the script name.
+     * @param parameters
+     *         the script parameters.
+     * @param code
+     *         the script code statements.
+     */
+    public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, AstStatement[] code) {
+        super(range);
+        this.trigger = trigger;
+        this.name = name;
+        this.parameters = parameters;
+        this.code = code;
+    }
 }

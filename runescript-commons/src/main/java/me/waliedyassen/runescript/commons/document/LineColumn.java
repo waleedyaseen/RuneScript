@@ -13,85 +13,87 @@ import lombok.ToString;
 
 /**
  * Represents a ("line and column") structure with additional utility methods.
- * 
+ *
  * @author Walied K. Yassen
  */
 @EqualsAndHashCode
 @ToString
 public final class LineColumn {
 
-	/**
-	 * The {@link LineColumn} object with the minimum position.
-	 */
-	static final LineColumn MIN = new LineColumn(0, 0);
+    /**
+     * The {@link LineColumn} object with the minimum position.
+     */
+    static final LineColumn MIN = new LineColumn(0, 0);
 
-	/**
-	 * The {@link LineColumn} object with the maximum position.
-	 */
-	static final LineColumn MAX = new LineColumn(Short.MAX_VALUE, Short.MAX_VALUE);
-	
-	/**
-	 * The line number within the document.
-	 */
-	@Getter
-	private final int line;
+    /**
+     * The {@link LineColumn} object with the maximum position.
+     */
+    static final LineColumn MAX = new LineColumn(Short.MAX_VALUE, Short.MAX_VALUE);
 
-	/**
-	 * The column number within the line.
-	 */
-	@Getter
-	private final int column;
+    /**
+     * The line number within the document.
+     */
+    @Getter
+    private final int line;
 
-	/**
-	 * Constructs a new {@link LineColumn} type object instance.
-	 * 
-	 * @param line
-	 *               the line number within the document.
-	 * @param column
-	 *               the column number within the line.
-	 */
-	public LineColumn(int line, int column) {
-		this.line = line;
-		this.column = column;
-	}
+    /**
+     * The column number within the line.
+     */
+    @Getter
+    private final int column;
 
-	/**
-	 * Checks whether or not the given {@linkplain LineColumn position} is lesser than this position.
-	 * 
-	 * @param other
-	 *              the other position to check whether it is lesser or not.
-	 * @return <code>true</code> if the given position is lesser than this position otherwise <code>false</code>.
-	 */
-	public boolean isLesserThan(LineColumn other) {
-		if (line == other.line) {
-			return column < other.column;
-		} else if (line < other.line) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Constructs a new {@link LineColumn} type object instance.
+     *
+     * @param line
+     *         the line number within the document.
+     * @param column
+     *         the column number within the line.
+     */
+    public LineColumn(int line, int column) {
+        this.line = line;
+        this.column = column;
+    }
 
-	/**
-	 * Checks whether or not the given {@linkplain LineColumn position} is greater than this position.
-	 * 
-	 * @param other
-	 *              the other position to check whether it is greater or not.
-	 * @return <code>true</code> if the given position is greater than this position otherwise <code>false</code>.
-	 */
-	public boolean isGreaterThan(LineColumn other) {
-		if (line == other.line) {
-			return column > other.column;
-		} else if (line > other.line) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Checks whether or not the given {@linkplain LineColumn position} is lesser than this position.
+     *
+     * @param other
+     *         the other position to check whether it is lesser or not.
+     *
+     * @return <code>true</code> if the given position is lesser than this position otherwise <code>false</code>.
+     */
+    public boolean isLesserThan(LineColumn other) {
+        if (line == other.line) {
+            return column < other.column;
+        } else if (line < other.line) {
+            return true;
+        }
+        return false;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public LineColumn clone() {
-		return new LineColumn(line, column);
-	}
+    /**
+     * Checks whether or not the given {@linkplain LineColumn position} is greater than this position.
+     *
+     * @param other
+     *         the other position to check whether it is greater or not.
+     *
+     * @return <code>true</code> if the given position is greater than this position otherwise <code>false</code>.
+     */
+    public boolean isGreaterThan(LineColumn other) {
+        if (line == other.line) {
+            return column > other.column;
+        } else if (line > other.line) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LineColumn clone() {
+        return new LineColumn(line, column);
+    }
 }

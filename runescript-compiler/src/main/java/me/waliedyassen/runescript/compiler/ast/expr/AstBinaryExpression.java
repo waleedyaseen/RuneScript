@@ -18,36 +18,40 @@ import me.waliedyassen.runescript.compiler.util.Operator;
  */
 public final class AstBinaryExpression extends AstExpression {
 
-	/**
-	 * The left side expression.
-	 */
-	@Getter
-	private final AstExpression left;
+    /**
+     * The left side expression.
+     */
+    @Getter
+    private final AstExpression left;
 
-	/**
-	 * The binary operator type.
-	 */
-	@Getter
-	private final Operator operator;
+    /**
+     * The binary operator type.
+     */
+    @Getter
+    private final Operator operator;
 
-	/**
-	 * The right side expression.
-	 */
-	@Getter
-	private final AstExpression right;
+    /**
+     * The right side expression.
+     */
+    @Getter
+    private final AstExpression right;
 
-	/**
-	 * Constructs a new {@link AstExpression} type object instance.
-	 *
-	 * @param range    the expression source code range.
-	 * @param left     the left side expression.
-	 * @param operator the binary operator type.
-	 * @param right    the right side expression.
-	 */
-	public AstBinaryExpression(Range range, AstExpression left, Operator operator, AstExpression right) {
-		super(range);
-		this.left = left;
-		this.operator = operator;
-		this.right = right;
-	}
+    /**
+     * Constructs a new {@link AstExpression} type object instance.
+     *
+     * @param range
+     *         the expression source code range.
+     * @param left
+     *         the left side expression.
+     * @param operator
+     *         the binary operator type.
+     * @param right
+     *         the right side expression.
+     */
+    public AstBinaryExpression(Range range, AstExpression left, Operator operator, AstExpression right) {
+        super(range);
+        this.left = left;
+        this.operator = operator;
+        this.right = right;
+    }
 }

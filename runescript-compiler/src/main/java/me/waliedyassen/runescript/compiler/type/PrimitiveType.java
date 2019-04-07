@@ -23,65 +23,67 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public enum PrimitiveType implements Type {
 
-	/**
-	 * The void primitive type.
-	 */
-	VOID("void", null),
+    /**
+     * The void primitive type.
+     */
+    VOID("void", null),
 
-	/**
-	 * The integer primitive type.
-	 */
-	INT("int", StackType.INT),
+    /**
+     * The integer primitive type.
+     */
+    INT("int", StackType.INT),
 
-	/**
-	 * The string primitive type.
-	 */
-	STRING("string", StackType.STRING),
+    /**
+     * The string primitive type.
+     */
+    STRING("string", StackType.STRING),
 
-	/**
-	 * The long primitive type.
-	 */
-	LONG("long", StackType.LONG),
+    /**
+     * The long primitive type.
+     */
+    LONG("long", StackType.LONG),
 
-	/**
-	 * The boolean primitive type.
-	 */
-	BOOL("bool", StackType.INT);
+    /**
+     * The boolean primitive type.
+     */
+    BOOL("bool", StackType.INT);
 
-	/**
-	 * The {@link PrimitiveType} by {@link #representation} look-up map.
-	 */
-	private static Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
+    /**
+     * The {@link PrimitiveType} by {@link #representation} look-up map.
+     */
+    private static Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
 
-	/**
-	 * The primitive type textual representation.
-	 */
-	@Getter
-	private final String representation;
+    /**
+     * The primitive type textual representation.
+     */
+    @Getter
+    private final String representation;
 
-	/**
-	 * The stack which this type belongs to or encodes to.
-	 */
-	@Getter
-	private final StackType stackType;
+    /**
+     * The stack which this type belongs to or encodes to.
+     */
+    @Getter
+    private final StackType stackType;
 
-	/**
-	 * Checks whether or not this {@link PrimitiveType type} is a declarable type.
-	 * Which means that it can be used as parameters, or local variable declarations.
-	 *
-	 * @return {@code true} if it is otherwise {@code false}.
-	 */
-	public boolean isDeclarable() {
-		return stackType != null;
-	}
+    /**
+     * Checks whether or not this {@link PrimitiveType type} is a declarable type. Which means that it can be used as
+     * parameters, or local variable declarations.
+     *
+     * @return {@code true} if it is otherwise {@code false}.
+     */
+    public boolean isDeclarable() {
+        return stackType != null;
+    }
 
-	/**
-	 * Looks-up for the {@link PrimitiveType} with the textual representation.
-	 *
-	 * @param representation the textual representation of the {@link PrimitiveType}.
-	 * @return the {@link PrimitiveType} if found otherwise {@code null}.
-	 */
-	public static PrimitiveType forRepresentation(String representation) {
-		return lookupMap.get(representation);
-	}
+    /**
+     * Looks-up for the {@link PrimitiveType} with the textual representation.
+     *
+     * @param representation
+     *         the textual representation of the {@link PrimitiveType}.
+     *
+     * @return the {@link PrimitiveType} if found otherwise {@code null}.
+     */
+    public static PrimitiveType forRepresentation(String representation) {
+        return lookupMap.get(representation);
+    }
 }

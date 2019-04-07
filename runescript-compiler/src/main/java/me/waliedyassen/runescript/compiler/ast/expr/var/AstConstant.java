@@ -13,29 +13,29 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 
 /**
- * Represents a constant node, a constant is temporal "variable" that will be replaced
- * with it's value in the compile-time.
+ * Represents a constant node, a constant is temporal "variable" that will be replaced with it's value in the
+ * compile-time.
  *
  * @author Walied K. Yassen
  */
 public final class AstConstant extends AstExpression {
 
-	/**
-	 * The name of the constant.
-	 */
-	@Getter
-	private final AstIdentifier name;
+    /**
+     * The name of the constant.
+     */
+    @Getter
+    private final AstIdentifier name;
 
-	/**
-	 * Constructs a new {@link AstConstant} type object instance.
-	 *
-	 * @param range
-	 * 		the expression source code range.
-	 * @param name
-	 * 		the name of the constant.
-	 */
-	public AstConstant(Range range, AstIdentifier name) {
-		super(range);
-		this.name = name;
-	}
+    /**
+     * Constructs a new {@link AstConstant} type object instance.
+     *
+     * @param range
+     *         the expression source code range.
+     * @param name
+     *         the name of the constant.
+     */
+    public AstConstant(Range range, AstIdentifier name) {
+        super(range);
+        this.name = name;
+    }
 }

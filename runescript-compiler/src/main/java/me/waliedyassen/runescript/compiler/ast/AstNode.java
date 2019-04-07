@@ -14,15 +14,15 @@ import me.waliedyassen.runescript.commons.document.Range;
 
 /**
  * Represents the smallest unit in the Abstract Syntax Tree (AST).
- * 
+ *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
 public abstract class AstNode implements Element {
 
-	/**
-	 * The node source code range.
-	 */
-	@Getter
-	private final Range range;
+    /**
+     * The node source code range.
+     */
+    @Getter
+    private final Range range;
 }

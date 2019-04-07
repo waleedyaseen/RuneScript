@@ -11,18 +11,18 @@ import me.waliedyassen.runescript.commons.document.Range;
 
 /**
  * Represents a number literal expression node.
- * 
+ *
  * @author Walied K. Yassen
  */
 abstract class AstNumber extends AstLiteral {
 
-	/**
-	 * Constructs a new {@link AstNumber} type object instance.
-	 * 
-	 * @param range
-	 *              the node source code range.
-	 */
-	AstNumber(Range range) {
-		super(range);
-	}
+    /**
+     * Constructs a new {@link AstNumber} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     */
+    AstNumber(Range range) {
+        super(range);
+    }
 }

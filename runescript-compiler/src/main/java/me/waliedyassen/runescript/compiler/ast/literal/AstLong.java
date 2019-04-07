@@ -12,27 +12,27 @@ import me.waliedyassen.runescript.commons.document.Range;
 
 /**
  * Represents a long integer literal expression node.
- * 
+ *
  * @author Walied K. Yassen
  */
 public final class AstLong extends AstNumber {
 
-	/**
-	 * The long integer value.
-	 */
-	@Getter
-	private final long value;
+    /**
+     * The long integer value.
+     */
+    @Getter
+    private final long value;
 
-	/**
-	 * Constructs a new {@link AstLong} type object instance.
-	 * 
-	 * @param range
-	 *              the node source code range.
-	 * @param value
-	 *              the integer value.
-	 */
-	public AstLong(Range range, long value) {
-		super(range);
-		this.value = value;
-	}
+    /**
+     * Constructs a new {@link AstLong} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     * @param value
+     *         the integer value.
+     */
+    public AstLong(Range range, long value) {
+        super(range);
+        this.value = value;
+    }
 }

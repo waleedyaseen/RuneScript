@@ -12,18 +12,18 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 
 /**
  * Represents a literal expression node.
- * 
+ *
  * @author Walied K. Yassen
  */
 abstract class AstLiteral extends AstExpression {
 
-	/**
-	 * Constructs a new {@link AstLiteral} type object instance.
-	 * 
-	 * @param range
-	 *              the node source code range.
-	 */
-	AstLiteral(Range range) {
-		super(range);
-	}
+    /**
+     * Constructs a new {@link AstLiteral} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     */
+    AstLiteral(Range range) {
+        super(range);
+    }
 }

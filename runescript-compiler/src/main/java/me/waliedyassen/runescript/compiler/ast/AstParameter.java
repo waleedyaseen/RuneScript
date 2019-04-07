@@ -34,9 +34,12 @@ public final class AstParameter extends AstNode {
     /**
      * Construct a new {@link AstScript} type object instance.
      *
-     * @param range the node source range.
-     * @param type  the parameter type.
-     * @param name  the parameter name.
+     * @param range
+     *         the node source range.
+     * @param type
+     *         the parameter type.
+     * @param name
+     *         the parameter name.
      */
     public AstParameter(Range range, PrimitiveType type, AstIdentifier name) {
         super(range);

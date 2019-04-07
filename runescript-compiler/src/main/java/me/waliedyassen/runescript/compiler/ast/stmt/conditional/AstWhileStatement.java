@@ -19,31 +19,31 @@ import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
  */
 public final class AstWhileStatement extends AstStatement {
 
-	/**
-	 * The condition of the while loop.
-	 */
-	@Getter
-	private final AstExpression condition;
+    /**
+     * The condition of the while loop.
+     */
+    @Getter
+    private final AstExpression condition;
 
-	/**
-	 * The code statement of the while loop.
-	 */
-	@Getter
-	private final AstStatement code;
+    /**
+     * The code statement of the while loop.
+     */
+    @Getter
+    private final AstStatement code;
 
-	/**
-	 * Construct a new {@link AstStatement} type object instance.
-	 *
-	 * @param range
-	 * 		the node source code range.
-	 * @param condition
-	 * 		the condition of the while loop.
-	 * @param code
-	 * 		the code statement of the while loop.
-	 */
-	public AstWhileStatement(Range range, AstExpression condition, AstStatement code) {
-		super(range);
-		this.condition = condition;
-		this.code = code;
-	}
+    /**
+     * Construct a new {@link AstStatement} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     * @param condition
+     *         the condition of the while loop.
+     * @param code
+     *         the code statement of the while loop.
+     */
+    public AstWhileStatement(Range range, AstExpression condition, AstStatement code) {
+        super(range);
+        this.condition = condition;
+        this.code = code;
+    }
 }

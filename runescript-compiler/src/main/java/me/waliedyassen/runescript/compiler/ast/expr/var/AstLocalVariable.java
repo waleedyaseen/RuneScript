@@ -13,29 +13,29 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 
 /**
- * Represents a local variable node, a local variable can be accessed within the
- * declaring scope and all of it's nested/child scopes.
+ * Represents a local variable node, a local variable can be accessed within the declaring scope and all of it's
+ * nested/child scopes.
  *
  * @author Walied K. Yassen
  */
 public final class AstLocalVariable extends AstExpression {
 
-	/**
-	 * The name of the variable.
-	 */
-	@Getter
-	private final AstIdentifier name;
+    /**
+     * The name of the variable.
+     */
+    @Getter
+    private final AstIdentifier name;
 
-	/**
-	 * Constructs a new {@link AstLocalVariable} type object instance.
-	 *
-	 * @param range
-	 * 		the expression source code range.
-	 * @param name
-	 * 		the name of the variable.
-	 */
-	public AstLocalVariable(Range range, AstIdentifier name) {
-		super(range);
-		this.name = name;
-	}
+    /**
+     * Constructs a new {@link AstLocalVariable} type object instance.
+     *
+     * @param range
+     *         the expression source code range.
+     * @param name
+     *         the name of the variable.
+     */
+    public AstLocalVariable(Range range, AstIdentifier name) {
+        super(range);
+        this.name = name;
+    }
 }

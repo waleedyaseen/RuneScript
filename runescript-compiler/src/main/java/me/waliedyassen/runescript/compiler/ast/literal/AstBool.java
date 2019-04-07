@@ -7,41 +7,39 @@
  */
 package me.waliedyassen.runescript.compiler.ast.literal;
 
-import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
  * Represents a boolean literal expression node.
- * 
+ *
  * @author Walied K. Yassen
  */
 public final class AstBool extends AstLiteral {
 
-	/**
-	 * The boolean literal value.
-	 */
-	private final boolean value;
+    /**
+     * The boolean literal value.
+     */
+    private final boolean value;
 
-	/**
-	 * Construct a new {@link AstBool} type object instance.
-	 * 
-	 * @param range
-	 *              the node source code range.
-	 * @param value
-	 *              the boolean literal value
-	 */
-	public AstBool(Range range, boolean value) {
-		super(range);
-		this.value = value;
-	}
+    /**
+     * Construct a new {@link AstBool} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     * @param value
+     *         the boolean literal value
+     */
+    public AstBool(Range range, boolean value) {
+        super(range);
+        this.value = value;
+    }
 
-	/**
-	 * Gets this {@link AstBool} literal value.
-	 *
-	 * @return the boolean value of the literal.
-	 */
-	// Note: This method was not converted to lombok to stay consistent with the naming of other literals.
-	public boolean getValue() {
-		return value;
-	}
+    /**
+     * Gets this {@link AstBool} literal value.
+     *
+     * @return the boolean value of the literal.
+     */
+    public boolean getValue() {
+        return value;
+    }
 }

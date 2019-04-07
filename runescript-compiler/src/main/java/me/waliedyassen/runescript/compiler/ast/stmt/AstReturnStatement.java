@@ -13,27 +13,27 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 
 /**
  * Represents a return expression statement.
- * 
+ *
  * @author Walied K. Yassen
  */
 public final class AstReturnStatement extends AstStatement {
 
-	/**
-	 * The returned expression.
-	 */
-	@Getter
-	private final AstExpression expression;
+    /**
+     * The returned expression.
+     */
+    @Getter
+    private final AstExpression expression;
 
-	/**
-	 * Construct a new {@link AstReturnStatement} type object instance.
-	 * 
-	 * @param range
-	 *                   the node source code range.
-	 * @param expression
-	 *                   the returned expression.
-	 */
-	public AstReturnStatement(Range range, AstExpression expression) {
-		super(range);
-		this.expression = expression;
-	}
+    /**
+     * Construct a new {@link AstReturnStatement} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     * @param expression
+     *         the returned expression.
+     */
+    public AstReturnStatement(Range range, AstExpression expression) {
+        super(range);
+        this.expression = expression;
+    }
 }

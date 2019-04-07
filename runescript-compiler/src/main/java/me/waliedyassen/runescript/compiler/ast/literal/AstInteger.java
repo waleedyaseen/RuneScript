@@ -12,27 +12,27 @@ import me.waliedyassen.runescript.commons.document.Range;
 
 /**
  * Represents an integer literal expression node.
- * 
+ *
  * @author Walied K. Yassen
  */
 public final class AstInteger extends AstNumber {
 
-	/**
-	 * The integer value.
-	 */
-	@Getter
-	private final int value;
+    /**
+     * The integer value.
+     */
+    @Getter
+    private final int value;
 
-	/**
-	 * Constructs a new {@link AstInteger} type object instance.
-	 * 
-	 * @param range
-	 *              the node source code range.
-	 * @param value
-	 *              the integer value.
-	 */
-	public AstInteger(Range range, int value) {
-		super(range);
-		this.value = value;
-	}
+    /**
+     * Constructs a new {@link AstInteger} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     * @param value
+     *         the integer value.
+     */
+    public AstInteger(Range range, int value) {
+        super(range);
+        this.value = value;
+    }
 }

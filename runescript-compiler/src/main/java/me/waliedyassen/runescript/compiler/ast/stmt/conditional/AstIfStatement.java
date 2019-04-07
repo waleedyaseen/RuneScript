@@ -19,40 +19,40 @@ import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
  */
 public final class AstIfStatement extends AstStatement {
 
-	/**
-	 * The if statement condition expression.
-	 */
-	@Getter
-	private final AstExpression condition;
+    /**
+     * The if statement condition expression.
+     */
+    @Getter
+    private final AstExpression condition;
 
-	/**
-	 * The if true code statement.
-	 */
-	@Getter
-	private final AstStatement trueStatement;
+    /**
+     * The if true code statement.
+     */
+    @Getter
+    private final AstStatement trueStatement;
 
-	/**
-	 * The if false code statement.
-	 */
-	@Getter
-	private final AstStatement falseStatement;
+    /**
+     * The if false code statement.
+     */
+    @Getter
+    private final AstStatement falseStatement;
 
-	/**
-	 * Construct a new {@link AstIfStatement} type object instance.
-	 *
-	 * @param range
-	 * 		the node source code range.
-	 * @param condition
-	 * 		the condition of the if statement.
-	 * @param trueStatement
-	 * 		the true code statement of the if statement.
-	 * @param falseStatement
-	 * 		the false code statement of the if statement.
-	 */
-	public AstIfStatement(Range range, AstExpression condition, AstStatement trueStatement, AstStatement falseStatement) {
-		super(range);
-		this.condition = condition;
-		this.trueStatement = trueStatement;
-		this.falseStatement = falseStatement;
-	}
+    /**
+     * Construct a new {@link AstIfStatement} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     * @param condition
+     *         the condition of the if statement.
+     * @param trueStatement
+     *         the true code statement of the if statement.
+     * @param falseStatement
+     *         the false code statement of the if statement.
+     */
+    public AstIfStatement(Range range, AstExpression condition, AstStatement trueStatement, AstStatement falseStatement) {
+        super(range);
+        this.condition = condition;
+        this.trueStatement = trueStatement;
+        this.falseStatement = falseStatement;
+    }
 }
