@@ -77,8 +77,8 @@ public final class LexicalTable {
 		registerKeyword("while", Kind.WHILE);
 		registerKeyword("return", Kind.RETURN);
 		for (var type : PrimitiveType.values()) {
-			registerKeyword(type.getName(), Kind.TYPE);
-			registerKeyword("def_" + type.getName(), Kind.DEFINE);
+			registerKeyword(type.getRepresentation(), Kind.TYPE);
+			registerKeyword("def_" + type.getRepresentation(), Kind.DEFINE);
 		}
 		// the separators chunk.
 		registerSeparator('(', Kind.LPAREN);

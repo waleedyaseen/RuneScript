@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.parser;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstBinaryExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
@@ -22,6 +23,7 @@ import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.type.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import org.junit.jupiter.api.Test;
 
@@ -39,12 +41,42 @@ final class ParserTest {
 	@Test
 	void testScript() {
 		assertAll("script", () -> {
-			Parser parser = fromResource("parse-script.rs2");
-			AstScript script = parser.script();
+			var script = fromResource("parse-script.rs2").script();
 			assertEquals(script.getCode().length, 2);
 			assertTrue(script.getCode()[0] instanceof AstIfStatement);
 			assertTrue(script.getCode()[1] instanceof AstIfStatement);
 			// TODO: Bad scripts testing.
+		}, () -> {
+			// script with three parameters
+			assertEquals(fromString("[trigger,name](int $one, int $two, string $three)").script().getParameters().length, 3);
+		}, () -> {
+			// script with missing parameter
+			assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int $one,").script());
+		}, () -> {
+			// script with unclosed right parenthesis for parameters
+			assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int $one").script());
+		});
+	}
+
+	@Test
+	void testParameter() {
+		assertAll("parameter", () -> {
+			// valid parameter
+			var parameter = fromString("int $int0").parameter();
+			assertTrue(parameter instanceof AstParameter);
+			assertEquals(parameter.getType(), PrimitiveType.INT);
+			assertEquals(parameter.getName().getText(), "int0");
+		}, () -> {
+			// invalid parameter name
+			assertThrows(SyntaxError.class, () -> fromString("int 0123").parameter());
+			assertThrows(SyntaxError.class, () -> fromString("int $0123").parameter());
+		}, () -> {
+			// invalid parameter type
+			assertThrows(SyntaxError.class, () -> fromString("strin $param").parameter());
+			assertThrows(SyntaxError.class, () -> fromString("int0 $param").parameter());
+		}, () -> {
+			// illegal parameter type.
+			assertThrows(SyntaxError.class, () -> fromString("void $param").parameter());
 		});
 	}
 
@@ -311,6 +343,21 @@ final class ParserTest {
 	@Test
 	void testIdentifier() {
 		assertEquals(fromString("testKeyword").identifier().getText(), "testKeyword");
+	}
+
+	@Test
+	void testPrimitiveType() {
+		assertAll("primitive type", () -> {
+			// all valid primitive types.
+			for (var type : PrimitiveType.values()) {
+				assertEquals(fromString(type.getRepresentation()).primitiveType(), type);
+			}
+		}, () -> {
+			// invalid primitive type.
+			assertThrows(SyntaxError.class, () -> fromString("int0").primitiveType());
+		}, () -> {
+			assertThrows(SyntaxError.class, () -> fromString("voi").primitiveType());
+		});
 	}
 
 	private static Parser fromString(String text) {

@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.parser;
 
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstBinaryExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
@@ -25,6 +26,8 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.type.PrimitiveType;
+import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.util.Operator;
 
 import java.util.ArrayList;
@@ -70,23 +73,44 @@ public final class Parser {
 	 */
 	public AstScript script() {
 		pushRange();
-		// ------------------ the signature parsing ------------------//
+		// parse the script trigger and name.
 		consume(LBRACKET);
 		var trigger = identifier();
 		consume(COMMA);
 		var name = identifier();
 		consume(RBRACKET);
-		// ------------------ the code parsing ------------------//
+		// parse the script parameters.
+		var parameters = new ArrayList<AstParameter>();
+		if (consumeIf(LPAREN)) {
+			do {
+				parameters.add(parameter());
+			} while (consumeIf(COMMA));
+			consume(RPAREN);
+		}
+		// parse the script content.
 		var statements = new ArrayList<AstStatement>();
-		// keep parsing as long as we have a statement next, this allows
-		// the file to contain multiple scripts, and not just only one.
 		while (isStatement()) {
 			statements.add(statement());
 		}
 		// return the parsed script.
-		return new AstScript(popRange(), trigger, name, statements.toArray(new AstStatement[0]));
+		return new AstScript(popRange(), trigger, name, parameters.toArray(AstParameter[]::new), statements.toArray(AstStatement[]::new));
 	}
 
+
+	/**
+	 * Attempts to parse an {@link AstParameter} object node.
+	 *
+	 * @return the parsed {@link AstParameter} object.
+	 */
+	public AstParameter parameter() {
+		pushRange();
+		var type = primitiveType();
+		if (!type.isDeclarable()) {
+			throwError(lexer.previous(), "Illegal type: " + type.getRepresentation());
+		}
+		var local = localVariable();
+		return new AstParameter(popRange(), type, local.getName());
+	}
 
 	/**
 	 * Attempts to a parse an {@link AstExpression} object node.
@@ -406,6 +430,16 @@ public final class Parser {
 		consume(CARET);
 		var name = identifier();
 		return new AstConstant(popRange(), name);
+	}
+
+	/**
+	 * Attempts to parse a {@link PrimitiveType} from the next token.
+	 *
+	 * @return the parsed {@link PrimitiveType}.
+	 */
+	public PrimitiveType primitiveType() {
+		var token = consume(TYPE);
+		return PrimitiveType.forRepresentation(token.getLexeme());
 	}
 
 	/**

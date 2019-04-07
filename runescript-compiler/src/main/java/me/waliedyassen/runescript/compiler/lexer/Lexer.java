@@ -41,7 +41,8 @@ public final class Lexer {
 	 *                  objects from.
 	 */
 	public Lexer(Tokenizer tokenizer) {
-		tokens: do {
+		tokens:
+		do {
 			var token = tokenizer.parse();
 			switch (token.getKind()) {
 				case EOF:
@@ -78,6 +79,18 @@ public final class Lexer {
 			return null;
 		}
 		return tokens.get(index);
+	}
+
+	/**
+	 * Gets the previous {@link Token token} to the current token.
+	 *
+	 * @return the previous {@link Token} object.
+	 */
+	public Token previous() {
+		if (index < 1) {
+			return null;
+		}
+		return tokens.get(index - 1);
 	}
 
 	/**

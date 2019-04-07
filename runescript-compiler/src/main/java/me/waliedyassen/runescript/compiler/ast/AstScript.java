@@ -40,6 +40,12 @@ public final class AstScript extends AstNode {
 	private final AstIdentifier name;
 
 	/**
+	 * The script parameters.
+	 */
+	@Getter
+	private final AstParameter[] parameters;
+
+	/**
 	 * The script code statements.
 	 */
 	@Getter
@@ -48,19 +54,17 @@ public final class AstScript extends AstNode {
 	/**
 	 * Construct a new {@link AstScript} type object instance.
 	 *
-	 * @param range
-	 *                the script source range.
-	 * @param trigger
-	 *                the script trigger type.
-	 * @param name
-	 *                the script name.
-	 * @param code
-	 *                the script code statements.
+	 * @param range      the script source range.
+	 * @param trigger    the script trigger type.
+	 * @param name       the script name.
+	 * @param parameters the script parameters.
+	 * @param code       the script code statements.
 	 */
-	public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstStatement[] code) {
+	public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, AstStatement[] code) {
 		super(range);
 		this.trigger = trigger;
 		this.name = name;
+		this.parameters = parameters;
 		this.code = code;
 	}
 }

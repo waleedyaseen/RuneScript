@@ -17,11 +17,11 @@ import me.waliedyassen.runescript.compiler.stack.StackType;
 public interface Type {
 
 	/**
-	 * Gets the type name.
+	 * Gets the type textual representation.
 	 * 
-	 * @return the type name.
+	 * @return the type textual representation.
 	 */
-	String getName();
+	String getRepresentation();
 
 	/**
 	 * Gets the stack type.

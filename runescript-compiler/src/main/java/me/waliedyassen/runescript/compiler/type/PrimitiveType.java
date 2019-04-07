@@ -11,6 +11,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.stack.StackType;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * Represents the primitive types within our type system.
  *
@@ -45,15 +49,39 @@ public enum PrimitiveType implements Type {
 	BOOL("bool", StackType.INT);
 
 	/**
-	 * The name of the type, used as keywords for the compiler
-	 * parser.
+	 * The {@link PrimitiveType} by {@link #representation} look-up map.
+	 */
+	private static Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
+
+	/**
+	 * The primitive type textual representation.
 	 */
 	@Getter
-	private final String name;
+	private final String representation;
 
 	/**
 	 * The stack which this type belongs to or encodes to.
 	 */
 	@Getter
 	private final StackType stackType;
+
+	/**
+	 * Checks whether or not this {@link PrimitiveType type} is a declarable type.
+	 * Which means that it can be used as parameters, or local variable declarations.
+	 *
+	 * @return {@code true} if it is otherwise {@code false}.
+	 */
+	public boolean isDeclarable() {
+		return stackType != null;
+	}
+
+	/**
+	 * Looks-up for the {@link PrimitiveType} with the textual representation.
+	 *
+	 * @param representation the textual representation of the {@link PrimitiveType}.
+	 * @return the {@link PrimitiveType} if found otherwise {@code null}.
+	 */
+	public static PrimitiveType forRepresentation(String representation) {
+		return lookupMap.get(representation);
+	}
 }
