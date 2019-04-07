@@ -98,6 +98,7 @@ public final class Tokenizer {
 							return createToken(EOF);
 						} else if (isIdentifierStart(current)) {
 							builder.append(current);
+							stream.mark();
 							state.mode = Mode.IDENTIFIER;
 						} else if (current == '\"') {
 							state.mode = Mode.STRING_LITERAL;

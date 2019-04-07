@@ -147,7 +147,7 @@ public final class BufferedCharStream implements CharStream {
 	 */
 	@Override
 	public void reset() {
-		if (pos == -1) {
+		if (m_pos == -1) {
 			throw new IllegalStateException("The stream has no marker set");
 		}
 		pos = m_pos;

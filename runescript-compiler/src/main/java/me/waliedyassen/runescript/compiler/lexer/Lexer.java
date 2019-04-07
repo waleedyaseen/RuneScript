@@ -19,7 +19,7 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
  * Represents the main lexical phase interface, it is responsible for collecting
  * all the {@link Token} objects from a {@link Tokenizer} object and to provide
  * the extra utilities we require in the lexical phase.
- * 
+ *
  * @author Walied K. Yassen
  */
 public final class Lexer {
@@ -36,29 +36,28 @@ public final class Lexer {
 
 	/**
 	 * Constructs a new {@link Lexer} type object instance.
-	 * 
-	 * @param tokenizer
-	 *                  the tokenizer which we will take all the {@link Token}
+	 *
+	 * @param tokenizer the tokenizer which we will take all the {@link Token}
 	 *                  objects from.
 	 */
 	public Lexer(Tokenizer tokenizer) {
-		do {
+		tokens: do {
 			var token = tokenizer.parse();
-			if (token.getKind() == Kind.EOF) {
-				break;
+			switch (token.getKind()) {
+				case EOF:
+					break tokens;
+				case COMMENT:
+					continue tokens;
+				default:
+					tokens.add(token);
 			}
-			if (token.getKind() == Kind.COMMENT) {
-				// we need to ignore the comments for now.
-				continue;
-			}
-			tokens.add(token);
 		} while (true);
 	}
 
 	/**
 	 * Gets the {@link Token} object at the current pointer index and then increment
 	 * the pointer index.
-	 * 
+	 *
 	 * @return the {@link Token} object if it was present otherwise {@code null}.
 	 */
 	public Token take() {
@@ -71,7 +70,7 @@ public final class Lexer {
 	/**
 	 * Gets the {@link Token} object at the current pointer index without
 	 * incrementing the pointer index.
-	 * 
+	 *
 	 * @return the {@link Token} object if it was present otherwise {@code null}.
 	 */
 	public Token peek() {
@@ -83,7 +82,7 @@ public final class Lexer {
 
 	/**
 	 * Gets the last {@link Token} object within this lexer.
-	 * 
+	 *
 	 * @return the last {@link Token} object.
 	 */
 	public Token last() {
@@ -104,7 +103,7 @@ public final class Lexer {
 
 	/**
 	 * Gets the remaining tokens count.
-	 * 
+	 *
 	 * @return the remaining tokens count.
 	 */
 	public int remaining() {
