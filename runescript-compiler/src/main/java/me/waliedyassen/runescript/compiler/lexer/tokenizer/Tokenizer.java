@@ -177,7 +177,7 @@ public final class Tokenizer {
                                 builder.append('\\');
                                 break;
                             case '<':
-                                builder.append('>');
+                                builder.append('<');
                                 break;
                             case '>':
                                 builder.append('>');

@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import java.io.IOException;
 import java.io.StringBufferInputStream;
 
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Holds all of the test cases for {@link Tokenizer} type.
@@ -27,20 +28,35 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TokenizerTest {
 
     @Test
-    void testStringLiteralUnescaped() {
-        var tokenizer = fromString("\"Basic Sample\"");
-        var token = tokenizer.parse();
-        assertEquals(token.getKind(), Kind.STRING);
-        assertEquals("Basic Sample", token.getLexeme());
+    void testUnexpectedCharacters() {
+        // this is unexpected because escapes are only allowed within strings
+        assertThrows(LexicalError.class, ()->fromString("\\").parse());
     }
 
     @Test
-    void testStringLiteralEscaped() {
-        var tokenizer = fromString("\"Escaped\\t\\\"Sample\"");
-        var token = tokenizer.parse();
-        assertEquals(token.getKind(), Kind.STRING);
-        assertEquals("Escaped\t\"Sample", token.getLexeme());
+    void testStringLiteral() {
+        assertAll("string literal", () -> {
+            // valid string without escapes
+            var token = fromString("\"Basic Sample\"").parse();
+            assertEquals(token.getKind(), Kind.STRING);
+            assertEquals("Basic Sample", token.getLexeme());
+        }, () -> {
+            // valid string with escapes
+            var token = fromString("\" \\< \\> \\b \\t \\n \\f \\\" \\\\ \"").parse();
+            assertEquals(token.getKind(), Kind.STRING);
+            assertEquals(" < > \b \t \n \f \" \\ ", token.getLexeme());
+        }, ()->{
+            // valid empty string
+            assertEquals(fromString("\"\"").parse().getLexeme(), "");
+        }, () -> {
+            // invalid string end
+            assertThrows(LexicalError.class, () -> fromString("\"test").parse());
+        }, ()->{
+            // unclosed empty string
+            assertThrows(LexicalError.class, () -> fromString("\"").parse());
+        });
     }
+
 
     @Test
     void testStringInterpolation() {

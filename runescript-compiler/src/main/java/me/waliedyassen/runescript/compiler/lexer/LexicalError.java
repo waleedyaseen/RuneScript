@@ -31,6 +31,6 @@ public class LexicalError extends CompilerError {
      *         a message describing why the error has occurred.
      */
     public LexicalError(Range range, String message) {
-        super(range, message);
+        super(range, message + " at line: " + range.getStart().getLine() + ", column: " + range.getStart().getColumn());
     }
 }
