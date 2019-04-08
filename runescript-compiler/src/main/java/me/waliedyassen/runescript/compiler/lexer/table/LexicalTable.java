@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.lexer.table;
 
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.type.PrimitiveType;
+import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 
 import java.util.HashMap;

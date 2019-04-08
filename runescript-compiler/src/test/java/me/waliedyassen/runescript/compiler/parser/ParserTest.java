@@ -24,7 +24,8 @@ import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.type.PrimitiveType;
+import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import org.junit.jupiter.api.Test;
@@ -75,6 +76,14 @@ final class ParserTest {
         }, () -> {
             // script with no statements
             assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int)").script());
+        }, () -> {
+            // multiple return types
+            var type = fromString("[trigger,name](int,int,long) return;").script().getType();
+            assertTrue(type instanceof TupleType);
+            assertEquals(3, ((TupleType) type).getChilds().length);
+        }, () -> {
+            // uncontinued return types
+            assertThrows(SyntaxError.class, ()->fromString("[trigger,name](int,int").script());
         });
     }
 
@@ -177,16 +186,16 @@ final class ParserTest {
     void testGosubExpression() {
         assertAll("gosub expression", () -> {
             // valid no arguments gosub
-            assertEquals("gosub", fromString("~gosub;").gosubExpression().getName().getText());
+            assertEquals("gosub", fromString("~gosub;").gosub().getName().getText());
         }, () -> {
             // valid with arguments
-            assertEquals(3, fromString("~gosub(1234, \"test\", 5 > 4 > 3 > 2 > 1);").gosubExpression().getArguments().length);
+            assertEquals(3, fromString("~gosub(1234, \"test\", 5 > 4 > 3 > 2 > 1);").gosub().getArguments().length);
         }, () -> {
             // invalid gosub name
-            assertThrows(SyntaxError.class, () -> fromString("~1234(1234);").gosubExpression());
+            assertThrows(SyntaxError.class, () -> fromString("~1234(1234);").gosub());
         }, () -> {
             // invalid gosub arguments
-            assertThrows(SyntaxError.class, () -> fromString("~gosub(if);").gosubExpression());
+            assertThrows(SyntaxError.class, () -> fromString("~gosub(if);").gosub());
         });
     }
 

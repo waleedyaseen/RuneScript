@@ -13,6 +13,8 @@ import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
+import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
@@ -20,7 +22,7 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
-import me.waliedyassen.runescript.compiler.type.PrimitiveType;
+import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 
 import java.util.ArrayList;
@@ -73,7 +75,7 @@ public final class Parser {
         var name = identifier();
         consume(RBRACKET);
         // parse the script return ype nad parameters list.
-        var type = PrimitiveType.VOID;
+        Type type = PrimitiveType.VOID;
         var parameters = new ArrayList<AstParameter>();
         var has_returntype = false;
         if (consumeIf(LPAREN)) {
@@ -82,7 +84,7 @@ public final class Parser {
             } else if (isParameter()) {
                 parameters.addAll(parametersList());
             } else {
-                type = primitiveType();
+                type = type();
                 has_returntype = true;
             }
             consume(RPAREN);
@@ -91,7 +93,7 @@ public final class Parser {
             if (has_returntype) {
                 parameters.addAll(parametersList());
             } else {
-                type = primitiveType();
+                type = type();
             }
             consume(RPAREN);
         }
@@ -211,10 +213,10 @@ public final class Parser {
                 return globalVariable();
             case CARET:
                 return constant();
+            case TILDE:
+                return gosub();
             case LPAREN:
                 return parExpression();
-            case TILDE:
-                return gosubExpression();
             default:
                 throw createError(consume(), "Expecting an expression");
         }
@@ -249,7 +251,7 @@ public final class Parser {
      *
      * @return the parsed {@link AstGosub} object.
      */
-    public AstGosub gosubExpression() {
+    public AstGosub gosub() {
         pushRange();
         consume(TILDE);
         var name = identifier();
@@ -532,6 +534,24 @@ public final class Parser {
         consume(CARET);
         var name = identifier();
         return new AstConstant(popRange(), name);
+    }
+
+    /**
+     * Attempts to match the next set of token(s) to a single {@link PrimitiveType} or to a set of {@link
+     * PrimitiveType}s represented as a {@link TupleType}.
+     *
+     * @return the parsed {@link Type} object.
+     */
+    public Type type() {
+        var types = new ArrayList<PrimitiveType>(1);
+        do {
+            types.add(primitiveType());
+        } while (consumeIf(COMMA));
+        if (types.size() == 1) {
+            return types.get(0);
+        } else {
+            return new TupleType(types.toArray(PrimitiveType[]::new));
+        }
     }
 
     /**

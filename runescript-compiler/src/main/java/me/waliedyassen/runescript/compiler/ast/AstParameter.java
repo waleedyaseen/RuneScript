@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.ast;
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.type.PrimitiveType;
+import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 
 /**
  * Represents a parameter AST node.
