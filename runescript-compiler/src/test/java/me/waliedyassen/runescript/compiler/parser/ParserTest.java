@@ -15,6 +15,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstConstant;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariable;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitialize;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
@@ -23,6 +24,7 @@ import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.type.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.Operator;
+import me.waliedyassen.runescript.compiler.util.VariableScope;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -103,7 +105,7 @@ final class ParserTest {
             assertTrue(fromString("$local_var").simpleExpression() instanceof AstVariable);
         }, () -> {
             // local variable.
-            assertTrue(fromString("%global_var").simpleExpression() instanceof AstGlobalVariable);
+            assertTrue(fromString("%global_var").simpleExpression() instanceof AstVariable);
         }, () -> {
             // constant.
             assertTrue(fromString("^constant").simpleExpression() instanceof AstConstant);
@@ -239,6 +241,34 @@ final class ParserTest {
         }, () -> {
             // empty block
             assertTrue(fromString("").unbracedBlockStatement() instanceof AstBlockStatement);
+        });
+    }
+
+    @Test
+    void testVariableInitialise() {
+        assertAll("variable initialise", () -> {
+            // valid local variable initialise.
+            var variableInitialise = fromString("$test = true;").variableInitialize();
+            assertNotNull(variableInitialise);
+            assertEquals(variableInitialise.getScope(), VariableScope.LOCAL);
+            assertEquals(variableInitialise.getName().getText(), "test");
+            assertTrue(variableInitialise.getExpression() instanceof AstBool);
+        }, () -> {
+            // valid global variable initialise.
+            var variableInitialise = fromString("%hello = 1234;").variableInitialize();
+            assertNotNull(variableInitialise);
+            assertEquals(variableInitialise.getScope(), VariableScope.GLOBAL);
+            assertEquals(variableInitialise.getName().getText(), "hello");
+            assertTrue(variableInitialise.getExpression() instanceof AstInteger);
+        }, () -> {
+            // missing variable scope.
+            assertThrows(SyntaxError.class, () -> fromString("noscope = 5;").variableInitialize());
+        }, () -> {
+            // missing variable name.
+            assertThrows(SyntaxError.class, () -> fromString("% = \"no name\";").variableInitialize());
+        }, () -> {
+            // missing variable expression.
+            assertThrows(SyntaxError.class, () -> fromString("%noexpr = ;").variableInitialize());
         });
     }
 

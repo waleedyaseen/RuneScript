@@ -16,6 +16,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.expr.AstConstant;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariable;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitialize;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
@@ -226,6 +227,9 @@ public final class Parser {
                 return blockStatement();
             case RETURN:
                 return returnStatement();
+            case DOLLAR:
+            case MODULO:
+                return variableInitialize();
             default:
                 throw createError(consume(), "Expecting a statement");
         }
@@ -317,6 +321,26 @@ public final class Parser {
     }
 
     /**
+     * Attempts to parse an {@link AstVariableInitialize} from the next set of {@link Token token}s.
+     *
+     * @return the parsed {@link AstVariableInitialize} object.
+     */
+    public AstVariableInitialize variableInitialize() {
+        // we can turn this into an expression, but then it would result in
+        // the binary expression being confused between equality and assign operators.
+        pushRange();
+        var scope = VariableScope.forKind(kind());
+        if (scope == null) {
+            throw createError(lexer.previous(), "Expected a variable scope");
+        }
+        var variable = identifier();
+        consume(EQUALS);
+        var expression = expression();
+        consume(SEMICOLON);
+        return new AstVariableInitialize(popRange(), scope, variable, expression);
+    }
+
+    /**
      * Attempts to match the next token to an {@link AstInteger} object instance.
      *
      * @return the parsed {@link AstInteger} object.
@@ -396,8 +420,8 @@ public final class Parser {
     }
 
     /**
-     * Attempts to match the next set of tokens to an {@link AstVariable} object
-     * with a variable scope of {@link VariableScope#LOCAL}.
+     * Attempts to match the next set of tokens to an {@link AstVariable} object with a variable scope of {@link
+     * VariableScope#LOCAL}.
      *
      * @return the parsed {@link AstVariable} object.
      */
@@ -409,8 +433,8 @@ public final class Parser {
     }
 
     /**
-     * Attempts to match the next set of tokens to an {@link AstVariable} object
-     * with a variable scope of {@link VariableScope#GLOBAL}.
+     * Attempts to match the next set of tokens to an {@link AstVariable} object with a variable scope of {@link
+     * VariableScope#GLOBAL}.
      *
      * @return the parsed {@link AstVariable} object.
      */
