@@ -57,6 +57,21 @@ final class ParserTest {
         }, () -> {
             // script with unclosed right parenthesis for parameters
             assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int $one").script());
+        }, () -> {
+            // script with return type
+            assertEquals(fromString("[trigger,name](bool)").script().getType(), PrimitiveType.BOOL);
+        }, () -> {
+            // script with parameters and return type
+            var script = fromString("[trigger,name](int $myint, long $mylong)(int)").script();
+            assertEquals(script.getType(), PrimitiveType.INT);
+            assertEquals(script.getParameters().length, 2);
+            // same test but with order swapped
+            script = fromString("[trigger,name](int)(int $myint, long $mylong)").script();
+            assertEquals(script.getType(), PrimitiveType.INT);
+            assertEquals(script.getParameters().length, 2);
+        }, () -> {
+            // unclosed return type parenthesis
+            assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int").script());
         });
     }
 

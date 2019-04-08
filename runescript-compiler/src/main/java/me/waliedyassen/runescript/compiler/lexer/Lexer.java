@@ -89,15 +89,15 @@ public final class Lexer {
     }
 
     /**
-     * Gets the last {@link Token} object within this lexer.
      *
-     * @return the last {@link Token} object.
+     * @param n
+     * @return
      */
-    public Token last() {
-        if (tokens.size() == 0) {
+    public Token lookahead(int n) {
+        if (index + n >= tokens.size()) {
             return null;
         }
-        return tokens.get(tokens.size() - 1);
+        return tokens.get(index + n);
     }
 
     /**

@@ -97,10 +97,9 @@ public final class BufferedCharStream implements CharStream {
             return NULL;
         }
         if (peek() == '\r') {
-            pos++;
-        }
-        if (pos >= buffer.length) {
-            return NULL;
+            if (++pos >= buffer.length) {
+                return NULL;
+            }
         }
         char ch = buffer[pos++];
         if (ch == '\n') {

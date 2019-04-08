@@ -28,6 +28,7 @@ import me.waliedyassen.runescript.compiler.type.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
@@ -75,12 +76,27 @@ public final class Parser {
         consume(COMMA);
         var name = identifier();
         consume(RBRACKET);
-        // parse the script parameters.
+        // parse the script return ype nad parameters list.
+        var type = PrimitiveType.VOID;
         var parameters = new ArrayList<AstParameter>();
+        var has_returntype = false;
         if (consumeIf(LPAREN)) {
-            do {
-                parameters.add(parameter());
-            } while (consumeIf(COMMA));
+            if (consumeIf(RPAREN)) {
+                // we have a ()
+            } else if (isParameter()) {
+                parameters.addAll(parametersList());
+            } else {
+                type = primitiveType();
+                has_returntype = true;
+            }
+            consume(RPAREN);
+        }
+        if (consumeIf(LPAREN)) {
+            if (has_returntype) {
+                parameters.addAll(parametersList());
+            } else {
+                type = primitiveType();
+            }
             consume(RPAREN);
         }
         // parse the script content.
@@ -89,7 +105,7 @@ public final class Parser {
             statements.add(statement());
         }
         // return the parsed script.
-        return new AstScript(popRange(), trigger, name, parameters.toArray(AstParameter[]::new), statements.toArray(AstStatement[]::new));
+        return new AstScript(popRange(), trigger, name, parameters.toArray(AstParameter[]::new), type, statements.toArray(AstStatement[]::new));
     }
 
 
@@ -107,6 +123,27 @@ public final class Parser {
         var local = localVariable();
         return new AstParameter(popRange(), type, local.getName());
     }
+
+    /**
+     * Attempts to parse a list of {@link AstParameter} separated with a {@link Kind#COMMA} token {@link Kind kind}.
+     *
+     * @return the parsed list of {@link AstParameter} objects.
+     */
+    private List<AstParameter> parametersList() {
+        var parameters = new ArrayList<AstParameter>();
+        do {
+            parameters.add(parameter());
+        } while (consumeIf(COMMA));
+        return parameters;
+    }
+
+    /**
+     * @return
+     */
+    private boolean isParameter() {
+        return peekKind(0) == TYPE && peekKind(1) == DOLLAR;
+    }
+
 
     /**
      * Attempts to a parse an {@link AstExpression} object node.
@@ -340,6 +377,7 @@ public final class Parser {
         consume(SEMICOLON);
         return new AstVariableDefine(popRange(), type, name, expression);
     }
+
     /**
      * Attempts to parse an {@link AstVariableInitialize} from the next set of {@link Token token}s.
      *
@@ -569,7 +607,17 @@ public final class Parser {
      * @return the next {@link Kind} or {@link Kind#EOF} if there is no more tokens.
      */
     public Kind peekKind() {
-        var token = peek();
+        return peekKind(0);
+    }
+
+    /**
+     * Attempts to get the token {@link Kind kind} that is placed after a specific amount of tokens defined by {@code
+     * n}.
+     *
+     * @return the token {@link Kind kind } if it was present otherwise returns {@link Kind#EOF}.
+     */
+    public Kind peekKind(int n) {
+        var token = lexer.lookahead(n);
         if (token == null) {
             return Kind.EOF;
         }

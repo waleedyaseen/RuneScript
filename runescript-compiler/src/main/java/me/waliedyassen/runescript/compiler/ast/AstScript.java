@@ -12,6 +12,7 @@ import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
+import me.waliedyassen.runescript.compiler.type.Type;
 
 /**
  * Represents a complete script with header and code statements. Contains unverified AST nodes that represents the
@@ -43,6 +44,12 @@ public final class AstScript extends AstNode {
     private final AstParameter[] parameters;
 
     /**
+     * The script type.
+     */
+    @Getter
+    private final Type type;
+
+    /**
      * The script code statements.
      */
     @Getter
@@ -59,14 +66,17 @@ public final class AstScript extends AstNode {
      *         the script name.
      * @param parameters
      *         the script parameters.
+     * @param type
+     *         the script type.
      * @param code
      *         the script code statements.
      */
-    public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, AstStatement[] code) {
+    public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, Type type, AstStatement[] code) {
         super(range);
         this.trigger = trigger;
         this.name = name;
         this.parameters = parameters;
+        this.type = type;
         this.code = code;
     }
 }
