@@ -50,7 +50,7 @@ final class ParserTest {
             // TODO: Bad scripts testing.
         }, () -> {
             // script with three parameters
-            assertEquals(fromString("[trigger,name](int $one, int $two, string $three)").script().getParameters().length, 3);
+            assertEquals(fromString("[trigger,name](int $one, int $two, string $three) return;").script().getParameters().length, 3);
         }, () -> {
             // script with missing parameter
             assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int $one,").script());
@@ -59,19 +59,22 @@ final class ParserTest {
             assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int $one").script());
         }, () -> {
             // script with return type
-            assertEquals(fromString("[trigger,name](bool)").script().getType(), PrimitiveType.BOOL);
+            assertEquals(fromString("[trigger,name](bool) return;").script().getType(), PrimitiveType.BOOL);
         }, () -> {
             // script with parameters and return type
-            var script = fromString("[trigger,name](int $myint, long $mylong)(int)").script();
+            var script = fromString("[trigger,name](int $myint, long $mylong)(int) return;").script();
             assertEquals(script.getType(), PrimitiveType.INT);
             assertEquals(script.getParameters().length, 2);
             // same test but with order swapped
-            script = fromString("[trigger,name](int)(int $myint, long $mylong)").script();
+            script = fromString("[trigger,name](int)(int $myint, long $mylong) return;").script();
             assertEquals(script.getType(), PrimitiveType.INT);
             assertEquals(script.getParameters().length, 2);
         }, () -> {
             // unclosed return type parenthesis
             assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int").script());
+        }, () -> {
+            // script with no statements
+            assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int)").script());
         });
     }
 

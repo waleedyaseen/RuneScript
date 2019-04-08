@@ -101,9 +101,9 @@ public final class Parser {
         }
         // parse the script content.
         var statements = new ArrayList<AstStatement>();
-        while (isStatement()) {
+        do {
             statements.add(statement());
-        }
+        } while (isStatement());
         // return the parsed script.
         return new AstScript(popRange(), trigger, name, parameters.toArray(AstParameter[]::new), type, statements.toArray(AstStatement[]::new));
     }
