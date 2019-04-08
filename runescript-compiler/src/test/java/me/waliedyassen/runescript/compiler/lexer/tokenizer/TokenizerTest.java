@@ -30,7 +30,7 @@ class TokenizerTest {
     @Test
     void testUnexpectedCharacters() {
         // this is unexpected because escapes are only allowed within strings
-        assertThrows(LexicalError.class, ()->fromString("\\").parse());
+        assertThrows(LexicalError.class, () -> fromString("\\").parse());
     }
 
     @Test
@@ -45,15 +45,16 @@ class TokenizerTest {
             var token = fromString("\" \\< \\> \\b \\t \\n \\f \\\" \\\\ \"").parse();
             assertEquals(token.getKind(), Kind.STRING);
             assertEquals(" < > \b \t \n \f \" \\ ", token.getLexeme());
-        }, ()->{
+        }, () -> {
             // valid empty string
             assertEquals(fromString("\"\"").parse().getLexeme(), "");
         }, () -> {
             // invalid string end
             assertThrows(LexicalError.class, () -> fromString("\"test").parse());
-        }, ()->{
-            // unclosed empty string
-            assertThrows(LexicalError.class, () -> fromString("\"").parse());
+            assertThrows(LexicalError.class, () -> fromString("\"\n").parse());
+        }, () -> {
+            // invalid string escapes.
+            assertThrows(LexicalError.class, () -> fromString("\"\\g\"").parse());
         });
     }
 
@@ -80,17 +81,23 @@ class TokenizerTest {
 
     @Test
     void testMultilineComment() {
-        //@formatter:off
-        var tokenizer = fromString("		/*\r\n" +
-                "		 * Line with the star decoration.\r\n" +
-                "		   Line without the star decoration.\r\n" +
-                "		 * \r\n" +
-                "		 */");
-        //@formatter:on
-        var token = tokenizer.parse();
-        assertEquals(token.getKind(), Kind.COMMENT);
-        assertEquals(token.getLexeme(), "Line with the star decoration.\nLine without the star decoration.\n");
-
+        assertAll("mulitline comment", () -> {
+            // valid multi line comment
+            var tokenizer = fromString("		/*\r\n" +
+                    "		 * Line with the star decoration.\r\n" +
+                    "		   Line without the star decoration.\r\n" +
+                    "		 * \r\n" +
+                    "		 */");
+            var token = tokenizer.parse();
+            assertEquals(token.getKind(), Kind.COMMENT);
+            assertEquals(token.getLexeme(), "Line with the star decoration.\nLine without the star decoration.\n");
+        }, () -> {
+            // valid single line comment
+            assertEquals(fromString("/*hey*/").parse().getLexeme(), "hey");
+        }, () -> {
+            // unclosed multi line comment
+            assertThrows(LexicalError.class, () -> fromString("/*\nline1\nline2").parse());
+        });
     }
 
     @Test

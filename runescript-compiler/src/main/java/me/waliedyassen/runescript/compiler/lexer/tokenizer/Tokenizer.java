@@ -243,6 +243,11 @@ public final class Tokenizer {
                         }
                         resetBuilder();
                     } else if (current == '*' && next == '/') {
+                        var line = trimComment(builder.toString(), true);
+                        if (line.length() > 0) {
+                            state.lines.add(line);
+                        }
+                        resetBuilder();
                         stream.take();
                         return createToken(COMMENT, String.join("\n", state.lines));
                     } else {
