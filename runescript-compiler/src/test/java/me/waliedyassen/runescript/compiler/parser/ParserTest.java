@@ -296,15 +296,22 @@ final class ParserTest {
     @Test
     void testReturnStatement() {
         assertAll("return statement", () -> {
-            // valid return expression
+            // valid return one expression
             var returnStatement = fromString("return \"am valid\";").returnStatement();
             assertNotNull(returnStatement);
-            assertTrue(returnStatement.getExpression() instanceof AstString);
+            assertEquals(1, returnStatement.getExpressions().length);
+            assertTrue(returnStatement.getExpressions()[0] instanceof AstString);
+        }, () -> {
+            // valid return multiple expressions
+            var returnStatement = fromString("return 1,true,\"\";").returnStatement();
         }, () -> {
             // valid return nothing
             var returnStatement = fromString("return;").returnStatement();
             assertNotNull(returnStatement);
-            assertNull(returnStatement.getExpression());
+            assertEquals(0, returnStatement.getExpressions().length);
+        }, () -> {
+            // invalid return multiple expressions
+            assertThrows(SyntaxError.class, () -> fromString("return 1,2,3,;").returnStatement());
         }, () -> {
             // missing semi colon
             assertThrows(SyntaxError.class, () -> fromString("return if;").returnStatement());

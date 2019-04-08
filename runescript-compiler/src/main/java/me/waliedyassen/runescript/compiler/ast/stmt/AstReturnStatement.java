@@ -19,21 +19,21 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 public final class AstReturnStatement extends AstStatement {
 
     /**
-     * The returned expression.
+     * The returned expressions.
      */
     @Getter
-    private final AstExpression expression;
+    private final AstExpression[] expressions;
 
     /**
      * Construct a new {@link AstReturnStatement} type object instance.
      *
      * @param range
      *         the node source code range.
-     * @param expression
-     *         the returned expression.
+     * @param expressions
+     *         the returned expressions.
      */
-    public AstReturnStatement(Range range, AstExpression expression) {
+    public AstReturnStatement(Range range, AstExpression[] expressions) {
         super(range);
-        this.expression = expression;
+        this.expressions = expressions;
     }
 }

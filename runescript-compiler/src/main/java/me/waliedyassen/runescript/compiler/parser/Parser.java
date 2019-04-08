@@ -378,9 +378,14 @@ public final class Parser {
     public AstReturnStatement returnStatement() {
         pushRange();
         consume(RETURN);
-        var expr = isExpression() ? expression() : null;
+        var exprs = new ArrayList<AstExpression>();
+        if (isExpression()) {
+            do {
+                exprs.add(expression());
+            } while (consumeIf(COMMA));
+        }
         consume(SEMICOLON);
-        return new AstReturnStatement(popRange(), expr);
+        return new AstReturnStatement(popRange(), exprs.toArray(AstExpression[]::new));
     }
 
     /**
