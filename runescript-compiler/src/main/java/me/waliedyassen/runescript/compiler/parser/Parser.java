@@ -14,9 +14,9 @@ import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstBinaryExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.ast.expr.var.AstConstant;
-import me.waliedyassen.runescript.compiler.ast.expr.var.AstGlobalVariable;
-import me.waliedyassen.runescript.compiler.ast.expr.var.AstLocalVariable;
+import me.waliedyassen.runescript.compiler.ast.expr.AstConstant;
+import me.waliedyassen.runescript.compiler.ast.expr.AstVariable;
+import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstReturnStatement;
@@ -396,27 +396,29 @@ public final class Parser {
     }
 
     /**
-     * Attempts to match the next set of tokens to an {@link AstLocalVariable} object.
+     * Attempts to match the next set of tokens to an {@link AstVariable} object
+     * with a variable scope of {@link VariableScope#LOCAL}.
      *
-     * @return the parsed {@link AstLocalVariable} object.
+     * @return the parsed {@link AstVariable} object.
      */
-    public AstLocalVariable localVariable() {
+    public AstVariable localVariable() {
         pushRange();
         consume(DOLLAR);
         var name = identifier();
-        return new AstLocalVariable(popRange(), name);
+        return new AstVariable(popRange(), VariableScope.LOCAL, name);
     }
 
     /**
-     * Attempts to match the next set of tokens to an {@link AstGlobalVariable} object.
+     * Attempts to match the next set of tokens to an {@link AstVariable} object
+     * with a variable scope of {@link VariableScope#GLOBAL}.
      *
-     * @return the parsed {@link AstGlobalVariable} object.
+     * @return the parsed {@link AstVariable} object.
      */
-    public AstGlobalVariable globalVariable() {
+    public AstVariable globalVariable() {
         pushRange();
         consume(MODULO);
         var name = identifier();
-        return new AstGlobalVariable(popRange(), name);
+        return new AstVariable(popRange(), VariableScope.GLOBAL, name);
     }
 
     /**

@@ -11,9 +11,8 @@ import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.expr.AstBinaryExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.ast.expr.var.AstConstant;
-import me.waliedyassen.runescript.compiler.ast.expr.var.AstGlobalVariable;
-import me.waliedyassen.runescript.compiler.ast.expr.var.AstLocalVariable;
+import me.waliedyassen.runescript.compiler.ast.expr.AstConstant;
+import me.waliedyassen.runescript.compiler.ast.expr.AstVariable;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
@@ -101,7 +100,7 @@ final class ParserTest {
             assertTrue(fromString("test").simpleExpression() instanceof AstIdentifier);
         }, () -> {
             // local variable.
-            assertTrue(fromString("$local_var").simpleExpression() instanceof AstLocalVariable);
+            assertTrue(fromString("$local_var").simpleExpression() instanceof AstVariable);
         }, () -> {
             // local variable.
             assertTrue(fromString("%global_var").simpleExpression() instanceof AstGlobalVariable);
