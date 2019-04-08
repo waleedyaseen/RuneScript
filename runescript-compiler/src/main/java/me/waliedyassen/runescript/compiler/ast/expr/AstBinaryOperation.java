@@ -12,26 +12,26 @@ import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.util.Operator;
 
 /**
- * Represents a binary operator expression.
+ * Represents a binary operation expression.
  *
  * @author Walied K. Yassen
  */
-public final class AstBinaryExpression extends AstExpression {
+public final class AstBinaryOperation extends AstExpression {
 
     /**
-     * The left side expression.
+     * The operation left side expression.
      */
     @Getter
     private final AstExpression left;
 
     /**
-     * The binary operator type.
+     * The operation operator.
      */
     @Getter
     private final Operator operator;
 
     /**
-     * The right side expression.
+     * The operation right side expression.
      */
     @Getter
     private final AstExpression right;
@@ -40,13 +40,13 @@ public final class AstBinaryExpression extends AstExpression {
      * Constructs a new {@link AstExpression} type object instance.
      *
      * @param left
-     *         the left side expression.
+     *         the operation left side expression.
      * @param operator
-     *         the binary operator type.
+     *         the operation binary operator type.
      * @param right
-     *         the right side expression.
+     *         the operation right side expression.
      */
-    public AstBinaryExpression(AstExpression left, Operator operator, AstExpression right) {
+    public AstBinaryOperation(AstExpression left, Operator operator, AstExpression right) {
         super(new Range(left.getRange().getStart(), right.getRange().getEnd()));
         this.left = left;
         this.operator = operator;

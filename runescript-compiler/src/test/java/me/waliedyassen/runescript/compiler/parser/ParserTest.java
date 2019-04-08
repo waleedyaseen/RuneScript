@@ -149,15 +149,15 @@ final class ParserTest {
         assertAll("expression", () -> {
             // a basic binary operator.
             var expr = fromString("5 > 3").expression();
-            assertTrue(expr instanceof AstBinaryExpression);
-            var bin = (AstBinaryExpression) expr;
+            assertTrue(expr instanceof AstBinaryOperation);
+            var bin = (AstBinaryOperation) expr;
             assertEquals(bin.getOperator(), Operator.GREATER_THAN);
         }, () -> {
             // a bit more complex binary operator.
             var expr = fromString("5 > 3 ! true").expression();
-            assertTrue(expr instanceof AstBinaryExpression);
-            var bin = (AstBinaryExpression) expr;
-            assertTrue(bin.getLeft() instanceof AstBinaryExpression);
+            assertTrue(expr instanceof AstBinaryOperation);
+            var bin = (AstBinaryOperation) expr;
+            assertTrue(bin.getLeft() instanceof AstBinaryOperation);
             assertEquals(bin.getOperator(), Operator.NOT_EQUAL);
         });
     }
@@ -206,10 +206,10 @@ final class ParserTest {
             assertTrue(fromString("return test;").statement() instanceof AstReturnStatement);
         }, () -> {
             // valid variable define statement
-            assertTrue(fromString("def_bool $mybool = true;").statement() instanceof AstVariableDefine);
+            assertTrue(fromString("def_bool $mybool = true;").statement() instanceof AstVariableDeclaration);
         }, () -> {
             // valid variable initialise statement
-            assertTrue(fromString("$varinit = 5;").statement() instanceof AstVariableInitialize);
+            assertTrue(fromString("$varinit = 5;").statement() instanceof AstVariableInitializer);
         }, () -> {
             // empty statement
             assertThrows(SyntaxError.class, () -> fromString("").statement());

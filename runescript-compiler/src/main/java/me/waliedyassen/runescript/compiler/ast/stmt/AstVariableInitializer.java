@@ -11,49 +11,48 @@ import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 
 /**
- * Represents a variable define (or declaration) statement.
+ * Represents a variable initialize statement.
  *
  * @author Walied K. Yassen
  */
-public final class AstVariableDefine extends AstStatement {
+public final class AstVariableInitializer extends AstStatement {
 
     /**
-     * The variable type.
+     * The scope of the variable.
      */
     @Getter
-    private final Type type;
+    private final VariableScope scope;
 
     /**
-     * The variable name.
+     * The name of the variable.
      */
     @Getter
     private final AstIdentifier name;
 
     /**
-     * The variable initializer expression.
+     * The initialise expression of the variable.
      */
     @Getter
     private final AstExpression expression;
 
     /**
-     * Construct a new {@link AstVariableDefine} type object instance.
+     * Construct a new {@link AstVariableInitializer} type object instance.
      *
      * @param range
      *         the node source code range.
-     * @param type
-     *         the type of the variable.
+     * @param scope
+     *         the variable scope.
      * @param name
-     *         the name of the variable.
+     *         the variable name.
      * @param expression
-     *         the initializer expression of the variable.
+     *         the variable initialise expression.
      */
-    public AstVariableDefine(Range range, Type type, AstIdentifier name, AstExpression expression) {
+    public AstVariableInitializer(Range range, VariableScope scope, AstIdentifier name, AstExpression expression) {
         super(range);
-        this.type = type;
+        this.scope = scope;
         this.name = name;
         this.expression = expression;
     }

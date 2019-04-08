@@ -11,48 +11,48 @@ import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.util.VariableScope;
+import me.waliedyassen.runescript.compiler.type.Type;
 
 /**
- * Represents a variable initialize statement.
+ * Represents a variable define (or declaration) statement.
  *
  * @author Walied K. Yassen
  */
-public final class AstVariableInitialize extends AstStatement {
+public final class AstVariableDeclaration extends AstStatement {
 
     /**
-     * The scope of the variable.
+     * The variable type.
      */
     @Getter
-    private final VariableScope scope;
+    private final Type type;
 
     /**
-     * The name of the variable.
+     * The variable name.
      */
     @Getter
     private final AstIdentifier name;
 
     /**
-     * The initialise expression of the variable.
+     * The variable initializer expression.
      */
     @Getter
     private final AstExpression expression;
 
     /**
-     * Construct a new {@link AstVariableInitialize} type object instance.
+     * Construct a new {@link AstVariableDeclaration} type object instance.
      *
      * @param range
      *         the node source code range.
-     * @param scope
-     *         the variable scope.
+     * @param type
+     *         the type of the variable.
      * @param name
-     *         the variable name.
+     *         the name of the variable.
      * @param expression
-     *         the variable initialise expression.
+     *         the initializer expression of the variable.
      */
-    public AstVariableInitialize(Range range, VariableScope scope, AstIdentifier name, AstExpression expression) {
+    public AstVariableDeclaration(Range range, Type type, AstIdentifier name, AstExpression expression) {
         super(range);
-        this.scope = scope;
+        this.type = type;
         this.name = name;
         this.expression = expression;
     }

@@ -171,13 +171,13 @@ public final class Parser {
             if (precedence < op.getPrecedence()) {
                 consume();
                 var right = expression(op.getPrecedence());
-                tree = new AstBinaryExpression(tree, op, right);
+                tree = new AstBinaryOperation(tree, op, right);
             } else if (precedence == op.getPrecedence()) {
                 switch (op.getAssociativity()) {
                     case RIGHT:
                         consume();
                         var right = expression(precedence);
-                        return new AstBinaryExpression(tree, op, right);
+                        return new AstBinaryOperation(tree, op, right);
                     case LEFT:
                         return tree;
                 }
@@ -389,11 +389,11 @@ public final class Parser {
     }
 
     /**
-     * Attempts to parse an {@link AstVariableDefine} from the next set of {@link Token token}s.
+     * Attempts to parse an {@link AstVariableDeclaration} from the next set of {@link Token token}s.
      *
-     * @return the parsed {@link AstVariableDefine} object.
+     * @return the parsed {@link AstVariableDeclaration} object.
      */
-    public AstVariableDefine variableDefine() {
+    public AstVariableDeclaration variableDefine() {
         pushRange();
         var token = consume(DEFINE);
         var type = PrimitiveType.forRepresentation(token.getLexeme().substring(4));
@@ -405,15 +405,15 @@ public final class Parser {
         consume(EQUALS);
         var expression = expression();
         consume(SEMICOLON);
-        return new AstVariableDefine(popRange(), type, name, expression);
+        return new AstVariableDeclaration(popRange(), type, name, expression);
     }
 
     /**
-     * Attempts to parse an {@link AstVariableInitialize} from the next set of {@link Token token}s.
+     * Attempts to parse an {@link AstVariableInitializer} from the next set of {@link Token token}s.
      *
-     * @return the parsed {@link AstVariableInitialize} object.
+     * @return the parsed {@link AstVariableInitializer} object.
      */
-    public AstVariableInitialize variableInitialize() {
+    public AstVariableInitializer variableInitialize() {
         // we can turn this into an expression, but then it would result in
         // the binary expression being confused between equality and assign operators.
         pushRange();
@@ -425,7 +425,7 @@ public final class Parser {
         consume(EQUALS);
         var expression = expression();
         consume(SEMICOLON);
-        return new AstVariableInitialize(popRange(), scope, variable, expression);
+        return new AstVariableInitializer(popRange(), scope, variable, expression);
     }
 
     /**
