@@ -16,6 +16,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstVariable;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstReturnStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDefine;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitialize;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -166,7 +167,10 @@ final class ParserTest {
             // valid return statement
             assertTrue(fromString("return test;").statement() instanceof AstReturnStatement);
         }, () -> {
-            // valid variable initialise statement.
+            // valid variable define statement
+            assertTrue(fromString("def_bool $mybool = true;").statement() instanceof AstVariableDefine);
+        }, () -> {
+            // valid variable initialise statement
             assertTrue(fromString("$varinit = 5;").statement() instanceof AstVariableInitialize);
         }, () -> {
             // empty statement
@@ -265,7 +269,34 @@ final class ParserTest {
             assertNull(returnStatement.getExpression());
         }, () -> {
             // missing semi colon
-            assertThrows(SyntaxError.class, ()->fromString("return if;").returnStatement());
+            assertThrows(SyntaxError.class, () -> fromString("return if;").returnStatement());
+        });
+    }
+
+    @Test
+    void testVariableDefine() {
+        assertAll("variable define statement", () -> {
+            // valid variable declaration.
+            var variableDefine = fromString("def_bool $test = true;").variableDefine();
+            assertNotNull(variableDefine);
+            assertEquals(variableDefine.getType(), PrimitiveType.BOOL);
+            assertEquals(variableDefine.getName().getText(), "test");
+            assertTrue(variableDefine.getExpression() instanceof AstBool);
+        }, () -> {
+            // invalid variable scope.
+            assertThrows(SyntaxError.class, () -> fromString("def_bool %test = true;").variableDefine());
+        }, () -> {
+            // missing variable scope.
+            assertThrows(SyntaxError.class, () -> fromString("def_int noscope = 5;").variableDefine());
+        }, () -> {
+            // missing variable name.
+            assertThrows(SyntaxError.class, () -> fromString("def_string $ = \"no name\";").variableDefine());
+        }, () -> {
+            // missing variable expression.
+            assertThrows(SyntaxError.class, () -> fromString("def_long $noexpr = ;").variableDefine());
+        }, () -> {
+            // illegal variable  type.
+            assertThrows(SyntaxError.class, () -> fromString("def_void $illegal = 0;").variableDefine());
         });
     }
 

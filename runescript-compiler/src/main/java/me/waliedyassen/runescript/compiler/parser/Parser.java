@@ -16,12 +16,9 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.expr.AstConstant;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariable;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitialize;
+import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstReturnStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
@@ -194,7 +191,7 @@ public final class Parser {
      */
     public boolean isExpression() {
         var kind = peekKind();
-        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MODULO || kind == CARET;
+        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MODULO || kind == CARET || kind == LPAREN;
     }
 
     /**
@@ -227,6 +224,8 @@ public final class Parser {
                 return blockStatement();
             case RETURN:
                 return returnStatement();
+            case DEFINE:
+                return variableDefine();
             case DOLLAR:
             case MODULO:
                 return variableInitialize();
@@ -242,7 +241,7 @@ public final class Parser {
      */
     private boolean isStatement() {
         var kind = peekKind();
-        return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN;
+        return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR || kind == MODULO;
     }
 
     /**
@@ -323,6 +322,25 @@ public final class Parser {
     }
 
     /**
+     * Attempts to parse an {@link AstVariableDefine} from the next set of {@link Token token}s.
+     *
+     * @return the parsed {@link AstVariableDefine} object.
+     */
+    public AstVariableDefine variableDefine() {
+        pushRange();
+        var token = consume(DEFINE);
+        var type = PrimitiveType.forRepresentation(token.getLexeme().substring(4));
+        // type can never be null here.
+        if (!consumeIf(DOLLAR)) {
+            throw createError(consume(), "Expecting a local variable name");
+        }
+        var name = identifier();
+        consume(EQUALS);
+        var expression = expression();
+        consume(SEMICOLON);
+        return new AstVariableDefine(popRange(), type, name, expression);
+    }
+    /**
      * Attempts to parse an {@link AstVariableInitialize} from the next set of {@link Token token}s.
      *
      * @return the parsed {@link AstVariableInitialize} object.
@@ -333,7 +351,7 @@ public final class Parser {
         pushRange();
         var scope = VariableScope.forKind(kind());
         if (scope == null) {
-            throw createError(lexer.previous(), "Expected a variable scope");
+            throw createError(lexer.previous(), "Expecting a variable");
         }
         var variable = identifier();
         consume(EQUALS);
