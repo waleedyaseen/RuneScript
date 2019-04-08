@@ -78,7 +78,9 @@ public final class LexicalTable {
         registerKeyword("return", Kind.RETURN);
         for (var type : PrimitiveType.values()) {
             registerKeyword(type.getRepresentation(), Kind.TYPE);
-            registerKeyword("def_" + type.getRepresentation(), Kind.DEFINE);
+            if (type.isDeclarable()) {
+                registerKeyword("def_" + type.getRepresentation(), Kind.DEFINE);
+            }
         }
         // the separators chunk.
         registerSeparator('(', Kind.LPAREN);
