@@ -82,39 +82,21 @@ public final class Lexer {
      * @return the previous {@link Token} object.
      */
     public Token previous() {
-        if (index < 1) {
-            return null;
-        }
         return tokens.get(index - 1);
     }
 
     /**
+     * Getes the token at is located at {@code n} steps from the current index.
      *
      * @param n
-     * @return
+     *         the distance which the token is located at from the current index.
+     *
+     * @return the {@link Token} if it was present otherwise {@code null}.
      */
     public Token lookahead(int n) {
         if (index + n >= tokens.size()) {
             return null;
         }
         return tokens.get(index + n);
-    }
-
-    /**
-     * Advances the current pointer index by one.
-     */
-    public void advance() {
-        if (index < tokens.size()) {
-            index++;
-        }
-    }
-
-    /**
-     * Gets the remaining tokens count.
-     *
-     * @return the remaining tokens count.
-     */
-    public int remaining() {
-        return tokens.size() - index;
     }
 }

@@ -102,13 +102,15 @@ class TokenizerTest {
 
     @Test
     void testIdentifier() {
-        var tokenizer = fromString("654321myIdentifier");
-        var token = tokenizer.parse();
-        assertEquals(token.getKind(), Kind.INTEGER);
-        assertEquals(token.getLexeme(), String.valueOf(654321));
-        token = tokenizer.parse();
-        assertEquals(token.getKind(), Kind.IDENTIFIER);
-        assertEquals(token.getLexeme(), "myIdentifier");
+        assertAll("identifier", () -> {
+            // identifier start
+            var identifiers = new String[]{"myIdentifier0", "My_Identifier1", "_my_identifier2"};
+            for (var identifier : identifiers) {
+                var token = fromString(identifier).parse();
+                assertEquals(token.getKind(), Kind.IDENTIFIER);
+                assertEquals(token.getLexeme(), identifier);
+            }
+        });
     }
 
     @Test

@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
@@ -24,6 +25,7 @@ public class CompilerError extends RuntimeException {
     /**
      * The error source code range.
      */
+    @Getter
     private final Range range;
 
     /**
@@ -37,14 +39,5 @@ public class CompilerError extends RuntimeException {
     public CompilerError(Range range, String message) {
         super(message);
         this.range = range;
-    }
-
-    /**
-     * Gets the error source code range.
-     *
-     * @return the source code range.
-     */
-    public Range getRange() {
-        return range;
     }
 }

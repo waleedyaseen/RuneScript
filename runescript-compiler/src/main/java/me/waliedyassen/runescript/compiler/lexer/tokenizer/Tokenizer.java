@@ -290,26 +290,6 @@ public final class Tokenizer {
     }
 
     /**
-     * Creates a new {@link Token} object with the specified {@code kind}, {@code range}, and {@code lexeme}.
-     * <p>
-     * Upon calling this method, the {@link State#mode} of the parser will be reset to it's default which is {@link
-     * Mode#NONE}.
-     *
-     * @param kind
-     *         the kind of the token.
-     * @param range
-     *         the range of the token.
-     * @param lexeme
-     *         the lexeme of the token.
-     *
-     * @return the created {@link Token} object instance.
-     */
-    private Token createToken(Kind kind, Range range, String lexeme) {
-        state.mode = Mode.NONE;
-        return new Token(kind, range, lexeme);
-    }
-
-    /**
      * Adds the specified {@link Token} object to the end of the current state {@link State#fallback fallback} deque.
      *
      * @param token
@@ -353,9 +333,6 @@ public final class Tokenizer {
      */
     private void pushState(State.StateKind kind) {
         var previous = state;
-        if (previous == null) {
-            throw new IllegalStateException("There is currently no State object bound.");
-        }
         stack.push(previous);
         state = State.emptyState(kind);
         state.position = previous.position;
@@ -367,9 +344,6 @@ public final class Tokenizer {
      * This will completely get rid of the currently bound state.
      */
     private void popState() {
-        if (stack.isEmpty()) {
-            throw new IllegalStateException("There is currently no State objects pushed to the stack.");
-        }
         state = stack.pop();
     }
 
