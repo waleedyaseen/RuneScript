@@ -138,7 +138,9 @@ public final class Parser {
     }
 
     /**
-     * @return
+     * Checks whether or not the next tokens can be parsed as a {@link AstParameter} object.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
      */
     private boolean isParameter() {
         return peekKind(0) == TYPE && peekKind(1) == DOLLAR;
@@ -172,13 +174,13 @@ public final class Parser {
             if (precedence < op.getPrecedence()) {
                 consume();
                 var right = expression(op.getPrecedence());
-                tree = new AstBinaryExpression(null, tree, op, right);
+                tree = new AstBinaryExpression(tree, op, right);
             } else if (precedence == op.getPrecedence()) {
                 switch (op.getAssociativity()) {
                     case RIGHT:
                         consume();
                         var right = expression(precedence);
-                        return new AstBinaryExpression(null, tree, op, right);
+                        return new AstBinaryExpression(tree, op, right);
                     case LEFT:
                         return tree;
                 }
@@ -204,10 +206,10 @@ public final class Parser {
                 return string();
             case CONCATB:
                 return concatString();
-            case BOOL:
-                return bool();
             case IDENTIFIER:
                 return identifier();
+            case BOOL:
+                return bool();
             case DOLLAR:
                 return localVariable();
             case MODULO:

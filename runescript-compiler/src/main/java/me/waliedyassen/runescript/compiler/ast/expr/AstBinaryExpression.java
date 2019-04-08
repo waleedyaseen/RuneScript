@@ -39,8 +39,6 @@ public final class AstBinaryExpression extends AstExpression {
     /**
      * Constructs a new {@link AstExpression} type object instance.
      *
-     * @param range
-     *         the expression source code range.
      * @param left
      *         the left side expression.
      * @param operator
@@ -48,8 +46,8 @@ public final class AstBinaryExpression extends AstExpression {
      * @param right
      *         the right side expression.
      */
-    public AstBinaryExpression(Range range, AstExpression left, Operator operator, AstExpression right) {
-        super(range);
+    public AstBinaryExpression(AstExpression left, Operator operator, AstExpression right) {
+        super(new Range(left.getRange().getStart(), right.getRange().getEnd()));
         this.left = left;
         this.operator = operator;
         this.right = right;
