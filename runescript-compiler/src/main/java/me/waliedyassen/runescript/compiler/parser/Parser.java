@@ -314,9 +314,11 @@ public final class Parser {
      *
      * @return the matched {@link AstReturnStatement} type object instance.
      */
-    private AstReturnStatement returnStatement() {
+    public AstReturnStatement returnStatement() {
         pushRange();
-        var expr = expression();
+        consume(RETURN);
+        var expr = isExpression() ? expression() : null;
+        consume(SEMICOLON);
         return new AstReturnStatement(popRange(), expr);
     }
 

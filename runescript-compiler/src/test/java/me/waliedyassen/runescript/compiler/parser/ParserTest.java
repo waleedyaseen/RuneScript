@@ -15,6 +15,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstConstant;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariable;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstReturnStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitialize;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -162,6 +163,12 @@ final class ParserTest {
             // valid block statement
             assertTrue(fromString("{}").statement() instanceof AstBlockStatement);
         }, () -> {
+            // valid return statement
+            assertTrue(fromString("return test;").statement() instanceof AstReturnStatement);
+        }, () -> {
+            // valid variable initialise statement.
+            assertTrue(fromString("$varinit = 5;").statement() instanceof AstVariableInitialize);
+        }, () -> {
             // empty statement
             assertThrows(SyntaxError.class, () -> fromString("").statement());
         }, () -> {
@@ -231,7 +238,7 @@ final class ParserTest {
     void testUnbracedBlock() {
         assertAll("unbraced block", () -> {
             // meaningful block
-            AstBlockStatement statement = fromString("if(1){}if(2){}").unbracedBlockStatement();
+            var statement = fromString("if(1){}if(2){}").unbracedBlockStatement();
             assertNotNull(statement);
             assertTrue(statement.getStatements().length == 2);
             for (var ifStatement : statement.getStatements()) {
@@ -245,8 +252,26 @@ final class ParserTest {
     }
 
     @Test
+    void testReturnStatement() {
+        assertAll("return statement", () -> {
+            // valid return expression
+            var returnStatement = fromString("return \"am valid\";").returnStatement();
+            assertNotNull(returnStatement);
+            assertTrue(returnStatement.getExpression() instanceof AstString);
+        }, () -> {
+            // valid return nothing
+            var returnStatement = fromString("return;").returnStatement();
+            assertNotNull(returnStatement);
+            assertNull(returnStatement.getExpression());
+        }, () -> {
+            // missing semi colon
+            assertThrows(SyntaxError.class, ()->fromString("return if;").returnStatement());
+        });
+    }
+
+    @Test
     void testVariableInitialise() {
-        assertAll("variable initialise", () -> {
+        assertAll("variable initialise statement", () -> {
             // valid local variable initialise.
             var variableInitialise = fromString("$test = true;").variableInitialize();
             assertNotNull(variableInitialise);
@@ -273,8 +298,8 @@ final class ParserTest {
     }
 
     @Test
-    void testIntParsing() {
-        assertAll("int parsing", () -> {
+    void testInt() {
+        assertAll("int", () -> {
             // non-signed integer.
             assertEquals(fromString("881251628").integerNumber().getValue(), 881251628);
         }, () -> {
@@ -305,8 +330,8 @@ final class ParserTest {
     }
 
     @Test
-    void testLongParsing() {
-        assertAll("long parsing", () -> {
+    void testLong() {
+        assertAll("long", () -> {
             // lower case long identifier
             assertEquals(fromString("4327430278518173700l").longNumber().getValue(), 4327430278518173700l);
         }, () -> {
