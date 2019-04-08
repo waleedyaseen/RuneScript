@@ -9,15 +9,9 @@ package me.waliedyassen.runescript.compiler.parser;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
-import me.waliedyassen.runescript.compiler.ast.expr.AstBinaryExpression;
-import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.ast.expr.AstConstant;
-import me.waliedyassen.runescript.compiler.ast.expr.AstVariable;
+import me.waliedyassen.runescript.compiler.ast.expr.*;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstReturnStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDefine;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitialize;
+import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
@@ -83,7 +77,7 @@ final class ParserTest {
             assertEquals(3, ((TupleType) type).getChilds().length);
         }, () -> {
             // uncontinued return types
-            assertThrows(SyntaxError.class, ()->fromString("[trigger,name](int,int").script());
+            assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int,int").script());
         });
     }
 
@@ -369,6 +363,15 @@ final class ParserTest {
         }, () -> {
             // missing variable expression.
             assertThrows(SyntaxError.class, () -> fromString("%noexpr = ;").variableInitialize());
+        });
+    }
+
+    @Test
+    void testExpressionStatement() {
+        assertAll("expression statement", () -> {
+            var stmt = fromString("true;").statement();
+            assertTrue(stmt instanceof AstExpressionStatement);
+            assertTrue(((AstExpressionStatement) stmt).getExpression() instanceof AstBool);
         });
     }
 

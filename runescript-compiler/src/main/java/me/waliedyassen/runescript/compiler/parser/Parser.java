@@ -288,7 +288,11 @@ public final class Parser {
             case MODULO:
                 return variableInitialize();
             default:
-                throw createError(consume(), "Expecting a statement");
+                if (isExpression()) {
+                    return expressionStatement();
+                } else {
+                    throw createError(consume(), "Expecting a statement");
+                }
         }
     }
 
@@ -417,6 +421,18 @@ public final class Parser {
         var expression = expression();
         consume(SEMICOLON);
         return new AstVariableInitialize(popRange(), scope, variable, expression);
+    }
+
+    /**
+     * Attempts to match the next set of token(s) to an {@link AstExpressionStatement}.
+     *
+     * @return the parsed {@link AstExpressionStatement} object.
+     */
+    private AstExpressionStatement expressionStatement() {
+        pushRange();
+        var expr = expression();
+        consume(SEMICOLON);
+        return new AstExpressionStatement(popRange(), expr);
     }
 
     /**
