@@ -11,11 +11,7 @@ import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.ast.expr.AstBinaryExpression;
-import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
-import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.ast.expr.AstConstant;
-import me.waliedyassen.runescript.compiler.ast.expr.AstVariable;
+import me.waliedyassen.runescript.compiler.ast.expr.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.ast.literal.*;
@@ -146,7 +142,6 @@ public final class Parser {
         return peekKind(0) == TYPE && peekKind(1) == DOLLAR;
     }
 
-
     /**
      * Attempts to a parse an {@link AstExpression} object node.
      *
@@ -218,6 +213,8 @@ public final class Parser {
                 return constant();
             case LPAREN:
                 return parExpression();
+            case TILDE:
+                return gosubExpression();
             default:
                 throw createError(consume(), "Expecting an expression");
         }
@@ -236,7 +233,7 @@ public final class Parser {
     /**
      * Attempts to parse an {@link AstExpression} that is surrounded with parenthesis. The return value is equal to
      * calling {@link #expression()} method, the only difference in this method that it checks for parenthesis before
-     * and after the expression and consume them.
+     * and after the expression and consumes them.
      *
      * @return the parsed {@link AstExpression} object.
      */
@@ -245,6 +242,26 @@ public final class Parser {
         var expression = expression();
         consume(RPAREN);
         return expression;
+    }
+
+    /**
+     * Attempts to parse an {@link AstGosub} from the next set of tokens.
+     *
+     * @return the parsed {@link AstGosub} object.
+     */
+    public AstGosub gosubExpression() {
+        pushRange();
+        consume(TILDE);
+        var name = identifier();
+        var arguments = new ArrayList<>();
+        if (consumeIf(LPAREN)) {
+            do {
+                arguments.add(expression());
+            } while (consumeIf(COMMA));
+            consume(RPAREN);
+        }
+        consume(SEMICOLON);
+        return new AstGosub(popRange(), name, arguments.toArray(AstExpression[]::new));
     }
 
     /**

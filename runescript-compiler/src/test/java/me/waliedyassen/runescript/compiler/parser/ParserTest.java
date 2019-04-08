@@ -174,6 +174,23 @@ final class ParserTest {
     }
 
     @Test
+    void testGosubExpression() {
+        assertAll("gosub expression", () -> {
+            // valid no arguments gosub
+            assertEquals("gosub", fromString("~gosub;").gosubExpression().getName().getText());
+        }, () -> {
+            // valid with arguments
+            assertEquals(3, fromString("~gosub(1234, \"test\", 5 > 4 > 3 > 2 > 1);").gosubExpression().getArguments().length);
+        }, () -> {
+            // invalid gosub name
+            assertThrows(SyntaxError.class, () -> fromString("~1234(1234);").gosubExpression());
+        }, () -> {
+            // invalid gosub arguments
+            assertThrows(SyntaxError.class, () -> fromString("~gosub(if);").gosubExpression());
+        });
+    }
+
+    @Test
     void testStatement() {
         assertAll("statement", () -> {
             // valid if statement
