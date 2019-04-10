@@ -16,7 +16,6 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
-import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
@@ -28,6 +27,7 @@ import java.io.IOException;
 import java.io.StringBufferInputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Walied K. Yassen
@@ -270,7 +270,6 @@ final class ParserTest {
             // empty block
             assertNotNull(fromString("{}").blockStatement());
         }, () -> {
-
             // unclosed block
             assertThrows(SyntaxError.class, () -> fromString("{").blockStatement());
         });
@@ -319,57 +318,100 @@ final class ParserTest {
     }
 
     @Test
-    void testVariableDefine() {
+    void testVariableDeclaration() {
         assertAll("variable define statement", () -> {
             // valid variable declaration.
-            var variableDefine = fromString("def_bool $test = true;").variableDefine();
+            var variableDefine = fromString("def_bool $test = true;").variableDeclaration();
             assertNotNull(variableDefine);
             assertEquals(variableDefine.getType(), PrimitiveType.BOOL);
             assertEquals(variableDefine.getName().getText(), "test");
             assertTrue(variableDefine.getExpression() instanceof AstBool);
         }, () -> {
             // invalid variable scope.
-            assertThrows(SyntaxError.class, () -> fromString("def_bool %test = true;").variableDefine());
+            assertThrows(SyntaxError.class, () -> fromString("def_bool %test = true;").variableDeclaration());
         }, () -> {
             // missing variable scope.
-            assertThrows(SyntaxError.class, () -> fromString("def_int noscope = 5;").variableDefine());
+            assertThrows(SyntaxError.class, () -> fromString("def_int noscope = 5;").variableDeclaration());
         }, () -> {
             // missing variable name.
-            assertThrows(SyntaxError.class, () -> fromString("def_string $ = \"no name\";").variableDefine());
+            assertThrows(SyntaxError.class, () -> fromString("def_string $ = \"no name\";").variableDeclaration());
         }, () -> {
             // missing variable expression.
-            assertThrows(SyntaxError.class, () -> fromString("def_long $noexpr = ;").variableDefine());
+            assertThrows(SyntaxError.class, () -> fromString("def_long $noexpr = ;").variableDeclaration());
         }, () -> {
             // illegal variable  type.
-            assertThrows(SyntaxError.class, () -> fromString("def_void $illegal = 0;").variableDefine());
+            assertThrows(SyntaxError.class, () -> fromString("def_void $illegal = 0;").variableDeclaration());
         });
     }
 
     @Test
-    void testVariableInitialise() {
+    void testVariableInitialiser() {
         assertAll("variable initialise statement", () -> {
             // valid local variable initialise.
-            var variableInitialise = fromString("$test = true;").variableInitialize();
+            var variableInitialise = fromString("$test = true;").variableInitializer();
             assertNotNull(variableInitialise);
             assertEquals(variableInitialise.getScope(), VariableScope.LOCAL);
             assertEquals(variableInitialise.getName().getText(), "test");
             assertTrue(variableInitialise.getExpression() instanceof AstBool);
         }, () -> {
             // valid global variable initialise.
-            var variableInitialise = fromString("%hello = 1234;").variableInitialize();
+            var variableInitialise = fromString("%hello = 1234;").variableInitializer();
             assertNotNull(variableInitialise);
             assertEquals(variableInitialise.getScope(), VariableScope.GLOBAL);
             assertEquals(variableInitialise.getName().getText(), "hello");
             assertTrue(variableInitialise.getExpression() instanceof AstInteger);
         }, () -> {
             // missing variable scope.
-            assertThrows(SyntaxError.class, () -> fromString("noscope = 5;").variableInitialize());
+            assertThrows(SyntaxError.class, () -> fromString("noscope = 5;").variableInitializer());
         }, () -> {
             // missing variable name.
-            assertThrows(SyntaxError.class, () -> fromString("% = \"no name\";").variableInitialize());
+            assertThrows(SyntaxError.class, () -> fromString("% = \"no name\";").variableInitializer());
         }, () -> {
             // missing variable expression.
-            assertThrows(SyntaxError.class, () -> fromString("%noexpr = ;").variableInitialize());
+            assertThrows(SyntaxError.class, () -> fromString("%noexpr = ;").variableInitializer());
+        });
+    }
+
+    @Test
+    void testSwitchStatement() {
+        assertAll("switch statement", () -> {
+            // valid switch statement with only one emptycase
+            var _switch = fromString("switch_int($test){case 1,2,3,4,5: return true; case default: return false;}").switchStatement();
+            assertNotNull(_switch);
+            assertNotNull(_switch.getDefaultCase());
+            assertEquals(1, _switch.getCases().length);
+            assertEquals(5, _switch.getCases()[0].getKeys().length);
+        });
+    }
+
+    @Test
+    void testSwitchCase() {
+        assertAll("switch case", () -> {
+            // valid multiple expressions case
+            var _case = fromString("case 0,1,2,3,4,5,6: return true;").switchCase();
+            var values = new int[]{0, 1, 2, 3, 4, 5, 6};
+            assertNotNull(_case);
+            assertEquals(7, _case.getKeys().length);
+            for (var index = 0; index < values.length; index++) {
+                var expr = _case.getKeys()[index];
+                assertTrue(expr instanceof AstInteger);
+                assertEquals(values[index], ((AstInteger) expr).getValue());
+            }
+            assertEquals(1, _case.getCode().length);
+            assertTrue(_case.getCode()[0] instanceof AstReturnStatement);
+        }, () -> {
+            // valid case default
+            var _case = fromString("case default: return true;").switchCase();
+            assertNotNull(_case);
+            assertTrue(_case.isDefault());
+            assertEquals(1, _case.getCode().length);
+            assertTrue(_case.getCode()[0] instanceof AstReturnStatement);
+        }, () -> {
+            // empty case
+            assertEquals(0, fromString("case 1:").switchCase().getCode().length);
+        }, () -> {
+            // missing case expression
+            assertThrows(SyntaxError.class, () -> fromString("case :").switchCase());
         });
     }
 
@@ -400,14 +442,10 @@ final class ParserTest {
     void testIntRange() {
         assertAll("int range", () -> {
             // integer underflow
-            SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("-2147483649").integerNumber());
-            assertNotNull(error);
-            assertEquals(error.getToken().getKind(), Kind.INTEGER);
+            assertThrows(SyntaxError.class, () -> fromString("-2147483649").integerNumber());
         }, () -> {
             // integer overflow
-            SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("2147483648").integerNumber());
-            assertNotNull(error);
-            assertEquals(error.getToken().getKind(), Kind.INTEGER);
+            assertThrows(SyntaxError.class, () -> fromString("2147483648").integerNumber());
         }, () -> {
             // within range
             assertEquals(fromString("1785498889").integerNumber().getValue(), 1785498889);
@@ -438,14 +476,10 @@ final class ParserTest {
     void testLongRange() {
         assertAll("long range", () -> {
             // long underflow
-            SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("-9223372036854775809L").longNumber());
-            assertNotNull(error);
-            assertEquals(error.getToken().getKind(), Kind.LONG);
+            assertThrows(SyntaxError.class, () -> fromString("-9223372036854775809L").longNumber());
         }, () -> {
             // long overflow
-            SyntaxError error = assertThrows(SyntaxError.class, () -> fromString("9223372036854775808L").longNumber());
-            assertNotNull(error);
-            assertEquals(error.getToken().getKind(), Kind.LONG);
+            assertThrows(SyntaxError.class, () -> fromString("9223372036854775808L").longNumber());
         }, () -> {
             // within range
             assertEquals(fromString("8490600559331033000L").longNumber().getValue(), 8490600559331033000L);

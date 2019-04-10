@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.lexer.table;
 
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 
@@ -76,10 +77,15 @@ public final class LexicalTable {
         registerKeyword("else", Kind.ELSE);
         registerKeyword("while", Kind.WHILE);
         registerKeyword("return", Kind.RETURN);
+        registerKeyword("case", Kind.CASE);
+        registerKeyword("default", Kind.DEFAULT);
         for (var type : PrimitiveType.values()) {
             registerKeyword(type.getRepresentation(), Kind.TYPE);
             if (type.isDeclarable()) {
                 registerKeyword("def_" + type.getRepresentation(), Kind.DEFINE);
+            }
+            if (type.getStackType() == StackType.INT) {
+                registerKeyword("switch_" + type.getRepresentation(), Kind.SWITCH);
             }
         }
         // the separators chunk.
@@ -94,6 +100,7 @@ public final class LexicalTable {
         registerSeparator('$', Kind.DOLLAR);
         registerSeparator('%', Kind.MODULO);
         registerSeparator('^', Kind.CARET);
+        registerSeparator(':', Kind.COLON);
         registerSeparator(';', Kind.SEMICOLON);
         // register all of the operators.
         for (var operator : Operator.values()) {

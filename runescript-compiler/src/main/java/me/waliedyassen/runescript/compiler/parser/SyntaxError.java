@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.parser;
 
 import lombok.Getter;
+import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
 /**
@@ -27,17 +28,17 @@ public class SyntaxError extends RuntimeException {
      * The token which the error has occurred at.
      */
     @Getter
-    private final Token token;
+    private final Range token;
 
     /**
      * Constructs a new {@link SyntaxError} type object instance.
      *
      * @param token
-     *         the token which the error has occurred at.
+     *         the source code range which the error occurred within.
      * @param message
      *         the error message explaining why the error has occurred.
      */
-    public SyntaxError(Token token, String message) {
+    public SyntaxError(Range token, String message) {
         super(message);
         this.token = token;
     }

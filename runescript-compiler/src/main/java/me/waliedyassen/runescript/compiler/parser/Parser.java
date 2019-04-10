@@ -283,10 +283,12 @@ public final class Parser {
             case RETURN:
                 return returnStatement();
             case DEFINE:
-                return variableDefine();
+                return variableDeclaration();
             case DOLLAR:
             case MODULO:
-                return variableInitialize();
+                return variableInitializer();
+            case SWITCH:
+                return switchStatement();
             default:
                 if (isExpression()) {
                     return expressionStatement();
@@ -393,7 +395,7 @@ public final class Parser {
      *
      * @return the parsed {@link AstVariableDeclaration} object.
      */
-    public AstVariableDeclaration variableDefine() {
+    public AstVariableDeclaration variableDeclaration() {
         pushRange();
         var token = consume(DEFINE);
         var type = PrimitiveType.forRepresentation(token.getLexeme().substring(4));
@@ -413,7 +415,7 @@ public final class Parser {
      *
      * @return the parsed {@link AstVariableInitializer} object.
      */
-    public AstVariableInitializer variableInitialize() {
+    public AstVariableInitializer variableInitializer() {
         // we can turn this into an expression, but then it would result in
         // the binary expression being confused between equality and assign operators.
         pushRange();
@@ -427,6 +429,56 @@ public final class Parser {
         consume(SEMICOLON);
         return new AstVariableInitializer(popRange(), scope, variable, expression);
     }
+
+    /**
+     * Attempts to p arse an {@link AstSwitchStatement} from the next set of {@link Token token}s.
+     *
+     * @return the parsed {@link AstSwitchStatement} object.
+     */
+    public AstSwitchStatement switchStatement() {
+        pushRange();
+        var token = consume(SWITCH);
+        var type = PrimitiveType.forRepresentation(token.getLexeme().substring(7));
+        var condition = parExpression();
+        var cases = new ArrayList<AstSwitchCase>();
+        var defaultCase = (AstSwitchCase) null;
+        consume(LBRACE);
+        while (!consumeIf(RBRACE)) {
+            var _case = switchCase();
+            if (_case.isDefault()) {
+                if (defaultCase != null) {
+                    throw createError(_case.getRange(), "Switch statements can only have one default case defined");
+                }
+                defaultCase = _case;
+            } else {
+                cases.add(_case);
+            }
+        }
+        return new AstSwitchStatement(popRange(), type, condition, cases.toArray(AstSwitchCase[]::new), defaultCase);
+    }
+
+    /**
+     * Attempts to p arse an {@link AstSwitchCase} from the next set of {@link Token token}s.
+     *
+     * @return the parsed {@link AstSwitchCase} object.
+     */
+    public AstSwitchCase switchCase() {
+        pushRange();
+        consume(CASE);
+        var keys = new ArrayList<AstExpression>();
+        if (!consumeIf(DEFAULT)) {
+            do {
+                keys.add(expression());
+            } while (consumeIf(COMMA));
+        }
+        consume(COLON);
+        var code = new ArrayList<AstStatement>();
+        while (isStatement()) {
+            code.add(statement());
+        }
+        return new AstSwitchCase(popRange(), keys.toArray(AstExpression[]::new), code.toArray(AstStatement[]::new));
+    }
+
 
     /**
      * Attempts to match the next set of token(s) to an {@link AstExpressionStatement}.
@@ -734,6 +786,20 @@ public final class Parser {
     /**
      * Creates a syntax error indicating a mismatched grammar rule.
      *
+     * @param range
+     *         the source code range in which the error has occurred.
+     * @param message
+     *         the error message describing why the error has occurred
+     *
+     * @return the created {@link SyntaxError} object.
+     */
+    private SyntaxError createError(Range range, String message) {
+        return new SyntaxError(range, message);
+    }
+
+    /**
+     * Creates a syntax error indicating a mismatched grammar rule.
+     *
      * @param token
      *         the token which the error has occurred at.
      * @param message
@@ -742,6 +808,6 @@ public final class Parser {
      * @return the created {@link SyntaxError} object.
      */
     private SyntaxError createError(Token token, String message) {
-        return new SyntaxError(token, message);
+        return new SyntaxError(token == null ? null : token.getRange(), message);
     }
 }

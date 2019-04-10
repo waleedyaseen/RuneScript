@@ -28,10 +28,5 @@ public enum StackType {
     /**
      * The long stack type.
      */
-    LONG,
-
-    /**
-     * A multiple stack types, defined by the implementation.
-     */
-    GROUP,
+    LONG
 }

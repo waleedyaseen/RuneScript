@@ -86,6 +86,21 @@ public enum Kind {
      */
     DEFINE,
 
+    /**
+     * the switch keyword token kind.
+     */
+    SWITCH,
+
+    /**
+     * The case keyword token kind.
+     */
+    CASE,
+
+    /**
+     * The default keyword token kind.
+     */
+    DEFAULT,
+
     // the separators chunk.
 
     /**
@@ -137,6 +152,11 @@ public enum Kind {
      * The caret separator token.
      */
     CARET,
+
+    /**
+     * The colon separator token kind.
+     */
+    COLON,
 
     /**
      * The semicolon separator token kind.
