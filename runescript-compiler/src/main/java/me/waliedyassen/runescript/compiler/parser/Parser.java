@@ -195,6 +195,8 @@ public final class Parser {
      */
     public AstExpression simpleExpression() {
         switch (peekKind()) {
+            case LPAREN:
+                return parExpression();
             case INTEGER:
                 return integerNumber();
             case LONG:
@@ -203,8 +205,7 @@ public final class Parser {
                 return string();
             case CONCATB:
                 return concatString();
-            case IDENTIFIER:
-                return identifier();
+
             case BOOL:
                 return bool();
             case DOLLAR:
@@ -215,8 +216,13 @@ public final class Parser {
                 return constant();
             case TILDE:
                 return gosub();
-            case LPAREN:
-                return parExpression();
+            case IDENTIFIER:
+                if (peekKind(1) == LPAREN) {
+                    return command();
+                }
+                return dynamic();
+            case DOT:
+                return command();
             default:
                 throw createError(consume(), "Expecting an expression");
         }
@@ -229,7 +235,7 @@ public final class Parser {
      */
     public boolean isExpression() {
         var kind = peekKind();
-        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MODULO || kind == CARET || kind == LPAREN;
+        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MODULO || kind == CARET || kind == TILDE || kind == LPAREN || kind == DOT;
     }
 
     /**
@@ -244,26 +250,6 @@ public final class Parser {
         var expression = expression();
         consume(RPAREN);
         return expression;
-    }
-
-    /**
-     * Attempts to parse an {@link AstGosub} from the next set of tokens.
-     *
-     * @return the parsed {@link AstGosub} object.
-     */
-    public AstGosub gosub() {
-        pushRange();
-        consume(TILDE);
-        var name = identifier();
-        var arguments = new ArrayList<>();
-        if (consumeIf(LPAREN)) {
-            do {
-                arguments.add(expression());
-            } while (consumeIf(COMMA));
-            consume(RPAREN);
-        }
-        consume(SEMICOLON);
-        return new AstGosub(popRange(), name, arguments.toArray(AstExpression[]::new));
     }
 
     /**
@@ -305,7 +291,7 @@ public final class Parser {
      */
     private boolean isStatement() {
         var kind = peekKind();
-        return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR || kind == MODULO;
+        return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR || kind == MODULO || kind == SWITCH || isExpression();
     }
 
     /**
@@ -607,6 +593,55 @@ public final class Parser {
         consume(CARET);
         var name = identifier();
         return new AstConstant(popRange(), name);
+    }
+
+    /**
+     * Attempts to parse an {@link AstGosub} from the next set of tokens.
+     *
+     * @return the parsed {@link AstGosub} object.
+     */
+    public AstGosub gosub() {
+        pushRange();
+        consume(TILDE);
+        var name = identifier();
+        var arguments = new ArrayList<>();
+        if (consumeIf(LPAREN)) {
+            do {
+                arguments.add(expression());
+            } while (consumeIf(COMMA));
+            consume(RPAREN);
+        }
+        return new AstGosub(popRange(), name, arguments.toArray(AstExpression[]::new));
+    }
+
+    /**
+     * Attempts to parse an {@link AstDynamic} from the next set of tokens.
+     *
+     * @return the parsed {@link AstDynamic} object.
+     */
+    public AstDynamic dynamic() {
+        pushRange();
+        var name = identifier();
+        return new AstDynamic(popRange(), name);
+    }
+
+    /**
+     * Attempts to parse an {@link AstCommand} from the next set of tokens.
+     *
+     * @return the parsed {@link AstCommand} object.
+     */
+    public AstCommand command() {
+        pushRange();
+        var alternative = consumeIf(DOT);
+        var name = identifier();
+        var arguments = new ArrayList<AstExpression>();
+        if (consumeIf(LPAREN)) {
+            do {
+                arguments.add(expression());
+            } while (consumeIf(COMMA));
+            consume(RPAREN);
+        }
+        return new AstCommand(popRange(), name, arguments.toArray(AstExpression[]::new), alternative);
     }
 
     /**

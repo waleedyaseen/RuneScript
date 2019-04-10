@@ -168,6 +168,11 @@ public enum Kind {
      */
     TILDE,
 
+    /**
+     * The dot separator token kind.
+     */
+    DOT,
+
     // the operators chunk.
 
     /**

@@ -194,6 +194,42 @@ final class ParserTest {
     }
 
     @Test
+    void testDynamicExpression() {
+        assertAll("dynamic expression", () -> {
+            // valid dynamic expression
+            var expr = fromString("mydynamic").dynamic();
+            assertNotNull(expr);
+            assertEquals("mydynamic", expr.getName().getText());
+        }, () -> {
+            // invalid dynamic name
+            assertThrows(SyntaxError.class, () -> fromString("0000").dynamic());
+        });
+
+    }
+
+    @Test
+    void testCommandExpression() {
+        assertAll("command expression", () -> {
+            // valid alternative command with no arguments
+            var expr = fromString(".mycommand").command();
+            assertNotNull(expr);
+            assertEquals("mycommand", expr.getName().getText());
+            assertEquals(0, expr.getArguments().length);
+            assertEquals(true, expr.isAlternative());
+        }, ()->{
+            // valid non alternative comamnd with arguments
+            var expr = fromString("mycommand(5 > 3, ~gosub, \"test\")").command();
+            assertNotNull(expr);
+            assertEquals("mycommand", expr.getName().getText());
+            assertEquals(3, expr.getArguments().length);
+            assertEquals(false, expr.isAlternative());
+            assertTrue(expr.getArguments()[0] instanceof AstBinaryOperation);
+            assertTrue(expr.getArguments()[1] instanceof AstGosub);
+            assertTrue(expr.getArguments()[2] instanceof AstString);
+        });
+    }
+
+    @Test
     void testStatement() {
         assertAll("statement", () -> {
             // valid if statement
