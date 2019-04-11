@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents an identifier node, an identifier is any word within the document that is not a keyword.
@@ -34,5 +35,13 @@ public final class AstIdentifier extends AstExpression {
     public AstIdentifier(Range range, String text) {
         super(range);
         this.text = text;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        // NOOP
     }
 }

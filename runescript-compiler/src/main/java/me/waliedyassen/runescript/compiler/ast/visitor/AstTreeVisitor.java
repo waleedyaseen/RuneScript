@@ -82,7 +82,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstVariable variable) {
+    public Void visit(AstVariableExpression variable) {
         return null;
     }
 

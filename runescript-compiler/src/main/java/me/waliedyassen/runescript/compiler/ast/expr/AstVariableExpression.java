@@ -17,7 +17,7 @@ import me.waliedyassen.runescript.compiler.util.VariableScope;
  *
  * @author Walied K. Yassen
  */
-public final class AstVariable extends AstExpression {
+public final class AstVariableExpression extends AstExpression {
 
     /**
      * The scope of the variable.
@@ -32,7 +32,7 @@ public final class AstVariable extends AstExpression {
     private final AstIdentifier name;
 
     /**
-     * Constructs a new {@link AstVariable} type object instance.
+     * Constructs a new {@link AstVariableExpression} type object instance.
      *
      * @param range
      *         the expression source code range.
@@ -41,7 +41,7 @@ public final class AstVariable extends AstExpression {
      * @param name
      *         the name of the variable.
      */
-    public AstVariable(Range range, VariableScope scope, AstIdentifier name) {
+    public AstVariableExpression(Range range, VariableScope scope, AstIdentifier name) {
         super(range);
         this.scope = scope;
         this.name = name;

@@ -81,21 +81,27 @@ public final class Parser {
         if (consumeIf(LPAREN)) {
             if (consumeIf(RPAREN)) {
                 // we have a ()
-            } else if (isParameter()) {
-                parameters.addAll(parametersList());
             } else {
-                type = type();
-                has_returntype = true;
+                if (isParameter()) {
+                    parameters.addAll(parametersList());
+                } else {
+                    type = type();
+                    has_returntype = true;
+                }
+                consume(RPAREN);
             }
-            consume(RPAREN);
         }
         if (consumeIf(LPAREN)) {
-            if (has_returntype) {
-                parameters.addAll(parametersList());
+            if (consumeIf(RPAREN)) {
+                // we have a ()
             } else {
-                type = type();
+                if (has_returntype) {
+                    parameters.addAll(parametersList());
+                } else {
+                    type = type();
+                }
+                consume(RPAREN);
             }
-            consume(RPAREN);
         }
         // parse the script content.
         var statements = new ArrayList<AstStatement>();
@@ -558,29 +564,29 @@ public final class Parser {
     }
 
     /**
-     * Attempts to match the next set of tokens to an {@link AstVariable} object with a variable scope of {@link
+     * Attempts to match the next set of tokens to an {@link AstVariableExpression} object with a variable scope of {@link
      * VariableScope#LOCAL}.
      *
-     * @return the parsed {@link AstVariable} object.
+     * @return the parsed {@link AstVariableExpression} object.
      */
-    public AstVariable localVariable() {
+    public AstVariableExpression localVariable() {
         pushRange();
         consume(DOLLAR);
         var name = identifier();
-        return new AstVariable(popRange(), VariableScope.LOCAL, name);
+        return new AstVariableExpression(popRange(), VariableScope.LOCAL, name);
     }
 
     /**
-     * Attempts to match the next set of tokens to an {@link AstVariable} object with a variable scope of {@link
+     * Attempts to match the next set of tokens to an {@link AstVariableExpression} object with a variable scope of {@link
      * VariableScope#GLOBAL}.
      *
-     * @return the parsed {@link AstVariable} object.
+     * @return the parsed {@link AstVariableExpression} object.
      */
-    public AstVariable globalVariable() {
+    public AstVariableExpression globalVariable() {
         pushRange();
         consume(MODULO);
         var name = identifier();
-        return new AstVariable(popRange(), VariableScope.GLOBAL, name);
+        return new AstVariableExpression(popRange(), VariableScope.GLOBAL, name);
     }
 
     /**

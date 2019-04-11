@@ -125,10 +125,10 @@ final class ParserTest {
             assertTrue(fromString("test").simpleExpression() instanceof AstIdentifier);
         }, () -> {
             // local variable.
-            assertTrue(fromString("$local_var").simpleExpression() instanceof AstVariable);
+            assertTrue(fromString("$local_var").simpleExpression() instanceof AstVariableExpression);
         }, () -> {
             // local variable.
-            assertTrue(fromString("%global_var").simpleExpression() instanceof AstVariable);
+            assertTrue(fromString("%global_var").simpleExpression() instanceof AstVariableExpression);
         }, () -> {
             // constant.
             assertTrue(fromString("^constant").simpleExpression() instanceof AstConstant);

@@ -99,4 +99,13 @@ public final class Lexer {
         }
         return tokens.get(index + n);
     }
+
+    /**
+     * Gets the amount of the remaining tokens.
+     *
+     * @return the amount of the remaining tokens.
+     */
+    public int reminaing() {
+        return tokens.size() - index;
+    }
 }
