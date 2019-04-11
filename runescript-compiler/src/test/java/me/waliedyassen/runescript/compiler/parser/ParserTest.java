@@ -39,9 +39,9 @@ final class ParserTest {
     void testScript() {
         assertAll("script", () -> {
             var script = fromResource("parse-script.rs2").script();
-            assertEquals(script.getCode().length, 2);
-            assertTrue(script.getCode()[0] instanceof AstIfStatement);
-            assertTrue(script.getCode()[1] instanceof AstIfStatement);
+            assertEquals(script.getCode().getStatements().length, 2);
+            assertTrue(script.getCode().getStatements()[0] instanceof AstIfStatement);
+            assertTrue(script.getCode().getStatements()[1] instanceof AstIfStatement);
             // TODO: Bad scripts testing.
         }, () -> {
             // script with three parameters
@@ -67,9 +67,6 @@ final class ParserTest {
         }, () -> {
             // unclosed return type parenthesis
             assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int").script());
-        }, () -> {
-            // script with no statements
-            assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int)").script());
         }, () -> {
             // multiple return types
             var type = fromString("[trigger,name](int,int,long) return;").script().getType();
@@ -120,9 +117,6 @@ final class ParserTest {
         }, () -> {
             // bool.
             assertTrue(fromString("true").simpleExpression() instanceof AstBool);
-        }, () -> {
-            // identifier
-            assertTrue(fromString("test").simpleExpression() instanceof AstIdentifier);
         }, () -> {
             // local variable.
             assertTrue(fromString("$local_var").simpleExpression() instanceof AstVariableExpression);
@@ -433,18 +427,18 @@ final class ParserTest {
                 assertTrue(expr instanceof AstInteger);
                 assertEquals(values[index], ((AstInteger) expr).getValue());
             }
-            assertEquals(1, _case.getCode().length);
-            assertTrue(_case.getCode()[0] instanceof AstReturnStatement);
+            assertEquals(1, _case.getCode().getStatements().length);
+            assertTrue(_case.getCode().getStatements()[0] instanceof AstReturnStatement);
         }, () -> {
             // valid case default
             var _case = fromString("case default: return true;").switchCase();
             assertNotNull(_case);
             assertTrue(_case.isDefault());
-            assertEquals(1, _case.getCode().length);
-            assertTrue(_case.getCode()[0] instanceof AstReturnStatement);
+            assertEquals(1, _case.getCode().getStatements().length);
+            assertTrue(_case.getCode().getStatements()[0] instanceof AstReturnStatement);
         }, () -> {
             // empty case
-            assertEquals(0, fromString("case 1:").switchCase().getCode().length);
+            assertEquals(0, fromString("case 1:").switchCase().getCode().getStatements().length);
         }, () -> {
             // missing case expression
             assertThrows(SyntaxError.class, () -> fromString("case :").switchCase());

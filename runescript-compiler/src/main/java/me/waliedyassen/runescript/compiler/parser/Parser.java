@@ -103,13 +103,10 @@ public final class Parser {
                 consume(RPAREN);
             }
         }
-        // parse the script content.
-        var statements = new ArrayList<AstStatement>();
-        do {
-            statements.add(statement());
-        } while (isStatement());
+        // we will allow empty scripts for now.
+        var code = unbracedBlockStatement();
         // return the parsed script.
-        return new AstScript(popRange(), trigger, name, parameters.toArray(AstParameter[]::new), type, statements.toArray(AstStatement[]::new));
+        return new AstScript(popRange(), trigger, name, parameters.toArray(AstParameter[]::new), type, code);
     }
 
 
@@ -341,9 +338,10 @@ public final class Parser {
     }
 
     /**
-     * Attempts to parse all of the next sequential code-statements.
+     * Attempts to match the next token set to an {@link AstBlockStatement} but without requiring it to be surrounded to
+     * braces.
      *
-     * @return the parsed code-statements as {@link AstBlockStatement} object.
+     * @return the parsed {@link AstBlockStatement} object.
      */
     public AstBlockStatement unbracedBlockStatement() {
         pushRange();
@@ -464,11 +462,8 @@ public final class Parser {
             } while (consumeIf(COMMA));
         }
         consume(COLON);
-        var code = new ArrayList<AstStatement>();
-        while (isStatement()) {
-            code.add(statement());
-        }
-        return new AstSwitchCase(popRange(), keys.toArray(AstExpression[]::new), code.toArray(AstStatement[]::new));
+        var block = unbracedBlockStatement();
+        return new AstSwitchCase(popRange(), keys.toArray(AstExpression[]::new), block);
     }
 
 
@@ -564,8 +559,8 @@ public final class Parser {
     }
 
     /**
-     * Attempts to match the next set of tokens to an {@link AstVariableExpression} object with a variable scope of {@link
-     * VariableScope#LOCAL}.
+     * Attempts to match the next set of tokens to an {@link AstVariableExpression} object with a variable scope of
+     * {@link VariableScope#LOCAL}.
      *
      * @return the parsed {@link AstVariableExpression} object.
      */
@@ -577,8 +572,8 @@ public final class Parser {
     }
 
     /**
-     * Attempts to match the next set of tokens to an {@link AstVariableExpression} object with a variable scope of {@link
-     * VariableScope#GLOBAL}.
+     * Attempts to match the next set of tokens to an {@link AstVariableExpression} object with a variable scope of
+     * {@link VariableScope#GLOBAL}.
      *
      * @return the parsed {@link AstVariableExpression} object.
      */

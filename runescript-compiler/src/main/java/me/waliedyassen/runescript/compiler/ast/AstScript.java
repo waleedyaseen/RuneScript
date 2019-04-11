@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.type.Type;
 
@@ -51,10 +51,10 @@ public final class AstScript extends AstNode {
     private final Type type;
 
     /**
-     * The script code statements.
+     * The script code statement.
      */
     @Getter
-    private final AstStatement[] code;
+    private final AstBlockStatement code;
 
     /**
      * Construct a new {@link AstScript} type object instance.
@@ -70,9 +70,9 @@ public final class AstScript extends AstNode {
      * @param type
      *         the script type.
      * @param code
-     *         the script code statements.
+     *         the script code statement.
      */
-    public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, Type type, AstStatement[] code) {
+    public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, Type type, AstBlockStatement code) {
         super(range);
         this.trigger = trigger;
         this.name = name;

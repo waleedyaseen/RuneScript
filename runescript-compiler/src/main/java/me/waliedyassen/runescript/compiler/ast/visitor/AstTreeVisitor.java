@@ -21,9 +21,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
         for (var parameter : script.getParameters()) {
             parameter.accept(this);
         }
-        for (var statement : script.getCode()) {
-            statement.accept(this);
-        }
+        script.getCode().accept(this);
         return null;
     }
 
@@ -175,9 +173,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
         for (var expression : switchCase.getKeys()) {
             expression.accept(this);
         }
-        for (var statement : switchCase.getCode()) {
-            statement.accept(this);
-        }
+        switchCase.getCode().accept(this);
         return null;
     }
 

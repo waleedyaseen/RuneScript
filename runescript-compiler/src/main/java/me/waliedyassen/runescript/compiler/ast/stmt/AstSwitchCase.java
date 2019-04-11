@@ -26,10 +26,10 @@ public final class AstSwitchCase extends AstStatement {
     private final AstExpression[] keys;
 
     /**
-     * The code of the switch case.
+     * The switch case block statement.
      */
     @Getter
-    private final AstStatement[] code;
+    private final AstBlockStatement code;
 
     /**
      * Constructs a new {@link AstSwitchCase} type object instance.
@@ -39,9 +39,9 @@ public final class AstSwitchCase extends AstStatement {
      * @param keys
      *         the keys of the switch case.
      * @param code
-     *         the code of the switch case.
+     *         the switch case block statement.
      */
-    public AstSwitchCase(Range range, AstExpression[] keys, AstStatement[] code) {
+    public AstSwitchCase(Range range, AstExpression[] keys, AstBlockStatement code) {
         super(range);
         this.keys = keys;
         this.code = code;
