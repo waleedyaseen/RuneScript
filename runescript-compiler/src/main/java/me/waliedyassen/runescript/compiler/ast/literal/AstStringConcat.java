@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.literal;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 
 /**
@@ -35,5 +36,13 @@ public final class AstStringConcat extends AstLiteral {
     public AstStringConcat(Range range, AstExpression[] expressions) {
         super(range);
         this.expressions = expressions;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

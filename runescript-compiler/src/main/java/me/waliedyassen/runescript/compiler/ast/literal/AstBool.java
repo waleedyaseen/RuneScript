@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.ast.literal;
 
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents a boolean literal expression node.
@@ -32,6 +33,14 @@ public final class AstBool extends AstLiteral {
     public AstBool(Range range, boolean value) {
         super(range);
         this.value = value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 
     /**

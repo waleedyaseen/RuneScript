@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.stmt;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 
 /**
@@ -35,5 +36,14 @@ public final class AstReturnStatement extends AstStatement {
     public AstReturnStatement(Range range, AstExpression[] expressions) {
         super(range);
         this.expressions = expressions;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

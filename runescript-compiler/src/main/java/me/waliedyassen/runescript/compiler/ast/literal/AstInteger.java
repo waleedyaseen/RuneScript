@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.literal;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents an integer literal expression node.
@@ -34,5 +35,13 @@ public final class AstInteger extends AstNumber {
     public AstInteger(Range range, int value) {
         super(range);
         this.value = value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

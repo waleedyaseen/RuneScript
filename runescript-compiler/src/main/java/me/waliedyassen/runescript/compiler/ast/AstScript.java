@@ -12,6 +12,7 @@ import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.type.Type;
 
 /**
@@ -78,5 +79,13 @@ public final class AstScript extends AstNode {
         this.parameters = parameters;
         this.type = type;
         this.code = code;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

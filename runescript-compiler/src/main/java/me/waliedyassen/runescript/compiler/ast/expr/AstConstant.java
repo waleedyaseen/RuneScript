@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents a constant node, a constant is temporal "variable" that will be replaced with it's value in the
@@ -35,5 +36,14 @@ public final class AstConstant extends AstExpression {
     public AstConstant(Range range, AstIdentifier name) {
         super(range);
         this.name = name;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.stmt;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
@@ -55,5 +56,13 @@ public final class AstVariableInitializer extends AstStatement {
         this.scope = scope;
         this.name = name;
         this.expression = expression;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

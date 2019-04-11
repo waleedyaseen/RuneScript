@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.stmt;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 
@@ -63,6 +64,15 @@ public final class AstSwitchStatement extends AstStatement {
         this.condition = condition;
         this.cases = cases;
         this.defaultCase = defaultCase;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }
 

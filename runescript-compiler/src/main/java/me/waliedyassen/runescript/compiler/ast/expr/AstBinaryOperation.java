@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.util.Operator;
 
 /**
@@ -51,5 +52,13 @@ public final class AstBinaryOperation extends AstExpression {
         this.left = left;
         this.operator = operator;
         this.right = right;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

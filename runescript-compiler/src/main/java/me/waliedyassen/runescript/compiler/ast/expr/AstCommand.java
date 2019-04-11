@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents an AST command expression.
@@ -52,5 +53,14 @@ public final class AstCommand extends AstExpression {
         this.name = name;
         this.arguments = arguments;
         this.alternative = alternative;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

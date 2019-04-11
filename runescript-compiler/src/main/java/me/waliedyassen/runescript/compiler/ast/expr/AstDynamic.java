@@ -8,8 +8,8 @@
 package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
-import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents a dynamic expression that will be resolved at a latter phase in compiling.
@@ -35,5 +35,13 @@ public final class AstDynamic extends AstExpression {
     public AstDynamic(Range range, AstIdentifier name) {
         super(range);
         this.name = name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

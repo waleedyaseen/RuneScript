@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.literal;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents a long integer literal expression node.
@@ -34,5 +35,13 @@ public final class AstLong extends AstNumber {
     public AstLong(Range range, long value) {
         super(range);
         this.value = value;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

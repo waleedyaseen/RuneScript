@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.stmt.conditional;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
 
@@ -45,5 +46,14 @@ public final class AstWhileStatement extends AstStatement {
         super(range);
         this.condition = condition;
         this.code = code;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }

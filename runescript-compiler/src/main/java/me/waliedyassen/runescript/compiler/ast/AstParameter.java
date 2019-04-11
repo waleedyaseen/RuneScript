@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.ast;
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 
 /**
@@ -45,5 +46,13 @@ public final class AstParameter extends AstNode {
         super(range);
         this.type = type;
         this.name = name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void accept(AstVisitor<?> visitor) {
+        visitor.visit(this);
     }
 }
