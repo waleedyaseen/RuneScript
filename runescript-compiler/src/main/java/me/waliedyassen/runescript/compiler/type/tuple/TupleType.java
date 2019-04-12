@@ -12,6 +12,7 @@ import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -27,8 +28,13 @@ public final class TupleType implements Type {
      * The child types of this tuple.
      */
     @Getter
-    private final PrimitiveType[] childs;
+    private final Type[] childs;
 
+    /**
+     * The expanded child types of this tuple.
+     */
+    @Getter
+    private final Type[] expanded;
 
     /**
      * Constructs a new {@link TupleType} type object instance.
@@ -36,8 +42,30 @@ public final class TupleType implements Type {
      * @param childs
      *         the tuple child types.
      */
-    public TupleType(PrimitiveType[] childs) {
+    public TupleType(Type... childs) {
         this.childs = childs;
+        var list = new ArrayList<Type>(childs.length);
+        for (var child : childs) {
+            if (child instanceof TupleType) {
+                for (var childChild : ((TupleType) child).getExpanded()) {
+                    list.add(childChild);
+                }
+            } else {
+                list.add(child);
+            }
+        }
+        expanded = list.toArray(Type[]::new);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj instanceof TupleType)) {
+            return false;
+        }
+        return Arrays.equals(expanded, ((TupleType) obj).expanded);
     }
 
     /**
@@ -45,7 +73,7 @@ public final class TupleType implements Type {
      */
     @Override
     public String getRepresentation() {
-        return Arrays.stream(childs).map(PrimitiveType::getRepresentation).collect(Collectors.joining(","));
+        return Arrays.stream(childs).map(Type::getRepresentation).collect(Collectors.joining(","));
     }
 
     /**

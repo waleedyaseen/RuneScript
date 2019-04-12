@@ -112,12 +112,12 @@ public interface AstVisitor<R> {
     /**
      * Gets called when we have just visited an {@link AstVariableExpression} node.
      *
-     * @param variable
+     * @param variableExpression
      *         the {@link AstVariableExpression} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default R visit(AstVariableExpression variable) {
+    default R visit(AstVariableExpression variableExpression) {
         return null;
     }
 

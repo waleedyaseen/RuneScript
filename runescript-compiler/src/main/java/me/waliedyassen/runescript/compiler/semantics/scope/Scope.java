@@ -40,9 +40,13 @@ public final class Scope {
      *         the name of the variable to declare.
      * @param type
      *         the type of the variable to declare.
+     *
+     * @return the declared variable information.
      */
-    public void declareVariable(String name, Type type) {
-        variables.put(name, new VariableInfo(name, type));
+    public VariableInfo declareLocalVariable(String name, Type type) {
+        var info = new VariableInfo(name, type);
+        variables.put(name, info);
+        return info;
     }
 
     /**
@@ -53,10 +57,10 @@ public final class Scope {
      *
      * @return the {@link VariableInfo} object if the variable could be accessed otherwise {@code null}.
      */
-    public VariableInfo getVariable(String name) {
+    public VariableInfo getLocalVariable(String name) {
         var variable = variables.get(name);
         if (variable == null && parent != null) {
-            variable = parent.getVariable(name);
+            variable = parent.getLocalVariable(name);
         }
         return variable;
     }

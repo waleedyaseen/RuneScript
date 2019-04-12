@@ -8,10 +8,12 @@
 package me.waliedyassen.runescript.compiler.ast.stmt;
 
 import lombok.Getter;
+import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
+import me.waliedyassen.runescript.compiler.semantics.scope.VariableInfo;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 
 /**
@@ -38,6 +40,13 @@ public final class AstVariableInitializer extends AstStatement {
      */
     @Getter
     private final AstExpression expression;
+
+    /**
+     * The initialized variable information.
+     */
+    @Getter
+    @Setter
+    private VariableInfo variable;
 
     /**
      * Construct a new {@link AstVariableInitializer} type object instance.

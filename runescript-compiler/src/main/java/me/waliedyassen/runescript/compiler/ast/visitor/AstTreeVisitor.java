@@ -216,9 +216,9 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstVariableExpression variable) {
-        enter(variable);
-        exit(variable);
+    public Object visit(AstVariableExpression variableExpression) {
+        enter(variableExpression);
+        exit(variableExpression);
         return null;
     }
 
