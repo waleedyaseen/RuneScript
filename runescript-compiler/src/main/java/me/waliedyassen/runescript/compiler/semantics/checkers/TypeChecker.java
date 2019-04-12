@@ -12,7 +12,10 @@ import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -24,7 +27,6 @@ import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.TriggerType;
-import me.waliedyassen.runescript.compiler.util.VariableScope;
 
 /**
  * @author Walied K. Yassen
@@ -154,8 +156,7 @@ public final class TypeChecker implements AstVisitor<Type> {
     public Type visit(AstBinaryOperation binaryOperation) {
         var left = binaryOperation.getLeft().accept(this);
         var right = binaryOperation.getRight().accept(this);
-        checkOperator(binaryOperation, left, right, binaryOperation.getOperator());
-        return left;
+        return checkOperator(binaryOperation, left, right, binaryOperation.getOperator());
     }
 
     /**
@@ -287,7 +288,7 @@ public final class TypeChecker implements AstVisitor<Type> {
         if (!applicable) {
             checker.reportError(new SemanticError(node, "The operator '" + operator.getRepresentation() + "' is undefined for the argument type(s) " + left.getRepresentation() + ", " + right.getRepresentation()));
         }
-        return left;
+        return PrimitiveType.BOOL;
     }
 
     private Type checkType(AstNode node, Type expected, Type actual) {
