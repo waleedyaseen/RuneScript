@@ -9,7 +9,8 @@ package me.waliedyassen.runescript.compiler.semantics;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
-import me.waliedyassen.runescript.compiler.semantics.checkers.LocalResolver;
+import me.waliedyassen.runescript.compiler.semantics.checkers.VariableScopeBuilder;
+import me.waliedyassen.runescript.compiler.semantics.checkers.TypeChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,10 @@ public final class SemanticChecker {
      */
     public void execute(AstNode tree) {
         // declare and resolve all of the local variables.
-        var localResolver = new LocalResolver(this);
+        var localResolver = new VariableScopeBuilder(this);
         tree.accept(localResolver);
+        var typeChecker = new TypeChecker(this);
+        tree.accept(typeChecker);
     }
 
     /**

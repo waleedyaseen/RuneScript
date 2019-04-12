@@ -93,6 +93,38 @@ public enum Operator {
     private final Associativity associativity;
 
     /**
+     * Checks whether or not this operator is an equality operator.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isEquality() {
+        switch (this) {
+            case EQUAL:
+            case NOT_EQUAL:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Checks whether or not this operator is relational operator.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isRelational() {
+        switch (this) {
+            case LESS_THAN:
+            case LESS_THAN_OR_EQUALS:
+            case GREATER_THAN:
+            case GREATER_THAN_OR_EQUALS:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * Checks whether or not this operator is a logical operator.
      *
      * @return <code>true</code> if it is otherwise <code>false</code>.
@@ -101,6 +133,7 @@ public enum Operator {
         switch (this) {
             case LOGICAL_AND:
             case LOGICAL_OR:
+                return true;
             default:
                 return false;
         }
