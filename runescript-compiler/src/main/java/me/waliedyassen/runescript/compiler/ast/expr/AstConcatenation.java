@@ -5,36 +5,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.ast.literal;
+package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
- * Represents a string expression node.
+ * Represents an interpolated string concatenation node.
  *
  * @author Walied K. Yassen
  */
-public final class AstString extends AstLiteral {
+public final class AstConcatenation extends AstExpression {
 
     /**
-     * The string content value.
+     * The expressions of the concatenation.
      */
     @Getter
-    private final String value;
+    private final AstExpression[] expressions;
 
     /**
-     * Constructs a new {@link AstString} type object instance.
+     * Constructs a new {@link AstConcatenation} type object instance.
      *
      * @param range
      *         the node source code range.
-     * @param value
-     *         the string content value.
+     * @param expressions
+     *         the expressions of the concatenation.
      */
-    public AstString(Range range, String value) {
+    public AstConcatenation(Range range, AstExpression[] expressions) {
         super(range);
-        this.value = value;
+        this.expressions = expressions;
     }
 
     /**

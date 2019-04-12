@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.parser;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.literal.*;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -104,19 +104,19 @@ final class ParserTest {
     void testSimpleExpression() {
         assertAll("simple expression", () -> {
             // string
-            assertTrue(fromString("\"myString\"").simpleExpression() instanceof AstString);
+            assertTrue(fromString("\"myString\"").simpleExpression() instanceof AstLiteralString);
         }, () -> {
             // interpolated string.
-            assertTrue(fromString("\"my interpolated string <br>\"").simpleExpression() instanceof AstStringConcat);
+            assertTrue(fromString("\"my interpolated string <br>\"").simpleExpression() instanceof AstConcatenation);
         }, () -> {
             // integer
-            assertTrue(fromString("123456").simpleExpression() instanceof AstInteger);
+            assertTrue(fromString("123456").simpleExpression() instanceof AstLiteralInteger);
         }, () -> {
             // long
-            assertTrue(fromString("123456L").simpleExpression() instanceof AstLong);
+            assertTrue(fromString("123456L").simpleExpression() instanceof AstLiteralLong);
         }, () -> {
             // bool.
-            assertTrue(fromString("true").simpleExpression() instanceof AstBool);
+            assertTrue(fromString("true").simpleExpression() instanceof AstLiteralBool);
         }, () -> {
             // local variable.
             assertTrue(fromString("$local_var").simpleExpression() instanceof AstVariableExpression);
@@ -160,7 +160,7 @@ final class ParserTest {
     void testParExpression() {
         assertAll("par expression", () -> {
             // valid expression
-            assertTrue(fromString("(1234)").parExpression() instanceof AstInteger);
+            assertTrue(fromString("(1234)").parExpression() instanceof AstLiteralInteger);
         }, () -> {
             // invalid expression 1
             assertThrows(SyntaxError.class, () -> fromString("(1234").parExpression());
@@ -219,7 +219,7 @@ final class ParserTest {
             assertEquals(false, expr.isAlternative());
             assertTrue(expr.getArguments()[0] instanceof AstBinaryOperation);
             assertTrue(expr.getArguments()[1] instanceof AstGosub);
-            assertTrue(expr.getArguments()[2] instanceof AstString);
+            assertTrue(expr.getArguments()[2] instanceof AstLiteralString);
         });
     }
 
@@ -314,7 +314,7 @@ final class ParserTest {
             assertTrue(statement.getStatements().length == 2);
             for (var ifStatement : statement.getStatements()) {
                 assertTrue(ifStatement instanceof AstIfStatement);
-                assertTrue(((AstIfStatement) ifStatement).getCondition() instanceof AstInteger);
+                assertTrue(((AstIfStatement) ifStatement).getCondition() instanceof AstLiteralInteger);
             }
         }, () -> {
             // empty block
@@ -329,7 +329,7 @@ final class ParserTest {
             var returnStatement = fromString("return \"am valid\";").returnStatement();
             assertNotNull(returnStatement);
             assertEquals(1, returnStatement.getExpressions().length);
-            assertTrue(returnStatement.getExpressions()[0] instanceof AstString);
+            assertTrue(returnStatement.getExpressions()[0] instanceof AstLiteralString);
         }, () -> {
             // valid return multiple expressions
             var returnStatement = fromString("return 1,true,\"\";").returnStatement();
@@ -355,7 +355,7 @@ final class ParserTest {
             assertNotNull(variableDefine);
             assertEquals(variableDefine.getType(), PrimitiveType.BOOL);
             assertEquals(variableDefine.getName().getText(), "test");
-            assertTrue(variableDefine.getExpression() instanceof AstBool);
+            assertTrue(variableDefine.getExpression() instanceof AstLiteralBool);
         }, () -> {
             // invalid variable scope.
             assertThrows(SyntaxError.class, () -> fromString("def_bool %test = true;").variableDeclaration());
@@ -382,14 +382,14 @@ final class ParserTest {
             assertNotNull(variableInitialise);
             assertEquals(variableInitialise.getScope(), VariableScope.LOCAL);
             assertEquals(variableInitialise.getName().getText(), "test");
-            assertTrue(variableInitialise.getExpression() instanceof AstBool);
+            assertTrue(variableInitialise.getExpression() instanceof AstLiteralBool);
         }, () -> {
             // valid global variable initialise.
             var variableInitialise = fromString("%hello = 1234;").variableInitializer();
             assertNotNull(variableInitialise);
             assertEquals(variableInitialise.getScope(), VariableScope.GLOBAL);
             assertEquals(variableInitialise.getName().getText(), "hello");
-            assertTrue(variableInitialise.getExpression() instanceof AstInteger);
+            assertTrue(variableInitialise.getExpression() instanceof AstLiteralInteger);
         }, () -> {
             // missing variable scope.
             assertThrows(SyntaxError.class, () -> fromString("noscope = 5;").variableInitializer());
@@ -424,8 +424,8 @@ final class ParserTest {
             assertEquals(7, _case.getKeys().length);
             for (var index = 0; index < values.length; index++) {
                 var expr = _case.getKeys()[index];
-                assertTrue(expr instanceof AstInteger);
-                assertEquals(values[index], ((AstInteger) expr).getValue());
+                assertTrue(expr instanceof AstLiteralInteger);
+                assertEquals(values[index], ((AstLiteralInteger) expr).getValue());
             }
             assertEquals(1, _case.getCode().getStatements().length);
             assertTrue(_case.getCode().getStatements()[0] instanceof AstReturnStatement);
@@ -450,7 +450,7 @@ final class ParserTest {
         assertAll("expression statement", () -> {
             var stmt = fromString("true;").statement();
             assertTrue(stmt instanceof AstExpressionStatement);
-            assertTrue(((AstExpressionStatement) stmt).getExpression() instanceof AstBool);
+            assertTrue(((AstExpressionStatement) stmt).getExpression() instanceof AstLiteralBool);
         });
     }
 
@@ -526,8 +526,8 @@ final class ParserTest {
         assertEquals(fromString("\"my interpolated <br> text\"").concatString().getExpressions().length, 3);
         var nested = fromString("\"my nested interpolated string <\"<test>\">\"").concatString().getExpressions();
         assertEquals(nested.length, 2);
-        assertTrue(nested[0] instanceof AstString);
-        assertTrue(nested[1] instanceof AstStringConcat);
+        assertTrue(nested[0] instanceof AstLiteralString);
+        assertTrue(nested[1] instanceof AstConcatenation);
     }
 
     @Test

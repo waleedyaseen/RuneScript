@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.ast.visitor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.literal.*;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -19,13 +19,13 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
  * Represents a {@link AstVisitor} implementation that will visit every node in the AST tree while having access to when
  * each node has entered and when each node has left the visitor.
  */
-public abstract class AstTreeVisitor implements AstVisitor<Void> {
+public abstract class AstTreeVisitor implements AstVisitor {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstScript script) {
+    public Object visit(AstScript script) {
         enter(script);
         for (var parameter : script.getParameters()) {
             parameter.accept(this);
@@ -56,7 +56,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstParameter parameter) {
+    public Object visit(AstParameter parameter) {
         enter(parameter);
         exit(parameter);
         return null;
@@ -83,111 +83,111 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstBool bool) {
+    public Object visit(AstLiteralBool bool) {
         enter(bool);
         exit(bool);
         return null;
     }
 
     /**
-     * Gets called when we have just entered an {@link AstBool} node.
+     * Gets called when we have just entered an {@link AstLiteralBool} node.
      *
      * @param bool
      *         the node we have just entered.
      */
-    public void enter(AstBool bool) {}
+    public void enter(AstLiteralBool bool) {}
 
     /**
-     * Gets called when we have just left an {@link AstBool} node.
+     * Gets called when we have just left an {@link AstLiteralBool} node.
      *
      * @param bool
      *         the node we have just entered.
      */
-    public void exit(AstBool bool) {}
+    public void exit(AstLiteralBool bool) {}
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstInteger integer) {
+    public Object visit(AstLiteralInteger integer) {
         enter(integer);
         exit(integer);
         return null;
     }
 
     /**
-     * Gets called when we have just entered an {@link AstInteger} node.
+     * Gets called when we have just entered an {@link AstLiteralInteger} node.
      *
      * @param integer
      *         the node we have just entered.
      */
-    public void enter(AstInteger integer) {}
+    public void enter(AstLiteralInteger integer) {}
 
     /**
-     * Gets called when we have just left an {@link AstInteger} node.
+     * Gets called when we have just left an {@link AstLiteralInteger} node.
      *
      * @param integer
      *         the node we have just entered.
      */
-    public void exit(AstInteger integer) {}
+    public void exit(AstLiteralInteger integer) {}
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstLong longInteger) {
+    public Object visit(AstLiteralLong longInteger) {
         enter(longInteger);
         exit(longInteger);
         return null;
     }
 
     /**
-     * Gets called when we have just entered an {@link AstLong} node.
+     * Gets called when we have just entered an {@link AstLiteralLong} node.
      *
      * @param longInteger
      *         the node we have just entered.
      */
-    public void enter(AstLong longInteger) {}
+    public void enter(AstLiteralLong longInteger) {}
 
     /**
-     * Gets called when we have just left an {@link AstLong} node.
+     * Gets called when we have just left an {@link AstLiteralLong} node.
      *
      * @param longInteger
      *         the node we have just entered.
      */
-    public void exit(AstLong longInteger) {}
+    public void exit(AstLiteralLong longInteger) {}
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstString string) {
+    public Object visit(AstLiteralString string) {
         enter(string);
         exit(string);
         return null;
     }
 
     /**
-     * Gets called when we have just entered an {@link AstString} node.
+     * Gets called when we have just entered an {@link AstLiteralString} node.
      *
      * @param string
      *         the node we have just entered.
      */
-    public void enter(AstString string) {}
+    public void enter(AstLiteralString string) {}
 
     /**
-     * Gets called when we have just left an {@link AstString} node.
+     * Gets called when we have just left an {@link AstLiteralString} node.
      *
      * @param string
      *         the node we have just entered.
      */
-    public void exit(AstString string) {}
+    public void exit(AstLiteralString string) {}
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstStringConcat concatenation) {
+    public Object visit(AstConcatenation concatenation) {
         enter(concatenation);
         for (var expression : concatenation.getExpressions()) {
             expression.accept(this);
@@ -197,26 +197,26 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
     }
 
     /**
-     * Gets called when we have just entered an {@link AstStringConcat} node.
+     * Gets called when we have just entered an {@link AstConcatenation} node.
      *
      * @param concatenation
      *         the node we have just entered.
      */
-    public void enter(AstStringConcat concatenation) {}
+    public void enter(AstConcatenation concatenation) {}
 
     /**
-     * Gets called when we have just left an {@link AstStringConcat} node.
+     * Gets called when we have just left an {@link AstConcatenation} node.
      *
      * @param concatenation
      *         the node we have just entered.
      */
-    public void exit(AstStringConcat concatenation) {}
+    public void exit(AstConcatenation concatenation) {}
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstVariableExpression variable) {
+    public Object visit(AstVariableExpression variable) {
         enter(variable);
         exit(variable);
         return null;
@@ -242,7 +242,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstGosub gosub) {
+    public Object visit(AstGosub gosub) {
         enter(gosub);
         for (var expression : gosub.getArguments()) {
             expression.accept(this);
@@ -271,7 +271,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstDynamic dynamic) {
+    public Object visit(AstDynamic dynamic) {
         enter(dynamic);
         exit(dynamic);
         return null;
@@ -297,7 +297,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstConstant constant) {
+    public Object visit(AstConstant constant) {
         enter(constant);
         exit(constant);
         return null;
@@ -323,7 +323,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstCommand command) {
+    public Object visit(AstCommand command) {
         enter(command);
         for (var expression : command.getArguments()) {
             expression.accept(this);
@@ -352,7 +352,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstBinaryOperation binaryOperation) {
+    public Object visit(AstBinaryOperation binaryOperation) {
         enter(binaryOperation);
         binaryOperation.getLeft().accept(this);
         binaryOperation.getRight().accept(this);
@@ -380,7 +380,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstVariableDeclaration variableDeclaration) {
+    public Object visit(AstVariableDeclaration variableDeclaration) {
         enter(variableDeclaration);
         variableDeclaration.getExpression().accept(this);
         exit(variableDeclaration);
@@ -407,7 +407,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstVariableInitializer variableInitializer) {
+    public Object visit(AstVariableInitializer variableInitializer) {
         enter(variableInitializer);
         variableInitializer.getExpression().accept(this);
         exit(variableInitializer);
@@ -434,7 +434,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstSwitchStatement switchStatement) {
+    public Object visit(AstSwitchStatement switchStatement) {
         enter(switchStatement);
         switchStatement.getCondition().accept(this);
         for (var switchCase : switchStatement.getCases()) {
@@ -467,7 +467,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstSwitchCase switchCase) {
+    public Object visit(AstSwitchCase switchCase) {
         enter(switchCase);
         for (var expression : switchCase.getKeys()) {
             expression.accept(this);
@@ -497,7 +497,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstIfStatement ifStatement) {
+    public Object visit(AstIfStatement ifStatement) {
         enter(ifStatement);
         ifStatement.getCondition().accept(this);
         ifStatement.getTrueStatement().accept(this);
@@ -528,7 +528,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstWhileStatement whileStatement) {
+    public Object visit(AstWhileStatement whileStatement) {
         enter(whileStatement);
         whileStatement.getCondition().accept(this);
         whileStatement.getCode().accept(this);
@@ -556,7 +556,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstExpressionStatement expressionStatement) {
+    public Object visit(AstExpressionStatement expressionStatement) {
         enter(expressionStatement);
         expressionStatement.getExpression().accept(this);
         exit(expressionStatement);
@@ -583,7 +583,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstReturnStatement returnStatement) {
+    public Object visit(AstReturnStatement returnStatement) {
         enter(returnStatement);
         for (var expression : returnStatement.getExpressions()) {
             expression.accept(this);
@@ -612,7 +612,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstBlockStatement blockStatement) {
+    public Object visit(AstBlockStatement blockStatement) {
         enter(blockStatement);
         for (var statement : blockStatement.getStatements()) {
             statement.accept(this);

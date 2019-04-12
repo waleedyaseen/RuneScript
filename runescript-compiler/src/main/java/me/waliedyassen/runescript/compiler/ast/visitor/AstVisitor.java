@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.ast.visitor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.literal.*;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -50,62 +50,62 @@ public interface AstVisitor<R> {
     }
 
     /**
-     * Gets called when we have just visited an {@link AstBool} node.
+     * Gets called when we have just visited an {@link AstLiteralBool} node.
      *
      * @param bool
-     *         the {@link AstBool} node we have just visited.
+     *         the {@link AstLiteralBool} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default R visit(AstBool bool) {
+    default R visit(AstLiteralBool bool) {
         return null;
     }
 
     /**
-     * Gets called when we have just visited an {@link AstInteger} node.
+     * Gets called when we have just visited an {@link AstLiteralInteger} node.
      *
      * @param integer
-     *         the {@link AstInteger} node we have just visited.
+     *         the {@link AstLiteralInteger} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default R visit(AstInteger integer) {
+    default R visit(AstLiteralInteger integer) {
         return null;
     }
 
     /**
-     * Gets called when we have just visited an {@link AstLong} node.
+     * Gets called when we have just visited an {@link AstLiteralLong} node.
      *
      * @param longInteger
-     *         the {@link AstLong} node we have just visited.
+     *         the {@link AstLiteralLong} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default R visit(AstLong longInteger) {
+    default R visit(AstLiteralLong longInteger) {
         return null;
     }
 
     /**
-     * Gets called when we have just visited an {@link AstString} node.
+     * Gets called when we have just visited an {@link AstLiteralString} node.
      *
      * @param string
-     *         the {@link AstString} node we have just visited.
+     *         the {@link AstLiteralString} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default R visit(AstString string) {
+    default R visit(AstLiteralString string) {
         return null;
     }
 
     /**
-     * Gets called when we have just visited an {@link AstStringConcat} node.
+     * Gets called when we have just visited an {@link AstConcatenation} node.
      *
      * @param stringConcat
-     *         the {@link AstStringConcat} node we have just visited.
+     *         the {@link AstConcatenation} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default R visit(AstStringConcat stringConcat) {
+    default R visit(AstConcatenation stringConcat) {
         return null;
     }
 

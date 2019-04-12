@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.ast.literal;
+package me.waliedyassen.runescript.compiler.ast.expr.literal;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
@@ -16,7 +16,7 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
  *
  * @author Walied K. Yassen
  */
-public final class AstInteger extends AstNumber {
+public final class AstLiteralInteger extends AstLiteralNumber {
 
     /**
      * The integer value.
@@ -25,14 +25,14 @@ public final class AstInteger extends AstNumber {
     private final int value;
 
     /**
-     * Constructs a new {@link AstInteger} type object instance.
+     * Constructs a new {@link AstLiteralInteger} type object instance.
      *
      * @param range
      *         the node source code range.
      * @param value
      *         the integer value.
      */
-    public AstInteger(Range range, int value) {
+    public AstLiteralInteger(Range range, int value) {
         super(range);
         this.value = value;
     }

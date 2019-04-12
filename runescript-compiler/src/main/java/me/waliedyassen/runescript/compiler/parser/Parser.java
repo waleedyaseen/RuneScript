@@ -16,7 +16,7 @@ import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
-import me.waliedyassen.runescript.compiler.ast.literal.*;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
@@ -480,52 +480,52 @@ public final class Parser {
     }
 
     /**
-     * Attempts to match the next token to an {@link AstInteger} object instance.
+     * Attempts to match the next token to an {@link AstLiteralInteger} object instance.
      *
-     * @return the parsed {@link AstInteger} object.
+     * @return the parsed {@link AstLiteralInteger} object.
      */
-    public AstInteger integerNumber() {
+    public AstLiteralInteger integerNumber() {
         pushRange();
         var token = consume(INTEGER);
         try {
-            return new AstInteger(popRange(), Integer.parseInt(token.getLexeme()));
+            return new AstLiteralInteger(popRange(), Integer.parseInt(token.getLexeme()));
         } catch (NumberFormatException e) {
             throw createError(token, "The literal " + token.getLexeme() + " of type int is out of range");
         }
     }
 
     /**
-     * Attempts to match the next token to an {@link AstLong} object instance.
+     * Attempts to match the next token to an {@link AstLiteralLong} object instance.
      *
-     * @return the parsed {@link AstLong} object.
+     * @return the parsed {@link AstLiteralLong} object.
      */
-    public AstLong longNumber() {
+    public AstLiteralLong longNumber() {
         pushRange();
         var token = consume(LONG);
         try {
-            return new AstLong(popRange(), Long.parseLong(token.getLexeme()));
+            return new AstLiteralLong(popRange(), Long.parseLong(token.getLexeme()));
         } catch (NumberFormatException e) {
             throw createError(token, "The literal " + token.getLexeme() + " of type long is out of range");
         }
     }
 
     /**
-     * Attempts to match the next token to an {@link AstString} object.
+     * Attempts to match the next token to an {@link AstLiteralString} object.
      *
-     * @return the parsed {@link AstString} object.
+     * @return the parsed {@link AstLiteralString} object.
      */
-    public AstString string() {
+    public AstLiteralString string() {
         pushRange();
         var token = consume(STRING);
-        return new AstString(popRange(), token.getLexeme());
+        return new AstLiteralString(popRange(), token.getLexeme());
     }
 
     /**
-     * Attempts to match the next token set to an {@link AstStringConcat} node.
+     * Attempts to match the next token set to an {@link AstConcatenation} node.
      *
-     * @return the parsed {@link AstStringConcat} object.
+     * @return the parsed {@link AstConcatenation} object.
      */
-    public AstStringConcat concatString() {
+    public AstConcatenation concatString() {
         pushRange();
         consume(CONCATB);
         var expressions = new ArrayList<AstExpression>();
@@ -533,18 +533,18 @@ public final class Parser {
             expressions.add(expression());
         }
         consume(CONCATE);
-        return new AstStringConcat(popRange(), expressions.toArray(new AstExpression[0]));
+        return new AstConcatenation(popRange(), expressions.toArray(new AstExpression[0]));
     }
 
     /**
-     * Attempts to the match the next token to an {@link AstBool} object.
+     * Attempts to the match the next token to an {@link AstLiteralBool} object.
      *
-     * @return the parsed {@link AstBool} object.
+     * @return the parsed {@link AstLiteralBool} object.
      */
-    public AstBool bool() {
+    public AstLiteralBool bool() {
         pushRange();
         var token = consume(BOOL);
-        return new AstBool(popRange(), Boolean.parseBoolean(token.getLexeme()));
+        return new AstLiteralBool(popRange(), Boolean.parseBoolean(token.getLexeme()));
     }
 
     /**

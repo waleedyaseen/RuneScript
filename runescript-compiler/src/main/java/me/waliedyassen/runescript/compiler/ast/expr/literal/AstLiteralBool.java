@@ -5,34 +5,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.ast.literal;
+package me.waliedyassen.runescript.compiler.ast.expr.literal;
 
-import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
- * Represents a long integer literal expression node.
+ * Represents a boolean literal expression node.
  *
  * @author Walied K. Yassen
  */
-public final class AstLong extends AstNumber {
+public final class AstLiteralBool extends AstLiteral {
 
     /**
-     * The long integer value.
+     * The boolean literal value.
      */
-    @Getter
-    private final long value;
+    private final boolean value;
 
     /**
-     * Constructs a new {@link AstLong} type object instance.
+     * Construct a new {@link AstLiteralBool} type object instance.
      *
      * @param range
      *         the node source code range.
      * @param value
-     *         the integer value.
+     *         the boolean literal value
      */
-    public AstLong(Range range, long value) {
+    public AstLiteralBool(Range range, boolean value) {
         super(range);
         this.value = value;
     }
@@ -43,5 +41,14 @@ public final class AstLong extends AstNumber {
     @Override
     public <T> T accept(AstVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    /**
+     * Gets this {@link AstLiteralBool} literal value.
+     *
+     * @return the boolean value of the literal.
+     */
+    public boolean getValue() {
+        return value;
     }
 }
