@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.compiler.semantics.scope;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.type.Type;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
