@@ -53,10 +53,11 @@ public final class LocalResolver extends AstTreeVisitor {
     @Override
     public Object visit(AstVariableDeclaration declaration) {
         var scope = scopes.lastElement();
+        var name = declaration.getName();
         if (scope.getVariable(declaration.getName().getText()) != null) {
-            checker.reportError(new SemanticError(declaration, "Variable '" + declaration.getName().getText() + "' is already defined in the scope"));
+            checker.reportError(new SemanticError(name, String.format("Duplicate local variable %s", name.getText())));
         } else {
-            scopes.lastElement().declareVariable(declaration.getName().getText(), declaration.getType());
+            scopes.lastElement().declareVariable(name.getText(), declaration.getType());
         }
         return super.visit(declaration);
     }
@@ -67,11 +68,9 @@ public final class LocalResolver extends AstTreeVisitor {
     @Override
     public Object visit(AstVariableExpression variable) {
         var scope = scopes.lastElement();
-        var info =scope.getVariable(variable.getName().getText());
-        if (variable != null) {
-            // NOOP
-        } else {
-            checker.reportError(new SemanticError(variable, "Variable '" + variable.getName().getText() + "' is not defined in the scope"));
+        var info = scope.getVariable(variable.getName().getText());
+        if (info != null) {
+            checker.reportError(new SemanticError(variable, String.format("%s cannot be resolved to a local variable", info.getName())));
         }
         return super.visit(variable);
     }
