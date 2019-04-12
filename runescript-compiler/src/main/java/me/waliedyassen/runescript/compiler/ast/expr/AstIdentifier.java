@@ -41,7 +41,7 @@ public final class AstIdentifier extends AstExpression {
      * {@inheritDoc}
      */
     @Override
-    public void accept(AstVisitor<?> visitor) {
-        // NOOP
+    public <T> T accept(AstVisitor<T> visitor) {
+        return null;
     }
 }

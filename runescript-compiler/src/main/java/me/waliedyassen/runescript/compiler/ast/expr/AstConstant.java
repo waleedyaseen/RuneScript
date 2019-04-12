@@ -43,7 +43,7 @@ public final class AstConstant extends AstExpression {
      * {@inheritDoc}
      */
     @Override
-    public void accept(AstVisitor<?> visitor) {
-        visitor.visit(this);
+    public <T> T accept(AstVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

@@ -53,7 +53,7 @@ public final class AstWhileStatement extends AstStatement {
      * {@inheritDoc}
      */
     @Override
-    public void accept(AstVisitor<?> visitor) {
-        visitor.visit(this);
+    public <T> T accept(AstVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }
