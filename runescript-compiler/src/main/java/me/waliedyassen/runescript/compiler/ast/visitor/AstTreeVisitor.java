@@ -441,7 +441,7 @@ public abstract class AstTreeVisitor implements AstVisitor {
             switchCase.accept(this);
         }
         if (switchStatement.getDefaultCase() != null) {
-            switchStatement.accept(this);
+            switchStatement.getDefaultCase().accept(this);
         }
         exit(switchStatement);
         return null;

@@ -637,9 +637,11 @@ public final class Parser {
         var name = identifier();
         var arguments = new ArrayList<AstExpression>();
         if (consumeIf(LPAREN)) {
-            do {
-                arguments.add(expression());
-            } while (consumeIf(COMMA));
+            if (isExpression()) {
+                do {
+                    arguments.add(expression());
+                } while (consumeIf(COMMA));
+            }
             consume(RPAREN);
         }
         return new AstCommand(popRange(), name, arguments.toArray(AstExpression[]::new), alternative);

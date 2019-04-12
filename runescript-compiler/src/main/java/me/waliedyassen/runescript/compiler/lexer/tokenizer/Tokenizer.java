@@ -103,6 +103,7 @@ public final class Tokenizer {
                             state.mode = Mode.STRING_LITERAL;
                         } else if (Character.isDigit(current) || (current == '-' || current == '+') && Character.isDigit(next)) {
                             builder.append(current);
+                            stream.mark();
                             state.mode = Mode.NUMBER_LITERAL;
                         } else if (current == '/' && next == '/') {
                             stream.take();
@@ -215,12 +216,13 @@ public final class Tokenizer {
                 case NUMBER_LITERAL:
                     if (Character.isDigit(current)) {
                         builder.append(current);
+                        stream.mark();
                     } else {
                         var kind = INTEGER;
                         if (current == 'L' || current == 'l') {
                             kind = LONG;
                         } else if (current != NULL) {
-                            stream.rollback(1);
+                            stream.reset();
                         }
                         return createToken(kind, builder.toString());
                     }

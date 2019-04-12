@@ -100,12 +100,12 @@ public interface AstVisitor<R> {
     /**
      * Gets called when we have just visited an {@link AstConcatenation} node.
      *
-     * @param stringConcat
+     * @param concatenation
      *         the {@link AstConcatenation} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default R visit(AstConcatenation stringConcat) {
+    default R visit(AstConcatenation concatenation) {
         return null;
     }
 
