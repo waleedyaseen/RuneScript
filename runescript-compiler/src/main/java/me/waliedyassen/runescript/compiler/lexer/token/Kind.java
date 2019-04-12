@@ -205,6 +205,16 @@ public enum Kind {
      */
     GREATER_THAN_OR_EQUAL,
 
+    /**
+     * The "logical or" operator token kind.
+     */
+    LOGICAL_OR,
+
+    /**
+     * The "logical and" operator token kind.
+     */
+    LOGICAL_AND,
+
     // the misc chunk.
 
     /**

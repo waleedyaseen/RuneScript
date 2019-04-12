@@ -24,6 +24,16 @@ import java.util.stream.Collectors;
 public enum Operator {
 
     /**
+     * The logical OR operator type.
+     */
+    LOGICAL_OR(2, "|", Kind.LOGICAL_OR, Associativity.LEFT),
+
+    /**
+     * The logical AND operator type.
+     */
+    LOGICAL_AND(3, "&", Kind.LOGICAL_AND, Associativity.LEFT),
+
+    /**
      * The equals operator type.
      */
     EQUAL(8, "=", Kind.EQUALS, Associativity.LEFT),
@@ -81,6 +91,20 @@ public enum Operator {
      */
     @Getter
     private final Associativity associativity;
+
+    /**
+     * Checks whether or not this operator is a logical operator.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isLogical() {
+        switch (this) {
+            case LOGICAL_AND:
+            case LOGICAL_OR:
+            default:
+                return false;
+        }
+    }
 
     /**
      * Looks up for the {@link Operator} constant of the specified {@link Kind}.
