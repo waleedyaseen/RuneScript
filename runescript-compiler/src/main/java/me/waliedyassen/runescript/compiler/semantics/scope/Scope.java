@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.type.Type;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -30,7 +31,7 @@ public final class Scope {
     /**
      * The declared variables within this scope.
      */
-    private final Map<String, VariableInfo> variables = new HashMap<>();
+    private final Map<String, VariableInfo> variables = new LinkedHashMap<>();
 
 
     /**
