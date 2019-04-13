@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.type.tuple;
 
 import lombok.Getter;
+import me.waliedyassen.runescript.compiler.semantics.SemanticUtil;
 import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
@@ -34,7 +35,7 @@ public final class TupleType implements Type {
      * The expanded child types of this tuple.
      */
     @Getter
-    private final Type[] expanded;
+    private final Type[] flattened;
 
     /**
      * Constructs a new {@link TupleType} type object instance.
@@ -44,17 +45,7 @@ public final class TupleType implements Type {
      */
     public TupleType(Type... childs) {
         this.childs = childs;
-        var list = new ArrayList<Type>(childs.length);
-        for (var child : childs) {
-            if (child instanceof TupleType) {
-                for (var childChild : ((TupleType) child).getExpanded()) {
-                    list.add(childChild);
-                }
-            } else {
-                list.add(child);
-            }
-        }
-        expanded = list.toArray(Type[]::new);
+        flattened = SemanticUtil.flatten(childs);
     }
 
     /**
@@ -65,7 +56,7 @@ public final class TupleType implements Type {
         if (obj == null || !(obj instanceof TupleType)) {
             return false;
         }
-        return Arrays.equals(expanded, ((TupleType) obj).expanded);
+        return Arrays.equals(flattened, ((TupleType) obj).flattened);
     }
 
     /**
@@ -73,7 +64,7 @@ public final class TupleType implements Type {
      */
     @Override
     public String getRepresentation() {
-        return Arrays.stream(childs).map(Type::getRepresentation).collect(Collectors.joining(","));
+        return SemanticUtil.createRepresentation(childs);
     }
 
     /**
