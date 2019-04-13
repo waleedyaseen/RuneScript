@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.symbol;
 
+import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
 import me.waliedyassen.runescript.compiler.type.Type;
 
@@ -27,6 +28,11 @@ public final class SymbolTable {
     private final Map<String, ConstantInfo> constants = new HashMap<>();
 
     /**
+     * The defined symbols map.
+     */
+    private final Map<String, CommandInfo> commands = new HashMap<>();
+
+    /**
      * Defines a new constant symbol in this table.
      *
      * @param name
@@ -38,7 +44,7 @@ public final class SymbolTable {
      */
     public void defineConstant(String name, Type type, Object value) {
         if (constants.containsKey(name)) {
-            throw new IllegalArgumentException("The constant'" + name + "' is already defined.");
+            throw new IllegalArgumentException("The constant '" + name + "' is already defined.");
         }
         constants.put(name, new ConstantInfo(name, type, value));
     }
@@ -53,5 +59,30 @@ public final class SymbolTable {
      */
     public ConstantInfo lookupConstant(String name) {
         return constants.get(name);
+    }
+
+    /**
+     * @param name
+     * @param type
+     * @param arguments
+     * @param alternative
+     */
+    public void defineCommand(String name, Type type, Type[] arguments, boolean alternative) {
+        if (commands.containsKey(name)) {
+            throw new IllegalArgumentException("The command '" + name + "' is already defined.");
+        }
+        commands.put(name, new CommandInfo(name, type, arguments, alternative));
+    }
+
+    /**
+     * Looks-up for the {@link ConstantInfo command information} with the specified {@code name}.
+     *
+     * @param name
+     *         the name of the command.
+     *
+     * @return the {@link CommandInfo} if it was present otherwise {@code null}.
+     */
+    public CommandInfo lookupCommand(String name) {
+        return commands.get(name);
     }
 }

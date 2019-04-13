@@ -22,22 +22,36 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
+import me.waliedyassen.runescript.compiler.semantics.SemanticUtil;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.TriggerType;
 
+import java.util.Arrays;
+
 /**
+ * Represents the type checking semantic analysis.
+ *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
 public final class TypeChecker implements AstVisitor<Type> {
 
+    // TODO: return PrimitiveType.VOID should be changed to something else that would stop the execution of the type checking
+    // for the parent nodes, just to skip the redundant type checking.
+
     /**
      * The owner {@link SemanticChecker} instance of this type checker.
      */
     private final SemanticChecker checker;
+
+    /**
+     * The symbol table.
+     */
+    private final SymbolTable symbolTable;
 
     /**
      * The script which we are currently type checking.
@@ -138,7 +152,14 @@ public final class TypeChecker implements AstVisitor<Type> {
      */
     @Override
     public Type visit(AstConstant constant) {
-        return null;
+        var name = constant.getName();
+        var info = symbolTable.lookupConstant(name.getText());
+        if (info == null) {
+            checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a constant", name.getText())));
+            return PrimitiveType.VOID;
+        } else {
+            return info.getType();
+        }
     }
 
     /**
@@ -146,7 +167,23 @@ public final class TypeChecker implements AstVisitor<Type> {
      */
     @Override
     public Type visit(AstCommand command) {
-        return null;
+        var name = command.getName();
+        var info = symbolTable.lookupCommand(name.getText());
+        if (info == null) {
+            checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a command", name.getText())));
+            return PrimitiveType.VOID;
+        }
+        var arguments = command.getArguments();
+        var types = new Type[arguments.length];
+        for (var index = 0; index < arguments.length; index++) {
+            types[index] = arguments[index].accept(this);
+        }
+        var expected = SemanticUtil.flatten(types);
+        var actual = info.getArguments();
+        if (expected.length != actual.length || !Arrays.equals(expected, actual)) {
+            checker.reportError(new SemanticError(command, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), SemanticUtil.createRepresentation(actual), SemanticUtil.createRepresentation(expected))));
+        }
+        return info.getType();
     }
 
     /**
@@ -269,7 +306,22 @@ public final class TypeChecker implements AstVisitor<Type> {
         }
         return PrimitiveType.VOID;
     }
-
+    
+    /**
+     * Checks if the specified {@link Operator operator} is applicable to the given {@link Type left} and {@link Type
+     * right} hand sides, and if it is not applicable, it will report an error back to the {@link #checker}.
+     *
+     * @param node
+     *         the node which requested this check.
+     * @param left
+     *         the left hand side type.
+     * @param right
+     *         the right hand side type.
+     * @param operator
+     *         the operator to check.
+     *
+     * @return the output value type of the operator.
+     */
     private Type checkOperator(AstNode node, Type left, Type right, Operator operator) {
         var applicable = false;
         if (operator.isEquality()) {
@@ -291,10 +343,20 @@ public final class TypeChecker implements AstVisitor<Type> {
         return PrimitiveType.BOOL;
     }
 
-    private Type checkType(AstNode node, Type expected, Type actual) {
+    /**
+     * Checks if the specified {@link Type expected type} matches the specified {@link Type actual type}, and if it does
+     * not match, it will report an error back to the {@link #checker}.
+     *
+     * @param node
+     *         the node which requested this check.
+     * @param expected
+     *         the expected type to match against.
+     * @param actual
+     *         the actual type to match.
+     */
+    private void checkType(AstNode node, Type expected, Type actual) {
         if (!expected.equals(actual)) {
             checker.reportError(new SemanticError(node, "Type mismatch: cannot convert from " + actual.getRepresentation() + " to " + expected.getRepresentation()));
         }
-        return actual;
     }
 }

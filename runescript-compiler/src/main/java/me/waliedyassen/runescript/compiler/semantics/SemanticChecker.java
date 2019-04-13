@@ -8,9 +8,11 @@
 package me.waliedyassen.runescript.compiler.semantics;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.semantics.checkers.VariableScopeBuilder;
 import me.waliedyassen.runescript.compiler.semantics.checkers.TypeChecker;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.List;
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public final class SemanticChecker {
 
     /**
@@ -29,6 +32,11 @@ public final class SemanticChecker {
     private final List<SemanticError> errors = new ArrayList<>();
 
     /**
+     *
+     */
+    private final SymbolTable symbolTable;
+
+    /**
      * Executes the semantic checking at the specified {@link AstNode node}.
      *
      * @param tree
@@ -36,9 +44,9 @@ public final class SemanticChecker {
      */
     public void execute(AstNode tree) {
         // declare and resolve all of the local variables.
-        var localResolver = new VariableScopeBuilder(this);
-        tree.accept(localResolver);
-        var typeChecker = new TypeChecker(this);
+        var scopeBuilder = new VariableScopeBuilder(this);
+        tree.accept(scopeBuilder);
+        var typeChecker = new TypeChecker(this, symbolTable);
         tree.accept(typeChecker);
     }
 
