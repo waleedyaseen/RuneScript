@@ -586,5 +586,4 @@ final class ScriptParserTest {
             return null;
         }
     }
-
 }

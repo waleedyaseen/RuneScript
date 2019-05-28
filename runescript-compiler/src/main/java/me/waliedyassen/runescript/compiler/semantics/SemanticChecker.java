@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.compiler.semantics;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
-import me.waliedyassen.runescript.compiler.semantics.builder.SemanticInfoBuilder;
-import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecker;
+import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
+import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecking;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 
 import java.util.ArrayList;
@@ -44,9 +44,9 @@ public final class SemanticChecker {
      *         the node tree to perform the semantic checking for.
      */
     public void execute(AstNode tree) {
-        var infoBuilder = new SemanticInfoBuilder(this);
+        var infoBuilder = new PreTypeChecking(this);
         tree.accept(infoBuilder);
-        var typeChecker = new TypeChecker(this, symbolTable);
+        var typeChecker = new TypeChecking(this, symbolTable);
         tree.accept(typeChecker);
     }
 
