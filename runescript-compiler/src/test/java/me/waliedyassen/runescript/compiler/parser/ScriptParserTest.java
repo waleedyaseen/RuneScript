@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Walied K. Yassen
  */
 @SuppressWarnings("deprecation")
-final class ParserTest {
+final class ScriptParserTest {
 
     @Test
     void testScript() {
@@ -562,23 +562,23 @@ final class ParserTest {
         });
     }
 
-    private static Parser fromString(String text) {
+    private static ScriptParser fromString(String text) {
         try (var stream = new StringBufferInputStream(text)) {
             var tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            return new Parser(lexer);
+            return new ScriptParser(lexer);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    private static Parser fromResource(String name) {
+    private static ScriptParser fromResource(String name) {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
             Tokenizer tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            Parser parser = new Parser(lexer);
-            return parser;
+            ScriptParser scriptParser = new ScriptParser(lexer);
+            return scriptParser;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

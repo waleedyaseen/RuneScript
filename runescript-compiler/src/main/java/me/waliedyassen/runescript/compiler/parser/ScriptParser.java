@@ -7,27 +7,27 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
-import me.waliedyassen.runescript.commons.document.Element;
-import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
-import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
-import me.waliedyassen.runescript.compiler.util.VariableScope;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
+import me.waliedyassen.runescript.compiler.util.VariableScope;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
 
@@ -37,28 +37,18 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
  *
  * @author Walied K. Yassen
  */
-public final class Parser {
+public final class ScriptParser extends ParserBase {
 
     // TODO: Detailed documentation
 
     /**
-     * The {@link Range} object stack. It is used to calculate the nested {@link Range}s.
-     */
-    private final Stack<Range> ranges = new Stack<>();
-
-    /**
-     * The lexical phase result object.
-     */
-    private final Lexer lexer;
-
-    /**
-     * Constructs a new {@link Parser} type object instance.
+     * Constructs a new {@link ScriptParser} type object instance.
      *
      * @param lexer
-     *         the lexical phase result object.
+     *         the lexical phase output object.
      */
-    public Parser(Lexer lexer) {
-        this.lexer = lexer;
+    public ScriptParser(Lexer lexer) {
+        super(lexer);
     }
 
     /**
@@ -409,9 +399,10 @@ public final class Parser {
         // we can turn this into an expression, but then it would result in
         // the binary expression being confused between equality and assign operators.
         pushRange();
-        var scope = VariableScope.forKind(kind());
+        var token = consume();
+        var scope = VariableScope.forKind(token.getKind());
         if (scope == null) {
-            throw createError(lexer.previous(), "Expecting a variable");
+            throw createError(token, "Expecting a variable");
         }
         var variable = identifier();
         consume(EQUALS);
@@ -673,179 +664,5 @@ public final class Parser {
     public PrimitiveType primitiveType() {
         var token = consume(TYPE);
         return PrimitiveType.forRepresentation(token.getLexeme());
-    }
-
-    /**
-     * Takes the next {@link Token} object and checks whether or not it's {@linkplain Kind kind} matches the specified
-     * {@linkplain Kind kind}.
-     *
-     * @param expected
-     *         the expected token kind.
-     *
-     * @return the expected {@link Token} object.
-     * @throws SyntaxError
-     *         if the next token does not match the expected token.
-     */
-    public Token consume(Kind expected) {
-        var token = consume();
-        var kind = token == null ? Kind.EOF : token.getKind();
-        if (kind != expected) {
-            throwError(token, "Unexpected rule: " + kind + ", expected: " + expected);
-        }
-        return token;
-    }
-
-    /**
-     * Takes the next {@link Token} object and checks whether or not it's {@linkplain Kind kind} matches the specified
-     * {@linkplain Kind kind}.
-     *
-     * @param expected
-     *         the expected token kind.
-     *
-     * @return <code>true</code> if the token
-     * @throws SyntaxError
-     *         if the next token does not match the expected token.
-     */
-    public boolean consumeIf(Kind expected) {
-        var token = peek();
-        var kind = token == null ? Kind.EOF : token.getKind();
-        if (kind == expected) {
-            consume();
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Takes the next {@link Token} object from the lexer.
-     *
-     * @return the next {@link Token} object or {@code null}.
-     * @see Lexer#take()
-     */
-    public Token consume() {
-        var token = lexer.take();
-        appendRange(token);
-        return token;
-    }
-
-    /**
-     * Takes the next {@link Token} object from the lexer and return it's kind if it was present or {@link Kind#EOF}.
-     *
-     * @return the token {@link Kind} or {@link Kind#EOF} if it was not present.
-     */
-    public Kind kind() {
-        var token = consume();
-        if (token == null) {
-            return Kind.EOF;
-        }
-        return token.getKind();
-    }
-
-    /**
-     * Takes the next {@link Token} object without advancing the lexer cursor.
-     *
-     * @return the next {@link Token} object or {@code null}.
-     * @see Lexer#peek()
-     */
-    public Token peek() {
-        return lexer.peek();
-    }
-
-    /**
-     * Gets the next token {@link Kind} from the lexer without advancing the lexer cursor.
-     *
-     * @return the next {@link Kind} or {@link Kind#EOF} if there is no more tokens.
-     */
-    public Kind peekKind() {
-        return peekKind(0);
-    }
-
-    /**
-     * Attempts to get the token {@link Kind kind} that is placed after a specific amount of tokens defined by {@code
-     * n}.
-     *
-     * @return the token {@link Kind kind } if it was present otherwise returns {@link Kind#EOF}.
-     */
-    public Kind peekKind(int n) {
-        var token = lexer.lookahead(n);
-        if (token == null) {
-            return Kind.EOF;
-        }
-        return token.getKind();
-    }
-
-    /**
-     * Pushes a new {@link Range} into the {@link #ranges} stack. Calls to this method should be followed by {@link
-     * #popRange()} to remove the pushed {@link Range} object from the stack.
-     */
-    private void pushRange() {
-        ranges.push(new Range());
-    }
-
-    /**
-     * Appends the specified {@link Element} range into the last {@link Range} in the {@link #ranges} stack. If the
-     * element is null or there is no {@link Range} object available into the stack, the method will have no effect.
-     *
-     * @param element
-     *         the element to append it's range.
-     */
-    private void appendRange(Element element) {
-        if (ranges.isEmpty() || element == null) {
-            return;
-        }
-        ranges.lastElement().add(element.getRange());
-    }
-
-    /**
-     * Pops the last pushed {@link Range} object from the stack. If the stack is empty.
-     *
-     * @return the popped {@link Range} object.
-     */
-    private Range popRange() {
-        var range = ranges.pop();
-        if (!ranges.isEmpty()) {
-            ranges.lastElement().add(range);
-        }
-        return range;
-    }
-
-    /**
-     * Throws a syntax error indicating a mismatched grammar rule.
-     *
-     * @param token
-     *         the token which the error has occurred at.
-     * @param message
-     *         the error message describing why the error has occurred.
-     */
-    private void throwError(Token token, String message) {
-        throw createError(token, message);
-    }
-
-    /**
-     * Creates a syntax error indicating a mismatched grammar rule.
-     *
-     * @param range
-     *         the source code range in which the error has occurred.
-     * @param message
-     *         the error message describing why the error has occurred
-     *
-     * @return the created {@link SyntaxError} object.
-     */
-    private SyntaxError createError(Range range, String message) {
-        return new SyntaxError(range, message);
-    }
-
-    /**
-     * Creates a syntax error indicating a mismatched grammar rule.
-     *
-     * @param token
-     *         the token which the error has occurred at.
-     * @param message
-     *         the error message describing why the error has occurred
-     *
-     * @return the created {@link SyntaxError} object.
-     */
-    private SyntaxError createError(Token token, String message) {
-        return new SyntaxError(token == null ? null : token.getRange(), message);
     }
 }
