@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.util;
+package me.waliedyassen.runescript.compiler.util.trigger;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,18 +19,17 @@ import java.util.stream.Collectors;
  *
  * @author Walied K. Yassen
  */
-@RequiredArgsConstructor
-public enum TriggerType {
+public enum TriggerType implements TriggerProperties {
 
     /**
      * The clientscript trigger type.
      */
-    CLIENTSCRIPT("clientscript", false),
+    CLIENTSCRIPT("clientscript"),
 
     /**
      * The procedure trigger type.
      */
-    PROC("proc", true);
+    PROC("proc", CALLABLE, RETURNING);
 
 
     /**
@@ -43,7 +42,34 @@ public enum TriggerType {
      * Whether or not this trigger type supports returning a value.
      */
     @Getter
-    private final boolean supportsReturn;
+    private final int properties;
+
+    /**
+     * Constructs a new {@link TriggerType} enum constant.
+     *
+     * @param representation
+     *         the textual representation of the trigger.
+     * @param properties
+     *         the properties of the trigger.
+     */
+    TriggerType(String representation, int... properties) {
+        this.representation = representation;
+        var _properties = 0;
+        for (var property : properties) _properties |= property;
+        this.properties = _properties;
+    }
+
+    /**
+     * Checks whether or not this {@link TriggerType} has the specified {@code property}.
+     *
+     * @param property
+     *         the property to check.
+     *
+     * @return <code>true</code> if it does otherwise <code>false</code>.
+     */
+    public boolean hasProperty(int property) {
+        return (properties & property) == property;
+    }
 
     /**
      * The look-up by representation map of the trigger types.
@@ -61,4 +87,5 @@ public enum TriggerType {
     public static TriggerType forRepresentation(String representation) {
         return lookupMap.get(representation);
     }
+
 }

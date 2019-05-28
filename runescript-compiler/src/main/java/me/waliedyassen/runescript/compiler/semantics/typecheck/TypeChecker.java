@@ -28,7 +28,8 @@ import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
-import me.waliedyassen.runescript.compiler.util.TriggerType;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerProperties;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 import java.util.Arrays;
 
@@ -72,16 +73,17 @@ public final class TypeChecker implements AstVisitor<Type> {
         if (trigger == null) {
             checker.reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
         } else {
-            if (script.getType() != PrimitiveType.VOID && !trigger.isSupportsReturn()) {
+            // check if the trigger returning support matches the definition.
+            if (script.getType() != PrimitiveType.VOID && !trigger.hasProperty(TriggerProperties.RETURNING)) {
                 checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow return values", trigger.getRepresentation())));
             }
             // check if the script is already defined in the symbol table
             // and define it if it was not, or produce an error if it was a duplicate.
             var name = script.getName();
-            if (symbolTable.lookupScript(name.getText()) != null) {
+            if (symbolTable.lookupScript(trigger, name.getText()) != null) {
                 checker.reportError(new SemanticError(name, String.format("The script '%s' is already defined", name.getText())));
             } else {
-                symbolTable.defineScript(name.getText(), trigger, script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
+                symbolTable.defineScript(trigger, name.getText(), script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
             }
         }
         script.getCode().accept(this);
@@ -152,10 +154,11 @@ public final class TypeChecker implements AstVisitor<Type> {
      */
     @Override
     public Type visit(AstGosub gosub) {
+        // gosub is and will always refer to proc script.
         var name = gosub.getName();
-        var script = symbolTable.lookupScript(name.getText());
+        var script = symbolTable.lookupScript(TriggerType.PROC, name.getText());
         if (script == null) {
-            checker.reportError(new SemanticError(gosub, String.format("Could not resolve script with the name '%s'", name.getText())));
+            checker.reportError(new SemanticError(gosub, String.format("Could not resolve proc script with the name '%s'", name.getText())));
             return PrimitiveType.UNDEFINED;
         }
         return script.getType();

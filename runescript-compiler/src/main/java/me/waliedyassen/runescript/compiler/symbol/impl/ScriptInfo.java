@@ -7,11 +7,10 @@
  */
 package me.waliedyassen.runescript.compiler.symbol.impl;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.util.TriggerType;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 /**
  * Represents a declared script symbol information.

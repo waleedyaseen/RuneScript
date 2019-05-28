@@ -12,7 +12,7 @@ import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ScriptInfo;
 import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.util.TriggerType;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +24,11 @@ import java.util.Map;
  * @author Walied K. Yassen
  */
 public final class SymbolTable {
+
+    /**
+     * The script name template.
+     */
+    private static final String SCRIPT_NAME_TEMPLATE = "[%s,%s]";
 
     /**
      * The defined constants map.
@@ -138,32 +143,34 @@ public final class SymbolTable {
     /**
      * Defines a new script symbol information in this table.
      *
-     * @param name
-     *         the name of the script.
      * @param trigger
      *         the trigger of the script.
+     * @param name
+     *         the name of the script.
      * @param type
      *         the type of the script.
      * @param arguments
      *         the arguments type which the script takes.
      */
-    public void defineScript(String name, TriggerType trigger, Type type, Type[] arguments) {
+    public void defineScript(TriggerType trigger, String name, Type type, Type[] arguments) {
         if (scripts.containsKey(name)) {
             throw new IllegalArgumentException("The script '" + name + "' is already defined.");
         }
-        scripts.put(name, new ScriptInfo(name, trigger, type, arguments));
+        scripts.put(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name), new ScriptInfo(name, trigger, type, arguments));
     }
 
     /**
-     * Looks-up for the {@link ScriptInfo script information} with the specified {@code name}.
+     * Looks-up for the {@link ScriptInfo script information} with the specified {@code trigger} and {@code name}.
      *
+     * @param trigger
+     *         the trigger type of the script to lookup for.
      * @param name
      *         the name of the script to lookup for.
      *
      * @return the {@link ScriptInfo} if it was present otherwise {@code null}.
      */
-    public ScriptInfo lookupScript(String name) {
-        return scripts.get(name);
+    public ScriptInfo lookupScript(TriggerType trigger, String name) {
+        return scripts.get(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name));
     }
 
 }
