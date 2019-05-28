@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.compiler.semantics;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
-import me.waliedyassen.runescript.compiler.semantics.checkers.VariableScopeBuilder;
-import me.waliedyassen.runescript.compiler.semantics.checkers.TypeChecker;
+import me.waliedyassen.runescript.compiler.semantics.scope.VariableScopeBuilder;
+import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 
 import java.util.ArrayList;
