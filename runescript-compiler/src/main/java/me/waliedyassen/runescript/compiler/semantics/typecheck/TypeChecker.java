@@ -44,7 +44,7 @@ public final class TypeChecker implements AstVisitor<Type> {
     // for the parent nodes, just to skip the redundant type checking.
 
     /**
-     * The owner {@link SemanticChecker} instance of this type checker.
+     * The owner {@link SemanticChecker} object.
      */
     private final SemanticChecker checker;
 
@@ -64,9 +64,17 @@ public final class TypeChecker implements AstVisitor<Type> {
     @Override
     public Type visit(AstScript script) {
         this.script = script;
-        var trigger = script.getTrigger();
-        if (TriggerType.forRepresentation(trigger.getText()) == null) {
-            checker.reportError(new SemanticError(trigger, trigger.getText() + " cannot be resolved to a trigger"));
+        var triggerName = script.getTrigger();
+        var trigger = TriggerType.forRepresentation(triggerName.getText());
+        if (trigger == null) {
+            checker.reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
+        } else {
+            var name = script.getName();
+            if (symbolTable.lookupScript(name.getText()) != null) {
+                checker.reportError(new SemanticError(name, String.format("The script '%s' is already defined", name.getText())));
+            } else {
+                symbolTable.defineScript(name.getText(), trigger, script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
+            }
         }
         script.getCode().accept(this);
         return script.getType();
@@ -136,7 +144,13 @@ public final class TypeChecker implements AstVisitor<Type> {
      */
     @Override
     public Type visit(AstGosub gosub) {
-        return null;
+        var name = gosub.getName();
+        var script = symbolTable.lookupScript(name.getText());
+        if (script == null) {
+            checker.reportError(new SemanticError(gosub, String.format("Could not resolve script with the name '%s'", name.getText())));
+            return PrimitiveType.UNDEFINED;
+        }
+        return script.getType();
     }
 
     /**

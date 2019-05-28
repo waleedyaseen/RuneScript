@@ -25,6 +25,11 @@ import java.util.stream.Collectors;
 public enum PrimitiveType implements Type {
 
     /**
+     * The undefined primitive type.
+     */
+    UNDEFINED(null, null),
+
+    /**
      * The void primitive type.
      */
     VOID("void", null),

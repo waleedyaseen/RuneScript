@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.semantics.scope;
+package me.waliedyassen.runescript.compiler.semantics.builder;
 
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
@@ -32,7 +32,7 @@ import java.util.Stack;
 public final class VariableScopeBuilder extends AstTreeVisitor {
 
     /**
-     * The owner {@link SemanticChecker} instance of this local resolver.
+     * The owner {@link SemanticChecker} object.
      */
     private final SemanticChecker checker;
 

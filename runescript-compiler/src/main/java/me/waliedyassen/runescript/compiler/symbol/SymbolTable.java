@@ -10,7 +10,9 @@ package me.waliedyassen.runescript.compiler.symbol;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.ScriptInfo;
 import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.compiler.util.TriggerType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +39,11 @@ public final class SymbolTable {
      * The defined configurations map.
      */
     private final Map<String, ConfigInfo> configs = new HashMap<>();
+
+    /**
+     * The defined scripts map.
+     */
+    private final Map<String, ScriptInfo> scripts = new HashMap<>();
 
     /**
      * Defines a new constant symbol in this table.
@@ -126,4 +133,37 @@ public final class SymbolTable {
     public ConfigInfo lookupConfig(String name) {
         return configs.get(name);
     }
+
+
+    /**
+     * Defines a new script symbol information in this table.
+     *
+     * @param name
+     *         the name of the script.
+     * @param trigger
+     *         the trigger of the script.
+     * @param type
+     *         the type of the script.
+     * @param arguments
+     *         the arguments type which the script takes.
+     */
+    public void defineScript(String name, TriggerType trigger, Type type, Type[] arguments) {
+        if (scripts.containsKey(name)) {
+            throw new IllegalArgumentException("The script '" + name + "' is already defined.");
+        }
+        scripts.put(name, new ScriptInfo(name, trigger, type, arguments));
+    }
+
+    /**
+     * Looks-up for the {@link ScriptInfo script information} with the specified {@code name}.
+     *
+     * @param name
+     *         the name of the script to lookup for.
+     *
+     * @return the {@link ScriptInfo} if it was present otherwise {@code null}.
+     */
+    public ScriptInfo lookupScript(String name) {
+        return scripts.get(name);
+    }
+
 }

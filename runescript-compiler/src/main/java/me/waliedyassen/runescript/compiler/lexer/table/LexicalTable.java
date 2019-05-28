@@ -80,7 +80,9 @@ public final class LexicalTable {
         registerKeyword("case", Kind.CASE);
         registerKeyword("default", Kind.DEFAULT);
         for (var type : PrimitiveType.values()) {
-            registerKeyword(type.getRepresentation(), Kind.TYPE);
+            if (type.getRepresentation() != null) {
+                registerKeyword(type.getRepresentation(), Kind.TYPE);
+            }
             if (type.isDeclarable()) {
                 registerKeyword("def_" + type.getRepresentation(), Kind.DEFINE);
             }
