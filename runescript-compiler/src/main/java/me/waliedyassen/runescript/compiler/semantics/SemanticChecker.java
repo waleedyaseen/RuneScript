@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.semantics;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
-import me.waliedyassen.runescript.compiler.semantics.scope.VariableScopeBuilder;
+import me.waliedyassen.runescript.compiler.semantics.builder.SemanticInfoBuilder;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 
@@ -32,8 +32,9 @@ public final class SemanticChecker {
     private final List<SemanticError> errors = new ArrayList<>();
 
     /**
-     *
+     * The symbol table to resolve and register symbol information in.
      */
+    @Getter
     private final SymbolTable symbolTable;
 
     /**
@@ -44,7 +45,7 @@ public final class SemanticChecker {
      */
     public void execute(AstNode tree) {
         // declare and resolve all of the local variables.
-        var scopeBuilder = new VariableScopeBuilder(this);
+        var scopeBuilder = new SemanticInfoBuilder(this);
         tree.accept(scopeBuilder);
         var typeChecker = new TypeChecker(this, symbolTable);
         tree.accept(typeChecker);

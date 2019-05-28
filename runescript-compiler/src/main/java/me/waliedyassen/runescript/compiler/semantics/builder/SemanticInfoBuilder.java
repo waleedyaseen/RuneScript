@@ -29,7 +29,7 @@ import java.util.Stack;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class VariableScopeBuilder extends AstTreeVisitor {
+public final class SemanticInfoBuilder extends AstTreeVisitor {
 
     /**
      * The owner {@link SemanticChecker} object.

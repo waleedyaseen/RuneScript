@@ -210,7 +210,7 @@ final class ScriptParserTest {
             assertEquals("mycommand", expr.getName().getText());
             assertEquals(0, expr.getArguments().length);
             assertEquals(true, expr.isAlternative());
-        }, ()->{
+        }, () -> {
             // valid non alternative comamnd with arguments
             var expr = fromString("mycommand(5 > 3, ~gosub, \"test\")").command();
             assertNotNull(expr);
@@ -552,7 +552,9 @@ final class ScriptParserTest {
         assertAll("primitive type", () -> {
             // all valid primitive types.
             for (var type : PrimitiveType.values()) {
-                assertEquals(fromString(type.getRepresentation()).primitiveType(), type);
+                if (type != PrimitiveType.UNDEFINED) {
+                    assertEquals(fromString(type.getRepresentation()).primitiveType(), type);
+                }
             }
         }, () -> {
             // invalid primitive type.
