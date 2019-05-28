@@ -144,7 +144,21 @@ public final class TypeChecker implements AstVisitor<Type> {
      */
     @Override
     public Type visit(AstDynamic dynamic) {
-        return null;
+        var name = dynamic.getName();
+        var commandInfo = symbolTable.lookupCommand(name.getText());
+        if (commandInfo != null) {
+            if (commandInfo.getArguments().length > 0) {
+                checker.reportError(new SemanticError(name, String.format("The command %s(%s) is not applicable for the arguments ()", name.getText(), SemanticUtil.createRepresentation(commandInfo.getArguments()))));
+            }
+            return commandInfo.getType();
+        }
+        var configInfo = symbolTable.lookupConfig(name.getText());
+        if (configInfo != null) {
+            return configInfo.getType();
+        }
+        checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a symbol", name.getText())));
+        return PrimitiveType.VOID;
+
     }
 
     /**
@@ -157,9 +171,8 @@ public final class TypeChecker implements AstVisitor<Type> {
         if (info == null) {
             checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a constant", name.getText())));
             return PrimitiveType.VOID;
-        } else {
-            return info.getType();
         }
+        return info.getType();
     }
 
     /**
@@ -201,6 +214,11 @@ public final class TypeChecker implements AstVisitor<Type> {
      */
     @Override
     public Type visit(AstVariableDeclaration variableDeclaration) {
+        var expression = variableDeclaration.getExpression();
+        if (expression == null) {
+            return null;
+        }
+        checkType(expression, variableDeclaration.getVariable().getType(), expression.accept(this));
         return PrimitiveType.VOID;
     }
 
@@ -209,6 +227,11 @@ public final class TypeChecker implements AstVisitor<Type> {
      */
     @Override
     public Type visit(AstVariableInitializer variableInitializer) {
+        var expression = variableInitializer.getExpression();
+        if (expression == null) {
+            return null;
+        }
+        checkType(expression, variableInitializer.getVariable().getType(), expression.accept(this));
         return PrimitiveType.VOID;
     }
 
@@ -306,7 +329,7 @@ public final class TypeChecker implements AstVisitor<Type> {
         }
         return PrimitiveType.VOID;
     }
-    
+
     /**
      * Checks if the specified {@link Operator operator} is applicable to the given {@link Type left} and {@link Type
      * right} hand sides, and if it is not applicable, it will report an error back to the {@link #checker}.

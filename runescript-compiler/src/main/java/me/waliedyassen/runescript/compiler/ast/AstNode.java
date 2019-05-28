@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
-import me.waliedyassen.runescript.compiler.type.Type;
 
 /**
  * Represents the smallest unit in the Abstract Syntax Tree (AST).

@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.symbol;
 
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
 import me.waliedyassen.runescript.compiler.type.Type;
 
@@ -28,9 +29,14 @@ public final class SymbolTable {
     private final Map<String, ConstantInfo> constants = new HashMap<>();
 
     /**
-     * The defined symbols map.
+     * The defined commands map.
      */
     private final Map<String, CommandInfo> commands = new HashMap<>();
+
+    /**
+     * The defined configurations map.
+     */
+    private final Map<String, ConfigInfo> configs = new HashMap<>();
 
     /**
      * Defines a new constant symbol in this table.
@@ -62,10 +68,16 @@ public final class SymbolTable {
     }
 
     /**
+     * Defines a new command symbol in this table.
+     *
      * @param name
+     *         the name of the command.
      * @param type
+     *         the type of the command.
      * @param arguments
+     *         the arguments of hte command.
      * @param alternative
+     *         whether or not this command supports alternative calls.
      */
     public void defineCommand(String name, Type type, Type[] arguments, boolean alternative) {
         if (commands.containsKey(name)) {
@@ -84,5 +96,34 @@ public final class SymbolTable {
      */
     public CommandInfo lookupCommand(String name) {
         return commands.get(name);
+    }
+
+    /**
+     * Defines a new configuration type value symbol in this table.
+     *
+     * @param id
+     *         the id of the configuration.
+     * @param name
+     *         the name of the configuration.
+     * @param type
+     *         the type of the configuration.
+     */
+    public void defineConfig(int id, String name, Type type) {
+        if (configs.containsKey(name)) {
+            throw new IllegalArgumentException("The configuration '" + name + "' is already defined.");
+        }
+        configs.put(name, new ConfigInfo(id, name, type));
+    }
+
+    /**
+     * Looks-up for the {@link ConfigInfo configuration information} with the specified {@code name}.
+     *
+     * @param name
+     *         the name of the configuration type value.
+     *
+     * @return the {@link ConfigInfo} if it was present otherwise {@code null}.
+     */
+    public ConfigInfo lookupConfig(String name) {
+        return configs.get(name);
     }
 }
