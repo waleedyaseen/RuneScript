@@ -44,9 +44,8 @@ public final class SemanticChecker {
      *         the node tree to perform the semantic checking for.
      */
     public void execute(AstNode tree) {
-        // declare and resolve all of the local variables.
-        var scopeBuilder = new SemanticInfoBuilder(this);
-        tree.accept(scopeBuilder);
+        var infoBuilder = new SemanticInfoBuilder(this);
+        tree.accept(infoBuilder);
         var typeChecker = new TypeChecker(this, symbolTable);
         tree.accept(typeChecker);
     }
