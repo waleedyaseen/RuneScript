@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.asm;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.type.Type;
 
@@ -21,5 +22,6 @@ public final class Local {
     /**
      * The local variable type.
      */
+    @Getter
     private final Type type;
 }

@@ -23,12 +23,17 @@ public final class LocalMap {
     /**
      * The local parameters map.
      */
-    private final Map<StackType, Map<String, Local>> parameters = new HashMap<>();
+    private final Map<StackType, List<Local>> parameters = new HashMap<>();
 
     /**
      * The local variables map.
      */
-    private final Map<StackType, Map<String, Local>> variables = new HashMap<>();
+    private final Map<StackType, List<Local>> variables = new HashMap<>();
+
+    /**
+     * The look-up map for both of the parameters and the variables.
+     */
+    private final Map<String, Local> lookupMap = new HashMap<>();
 
     /**
      * Creates a new {@link Local} object and registers it in the parameters map.
@@ -42,8 +47,9 @@ public final class LocalMap {
      */
     public Local registerParameter(String name, Type type) {
         var local = new Local(type);
-        var map = getParametersMap(type.getStackType());
-        map.put(name, local);
+        var list = getParametersList(type.getStackType());
+        list.add(local);
+        lookupMap.put(name, local);
         return local;
     }
 
@@ -60,41 +66,54 @@ public final class LocalMap {
      */
     public Local registerVariable(String name, Type type) {
         var local = new Local(type);
-        var map = getVariablesMap(type.getStackType());
-        map.put(name, local);
+        var list = getVariablesList(type.getStackType());
+        list.add(local);
+        lookupMap.put(name, local);
         return local;
     }
 
     /**
-     * Gets the parameters map of the specified {@link StackType}. If the parameter map was not present, a new one will
-     * be created and cached.
+     * Looks-up for the {@link Local} object that is for the specified variable @code name}.
+     *
+     * @param name
+     *         the name of the variable or the parameter.
+     *
+     * @return the {@link Local} object if it was present otherwise {@code null}.
+     */
+    public Local lookup(String name) {
+        return lookupMap.get(name);
+    }
+
+    /**
+     * Gets the parameters list of the specified {@link StackType}. If the parameter list was not present, a new one
+     * will list
      *
      * @param stackType
      *         the stack type.
      *
-     * @return the parameters map as an {@link Map} object.
+     * @return the parameters {@link List list} object.
      */
-    private Map<String, Local> getParametersMap(StackType stackType) {
+    public List<Local> getParametersList(StackType stackType) {
         var list = parameters.get(stackType);
         if (list == null) {
-            parameters.put(stackType, list = new LinkedHashMap<>());
+            parameters.put(stackType, list = new ArrayList<>());
         }
         return list;
     }
 
     /**
-     * Gets the variables map of the specified {@link StackType}. If the variables map was not present, a new one will
+     * Gets the variables list of the specified {@link StackType}. If the variables list was not present, a new one will
      * be created and cached.
      *
      * @param stackType
      *         the stack type.
      *
-     * @return the variables map as an {@link Map} object.
+     * @return the variables {@link List list} object.
      */
-    private Map<String, Local> getVariablesMap(StackType stackType) {
+    public List<Local> getVariablesList(StackType stackType) {
         var list = variables.get(stackType);
         if (list == null) {
-            variables.put(stackType, list = new LinkedHashMap<>());
+            variables.put(stackType, list = new ArrayList<>());
         }
         return list;
     }
@@ -105,5 +124,6 @@ public final class LocalMap {
     public void reset() {
         parameters.clear();
         variables.clear();
+        lookupMap.clear();
     }
 }

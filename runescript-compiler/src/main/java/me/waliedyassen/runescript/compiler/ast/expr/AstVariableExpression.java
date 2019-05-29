@@ -33,8 +33,10 @@ public final class AstVariableExpression extends AstExpression {
     @Getter
     private final AstIdentifier name;
 
-    @Getter
-    @Setter
+    /**
+     * The semantic information of that variable.
+     */
+    @Getter @Setter
     private VariableInfo variable;
 
     /**

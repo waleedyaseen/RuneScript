@@ -33,4 +33,27 @@ public final class InstructionMap {
      */
     @Getter
     private final int pushConstantLong;
+    /**
+     *
+     */
+    @Getter
+    private final int pushLocalInt;
+
+    /**
+     *
+     */
+    @Getter
+    private final int pushLocalString;
+
+    /**
+     *
+     */
+    @Getter
+    private final int pushLocalLong;
+
+    /**
+     *
+     */
+    @Getter
+    private final int joinString;
 }

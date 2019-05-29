@@ -11,14 +11,20 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.ast.expr.AstConcatenation;
 import me.waliedyassen.runescript.compiler.ast.expr.AstGosub;
+import me.waliedyassen.runescript.compiler.ast.expr.AstVariableExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitializer;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
+
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Represents the compiler bytecode generator.
@@ -45,7 +51,7 @@ public final class CodeGenerator implements AstVisitor {
     private final LocalMap localMap = new LocalMap();
 
     /**
-     *
+     * The instructions map which contains the primary instruction opcodes.
      */
     private final InstructionMap instructionMap;
 
@@ -106,6 +112,40 @@ public final class CodeGenerator implements AstVisitor {
     @Override
     public Instruction visit(AstLiteralLong longInteger) {
         return instruction(instructionMap.getPushConstantLong(), longInteger.getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstConcatenation concatenation) {
+        for (var expression : concatenation.getExpressions()) {
+            expression.accept(this);
+        }
+        return instruction(instructionMap.getJoinString(), concatenation.getExpressions().length);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstVariableExpression variableExpression) {
+        var local = localMap.lookup(variableExpression.getName().getText());
+        int opcode;
+        switch (local.getType().getStackType()) {
+            case INT:
+                opcode = instructionMap.getPushLocalInt();
+                break;
+            case STRING:
+                opcode = instructionMap.getPushLocalString();
+                break;
+            case LONG:
+                opcode = instructionMap.getPushLocalLong();
+                break;
+            default:
+                throw new UnsupportedOperationException();
+        }
+        return instruction(opcode, local);
     }
 
     /**
