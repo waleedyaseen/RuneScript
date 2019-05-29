@@ -11,10 +11,8 @@ import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.Block;
+import me.waliedyassen.runescript.compiler.codegen.asm.Label;
 import me.waliedyassen.runescript.compiler.codegen.asm.Script;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Represents the compiler bytecode generator.
@@ -24,15 +22,21 @@ import java.util.List;
 public final class CodeGenerator implements AstVisitor {
 
     /**
-     * A list of the generated blocks for the current script.
+     * The blocks map of the current script.
      */
-    private final List<Block> blocks = new ArrayList<>();
+    private final BlockMap blockMap = new BlockMap();
 
     /**
-     * Initialises the code generator and reset it's state.
+     * The label generator used to generate any label for this code generator.
+     */
+    private final LabelGenerator labelGenerator = new LabelGenerator();
+
+    /**
+     * Initialises the code generator and reset its state.
      */
     public void initialise() {
-        blocks.clear();
+        blockMap.reset();
+        labelGenerator.reset();
     }
 
     /**
@@ -50,8 +54,30 @@ public final class CodeGenerator implements AstVisitor {
      */
     @Override
     public Block visit(AstBlockStatement blockStatement) {
-        var block = new Block();
-        blocks.add(block);
+        var block = generateBlock();
+        for (var statement : blockStatement.getStatements()) {
+            statement.accept(this);
+        }
         return block;
+    }
+
+    /**
+     * Generates a new {@link Block} object.
+     *
+     * @return the generated {@link Block} object.
+     * @see BlockMap#generate(Label)
+     */
+    private Block generateBlock() {
+        return blockMap.generate(generateLabel());
+    }
+
+    /**
+     * Generates a new unique {@link Label} object.
+     *
+     * @return the generated {@link Label} object.
+     * @see LabelGenerator#generate()
+     */
+    private Label generateLabel() {
+        return labelGenerator.generate();
     }
 }

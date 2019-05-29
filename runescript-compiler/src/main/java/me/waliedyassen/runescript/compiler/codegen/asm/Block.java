@@ -7,6 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.asm;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +18,19 @@ import java.util.List;
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public final class Block {
-    
+
+    /**
+     * The label of the block.
+     */
+    @Getter
+    private final Label label;
+
     /**
      * The instructions of the block.
      */
+    @Getter
     private final List<Instruction> instructions = new ArrayList<>();
 
     /**
