@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.semantics;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
+import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecking;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
@@ -40,14 +41,14 @@ public final class SemanticChecker {
     /**
      * Executes the semantic checking at the specified {@link AstNode node}.
      *
-     * @param tree
-     *         the node tree to perform the semantic checking for.
+     * @param trees
+     *         the node trees to perform the semantic checking for.
      */
-    public void execute(AstNode tree) {
-        var infoBuilder = new PreTypeChecking(this);
-        tree.accept(infoBuilder);
-        var typeChecker = new TypeChecking(this, symbolTable);
-        tree.accept(typeChecker);
+    public void execute(Iterable<AstScript> trees) {
+        var pre = new PreTypeChecking(this, symbolTable);
+        trees.forEach(tree -> tree.accept(pre));
+        var checker = new TypeChecking(this, symbolTable);
+        trees.forEach(tree -> tree.accept(checker));
     }
 
     /**

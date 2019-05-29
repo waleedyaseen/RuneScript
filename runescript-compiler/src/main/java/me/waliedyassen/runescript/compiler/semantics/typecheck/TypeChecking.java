@@ -65,29 +65,8 @@ public final class TypeChecking implements AstVisitor<Type> {
     @Override
     public Type visit(AstScript script) {
         this.script = script;
-        var type = script.getType();
-        // resolve the script trigger type.
-        var triggerName = script.getTrigger();
-        var trigger = TriggerType.forRepresentation(triggerName.getText());
-        // check if the script trigger type is a valid trigger type, if not produce and error.
-        if (trigger == null) {
-            checker.reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
-        } else {
-            // check if the trigger returning support matches the definition.
-            if (script.getType() != PrimitiveType.VOID && !trigger.hasProperty(TriggerProperties.RETURNING)) {
-                checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow return values", trigger.getRepresentation())));
-            }
-            // check if the script is already defined in the symbol table
-            // and define it if it was not, or produce an error if it was a duplicate.
-            var name = script.getName();
-            if (symbolTable.lookupScript(trigger, name.getText()) != null) {
-                checker.reportError(new SemanticError(name, String.format("The script '%s' is already defined", name.getText())));
-            } else {
-                symbolTable.defineScript(trigger, name.getText(), script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
-            }
-        }
         script.getCode().accept(this);
-        return type;
+        return script.getType();
     }
 
     /**

@@ -19,12 +19,19 @@ import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.semantics.scope.Scope;
 import me.waliedyassen.runescript.compiler.semantics.scope.VariableInfo;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerProperties;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
+import java.util.Arrays;
 import java.util.Stack;
 
 /**
- * Represents the local variables resolver semantic checking.
+ * Contains all of the procedures and functions that will be applied right before we perform our type checking semantic
+ * checks.
  *
  * @author Walied K. Yassen
  */
@@ -32,14 +39,48 @@ import java.util.Stack;
 public final class PreTypeChecking extends AstTreeVisitor {
 
     /**
+     * The scopes stack.
+     */
+    private final Stack<Scope> scopes = new Stack<>();
+
+    /**
      * The owner {@link SemanticChecker} object.
      */
     private final SemanticChecker checker;
 
     /**
-     * The scopes stack.
+     * The symbol table to register the declared scripts in.
      */
-    private final Stack<Scope> scopes = new Stack<>();
+    private final SymbolTable symbolTable;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(AstScript script) {
+        var type = script.getType();
+        // resolve the script trigger type.
+        var triggerName = script.getTrigger();
+        var trigger = TriggerType.forRepresentation(triggerName.getText());
+        // check if the script trigger type is a valid trigger type, if not produce and error.
+        if (trigger == null) {
+            checker.reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
+        } else {
+            // check if the trigger returning support matches the definition.
+            if (script.getType() != PrimitiveType.VOID && !trigger.hasProperty(TriggerProperties.RETURNING)) {
+                checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow return values", trigger.getRepresentation())));
+            }
+            // check if the script is already defined in the symbol table
+            // and define it if it was not, or produce an error if it was a duplicate.
+            var name = script.getName();
+            if (symbolTable.lookupScript(trigger, name.getText()) != null) {
+                checker.reportError(new SemanticError(name, String.format("The script '%s' is already defined", name.getText())));
+            } else {
+                symbolTable.defineScript(trigger, name.getText(), script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
+            }
+        }
+        return super.visit(script);
+    }
 
     /**
      * {@inheritDoc}
