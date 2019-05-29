@@ -7,12 +7,12 @@
  */
 package me.waliedyassen.runescript.compiler.codegen;
 
+import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
-import me.waliedyassen.runescript.compiler.codegen.asm.Block;
-import me.waliedyassen.runescript.compiler.codegen.asm.Label;
-import me.waliedyassen.runescript.compiler.codegen.asm.Script;
+import me.waliedyassen.runescript.compiler.codegen.asm.*;
 
 /**
  * Represents the compiler bytecode generator.
@@ -22,21 +22,27 @@ import me.waliedyassen.runescript.compiler.codegen.asm.Script;
 public final class CodeGenerator implements AstVisitor {
 
     /**
-     * The blocks map of the current script.
-     */
-    private final BlockMap blockMap = new BlockMap();
-
-    /**
      * The label generator used to generate any label for this code generator.
      */
     private final LabelGenerator labelGenerator = new LabelGenerator();
 
     /**
+     * The blocks map of the current script.
+     */
+    private final BlockMap blockMap = new BlockMap();
+
+    /**
+     * The locals map of the current script.
+     */
+    private final LocalMap localMap = new LocalMap();
+
+    /**
      * Initialises the code generator and reset its state.
      */
     public void initialise() {
-        blockMap.reset();
         labelGenerator.reset();
+        blockMap.reset();
+        localMap.reset();
     }
 
     /**
@@ -45,8 +51,16 @@ public final class CodeGenerator implements AstVisitor {
     @Override
     public Script visit(AstScript script) {
         var generated = new Script("[" + script.getTrigger().getText() + "," + script.getName().getText() + "]");
-        script.getCode().accept(this);
+        script.accept(this);
         return generated;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Local visit(AstParameter parameter) {
+        return localMap.registerParameter(parameter.getName().getText(), parameter.getType());
     }
 
     /**
