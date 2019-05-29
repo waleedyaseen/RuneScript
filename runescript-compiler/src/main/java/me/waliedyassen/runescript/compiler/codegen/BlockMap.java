@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.codegen;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.waliedyassen.runescript.compiler.codegen.asm.Block;
 import me.waliedyassen.runescript.compiler.codegen.asm.Label;
 
@@ -23,6 +25,7 @@ public final class BlockMap {
     /**
      * A list of all the generated blocks ordered by generation order.
      */
+    @Getter
     private final List<Block> blocks = new ArrayList<>();
 
     /**
@@ -44,5 +47,17 @@ public final class BlockMap {
      */
     public void reset() {
         blocks.clear();
+    }
+
+    /**
+     * Gets the current active {@link Block} object.
+     *
+     * @return the active {@link Block} object it there is any otherwise {@code null}.
+     */
+    public Block getCurrent() {
+        if (blocks.size() > 0) {
+            return blocks.get(blocks.size() - 1);
+        }
+        return null;
     }
 }

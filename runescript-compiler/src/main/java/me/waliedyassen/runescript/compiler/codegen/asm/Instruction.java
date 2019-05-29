@@ -35,4 +35,12 @@ public final class Instruction {
      */
     @Getter
     protected Block owner;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return opcode + "\t" + operand;
+    }
 }

@@ -7,9 +7,15 @@
  */
 package me.waliedyassen.runescript.compiler.codegen;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.ast.expr.AstGosub;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
@@ -19,6 +25,7 @@ import me.waliedyassen.runescript.compiler.codegen.asm.*;
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public final class CodeGenerator implements AstVisitor {
 
     /**
@@ -29,12 +36,18 @@ public final class CodeGenerator implements AstVisitor {
     /**
      * The blocks map of the current script.
      */
+    @Getter
     private final BlockMap blockMap = new BlockMap();
 
     /**
      * The locals map of the current script.
      */
     private final LocalMap localMap = new LocalMap();
+
+    /**
+     *
+     */
+    private final InstructionMap instructionMap;
 
     /**
      * Initialises the code generator and reset its state.
@@ -51,7 +64,7 @@ public final class CodeGenerator implements AstVisitor {
     @Override
     public Script visit(AstScript script) {
         var generated = new Script("[" + script.getTrigger().getText() + "," + script.getName().getText() + "]");
-        script.accept(this);
+        script.getCode().accept(this);
         return generated;
     }
 
@@ -67,12 +80,75 @@ public final class CodeGenerator implements AstVisitor {
      * {@inheritDoc}
      */
     @Override
+    public Instruction visit(AstLiteralBool bool) {
+        return instruction(instructionMap.getPushConstantInt(), bool.getValue() ? 1 : 0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstLiteralInteger integer) {
+        return instruction(instructionMap.getPushConstantInt(), integer.getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstLiteralString string) {
+        return instruction(instructionMap.getPushConstantString(), string.getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstLiteralLong longInteger) {
+        return instruction(instructionMap.getPushConstantLong(), longInteger.getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Block visit(AstBlockStatement blockStatement) {
         var block = generateBlock();
         for (var statement : blockStatement.getStatements()) {
             statement.accept(this);
         }
         return block;
+    }
+
+    /**
+     * Creates a new {@link Instruction instruction} using {@link #makeInstruction(int, Object)} and then adds it as a
+     * child instruction to the current active block in the {@link #blockMap block map}.
+     *
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
+     * @return the created {@link Instruction} object.
+     */
+    private Instruction instruction(int opcode, Object operand) {
+        var instruction = makeInstruction(opcode, operand);
+        blockMap.getCurrent().add(instruction);
+        return instruction;
+    }
+
+    /**
+     * Creates a new {@link Instruction} object without linking it to any block.
+     *
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
+     * @return the created {@link Instruction} object.
+     */
+    private Instruction makeInstruction(int opcode, Object operand) {
+        return new Instruction(opcode, operand);
     }
 
     /**
