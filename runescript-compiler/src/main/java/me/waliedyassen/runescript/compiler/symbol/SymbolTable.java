@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.symbol;
 
+import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
@@ -90,6 +91,8 @@ public final class SymbolTable {
     /**
      * Defines a new command symbol in this table.
      *
+     * @param opcode
+     *         the opcode of the command.
      * @param name
      *         the name of the command.
      * @param type
@@ -99,11 +102,11 @@ public final class SymbolTable {
      * @param alternative
      *         whether or not this command supports alternative calls.
      */
-    public void defineCommand(String name, Type type, Type[] arguments, boolean alternative) {
+    public void defineCommand(Opcode opcode, String name, Type type, Type[] arguments, boolean alternative) {
         if (commands.containsKey(name)) {
             throw new IllegalArgumentException("The command '" + name + "' is already defined.");
         }
-        commands.put(name, new CommandInfo(name, type, arguments, alternative));
+        commands.put(name, new CommandInfo(opcode, name, type, arguments, alternative));
     }
 
     /**

@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.symbol.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
 import me.waliedyassen.runescript.compiler.type.Type;
 
@@ -19,6 +20,12 @@ import me.waliedyassen.runescript.compiler.type.Type;
  */
 @RequiredArgsConstructor
 public final class CommandInfo extends Symbol {
+
+    /**
+     * The opcode of this command.
+     */
+    @Getter
+    private final Opcode opcode;
 
     /**
      * The name of the command.

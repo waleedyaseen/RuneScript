@@ -18,8 +18,6 @@ import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstExpressionStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDeclaration;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitializer;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
@@ -112,16 +110,16 @@ public final class CodeGenerator implements AstVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstLiteralString string) {
-        return instruction(CoreOpcode.PUSH_STRING_CONSTANT, string.getValue());
+    public Instruction visit(AstLiteralLong longInteger) {
+        return instruction(CoreOpcode.PUSH_LONG_CONSTANT, longInteger.getValue());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstLiteralLong longInteger) {
-        return instruction(CoreOpcode.PUSH_LONG_CONSTANT, longInteger.getValue());
+    public Instruction visit(AstLiteralString string) {
+        return instruction(CoreOpcode.PUSH_STRING_CONSTANT, string.getValue());
     }
 
     /**
@@ -190,6 +188,39 @@ public final class CodeGenerator implements AstVisitor {
         }
         var script = symbolTable.lookupScript(TriggerType.PROC, gosub.getName().getText());
         return instruction(CoreOpcode.GOSUB_WITH_PARAMS, script);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Instruction visit(AstConstant constant) {
+        var symbol = symbolTable.lookupConstant(constant.getName().getText());
+        CoreOpcode opcode;
+        switch (symbol.getType().getStackType()) {
+            case INT:
+                opcode = CoreOpcode.PUSH_INT_CONSTANT;
+                break;
+            case STRING:
+                opcode = CoreOpcode.PUSH_STRING_CONSTANT;
+                break;
+            case LONG:
+                opcode = CoreOpcode.PUSH_LONG_CONSTANT;
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported constant base stack type: " + symbol.getType().getStackType());
+        }
+        return instruction(opcode, symbol.getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Instruction visit(AstCommand command) {
+        var symbol = symbolTable.lookupCommand(command.getName().getText());
+        for (var argument : command.getArguments()) {
+            argument.accept(this);
+        }
+        return instruction(symbol.getOpcode(), symbol.isAlternative() ? 1 : 0);
     }
 
     /**
