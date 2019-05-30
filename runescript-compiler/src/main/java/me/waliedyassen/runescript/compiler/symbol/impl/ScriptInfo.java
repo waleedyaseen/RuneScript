@@ -42,4 +42,12 @@ public final class ScriptInfo {
      */
     @Getter
     private final Type[] arguments;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return name;
+    }
 }

@@ -11,7 +11,10 @@ import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ScriptInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
+import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 import java.util.HashMap;
@@ -49,6 +52,11 @@ public final class SymbolTable {
      * The defined scripts map.
      */
     private final Map<String, ScriptInfo> scripts = new HashMap<>();
+
+    /**
+     * The defined variables map.
+     */
+    private final Map<String, VariableInfo> variables = new HashMap<>();
 
     /**
      * Defines a new constant symbol in this table.
@@ -139,7 +147,6 @@ public final class SymbolTable {
         return configs.get(name);
     }
 
-
     /**
      * Defines a new script symbol information in this table.
      *
@@ -173,4 +180,32 @@ public final class SymbolTable {
         return scripts.get(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name));
     }
 
+    /**
+     * Defines a new variable symbol information in this table.
+     *
+     * @param domain
+     *         the domain of the variable.
+     * @param name
+     *         the name of the variable.
+     * @param type
+     *         the type of the variable.
+     */
+    public void defineVariable(VariableDomain domain, String name, Type type) {
+        if (variables.containsKey(name)) {
+            throw new IllegalArgumentException("The variable '" + name + "' is already defined.");
+        }
+        variables.put(name, new VariableInfo(domain, name, type));
+    }
+
+    /**
+     * Looks-up for the {@link VariableInfo variable information} with the specified {@code name}.
+     *
+     * @param name
+     *         the name of the variable to lookup for.
+     *
+     * @return the {@link VariableInfo} if it was present otherwise {@code null}.
+     */
+    public VariableInfo lookupVariable(String name) {
+        return variables.get(name);
+    }
 }

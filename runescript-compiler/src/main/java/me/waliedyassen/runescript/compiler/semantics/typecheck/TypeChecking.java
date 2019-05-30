@@ -161,7 +161,7 @@ public final class TypeChecking implements AstVisitor<Type> {
             return configInfo.getType();
         }
         checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a symbol", name.getText())));
-        return PrimitiveType.VOID;
+        return PrimitiveType.UNDEFINED;
 
     }
 
@@ -232,11 +232,10 @@ public final class TypeChecking implements AstVisitor<Type> {
     @Override
     public Type visit(AstVariableInitializer variableInitializer) {
         var expression = variableInitializer.getExpression();
-        if (expression == null) {
-            return null;
+        if (expression != null && variableInitializer.getVariable() != null) {
+            checkType(expression, variableInitializer.getVariable().getType(), expression.accept(this));
         }
-        checkType(expression, variableInitializer.getVariable().getType(), expression.accept(this));
-        return PrimitiveType.VOID;
+        return PrimitiveType.UNDEFINED;
     }
 
     /**

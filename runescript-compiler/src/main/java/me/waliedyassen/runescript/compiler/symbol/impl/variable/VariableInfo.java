@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.semantics.scope;
+package me.waliedyassen.runescript.compiler.symbol.impl.variable;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,6 +23,12 @@ import me.waliedyassen.runescript.compiler.type.Type;
 public final class VariableInfo extends Symbol {
 
     /**
+     * The domain of the variable.
+     */
+    @Getter
+    private final VariableDomain domain;
+
+    /**
      * The name of the variable.
      */
     @Getter
@@ -33,4 +39,12 @@ public final class VariableInfo extends Symbol {
      */
     @Getter
     private final Type type;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return (domain == VariableDomain.LOCAL ? "$" : "%") + name;
+    }
 }

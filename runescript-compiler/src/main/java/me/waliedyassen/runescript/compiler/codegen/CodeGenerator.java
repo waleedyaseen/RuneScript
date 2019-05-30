@@ -11,10 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.ast.expr.AstBinaryOperation;
-import me.waliedyassen.runescript.compiler.ast.expr.AstConcatenation;
-import me.waliedyassen.runescript.compiler.ast.expr.AstGosub;
-import me.waliedyassen.runescript.compiler.ast.expr.AstVariableExpression;
+import me.waliedyassen.runescript.compiler.ast.expr.*;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
@@ -161,7 +158,25 @@ public final class CodeGenerator implements AstVisitor {
             }
             return instruction(opcode, local);
         } else {
-            throw new UnsupportedOperationException();
+            var variable = variableExpression.getVariable();
+            CoreOpcode opcode;
+            switch (variable.getDomain()) {
+                case PLAYER:
+                    opcode = CoreOpcode.PUSH_VARP;
+                    break;
+                case PLAYER_BIT:
+                    opcode = CoreOpcode.PUSH_VARP_BIT;
+                    break;
+                case CLIENT_INT:
+                    opcode = CoreOpcode.PUSH_VARC_INT;
+                    break;
+                case CLIENT_STRING:
+                    opcode = CoreOpcode.PUSH_VARC_STRING;
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unsupported global variable domain: " + variable.getDomain());
+            }
+            return instruction(opcode, variable);
         }
     }
 

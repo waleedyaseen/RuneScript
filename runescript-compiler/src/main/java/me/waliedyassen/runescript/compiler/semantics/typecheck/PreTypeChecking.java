@@ -18,7 +18,7 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.semantics.scope.Scope;
-import me.waliedyassen.runescript.compiler.semantics.scope.VariableInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
@@ -181,10 +181,10 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * @return the resolved {@link VariableInfo} if it was present otherwise {@code null}.
      */
     private VariableInfo resolveVariable(VariableScope scope, String name) {
-        if (scope == VariableScope.GLOBAL) {
-            // we do not support that yet.
-            return null;
+        if (scope == VariableScope.LOCAL) {
+            return scopes.lastElement().getLocalVariable(name);
+        } else {
+            return symbolTable.lookupVariable(name);
         }
-        return scopes.lastElement().getLocalVariable(name);
     }
 }

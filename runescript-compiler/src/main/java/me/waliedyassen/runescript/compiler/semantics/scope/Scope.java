@@ -8,6 +8,8 @@
 package me.waliedyassen.runescript.compiler.semantics.scope;
 
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
+import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.type.Type;
 
 import java.util.LinkedHashMap;
@@ -44,7 +46,7 @@ public final class Scope {
      * @return the declared variable information.
      */
     public VariableInfo declareLocalVariable(String name, Type type) {
-        var info = new VariableInfo(name, type);
+        var info = new VariableInfo(VariableDomain.LOCAL, name, type);
         variables.put(name, info);
         return info;
     }
