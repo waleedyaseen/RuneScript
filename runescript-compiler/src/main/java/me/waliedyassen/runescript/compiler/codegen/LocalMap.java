@@ -46,7 +46,7 @@ public final class LocalMap {
      * @return the created {@link Local} object.
      */
     public Local registerParameter(String name, Type type) {
-        var local = new Local(type);
+        var local = new Local(name, type);
         var list = getParametersList(type.getStackType());
         list.add(local);
         lookupMap.put(name, local);
@@ -65,7 +65,7 @@ public final class LocalMap {
      * @return the created {@link Local} object.
      */
     public Local registerVariable(String name, Type type) {
-        var local = new Local(type);
+        var local = new Local(name, type);
         var list = getVariablesList(type.getStackType());
         list.add(local);
         lookupMap.put(name, local);

@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.codegen.asm;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 
 /**
  * Represents a single code instruction in our code generator.
@@ -22,7 +23,7 @@ public final class Instruction {
      * The opcode of this instruction.
      */
     @Getter
-    private final int opcode;
+    private final Opcode opcode;
 
     /**
      * The operand of the instruction.

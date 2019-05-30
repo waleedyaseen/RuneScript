@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.asm;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.type.Type;
@@ -17,11 +18,26 @@ import me.waliedyassen.runescript.compiler.type.Type;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
+@EqualsAndHashCode
 public final class Local {
+
+    /**
+     * The local variable/parameter name.
+     */
+    @Getter
+    private final String name;
 
     /**
      * The local variable type.
      */
     @Getter
     private final Type type;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "$" + name;
+    }
 }

@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.ast.expr.AstBinaryOperation;
 import me.waliedyassen.runescript.compiler.ast.expr.AstConcatenation;
 import me.waliedyassen.runescript.compiler.ast.expr.AstGosub;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariableExpression;
@@ -19,12 +20,16 @@ import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstExpressionStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDeclaration;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitializer;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
-
-import java.util.List;
-import java.util.Stack;
+import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
+import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.util.VariableScope;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 /**
  * Represents the compiler bytecode generator.
@@ -51,6 +56,11 @@ public final class CodeGenerator implements AstVisitor {
     private final LocalMap localMap = new LocalMap();
 
     /**
+     * The symbol table which has all the information for the current generation.
+     */
+    private final SymbolTable symbolTable;
+
+    /**
      * The instructions map which contains the primary instruction opcodes.
      */
     private final InstructionMap instructionMap;
@@ -70,6 +80,9 @@ public final class CodeGenerator implements AstVisitor {
     @Override
     public Script visit(AstScript script) {
         var generated = new Script("[" + script.getTrigger().getText() + "," + script.getName().getText() + "]");
+        for (var parameter : script.getParameters()) {
+            parameter.accept(this);
+        }
         script.getCode().accept(this);
         return generated;
     }
@@ -87,7 +100,7 @@ public final class CodeGenerator implements AstVisitor {
      */
     @Override
     public Instruction visit(AstLiteralBool bool) {
-        return instruction(instructionMap.getPushConstantInt(), bool.getValue() ? 1 : 0);
+        return instruction(CoreOpcode.PUSH_INT_CONSTANT, bool.getValue() ? 1 : 0);
     }
 
     /**
@@ -95,7 +108,7 @@ public final class CodeGenerator implements AstVisitor {
      */
     @Override
     public Instruction visit(AstLiteralInteger integer) {
-        return instruction(instructionMap.getPushConstantInt(), integer.getValue());
+        return instruction(CoreOpcode.PUSH_INT_CONSTANT, integer.getValue());
     }
 
     /**
@@ -103,7 +116,7 @@ public final class CodeGenerator implements AstVisitor {
      */
     @Override
     public Instruction visit(AstLiteralString string) {
-        return instruction(instructionMap.getPushConstantString(), string.getValue());
+        return instruction(CoreOpcode.PUSH_STRING_CONSTANT, string.getValue());
     }
 
     /**
@@ -111,7 +124,7 @@ public final class CodeGenerator implements AstVisitor {
      */
     @Override
     public Instruction visit(AstLiteralLong longInteger) {
-        return instruction(instructionMap.getPushConstantLong(), longInteger.getValue());
+        return instruction(CoreOpcode.PUSH_LONG_CONSTANT, longInteger.getValue());
     }
 
     /**
@@ -122,7 +135,7 @@ public final class CodeGenerator implements AstVisitor {
         for (var expression : concatenation.getExpressions()) {
             expression.accept(this);
         }
-        return instruction(instructionMap.getJoinString(), concatenation.getExpressions().length);
+        return instruction(CoreOpcode.JOIN_STRING, concatenation.getExpressions().length);
     }
 
     /**
@@ -130,22 +143,38 @@ public final class CodeGenerator implements AstVisitor {
      */
     @Override
     public Instruction visit(AstVariableExpression variableExpression) {
-        var local = localMap.lookup(variableExpression.getName().getText());
-        int opcode;
-        switch (local.getType().getStackType()) {
-            case INT:
-                opcode = instructionMap.getPushLocalInt();
-                break;
-            case STRING:
-                opcode = instructionMap.getPushLocalString();
-                break;
-            case LONG:
-                opcode = instructionMap.getPushLocalLong();
-                break;
-            default:
-                throw new UnsupportedOperationException();
+        if (variableExpression.getScope() == VariableScope.LOCAL) {
+            var local = localMap.lookup(variableExpression.getName().getText());
+            CoreOpcode opcode;
+            switch (local.getType().getStackType()) {
+                case INT:
+                    opcode = CoreOpcode.PUSH_INT_LOCAL;
+                    break;
+                case STRING:
+                    opcode = CoreOpcode.PUSH_STRING_LOCAL;
+                    break;
+                case LONG:
+                    opcode = CoreOpcode.PUSH_LONG_LOCAL;
+                    break;
+                default:
+                    throw new UnsupportedOperationException();
+            }
+            return instruction(opcode, local);
+        } else {
+            throw new UnsupportedOperationException();
         }
-        return instruction(opcode, local);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstGosub gosub) {
+        for (var argument : gosub.getArguments()) {
+            argument.accept(this);
+        }
+        var script = symbolTable.lookupScript(TriggerType.PROC, gosub.getName().getText());
+        return instruction(CoreOpcode.GOSUB_WITH_PARAMS, script);
     }
 
     /**
@@ -161,8 +190,20 @@ public final class CodeGenerator implements AstVisitor {
     }
 
     /**
-     * Creates a new {@link Instruction instruction} using {@link #makeInstruction(int, Object)} and then adds it as a
-     * child instruction to the current active block in the {@link #blockMap block map}.
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(AstExpressionStatement expressionStatement) {
+        var entity = expressionStatement.getExpression().accept(this);
+        // TODO: Proper pop_x_discard emitting.
+        return entity;
+    }
+
+    /**
+     * Creates a new {@link Instruction instruction} with the specified {@link CoreOpcode opcode} and the specified
+     * {@code operand}. The {@link CoreOpcode opcode} will be remapped to a suitable regular {@link Opcode} instance
+     * then passed to {@link #makeInstruction(Opcode, Object)} and then it gets added to the current active block in the
+     * {@link #blockMap block map}.
      *
      * @param opcode
      *         the opcode of the instruction.
@@ -171,7 +212,22 @@ public final class CodeGenerator implements AstVisitor {
      *
      * @return the created {@link Instruction} object.
      */
-    private Instruction instruction(int opcode, Object operand) {
+    private Instruction instruction(CoreOpcode opcode, Object operand) {
+        return instruction(instructionMap.lookup(opcode), operand);
+    }
+
+    /**
+     * Creates a new {@link Instruction instruction} using {@link #makeInstruction(Opcode, Object)} and then adds it as
+     * a child instruction to the current active block in the {@link #blockMap block map}.
+     *
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
+     * @return the created {@link Instruction} object.
+     */
+    private Instruction instruction(Opcode opcode, Object operand) {
         var instruction = makeInstruction(opcode, operand);
         blockMap.getCurrent().add(instruction);
         return instruction;
@@ -187,7 +243,7 @@ public final class CodeGenerator implements AstVisitor {
      *
      * @return the created {@link Instruction} object.
      */
-    private Instruction makeInstruction(int opcode, Object operand) {
+    private Instruction makeInstruction(Opcode opcode, Object operand) {
         return new Instruction(opcode, operand);
     }
 
