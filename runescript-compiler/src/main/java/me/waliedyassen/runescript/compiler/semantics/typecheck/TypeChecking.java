@@ -139,6 +139,17 @@ public final class TypeChecking implements AstVisitor<Type> {
         if (script == null) {
             checker.reportError(new SemanticError(gosub, String.format("Could not resolve proc script with the name '%s'", name.getText())));
             return PrimitiveType.UNDEFINED;
+        } else {
+            var arguments = gosub.getArguments();
+            var types = new Type[gosub.getArguments().length];
+            for (int index = 0; index < arguments.length; index++) {
+                types[index] = arguments[index].accept(this);
+            }
+            var expected = SemanticUtil.flatten(types);
+            var actual = script.getArguments();
+            if (expected.length != actual.length || !Arrays.equals(expected, actual)) {
+                checker.reportError(new SemanticError(gosub, String.format("The script %s(%s) is not applicable for the arguments (%s)", name.getText(), SemanticUtil.createRepresentation(actual), SemanticUtil.createRepresentation(expected))));
+            }
         }
         return script.getType();
     }
