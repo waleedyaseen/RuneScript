@@ -27,32 +27,32 @@ public enum PrimitiveType implements Type {
     /**
      * The undefined primitive type.
      */
-    UNDEFINED(null, null),
+    UNDEFINED(null, null, null),
 
     /**
      * The void primitive type.
      */
-    VOID("void", null),
+    VOID("void", null, null),
 
     /**
      * The integer primitive type.
      */
-    INT("int", StackType.INT),
+    INT("int", StackType.INT, 0),
 
     /**
      * The string primitive type.
      */
-    STRING("string", StackType.STRING),
+    STRING("string", StackType.STRING, ""),
 
     /**
      * The long primitive type.
      */
-    LONG("long", StackType.LONG),
+    LONG("long", StackType.LONG, 0L),
 
     /**
      * The boolean primitive type.
      */
-    BOOL("bool", StackType.INT);
+    BOOL("bool", StackType.INT, false);
 
     /**
      * The {@link PrimitiveType} by {@link #representation} look-up map.
@@ -66,10 +66,16 @@ public enum PrimitiveType implements Type {
     private final String representation;
 
     /**
-     * The stack which this type belongs to or encodes to.
+     * The stack which this type belongs or encodes to.
      */
     @Getter
     private final StackType stackType;
+
+    /**
+     * The default vlaue of this type.
+     */
+    @Getter
+    private final Object defaultValue;
 
     /**
      * Checks whether or not this {@link PrimitiveType type} is a declarable type. Which means that it can be used as

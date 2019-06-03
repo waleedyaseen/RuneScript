@@ -74,4 +74,12 @@ public final class TupleType implements Type {
     public StackType getStackType() {
         return null;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object getDefaultValue() {
+        return null;
+    }
 }

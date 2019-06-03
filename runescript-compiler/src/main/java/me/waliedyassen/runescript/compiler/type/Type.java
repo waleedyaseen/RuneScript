@@ -29,4 +29,11 @@ public interface Type {
      * @return the stack type.
      */
     StackType getStackType();
+
+    /**
+     * Gets the default value of this type.
+     *
+     * @return the default value of this type.
+     */
+    Object getDefaultValue();
 }
