@@ -18,11 +18,15 @@ import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstExpressionStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDeclaration;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitializer;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
+import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
@@ -190,6 +194,8 @@ public final class CodeGenerator implements AstVisitor {
         return instruction(CoreOpcode.GOSUB_WITH_PARAMS, script);
     }
 
+    // TODO: AstDynamic code generation.
+
     /**
      * {@inheritDoc}
      */
@@ -222,6 +228,38 @@ public final class CodeGenerator implements AstVisitor {
         }
         return instruction(symbol.getOpcode(), symbol.isAlternative() ? 1 : 0);
     }
+
+    // TODO: AstBinaryOperation code generation.
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstVariableDeclaration variableDeclaration) {
+        if (variableDeclaration.getExpression() != null) {
+            variableDeclaration.getExpression().accept(this);
+        } else {
+            var opcode = getConstantOpcode(variableDeclaration.getType());
+            instruction(opcode, variableDeclaration.getType().getDefaultValue());
+        }
+        var variable = variableDeclaration.getVariable();
+        var local = localMap.registerVariable(variable.getName(), variable.getType());
+        return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstVariableInitializer variableInitializer) {
+        variableInitializer.getExpression().accept(this);
+        var variable = variableInitializer.getVariable();
+        var local = variable.getDomain() == VariableDomain.LOCAL ? localMap.registerVariable(variable.getName(), variable.getType()) : variable;
+        var opcode = getConstantOpcode(variable.getType());
+        instruction(opcode, variable.getType().getDefaultValue());
+        return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
+    }
+
 
     /**
      * {@inheritDoc}
@@ -311,5 +349,102 @@ public final class CodeGenerator implements AstVisitor {
      */
     private Label generateLabel() {
         return labelGenerator.generate();
+    }
+
+    /**
+     * Gets the push variable instruction {@link CoreOpcode opcode} of the specified {@link VariableDomain} and the
+     * specified {@link Type}.
+     *
+     * @param domain
+     *         the variable domain.
+     * @param type
+     *         the variable type.
+     *
+     * @return the instruction {@link CoreOpcode opcode} of that constant type.
+     */
+    private static CoreOpcode getPushVariableOpcode(VariableDomain domain, Type type) {
+        switch (domain) {
+            case LOCAL:
+                switch (type.getStackType()) {
+                    case INT:
+                        return CoreOpcode.PUSH_INT_LOCAL;
+                    case STRING:
+                        return CoreOpcode.PUSH_STRING_LOCAL;
+                    case LONG:
+                        return CoreOpcode.PUSH_LONG_LOCAL;
+                    default:
+                        throw new UnsupportedOperationException("Unsupported local variable stack type: " + type.getStackType());
+
+                }
+            case PLAYER:
+                return CoreOpcode.PUSH_VARP;
+            case PLAYER_BIT:
+                return CoreOpcode.PUSH_VARP_BIT;
+            case CLIENT_INT:
+                return CoreOpcode.PUSH_VARC_INT;
+            case CLIENT_STRING:
+                return CoreOpcode.PUSH_VARC_STRING;
+            default:
+                throw new UnsupportedOperationException("Unsupported variable domain: " + domain);
+        }
+    }
+
+    /**
+     * Gets the pop variable instruction {@link CoreOpcode opcode} of the specified {@link VariableDomain} and the
+     * specified {@link Type}.
+     *
+     * @param domain
+     *         the variable domain.
+     * @param type
+     *         the variable type.
+     *
+     * @return the instruction {@link CoreOpcode opcode} of that constant type.
+     */
+    private static CoreOpcode getPopVariableOpcode(VariableDomain domain, Type type) {
+        switch (domain) {
+            case LOCAL:
+                switch (type.getStackType()) {
+                    case INT:
+                        return CoreOpcode.POP_INT_LOCAL;
+                    case STRING:
+                        return CoreOpcode.POP_STRING_LOCAL;
+                    case LONG:
+                        return CoreOpcode.POP_LONG_LOCAL;
+                    default:
+                        throw new UnsupportedOperationException("Unsupported local variable stack type: " + type.getStackType());
+                }
+            case PLAYER:
+                return CoreOpcode.POP_VARP;
+            case PLAYER_BIT:
+                return CoreOpcode.POP_VARP_BIT;
+            case CLIENT_INT:
+                return CoreOpcode.POP_VARC_INT;
+            case CLIENT_STRING:
+                return CoreOpcode.POP_VARC_STRING;
+            default:
+                throw new UnsupportedOperationException("Unsupported variable domain: " + domain);
+        }
+    }
+
+
+    /**
+     * Gets the instruction {@link CoreOpcode} of the specified constant {@link Type}.
+     *
+     * @param type
+     *         the type of the constant.
+     *
+     * @return the instruction {@link CoreOpcode opcode} of that constant type.
+     */
+    private static CoreOpcode getConstantOpcode(Type type) {
+        switch (type.getStackType()) {
+            case INT:
+                return CoreOpcode.PUSH_INT_CONSTANT;
+            case STRING:
+                return CoreOpcode.PUSH_STRING_CONSTANT;
+            case LONG:
+                return CoreOpcode.PUSH_LONG_CONSTANT;
+            default:
+                throw new UnsupportedOperationException("Unsupported stack type: " + type.getStackType());
+        }
     }
 }
