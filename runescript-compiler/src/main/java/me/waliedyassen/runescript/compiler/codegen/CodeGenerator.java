@@ -16,10 +16,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstExpressionStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDeclaration;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitializer;
+import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
@@ -265,22 +262,32 @@ public final class CodeGenerator implements AstVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Block visit(AstBlockStatement blockStatement) {
-        var block = generateBlock();
-        for (var statement : blockStatement.getStatements()) {
-            statement.accept(this);
+    public Object visit(AstExpressionStatement expressionStatement) {
+        var entity = expressionStatement.getExpression().accept(this);
+        // TODO: Proper pop_x_discard emitting.
+        return entity;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Instruction visit(AstReturnStatement returnStatement) {
+        for (var expression : returnStatement.getExpressions()) {
+            expression.accept(this);
         }
-        return block;
+        return instruction(CoreOpcode.RETURN, 0);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstExpressionStatement expressionStatement) {
-        var entity = expressionStatement.getExpression().accept(this);
-        // TODO: Proper pop_x_discard emitting.
-        return entity;
+    public Block visit(AstBlockStatement blockStatement) {
+        var block = generateBlock();
+        for (var statement : blockStatement.getStatements()) {
+            statement.accept(this);
+        }
+        return block;
     }
 
     /**
