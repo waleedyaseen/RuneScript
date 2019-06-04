@@ -295,7 +295,7 @@ public final class TypeChecking implements AstVisitor<Type> {
     public Type visit(AstWhileStatement whileStatement) {
         var condition = whileStatement.getCondition().accept(this);
         checkType(whileStatement.getCondition(), PrimitiveType.BOOL, condition);
-        whileStatement.accept(this);
+        whileStatement.getCode().accept(this);
         return PrimitiveType.VOID;
     }
 
