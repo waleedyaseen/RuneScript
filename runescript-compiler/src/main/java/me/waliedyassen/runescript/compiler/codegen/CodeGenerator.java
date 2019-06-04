@@ -252,8 +252,6 @@ public final class CodeGenerator implements AstVisitor {
         variableInitializer.getExpression().accept(this);
         var variable = variableInitializer.getVariable();
         var local = variable.getDomain() == VariableDomain.LOCAL ? localMap.registerVariable(variable.getName(), variable.getType()) : variable;
-        var opcode = getConstantOpcode(variable.getType());
-        instruction(opcode, variable.getType().getDefaultValue());
         return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
     }
 
