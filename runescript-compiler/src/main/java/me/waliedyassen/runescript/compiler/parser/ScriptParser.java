@@ -384,8 +384,12 @@ public final class ScriptParser extends ParserBase {
             throw createError(consume(), "Expecting a local variable name");
         }
         var name = identifier();
-        consume(EQUALS);
-        var expression = expression();
+        AstExpression expression;
+        if (consumeIf(EQUALS)) {
+            expression = expression();
+        } else {
+            expression = null;
+        }
         consume(SEMICOLON);
         return new AstVariableDeclaration(popRange(), type, name, expression);
     }
