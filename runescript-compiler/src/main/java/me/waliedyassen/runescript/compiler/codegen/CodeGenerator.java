@@ -17,6 +17,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
+import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
@@ -27,13 +28,15 @@ import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
+import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.BRANCH;
+
 /**
  * Represents the compiler bytecode generator.
  *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class CodeGenerator implements AstVisitor {
+public final class CodeGenerator implements AstVisitor<Object> {
 
     /**
      * The label generator used to generate any label for this code generator.
@@ -62,6 +65,11 @@ public final class CodeGenerator implements AstVisitor {
     private final InstructionMap instructionMap;
 
     /**
+     * The current block we are working on.
+     */
+    private Block workingBlock;
+
+    /**
      * Initialises the code generator and reset its state.
      */
     public void initialise() {
@@ -79,6 +87,7 @@ public final class CodeGenerator implements AstVisitor {
         for (var parameter : script.getParameters()) {
             parameter.accept(this);
         }
+        workingBlock = generateBlock();
         script.getCode().accept(this);
         return generated;
     }
@@ -226,7 +235,58 @@ public final class CodeGenerator implements AstVisitor {
         return instruction(symbol.getOpcode(), symbol.isAlternative() ? 1 : 0);
     }
 
-    // TODO: AstBinaryOperation code generation.
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CoreOpcode visit(AstBinaryOperation binaryOperation) {
+        var operator = binaryOperation.getOperator();
+        if (operator.isEquality() || operator.isRelational()) {
+            CoreOpcode opcode;
+            switch (operator) {
+                case EQUAL:
+                    opcode = CoreOpcode.BRANCH_EQUALS;
+                    break;
+                case LESS_THAN:
+                    opcode = CoreOpcode.BRANCH_LESS_THAN;
+                    break;
+                case GREATER_THAN:
+                    opcode = CoreOpcode.BRANCH_GREATER_THAN;
+                    break;
+                case LESS_THAN_OR_EQUALS:
+                    opcode = CoreOpcode.BRANCH_LESS_THAN_OR_EQUALS;
+                    break;
+                case GREATER_THAN_OR_EQUALS:
+                    opcode = CoreOpcode.BRANCH_GREATER_THAN_OR_EQUALS;
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unexpected operator: " + operator);
+            }
+            binaryOperation.getLeft().accept(this);
+            binaryOperation.getRight().accept(this);
+            return opcode;
+        } else {
+            throw new UnsupportedOperationException("Unexpected operator: " + operator);
+        }
+    }
+
+    /**
+     * Performs code generation on the specified {@code condition} expression and returns it's associated {@link
+     * CoreOpcode opcode}.
+     *
+     * @param condition
+     *         the condition expression to perform the code generation on.
+     *
+     * @return the {@link CoreOpcode} of the generated condition code.
+     */
+    private CoreOpcode generateCondition(AstExpression condition) {
+        if (condition instanceof AstBinaryOperation) {
+            return visit((AstBinaryOperation) condition);
+        } else {
+            condition.accept(this);
+            return CoreOpcode.BRANCH_IF_TRUE;
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -255,6 +315,30 @@ public final class CodeGenerator implements AstVisitor {
         return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(AstIfStatement ifStatement) {
+        // grab the source block which this block is in.
+        var sourceBlock = workingBlock;
+        // generate the true statement block .
+        var trueBlock = generateBlock();
+        // generate the opcode of the if statement condition.
+        var opcode = generateCondition(ifStatement.getCondition());
+        // generate the true block and bind it.
+        bind(trueBlock);
+        ifStatement.getTrueStatement().accept(this);
+        // generate the false block and bind it.
+        var falseBlock = generateBlock();
+        bind(falseBlock);
+        // generate the source block branch instructions.
+        instruction(sourceBlock, opcode, trueBlock);
+        instruction(sourceBlock, BRANCH, falseBlock);
+        // generate the true block branch instructions.
+        instruction(trueBlock, BRANCH, falseBlock);
+        return null;
+    }
 
     /**
      * {@inheritDoc}
@@ -269,6 +353,7 @@ public final class CodeGenerator implements AstVisitor {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Instruction visit(AstReturnStatement returnStatement) {
         for (var expression : returnStatement.getExpressions()) {
             expression.accept(this);
@@ -280,12 +365,11 @@ public final class CodeGenerator implements AstVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Block visit(AstBlockStatement blockStatement) {
-        var block = generateBlock();
+    public Void visit(AstBlockStatement blockStatement) {
         for (var statement : blockStatement.getStatements()) {
             statement.accept(this);
         }
-        return block;
+        return null;
     }
 
     /**
@@ -302,7 +386,26 @@ public final class CodeGenerator implements AstVisitor {
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(CoreOpcode opcode, Object operand) {
-        return instruction(instructionMap.lookup(opcode), operand);
+        return instruction(workingBlock, opcode, operand);
+    }
+
+    /**
+     * Creates a new {@link Instruction instruction} with the specified {@link CoreOpcode opcode} and the specified
+     * {@code operand}. The {@link CoreOpcode opcode} will be remapped to a suitable regular {@link Opcode} instance
+     * then passed to {@link #makeInstruction(Opcode, Object)} and then it gets added to the current active block in the
+     * {@link #blockMap block map}.
+     *
+     * @param block
+     *         the block to add the instruction to.
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
+     * @return the created {@link Instruction} object.
+     */
+    private Instruction instruction(Block block, CoreOpcode opcode, Object operand) {
+        return instruction(block, instructionMap.lookup(opcode), operand);
     }
 
     /**
@@ -317,8 +420,25 @@ public final class CodeGenerator implements AstVisitor {
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(Opcode opcode, Object operand) {
+        return instruction(workingBlock, opcode, operand);
+    }
+
+    /**
+     * Creates a new {@link Instruction instruction} using {@link #makeInstruction(Opcode, Object)} and then adds it as
+     * a child instruction to the current active block in the {@link #blockMap block map}.
+     *
+     * @param block
+     *         the block to add the instruction to.
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
+     * @return the created {@link Instruction} object.
+     */
+    private Instruction instruction(Block block, Opcode opcode, Object operand) {
         var instruction = makeInstruction(opcode, operand);
-        blockMap.getCurrent().add(instruction);
+        block.add(instruction);
         return instruction;
     }
 
@@ -334,6 +454,16 @@ public final class CodeGenerator implements AstVisitor {
      */
     private Instruction makeInstruction(Opcode opcode, Object operand) {
         return new Instruction(opcode, operand);
+    }
+
+    /**
+     * Binds the specified {@link Block block} as the current working block.
+     *
+     * @param block
+     *         the block to bind as the working block.
+     */
+    private void bind(Block block) {
+        workingBlock = block;
     }
 
     /**
@@ -430,7 +560,6 @@ public final class CodeGenerator implements AstVisitor {
                 throw new UnsupportedOperationException("Unsupported variable domain: " + domain);
         }
     }
-
 
     /**
      * Gets the instruction {@link CoreOpcode} of the specified constant {@link Type}.
