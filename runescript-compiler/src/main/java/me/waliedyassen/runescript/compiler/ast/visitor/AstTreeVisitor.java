@@ -382,7 +382,9 @@ public abstract class AstTreeVisitor implements AstVisitor {
     @Override
     public Object visit(AstVariableDeclaration variableDeclaration) {
         enter(variableDeclaration);
-        variableDeclaration.getExpression().accept(this);
+        if (variableDeclaration.getExpression() != null) {
+            variableDeclaration.getExpression().accept(this);
+        }
         exit(variableDeclaration);
         return null;
     }

@@ -32,14 +32,37 @@ public final class BlockMap {
      * Generates a new {@link Block} object and stores it in this map.
      *
      * @param label
-     *         the {@link Label label} of the block.
+     *         the label of the block.
+     *
+     * @return the created {@link Block} object instance.
+     * @see #newBlock(Label)
+     */
+    public Block generate(Label label) {
+        var block = newBlock(label);
+        register(block);
+        return block;
+    }
+
+    /**
+     * Creates a new {@link Block} object without storing it in this map.
+     *
+     * @param label
+     *         the label of the block.
      *
      * @return the created {@link Block} object instance.
      */
-    public Block generate(Label label) {
-        var block = new Block(label);
+    public Block newBlock(Label label) {
+        return new Block(label);
+    }
+
+    /**
+     * Registers the specified {@link Block block} into this map.
+     *
+     * @param block
+     *         the block to register.
+     */
+    public void register(Block block) {
         blocks.add(block);
-        return block;
     }
 
     /**
@@ -47,17 +70,5 @@ public final class BlockMap {
      */
     public void reset() {
         blocks.clear();
-    }
-
-    /**
-     * Gets the current active {@link Block} object.
-     *
-     * @return the active {@link Block} object it there is any otherwise {@code null}.
-     */
-    public Block getCurrent() {
-        if (blocks.size() > 0) {
-            return blocks.get(blocks.size() - 1);
-        }
-        return null;
     }
 }

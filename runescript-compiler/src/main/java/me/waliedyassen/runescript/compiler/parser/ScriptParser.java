@@ -198,7 +198,6 @@ public final class ScriptParser extends ParserBase {
                 return string();
             case CONCATB:
                 return concatString();
-
             case BOOL:
                 return bool();
             case DOLLAR:

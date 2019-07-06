@@ -34,6 +34,14 @@ public final class Block {
     private final List<Instruction> instructions = new ArrayList<>();
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return label.toString();
+    }
+
+    /**
      * Adds the specified {@link Instruction instruction} to this block.
      *
      * @param instruction
@@ -65,5 +73,14 @@ public final class Block {
         }
         instructions.remove(instruction);
         instruction.owner = null;
+    }
+
+    /**
+     * Gets the last {@link Instruction} within this block.
+     *
+     * @return the last {@link Instruction} object.
+     */
+    public Instruction last() {
+        return instructions.get(instructions.size() - 1);
     }
 }
