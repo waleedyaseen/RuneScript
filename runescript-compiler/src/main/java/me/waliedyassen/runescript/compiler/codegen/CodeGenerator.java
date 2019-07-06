@@ -320,23 +320,27 @@ public final class CodeGenerator implements AstVisitor<Object> {
      */
     @Override
     public Object visit(AstIfStatement ifStatement) {
-        // grab the source block which this block is in.
+        var hasElse = ifStatement.getFalseStatement() != null;
         var sourceBlock = workingBlock;
-        // generate the true statement block .
-        var trueBlock = generateBlock();
-        // generate the opcode of the if statement condition.
         var opcode = generateCondition(ifStatement.getCondition());
-        // generate the true block and bind it.
-        bind(trueBlock);
+        // generate the true statement block and code.
+        var trueBlock = bind(generateBlock());
         ifStatement.getTrueStatement().accept(this);
+        // generate the else statement block and code.
+        var elseBlock = hasElse ? generateBlock() : null;
+        if (hasElse) {
+            bind(elseBlock);
+            ifStatement.getFalseStatement().accept(this);
+        }
         // generate the false block and bind it.
-        var falseBlock = generateBlock();
-        bind(falseBlock);
-        // generate the source block branch instructions.
+        var falseBlock = bind(generateBlock());
+        // generate the branch instructions for all of the blocks.
         instruction(sourceBlock, opcode, trueBlock);
-        instruction(sourceBlock, BRANCH, falseBlock);
-        // generate the true block branch instructions.
+        instruction(sourceBlock, BRANCH, hasElse ? elseBlock : falseBlock);
         instruction(trueBlock, BRANCH, falseBlock);
+        if (hasElse) {
+            instruction(elseBlock, BRANCH, falseBlock);
+        }
         return null;
     }
 
@@ -461,9 +465,11 @@ public final class CodeGenerator implements AstVisitor<Object> {
      *
      * @param block
      *         the block to bind as the working block.
+     *
+     * @return the block that was passed to the method.
      */
-    private void bind(Block block) {
-        workingBlock = block;
+    private Block bind(Block block) {
+        return workingBlock = block;
     }
 
     /**
