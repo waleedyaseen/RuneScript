@@ -291,6 +291,10 @@ public final class CodeGenerator implements AstVisitor {
      */
     @Override
     public Object visit(AstIfStatement ifStatement) {
+        // preserve the labels of this if statement for number order.
+        var if_start_label = labelGenerator.generate("if_true");
+        var if_else_label = labelGenerator.generate("if_else");
+        var if_end_label = labelGenerator.generate("if_end");
         // store whether we have an else statement or not.
         var has_else = ifStatement.getFalseStatement() != null;
         // grab the parent block of the if statement.
@@ -298,23 +302,24 @@ public final class CodeGenerator implements AstVisitor {
         // generate the condition opcode of the if statement.
         var opcode = generateCondition(ifStatement.getCondition());
         // generate the if-true block of the statement
-        var true_block = bind(generateBlock("if_true"));
+        var true_block = bind(generateBlock(if_start_label));
         ifStatement.getTrueStatement().accept(this);
-        // generate the else statement block and code.
-        var else_block = has_else ? generateBlock("if_false") : null;
+        // generate the if-false statement block and code.
+        var false_block = has_else ? generateBlock(if_else_label) : null;
         if (has_else) {
-            bind(else_block);
+            bind(false_block);
             ifStatement.getFalseStatement().accept(this);
         }
-        // generate the false block and bind it.
-        var false_block = bind(generateBlock("if_end"));
+        // generate the if-end block and bind it.
+        var end_block = generateBlock(if_end_label);
+        if (has_else) {
+            instruction(BRANCH, end_block);
+        }
+        bind(end_block);
         // generate the branch instructions for all of the blocks.
         instruction(source_block, opcode, true_block);
-        instruction(source_block, BRANCH, has_else ? else_block : false_block);
-        instruction(true_block, BRANCH, false_block);
-        if (has_else) {
-            instruction(else_block, BRANCH, false_block);
-        }
+        instruction(source_block, BRANCH, has_else ? false_block : end_block);
+        instruction(true_block, BRANCH, end_block);
         return null;
     }
 
@@ -524,7 +529,19 @@ public final class CodeGenerator implements AstVisitor {
      * @see BlockMap#generate(Label)
      */
     private Block generateBlock(String name) {
-        return blockMap.generate(generateLabel(name));
+        return generateBlock(generateLabel(name));
+    }
+    /**
+     * Generates a new {@link Block} object.
+     *
+     * @param label
+     *         the label of the block.
+     *
+     * @return the generated {@link Block} object.
+     * @see BlockMap#generate(Label)
+     */
+    private Block generateBlock(Label label) {
+        return blockMap.generate(label);
     }
 
     /**
