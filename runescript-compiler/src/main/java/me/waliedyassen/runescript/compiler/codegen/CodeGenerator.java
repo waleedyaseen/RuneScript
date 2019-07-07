@@ -18,6 +18,7 @@ import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
 import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
 import me.waliedyassen.runescript.compiler.codegen.context.Context;
@@ -272,6 +273,31 @@ public final class CodeGenerator implements AstVisitor {
         }
         // generate the if-end block and bind it.
         bind(generateBlock(if_end_label));
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AstWhileStatement visit(AstWhileStatement whileStatement) {
+        // preserve the labels of this while statement for the number order.
+        var while_start_label = labelGenerator.generate("while_start");
+        var while_true_label = labelGenerator.generate("while_true");
+        var while_end_label = labelGenerator.generate("while_end");
+        // add a branch to the start block of the while.
+        instruction(BRANCH, while_start_label);
+        // generate the start block of the while statement.
+        var start_block = bind(generateBlock(while_start_label));
+        // generate the while statement condition.
+        generateCondition(whileStatement.getCondition(), start_block, while_true_label, while_end_label);
+        // generate the while statement code.
+        bind(generateBlock(while_true_label));
+        whileStatement.getCode().accept(this);
+        // generate the while statement jump to start instruction.
+        instruction(BRANCH, while_start_label);
+        // generate the while end label.
+        bind(generateBlock(while_end_label));
         return null;
     }
 
