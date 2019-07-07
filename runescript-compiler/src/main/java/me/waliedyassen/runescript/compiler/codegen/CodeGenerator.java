@@ -404,7 +404,7 @@ public final class CodeGenerator implements AstVisitor {
                     numInts++;
                 } else if (stackType == StackType.STRING) {
                     numStrings++;
-                } else {
+                } else if (stackType == StackType.LONG) {
                     numLongs++;
                 }
             }
@@ -414,7 +414,7 @@ public final class CodeGenerator implements AstVisitor {
                 numInts++;
             } else if (stackType == StackType.STRING) {
                 numStrings++;
-            } else {
+            } else if (stackType == StackType.LONG) {
                 numLongs++;
             }
         }
