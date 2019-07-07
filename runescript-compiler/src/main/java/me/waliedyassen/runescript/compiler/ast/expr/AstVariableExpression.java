@@ -59,7 +59,7 @@ public final class AstVariableExpression extends AstExpression {
      * {@inheritDoc}
      */
     @Override
-    public <T> T accept(AstVisitor<T> visitor) {
+    public <E, S> E accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
     }
 }

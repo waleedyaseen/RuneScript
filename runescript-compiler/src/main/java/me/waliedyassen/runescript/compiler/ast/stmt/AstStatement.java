@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.stmt;
 
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents a code statement in the Abstract Syntax Tree. A code statement can be anything that represents an action
@@ -31,4 +32,10 @@ public abstract class AstStatement extends AstNode {
     public AstStatement(Range range) {
         super(range);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract <E, S> S accept(AstVisitor<E, S> visitor);
 }

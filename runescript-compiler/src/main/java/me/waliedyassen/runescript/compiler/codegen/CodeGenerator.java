@@ -8,7 +8,9 @@
 package me.waliedyassen.runescript.compiler.codegen;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -20,13 +22,16 @@ import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
+import me.waliedyassen.runescript.compiler.codegen.context.Context;
+import me.waliedyassen.runescript.compiler.codegen.context.ContextType;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
+
+import java.util.Stack;
 
 import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.BRANCH;
 
@@ -36,7 +41,7 @@ import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.BRAN
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class CodeGenerator implements AstVisitor<Object> {
+public final class CodeGenerator implements AstVisitor {
 
     /**
      * The label generator used to generate any label for this code generator.
@@ -67,7 +72,7 @@ public final class CodeGenerator implements AstVisitor<Object> {
     /**
      * The current block we are working on.
      */
-    private Block workingBlock;
+    private final Stack<Context> contexts = new Stack<Context>();
 
     /**
      * Initialises the code generator and reset its state.
@@ -83,12 +88,14 @@ public final class CodeGenerator implements AstVisitor<Object> {
      */
     @Override
     public Script visit(AstScript script) {
+        pushContext(ContextType.SCRIPT);
         var generated = new Script("[" + script.getTrigger().getText() + "," + script.getName().getText() + "]");
         for (var parameter : script.getParameters()) {
             parameter.accept(this);
         }
-        workingBlock = generateBlock();
+        bind(generateBlock());
         script.getCode().accept(this);
+        popContext();
         return generated;
     }
 
@@ -148,44 +155,8 @@ public final class CodeGenerator implements AstVisitor<Object> {
      */
     @Override
     public Instruction visit(AstVariableExpression variableExpression) {
-        if (variableExpression.getScope() == VariableScope.LOCAL) {
-            var local = localMap.lookup(variableExpression.getName().getText());
-            CoreOpcode opcode;
-            switch (local.getType().getStackType()) {
-                case INT:
-                    opcode = CoreOpcode.PUSH_INT_LOCAL;
-                    break;
-                case STRING:
-                    opcode = CoreOpcode.PUSH_STRING_LOCAL;
-                    break;
-                case LONG:
-                    opcode = CoreOpcode.PUSH_LONG_LOCAL;
-                    break;
-                default:
-                    throw new UnsupportedOperationException();
-            }
-            return instruction(opcode, local);
-        } else {
-            var variable = variableExpression.getVariable();
-            CoreOpcode opcode;
-            switch (variable.getDomain()) {
-                case PLAYER:
-                    opcode = CoreOpcode.PUSH_VARP;
-                    break;
-                case PLAYER_BIT:
-                    opcode = CoreOpcode.PUSH_VARP_BIT;
-                    break;
-                case CLIENT_INT:
-                    opcode = CoreOpcode.PUSH_VARC_INT;
-                    break;
-                case CLIENT_STRING:
-                    opcode = CoreOpcode.PUSH_VARC_STRING;
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unsupported global variable domain: " + variable.getDomain());
-            }
-            return instruction(opcode, variable);
-        }
+        var variable = variableExpression.getVariable();
+        return instruction(getPushVariableOpcode(variable.getDomain(), variable.getType()), variable);
     }
 
     /**
@@ -320,26 +291,26 @@ public final class CodeGenerator implements AstVisitor<Object> {
      */
     @Override
     public Object visit(AstIfStatement ifStatement) {
-        var hasElse = ifStatement.getFalseStatement() != null;
-        var sourceBlock = workingBlock;
+        var has_else = ifStatement.getFalseStatement() != null;
+        var source_block = context().getBlock();
         var opcode = generateCondition(ifStatement.getCondition());
         // generate the true statement block and code.
-        var trueBlock = bind(generateBlock());
+        var true_block = bind(generateBlock());
         ifStatement.getTrueStatement().accept(this);
         // generate the else statement block and code.
-        var elseBlock = hasElse ? generateBlock() : null;
-        if (hasElse) {
-            bind(elseBlock);
+        var else_block = has_else ? generateBlock() : null;
+        if (has_else) {
+            bind(else_block);
             ifStatement.getFalseStatement().accept(this);
         }
         // generate the false block and bind it.
-        var falseBlock = bind(generateBlock());
+        var false_block = bind(generateBlock());
         // generate the branch instructions for all of the blocks.
-        instruction(sourceBlock, opcode, trueBlock);
-        instruction(sourceBlock, BRANCH, hasElse ? elseBlock : falseBlock);
-        instruction(trueBlock, BRANCH, falseBlock);
-        if (hasElse) {
-            instruction(elseBlock, BRANCH, falseBlock);
+        instruction(source_block, opcode, true_block);
+        instruction(source_block, BRANCH, has_else ? else_block : false_block);
+        instruction(true_block, BRANCH, false_block);
+        if (has_else) {
+            instruction(else_block, BRANCH, false_block);
         }
         return null;
     }
@@ -390,7 +361,7 @@ public final class CodeGenerator implements AstVisitor<Object> {
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(CoreOpcode opcode, Object operand) {
-        return instruction(workingBlock, opcode, operand);
+        return instruction(context().getBlock(), opcode, operand);
     }
 
     /**
@@ -424,7 +395,7 @@ public final class CodeGenerator implements AstVisitor<Object> {
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(Opcode opcode, Object operand) {
-        return instruction(workingBlock, opcode, operand);
+        return instruction(context().getBlock(), opcode, operand);
     }
 
     /**
@@ -469,7 +440,8 @@ public final class CodeGenerator implements AstVisitor<Object> {
      * @return the block that was passed to the method.
      */
     private Block bind(Block block) {
-        return workingBlock = block;
+        context().setBlock(block);
+        return block;
     }
 
     /**
@@ -490,6 +462,38 @@ public final class CodeGenerator implements AstVisitor<Object> {
      */
     private Label generateLabel() {
         return labelGenerator.generate();
+    }
+
+    /**
+     * Gets the current active {@Link Context} object.
+     *
+     * @return the active {@link Context} object.
+     */
+    private Context context() {
+        return contexts.lastElement();
+    }
+
+    /**
+     * Creates a new {@Link Context} object and pushes it into the stack.
+     *
+     * @param type
+     *         the type of the context.
+     *
+     * @return the created {@link Context} object.
+     */
+    private Context pushContext(ContextType type) {
+        var context = new Context(type);
+        contexts.push(context);
+        return context;
+    }
+
+    /**
+     * Pops the last context from the stack.
+     *
+     * @return the popped {@link Context} object.
+     */
+    private Context popContext() {
+        return contexts.pop();
     }
 
     /**

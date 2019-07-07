@@ -43,7 +43,7 @@ public final class AstReturnStatement extends AstStatement {
      * {@inheritDoc}
      */
     @Override
-    public <T> T accept(AstVisitor<T> visitor) {
+    public <E, S> S accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
     }
 }

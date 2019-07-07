@@ -18,12 +18,14 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
 /**
  * Represents the base interface for an AST visitor.
  *
- * @param <R>
- *         the return value type.
+ * @param <E>
+ *         the visit expression methods return type.
+ * @param <S>
+ *         the visit statement methods return type.
  *
  * @author Walied K. Yassen
  */
-public interface AstVisitor<R> {
+public interface AstVisitor<E, S> {
 
     /**
      * Gets called when we have just visited an {@link AstScript} node.
@@ -33,7 +35,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstScript script) {
+    default S visit(AstScript script) {
         return null;
     }
 
@@ -45,7 +47,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstParameter parameter) {
+    default S visit(AstParameter parameter) {
         return null;
     }
 
@@ -57,7 +59,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstLiteralBool bool) {
+    default E visit(AstLiteralBool bool) {
         return null;
     }
 
@@ -69,7 +71,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstLiteralInteger integer) {
+    default E visit(AstLiteralInteger integer) {
         return null;
     }
 
@@ -81,7 +83,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstLiteralLong longInteger) {
+    default E visit(AstLiteralLong longInteger) {
         return null;
     }
 
@@ -93,7 +95,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstLiteralString string) {
+    default E visit(AstLiteralString string) {
         return null;
     }
 
@@ -105,7 +107,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstConcatenation concatenation) {
+    default E visit(AstConcatenation concatenation) {
         return null;
     }
 
@@ -117,7 +119,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstVariableExpression variableExpression) {
+    default E visit(AstVariableExpression variableExpression) {
         return null;
     }
 
@@ -129,7 +131,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstGosub gosub) {
+    default E visit(AstGosub gosub) {
         return null;
     }
 
@@ -141,7 +143,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstDynamic dynamic) {
+    default E visit(AstDynamic dynamic) {
         return null;
     }
 
@@ -153,7 +155,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstConstant constant) {
+    default E visit(AstConstant constant) {
         return null;
     }
 
@@ -165,7 +167,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstCommand command) {
+    default E visit(AstCommand command) {
         return null;
     }
 
@@ -177,7 +179,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstBinaryOperation binaryOperation) {
+    default E visit(AstBinaryOperation binaryOperation) {
         return null;
     }
 
@@ -189,7 +191,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstVariableDeclaration variableDeclaration) {
+    default S visit(AstVariableDeclaration variableDeclaration) {
         return null;
     }
 
@@ -201,7 +203,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstVariableInitializer variableInitializer) {
+    default S visit(AstVariableInitializer variableInitializer) {
         return null;
     }
 
@@ -213,7 +215,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstSwitchStatement switchStatement) {
+    default S visit(AstSwitchStatement switchStatement) {
         return null;
     }
 
@@ -225,7 +227,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstSwitchCase switchCase) {
+    default S visit(AstSwitchCase switchCase) {
         return null;
     }
 
@@ -237,7 +239,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstIfStatement ifStatement) {
+    default S visit(AstIfStatement ifStatement) {
         return null;
     }
 
@@ -249,7 +251,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstWhileStatement whileStatement) {
+    default S visit(AstWhileStatement whileStatement) {
         return null;
     }
 
@@ -261,7 +263,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstExpressionStatement expressionStatement) {
+    default S visit(AstExpressionStatement expressionStatement) {
         return null;
     }
 
@@ -273,7 +275,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstReturnStatement returnStatement) {
+    default S visit(AstReturnStatement returnStatement) {
         return null;
     }
 
@@ -285,7 +287,7 @@ public interface AstVisitor<R> {
      *
      * @return the implementation output object.
      */
-    default R visit(AstBlockStatement blockStatement) {
+    default S visit(AstBlockStatement blockStatement) {
         return null;
     }
 }

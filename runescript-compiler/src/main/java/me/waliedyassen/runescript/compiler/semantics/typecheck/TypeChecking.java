@@ -28,7 +28,6 @@ import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
-import me.waliedyassen.runescript.compiler.util.trigger.TriggerProperties;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 import java.util.Arrays;
@@ -39,7 +38,7 @@ import java.util.Arrays;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class TypeChecking implements AstVisitor<Type> {
+public final class TypeChecking implements AstVisitor<Type, Type> {
 
     // TODO: return PrimitiveType.VOID should be changed to something else that would stop the execution of the type checking
     // for the parent nodes, just to skip the redundant type checking.

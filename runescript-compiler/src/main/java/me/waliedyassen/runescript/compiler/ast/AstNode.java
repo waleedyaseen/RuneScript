@@ -33,5 +33,5 @@ public abstract class AstNode implements Element {
      * @param visitor
      *         the visitor to accept.
      */
-    public abstract <T> T accept(AstVisitor<T> visitor);
+    public abstract <S, E> Object accept(AstVisitor<S, E> visitor);
 }

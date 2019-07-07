@@ -57,7 +57,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstScript script) {
+    public Void visit(AstScript script) {
         var type = script.getType();
         // resolve the script trigger type.
         var triggerName = script.getTrigger();
@@ -86,7 +86,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstParameter parameter) {
+    public Void visit(AstParameter parameter) {
         scopes.lastElement().declareLocalVariable(parameter.getName().getText(), parameter.getType());
         return super.visit(parameter);
     }
@@ -95,7 +95,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstVariableDeclaration declaration) {
+    public Void visit(AstVariableDeclaration declaration) {
         var name = declaration.getName();
         var variable = resolveVariable(VariableScope.LOCAL, name.getText());
         if (variable != null) {
@@ -111,7 +111,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstVariableInitializer variableInitializer) {
+    public Void visit(AstVariableInitializer variableInitializer) {
         var name = variableInitializer.getName();
         var variable = resolveVariable(variableInitializer.getScope(), name.getText());
         if (variable == null) {
@@ -126,7 +126,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstVariableExpression variableExpression) {
+    public Void visit(AstVariableExpression variableExpression) {
         var name = variableExpression.getName();
         var variable = resolveVariable(variableExpression.getScope(), name.getText());
         if (variable == null) {

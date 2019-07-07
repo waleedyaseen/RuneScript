@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.expr;
 
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents an expression node, all the language expressions must be subclasses of this class.
@@ -26,4 +27,10 @@ public abstract class AstExpression extends AstNode {
     public AstExpression(Range range) {
         super(range);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public abstract <E, S> E accept(AstVisitor<E, S> visitor);
 }

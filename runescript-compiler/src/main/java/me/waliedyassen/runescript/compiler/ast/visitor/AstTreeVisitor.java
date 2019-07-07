@@ -19,13 +19,13 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
  * Represents a {@link AstVisitor} implementation that will visit every node in the AST tree while having access to when
  * each node has entered and when each node has left the visitor.
  */
-public abstract class AstTreeVisitor implements AstVisitor {
+public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstScript script) {
+    public Void visit(AstScript script) {
         enter(script);
         for (var parameter : script.getParameters()) {
             parameter.accept(this);
@@ -41,7 +41,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param script
      *         the node we have just entered.
      */
-    public void enter(AstScript script) {}
+    public void enter(AstScript script) {
+    }
 
 
     /**
@@ -50,13 +51,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param script
      *         the node we have just entered.
      */
-    public void exit(AstScript script) {}
+    public void exit(AstScript script) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstParameter parameter) {
+    public Void visit(AstParameter parameter) {
         enter(parameter);
         exit(parameter);
         return null;
@@ -68,7 +70,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param parameter
      *         the node we have just entered.
      */
-    public void enter(AstParameter parameter) {}
+    public void enter(AstParameter parameter) {
+    }
 
 
     /**
@@ -77,13 +80,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param parameter
      *         the node we have just entered.
      */
-    public void exit(AstParameter parameter) {}
+    public void exit(AstParameter parameter) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstLiteralBool bool) {
+    public Void visit(AstLiteralBool bool) {
         enter(bool);
         exit(bool);
         return null;
@@ -95,7 +99,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param bool
      *         the node we have just entered.
      */
-    public void enter(AstLiteralBool bool) {}
+    public void enter(AstLiteralBool bool) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstLiteralBool} node.
@@ -103,13 +108,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param bool
      *         the node we have just entered.
      */
-    public void exit(AstLiteralBool bool) {}
+    public void exit(AstLiteralBool bool) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstLiteralInteger integer) {
+    public Void visit(AstLiteralInteger integer) {
         enter(integer);
         exit(integer);
         return null;
@@ -121,7 +127,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param integer
      *         the node we have just entered.
      */
-    public void enter(AstLiteralInteger integer) {}
+    public void enter(AstLiteralInteger integer) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstLiteralInteger} node.
@@ -129,13 +136,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param integer
      *         the node we have just entered.
      */
-    public void exit(AstLiteralInteger integer) {}
+    public void exit(AstLiteralInteger integer) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstLiteralLong longInteger) {
+    public Void visit(AstLiteralLong longInteger) {
         enter(longInteger);
         exit(longInteger);
         return null;
@@ -147,7 +155,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param longInteger
      *         the node we have just entered.
      */
-    public void enter(AstLiteralLong longInteger) {}
+    public void enter(AstLiteralLong longInteger) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstLiteralLong} node.
@@ -155,13 +164,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param longInteger
      *         the node we have just entered.
      */
-    public void exit(AstLiteralLong longInteger) {}
+    public void exit(AstLiteralLong longInteger) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstLiteralString string) {
+    public Void visit(AstLiteralString string) {
         enter(string);
         exit(string);
         return null;
@@ -173,7 +183,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param string
      *         the node we have just entered.
      */
-    public void enter(AstLiteralString string) {}
+    public void enter(AstLiteralString string) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstLiteralString} node.
@@ -181,13 +192,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param string
      *         the node we have just entered.
      */
-    public void exit(AstLiteralString string) {}
+    public void exit(AstLiteralString string) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstConcatenation concatenation) {
+    public Void visit(AstConcatenation concatenation) {
         enter(concatenation);
         for (var expression : concatenation.getExpressions()) {
             expression.accept(this);
@@ -202,7 +214,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param concatenation
      *         the node we have just entered.
      */
-    public void enter(AstConcatenation concatenation) {}
+    public void enter(AstConcatenation concatenation) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstConcatenation} node.
@@ -210,13 +223,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param concatenation
      *         the node we have just entered.
      */
-    public void exit(AstConcatenation concatenation) {}
+    public void exit(AstConcatenation concatenation) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstVariableExpression variableExpression) {
+    public Void visit(AstVariableExpression variableExpression) {
         enter(variableExpression);
         exit(variableExpression);
         return null;
@@ -228,7 +242,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param variable
      *         the node we have just entered.
      */
-    public void enter(AstVariableExpression variable) {}
+    public void enter(AstVariableExpression variable) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstVariableExpression} node.
@@ -236,13 +251,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param variable
      *         the node we have just entered.
      */
-    public void exit(AstVariableExpression variable) {}
+    public void exit(AstVariableExpression variable) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstGosub gosub) {
+    public Void visit(AstGosub gosub) {
         enter(gosub);
         for (var expression : gosub.getArguments()) {
             expression.accept(this);
@@ -257,7 +273,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param gosub
      *         the node we have just entered.
      */
-    public void enter(AstGosub gosub) {}
+    public void enter(AstGosub gosub) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstGosub} node.
@@ -265,13 +282,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param gosub
      *         the node we have just entered.
      */
-    public void exit(AstGosub gosub) {}
+    public void exit(AstGosub gosub) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstDynamic dynamic) {
+    public Void visit(AstDynamic dynamic) {
         enter(dynamic);
         exit(dynamic);
         return null;
@@ -283,7 +301,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param dynamic
      *         the node we have just entered.
      */
-    public void enter(AstDynamic dynamic) {}
+    public void enter(AstDynamic dynamic) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstDynamic} node.
@@ -291,13 +310,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param dynamic
      *         the node we have just entered.
      */
-    public void exit(AstDynamic dynamic) {}
+    public void exit(AstDynamic dynamic) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstConstant constant) {
+    public Void visit(AstConstant constant) {
         enter(constant);
         exit(constant);
         return null;
@@ -309,7 +329,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param constant
      *         the node we have just entered.
      */
-    public void enter(AstConstant constant) {}
+    public void enter(AstConstant constant) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstConstant} node.
@@ -317,13 +338,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param constant
      *         the node we have just entered.
      */
-    public void exit(AstConstant constant) {}
+    public void exit(AstConstant constant) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstCommand command) {
+    public Void visit(AstCommand command) {
         enter(command);
         for (var expression : command.getArguments()) {
             expression.accept(this);
@@ -338,7 +360,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param command
      *         the node we have just entered.
      */
-    public void enter(AstCommand command) {}
+    public void enter(AstCommand command) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstCommand} node.
@@ -346,13 +369,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param command
      *         the node we have just entered.
      */
-    public void exit(AstCommand command) {}
+    public void exit(AstCommand command) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstBinaryOperation binaryOperation) {
+    public Void visit(AstBinaryOperation binaryOperation) {
         enter(binaryOperation);
         binaryOperation.getLeft().accept(this);
         binaryOperation.getRight().accept(this);
@@ -366,7 +390,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param binaryOperation
      *         the node we have just entered.
      */
-    public void enter(AstBinaryOperation binaryOperation) {}
+    public void enter(AstBinaryOperation binaryOperation) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstBinaryOperation} node.
@@ -374,13 +399,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param binaryOperation
      *         the node we have just entered.
      */
-    public void exit(AstBinaryOperation binaryOperation) {}
+    public void exit(AstBinaryOperation binaryOperation) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstVariableDeclaration variableDeclaration) {
+    public Void visit(AstVariableDeclaration variableDeclaration) {
         enter(variableDeclaration);
         if (variableDeclaration.getExpression() != null) {
             variableDeclaration.getExpression().accept(this);
@@ -395,7 +421,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param variableDeclaration
      *         the node we have just entered.
      */
-    public void enter(AstVariableDeclaration variableDeclaration) {}
+    public void enter(AstVariableDeclaration variableDeclaration) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstVariableDeclaration} node.
@@ -403,13 +430,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param variableDeclaration
      *         the node we have just entered.
      */
-    public void exit(AstVariableDeclaration variableDeclaration) {}
+    public void exit(AstVariableDeclaration variableDeclaration) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstVariableInitializer variableInitializer) {
+    public Void visit(AstVariableInitializer variableInitializer) {
         enter(variableInitializer);
         variableInitializer.getExpression().accept(this);
         exit(variableInitializer);
@@ -422,7 +450,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param variableInitializer
      *         the node we have just entered.
      */
-    public void enter(AstVariableInitializer variableInitializer) {}
+    public void enter(AstVariableInitializer variableInitializer) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstVariableInitializer} node.
@@ -430,13 +459,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param variableInitializer
      *         the node we have just entered.
      */
-    public void exit(AstVariableInitializer variableInitializer) {}
+    public void exit(AstVariableInitializer variableInitializer) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstSwitchStatement switchStatement) {
+    public Void visit(AstSwitchStatement switchStatement) {
         enter(switchStatement);
         switchStatement.getCondition().accept(this);
         for (var switchCase : switchStatement.getCases()) {
@@ -455,7 +485,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param switchStatement
      *         the node we have just entered.
      */
-    public void enter(AstSwitchStatement switchStatement) {}
+    public void enter(AstSwitchStatement switchStatement) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstSwitchStatement} node.
@@ -463,13 +494,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param switchStatement
      *         the node we have just entered.
      */
-    public void exit(AstSwitchStatement switchStatement) {}
+    public void exit(AstSwitchStatement switchStatement) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstSwitchCase switchCase) {
+    public Void visit(AstSwitchCase switchCase) {
         enter(switchCase);
         for (var expression : switchCase.getKeys()) {
             expression.accept(this);
@@ -485,7 +517,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param switchCase
      *         the node we have just entered.
      */
-    public void enter(AstSwitchCase switchCase) {}
+    public void enter(AstSwitchCase switchCase) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstSwitchCase} node.
@@ -493,13 +526,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param switchCase
      *         the node we have just entered.
      */
-    public void exit(AstSwitchCase switchCase) {}
+    public void exit(AstSwitchCase switchCase) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstIfStatement ifStatement) {
+    public Void visit(AstIfStatement ifStatement) {
         enter(ifStatement);
         ifStatement.getCondition().accept(this);
         ifStatement.getTrueStatement().accept(this);
@@ -516,7 +550,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param ifStatement
      *         the node we have just entered.
      */
-    public void enter(AstIfStatement ifStatement) {}
+    public void enter(AstIfStatement ifStatement) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstIfStatement} node.
@@ -524,13 +559,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param ifStatement
      *         the node we have just entered.
      */
-    public void exit(AstIfStatement ifStatement) {}
+    public void exit(AstIfStatement ifStatement) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstWhileStatement whileStatement) {
+    public Void visit(AstWhileStatement whileStatement) {
         enter(whileStatement);
         whileStatement.getCondition().accept(this);
         whileStatement.getCode().accept(this);
@@ -544,7 +580,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param whileStatement
      *         the node we have just entered.
      */
-    public void enter(AstWhileStatement whileStatement) {}
+    public void enter(AstWhileStatement whileStatement) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstWhileStatement} node.
@@ -552,13 +589,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param whileStatement
      *         the node we have just entered.
      */
-    public void exit(AstWhileStatement whileStatement) {}
+    public void exit(AstWhileStatement whileStatement) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstExpressionStatement expressionStatement) {
+    public Void visit(AstExpressionStatement expressionStatement) {
         enter(expressionStatement);
         expressionStatement.getExpression().accept(this);
         exit(expressionStatement);
@@ -571,7 +609,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param expressionStatement
      *         the node we have just entered.
      */
-    public void enter(AstExpressionStatement expressionStatement) {}
+    public void enter(AstExpressionStatement expressionStatement) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstExpressionStatement} node.
@@ -579,13 +618,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param expressionStatement
      *         the node we have just entered.
      */
-    public void exit(AstExpressionStatement expressionStatement) {}
+    public void exit(AstExpressionStatement expressionStatement) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstReturnStatement returnStatement) {
+    public Void visit(AstReturnStatement returnStatement) {
         enter(returnStatement);
         for (var expression : returnStatement.getExpressions()) {
             expression.accept(this);
@@ -600,7 +640,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param returnStatement
      *         the node we have just entered.
      */
-    public void enter(AstReturnStatement returnStatement) {}
+    public void enter(AstReturnStatement returnStatement) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstReturnStatement} node.
@@ -608,13 +649,14 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param returnStatement
      *         the node we have just entered.
      */
-    public void exit(AstReturnStatement returnStatement) {}
+    public void exit(AstReturnStatement returnStatement) {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstBlockStatement blockStatement) {
+    public Void visit(AstBlockStatement blockStatement) {
         enter(blockStatement);
         for (var statement : blockStatement.getStatements()) {
             statement.accept(this);
@@ -629,7 +671,8 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param blockStatement
      *         the node we have just entered.
      */
-    public void enter(AstBlockStatement blockStatement) {}
+    public void enter(AstBlockStatement blockStatement) {
+    }
 
     /**
      * Gets called when we have just left an {@link AstBlockStatement} node.
@@ -637,5 +680,6 @@ public abstract class AstTreeVisitor implements AstVisitor {
      * @param blockStatement
      *         the node we have just entered.
      */
-    public void exit(AstBlockStatement blockStatement) {}
+    public void exit(AstBlockStatement blockStatement) {
+    }
 }
