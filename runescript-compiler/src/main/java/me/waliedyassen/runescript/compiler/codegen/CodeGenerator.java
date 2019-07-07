@@ -241,23 +241,6 @@ public final class CodeGenerator implements AstVisitor {
         }
     }
 
-    /**
-     * Performs code generation on the specified {@code condition} expression and returns it's associated {@link
-     * CoreOpcode opcode}.
-     *
-     * @param condition
-     *         the condition expression to perform the code generation on.
-     *
-     * @return the {@link CoreOpcode} of the generated condition code.
-     */
-    private CoreOpcode generateCondition(AstExpression condition) {
-        if (condition instanceof AstBinaryOperation) {
-            return visit((AstBinaryOperation) condition);
-        } else {
-            condition.accept(this);
-            return CoreOpcode.BRANCH_IF_TRUE;
-        }
-    }
 
     /**
      * {@inheritDoc}
@@ -292,7 +275,7 @@ public final class CodeGenerator implements AstVisitor {
     @Override
     public Object visit(AstIfStatement ifStatement) {
         // preserve the labels of this if statement for number order.
-        var if_start_label = labelGenerator.generate("if_true");
+        var if_true_label = labelGenerator.generate("if_true");
         var if_else_label = labelGenerator.generate("if_else");
         var if_end_label = labelGenerator.generate("if_end");
         // store whether we have an else statement or not.
@@ -301,26 +284,42 @@ public final class CodeGenerator implements AstVisitor {
         var source_block = context().getBlock();
         // generate the condition opcode of the if statement.
         var opcode = generateCondition(ifStatement.getCondition());
+        // generate the branch instructions for the source block.
+        instruction(source_block, opcode, if_true_label);
+        instruction(source_block, BRANCH, has_else ? if_else_label : if_end_label);
         // generate the if-true block of the statement
-        var true_block = bind(generateBlock(if_start_label));
+        var true_block = bind(generateBlock(if_true_label));
         ifStatement.getTrueStatement().accept(this);
-        // generate the if-false statement block and code.
-        var false_block = has_else ? generateBlock(if_else_label) : null;
+        // generate the branch instructions for the if-true block.
+        instruction(true_block, BRANCH, if_end_label);
+        // generate the if-else statement block and code.
+        var else_block = has_else ? generateBlock(if_else_label) : null;
         if (has_else) {
-            bind(false_block);
+            bind(else_block);
             ifStatement.getFalseStatement().accept(this);
+            instruction(BRANCH, if_end_label);
         }
         // generate the if-end block and bind it.
-        var end_block = generateBlock(if_end_label);
-        if (has_else) {
-            instruction(BRANCH, end_block);
-        }
-        bind(end_block);
-        // generate the branch instructions for all of the blocks.
-        instruction(source_block, opcode, true_block);
-        instruction(source_block, BRANCH, has_else ? false_block : end_block);
-        instruction(true_block, BRANCH, end_block);
+        bind(generateBlock(if_end_label));
         return null;
+    }
+
+    /**
+     * Performs code generation on the specified {@code condition} expression and returns it's associated {@link
+     * CoreOpcode opcode}.
+     *
+     * @param condition
+     *         the condition expression to perform the code generation on.
+     *
+     * @return the {@link CoreOpcode} of the generated condition code.
+     */
+    private CoreOpcode generateCondition(AstExpression condition) {
+        if (condition instanceof AstBinaryOperation) {
+            return visit((AstBinaryOperation) condition);
+        } else {
+            condition.accept(this);
+            return CoreOpcode.BRANCH_IF_TRUE;
+        }
     }
 
     /**
@@ -531,6 +530,7 @@ public final class CodeGenerator implements AstVisitor {
     private Block generateBlock(String name) {
         return generateBlock(generateLabel(name));
     }
+
     /**
      * Generates a new {@link Block} object.
      *
