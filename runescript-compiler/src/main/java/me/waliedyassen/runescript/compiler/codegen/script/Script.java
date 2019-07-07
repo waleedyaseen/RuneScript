@@ -54,4 +54,27 @@ public final class Script {
      */
     @Getter
     private final List<SwitchTable> switchTables;
+
+    /**
+     * Checks whether or not the specified labels are next to each other.
+     *
+     * @param first
+     *         the first label to check if the second label is after.
+     * @param second
+     *         the second label to check if its after the first label.
+     *
+     * @return <code>true</code> if they are next to each other otherwise <code>false</code>.
+     */
+    public boolean isNextTo(Label first, Label second) {
+        // TODO: Perhaps find a better way to do this? I am not sure if it requires changing the blocks field type.
+        var check_next = false;
+        for (var label : blocks.keySet()) {
+            if (check_next) {
+                return second == label;
+            } else if (label == first) {
+                check_next = true;
+            }
+        }
+        return false;
+    }
 }
