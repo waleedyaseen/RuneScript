@@ -7,9 +7,12 @@
  */
 package me.waliedyassen.runescript.compiler.ast.expr;
 
+import lombok.Getter;
+import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
+import me.waliedyassen.runescript.compiler.type.Type;
 
 /**
  * Represents an expression node, all the language expressions must be subclasses of this class.
@@ -17,6 +20,12 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
  * @author Walied K. Yassen
  */
 public abstract class AstExpression extends AstNode {
+
+    /**
+     * The type of the expression.
+     */
+    @Getter
+    private Type type;
 
     /**
      * Constructs a new {@link AstExpression} type object instance.
@@ -33,4 +42,17 @@ public abstract class AstExpression extends AstNode {
      */
     @Override
     public abstract <E, S> E accept(AstVisitor<E, S> visitor);
+
+    /**
+     * Sets the type of this expression.
+     *
+     * @param type
+     *         the new type of the expression.
+     *
+     * @return the {@link Type} object that was passed to this method.
+     */
+    public Type setType(Type type) {
+        this.type = type;
+        return type;
+    }
 }

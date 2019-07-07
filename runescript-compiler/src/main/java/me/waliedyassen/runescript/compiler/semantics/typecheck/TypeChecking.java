@@ -81,7 +81,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstLiteralBool bool) {
-        return PrimitiveType.BOOL;
+        return bool.setType(PrimitiveType.BOOL);
     }
 
     /**
@@ -89,7 +89,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstLiteralInteger integer) {
-        return PrimitiveType.INT;
+        return integer.setType(PrimitiveType.INT);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstLiteralLong longInteger) {
-        return PrimitiveType.LONG;
+        return longInteger.setType(PrimitiveType.LONG);
     }
 
     /**
@@ -105,7 +105,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstLiteralString string) {
-        return PrimitiveType.STRING;
+        return string.setType(PrimitiveType.STRING);
     }
 
     /**
@@ -116,7 +116,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         for (var expr : concatenation.getExpressions()) {
             checkType(expr, PrimitiveType.STRING, expr.accept(this));
         }
-        return PrimitiveType.STRING;
+        return concatenation.setType(PrimitiveType.STRING);
     }
 
     /**
@@ -124,7 +124,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstVariableExpression variableExpression) {
-        return variableExpression.getVariable().getType();
+        return variableExpression.setType(variableExpression.getVariable().getType());
     }
 
     /**
@@ -132,7 +132,6 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstGosub gosub) {
-        // gosub is and will always refer to proc script.
         var name = gosub.getName();
         var script = symbolTable.lookupScript(TriggerType.PROC, name.getText());
         if (script == null) {
@@ -150,7 +149,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
                 checker.reportError(new SemanticError(gosub, String.format("The script %s(%s) is not applicable for the arguments (%s)", name.getText(), SemanticUtil.createRepresentation(actual), SemanticUtil.createRepresentation(expected))));
             }
         }
-        return script.getType();
+        return gosub.setType(script.getType());
     }
 
     /**
@@ -164,11 +163,11 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
             if (commandInfo.getArguments().length > 0) {
                 checker.reportError(new SemanticError(name, String.format("The command %s(%s) is not applicable for the arguments ()", name.getText(), SemanticUtil.createRepresentation(commandInfo.getArguments()))));
             }
-            return commandInfo.getType();
+            return dynamic.setType(commandInfo.getType());
         }
         var configInfo = symbolTable.lookupConfig(name.getText());
         if (configInfo != null) {
-            return configInfo.getType();
+            return dynamic.setType(configInfo.getType());
         }
         checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a symbol", name.getText())));
         return PrimitiveType.UNDEFINED;
@@ -186,7 +185,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
             checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a constant", name.getText())));
             return PrimitiveType.VOID;
         }
-        return info.getType();
+        return constant.setType(info.getType());
     }
 
     /**
@@ -210,7 +209,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         if (expected.length != actual.length || !Arrays.equals(expected, actual)) {
             checker.reportError(new SemanticError(command, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), SemanticUtil.createRepresentation(actual), SemanticUtil.createRepresentation(expected))));
         }
-        return info.getType();
+        return command.setType(info.getType());
     }
 
     /**
@@ -220,7 +219,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     public Type visit(AstBinaryOperation binaryOperation) {
         var left = binaryOperation.getLeft().accept(this);
         var right = binaryOperation.getRight().accept(this);
-        return checkOperator(binaryOperation, left, right, binaryOperation.getOperator());
+        return binaryOperation.setType(checkOperator(binaryOperation, left, right, binaryOperation.getOperator()));
     }
 
     /**

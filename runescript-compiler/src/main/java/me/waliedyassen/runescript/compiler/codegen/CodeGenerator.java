@@ -322,13 +322,33 @@ public final class CodeGenerator implements AstVisitor {
     public Void visit(AstExpressionStatement expressionStatement) {
         var expression = expressionStatement.getExpression();
         expression.accept(this);
-        var type = resolveType(expression);
-        if (type != null) {
-            var pushes = resolvePushCount(type);
-            generateDiscard(pushes[0], pushes[1], pushes[2]);
+        var pushes = resolvePushCount(expression.getType());
+        generateDiscard(pushes[0], pushes[1], pushes[2]);
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstReturnStatement returnStatement) {
+        for (var expression : returnStatement.getExpressions()) {
+            expression.accept(this);
+        }
+        return instruction(CoreOpcode.RETURN, 0);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstBlockStatement blockStatement) {
+        for (var statement : blockStatement.getStatements()) {
+            statement.accept(this);
         }
         return null;
     }
+
     /**
      * Generate a specific amount of discard instructions for each of the stack types.
      *
@@ -355,25 +375,6 @@ public final class CodeGenerator implements AstVisitor {
                 instruction(CoreOpcode.POP_LONG_DISCARD, 0);
             }
         }
-    }
-
-    /**
-     * Resolves the type of the specified {@link AstExpression expression}.
-     *
-     * @param expression
-     *         the expression to resolve for.
-     *
-     * @return the {@link Type} objectof the expression.
-     */
-    private Type resolveType(AstExpression expression) {
-        if (expression instanceof AstCommand) {
-            return symbolTable.lookupCommand(((AstCommand) expression).getName().getText()).getType();
-        } else if (expression instanceof AstGosub) {
-            return symbolTable.lookupScript(TriggerType.PROC, ((AstGosub) expression).getName().getText()).getType();
-        } else if (expression instanceof AstConstant) {
-            return symbolTable.lookupConstant(((AstConstant) expression).getName().getText()).getType();
-        }
-        return null;
     }
 
     /**
@@ -411,28 +412,6 @@ public final class CodeGenerator implements AstVisitor {
             }
         }
         return new int[]{numInts, numStrings, numLongs};
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Instruction visit(AstReturnStatement returnStatement) {
-        for (var expression : returnStatement.getExpressions()) {
-            expression.accept(this);
-        }
-        return instruction(CoreOpcode.RETURN, 0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Void visit(AstBlockStatement blockStatement) {
-        for (var statement : blockStatement.getStatements()) {
-            statement.accept(this);
-        }
-        return null;
     }
 
     /**
