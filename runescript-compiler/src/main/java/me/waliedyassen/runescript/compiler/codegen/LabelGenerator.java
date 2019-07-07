@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen;
 
-import me.waliedyassen.runescript.compiler.codegen.asm.Label;
+import me.waliedyassen.runescript.compiler.codegen.block.Label;
 
 import java.util.HashMap;
 import java.util.Map;

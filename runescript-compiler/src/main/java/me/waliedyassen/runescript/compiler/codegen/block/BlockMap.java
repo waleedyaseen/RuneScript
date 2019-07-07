@@ -5,12 +5,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.codegen;
+package me.waliedyassen.runescript.compiler.codegen.block;
 
 import lombok.Getter;
-import lombok.Setter;
-import me.waliedyassen.runescript.compiler.codegen.asm.Block;
-import me.waliedyassen.runescript.compiler.codegen.asm.Label;
 
 import java.util.ArrayList;
 import java.util.List;

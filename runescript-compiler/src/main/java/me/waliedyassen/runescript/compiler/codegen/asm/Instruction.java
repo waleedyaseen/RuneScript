@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.codegen.asm;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 
 /**

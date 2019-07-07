@@ -5,39 +5,38 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.codegen.asm;
+package me.waliedyassen.runescript.compiler.codegen.block;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.compiler.type.Type;
 
 /**
- * Represents a local variable/parameter.
+ * Represents a code label, used for branching and jumping to targets.
  *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode
-public final class Local {
+public final class Label {
 
     /**
-     * The local variable/parameter name.
+     * The id of the label.
+     */
+    @Getter
+    private final int id;
+
+    /**
+     * The name of the label.
      */
     @Getter
     private final String name;
-
-    /**
-     * The local variable type.
-     */
-    @Getter
-    private final Type type;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
-        return "$" + name;
+        return name;
     }
 }

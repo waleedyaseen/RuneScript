@@ -21,8 +21,13 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.asm.*;
+import me.waliedyassen.runescript.compiler.codegen.block.Block;
+import me.waliedyassen.runescript.compiler.codegen.block.BlockMap;
+import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.context.Context;
 import me.waliedyassen.runescript.compiler.codegen.context.ContextType;
+import me.waliedyassen.runescript.compiler.codegen.local.Local;
+import me.waliedyassen.runescript.compiler.codegen.local.LocalMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.stack.StackType;
@@ -43,7 +48,7 @@ import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class CodeGenerator implements AstVisitor {
+public final class CodeGenerator implements AstVisitor<Instruction, Object> {
 
     /**
      * The label generator used to generate any label for this code generator.
@@ -74,7 +79,7 @@ public final class CodeGenerator implements AstVisitor {
     /**
      * The current block we are working on.
      */
-    private final Stack<Context> contexts = new Stack<Context>();
+    private final Stack<Context> contexts = new Stack<>();
 
     /**
      * Initialises the code generator and reset its state.
@@ -266,12 +271,12 @@ public final class CodeGenerator implements AstVisitor {
         var local = variable.getDomain() == VariableDomain.LOCAL ? localMap.registerVariable(variable.getName(), variable.getType()) : variable;
         return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
     }
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstIfStatement ifStatement) {
+    public Void visit(AstIfStatement ifStatement) {
         // preserve the labels of this if statement for number order.
         var if_true_label = labelGenerator.generate("if_true");
         var if_else_label = labelGenerator.generate("if_else");
@@ -303,7 +308,7 @@ public final class CodeGenerator implements AstVisitor {
      * {@inheritDoc}
      */
     @Override
-    public AstWhileStatement visit(AstWhileStatement whileStatement) {
+    public Void visit(AstWhileStatement whileStatement) {
         // preserve the labels of this while statement for the number order.
         var while_start_label = labelGenerator.generate("while_start");
         var while_true_label = labelGenerator.generate("while_true");
@@ -417,11 +422,12 @@ public final class CodeGenerator implements AstVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstReturnStatement returnStatement) {
+    public Void visit(AstReturnStatement returnStatement) {
         for (var expression : returnStatement.getExpressions()) {
             expression.accept(this);
         }
-        return instruction(CoreOpcode.RETURN, 0);
+        instruction(CoreOpcode.RETURN, 0);
+        return null;
     }
 
     /**
