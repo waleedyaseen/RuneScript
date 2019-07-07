@@ -8,18 +8,17 @@
 package me.waliedyassen.runescript.compiler.codegen.optimizer.impl;
 
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
-import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.BlockOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
 import me.waliedyassen.runescript.compiler.codegen.script.Script;
 
 /**
- * Represents the natural flow redudant jumps removal optimizations.
+ * Represents a dead branch optimization.
  *
- * @author Walied K. Yassen
+ * @author Walied K. Y assen
  */
-public final class NaturalFlowOptimization extends BlockOptimization {
+public final class DeadBranchOptimization extends BlockOptimization {
 
     /**
      * {@inheritDoc}
@@ -28,8 +27,13 @@ public final class NaturalFlowOptimization extends BlockOptimization {
     public int run(Optimizer optimizer, Script script, Block block) {
         var instruction = block.last();
         if (optimizer.is(instruction, CoreOpcode.BRANCH)) {
-            var label = (Label) instruction.getOperand();
-            if (script.isNextTo(block.getLabel(), label)) {
+            // We currently define dead branch if it's after a return
+            // in the distant future, we may want to change that.
+            var previous = block.previous(instruction);
+            if (previous == null) {
+                return 0;
+            }
+            if (previous != null && optimizer.is(previous, CoreOpcode.RETURN)) {
                 block.remove(instruction);
                 return 1;
             }

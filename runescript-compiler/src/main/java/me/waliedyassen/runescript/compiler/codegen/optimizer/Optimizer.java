@@ -50,6 +50,7 @@ public final class Optimizer {
             count = 0;
             for (var optimization : optimizations) {
                 count += optimization.run(this, script);
+                optimization.clean(this, script);
             }
         } while (count > 0);
     }

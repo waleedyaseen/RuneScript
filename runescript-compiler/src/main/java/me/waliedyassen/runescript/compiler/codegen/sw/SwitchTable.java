@@ -29,4 +29,13 @@ public final class SwitchTable {
      */
     @Getter
     private final SwitchCase[] cases;
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "switch_" + id;
+    }
 }

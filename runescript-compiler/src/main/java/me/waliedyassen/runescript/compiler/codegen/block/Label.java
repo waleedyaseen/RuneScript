@@ -39,4 +39,14 @@ public final class Label {
     public String toString() {
         return name;
     }
+
+    /**
+     * Checks hwether or not this label is the entry label.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isEntryLabel() {
+        // We do it this way because the entry always has an id of 0 and it is way faster than comparing strings.
+        return id == 0;
+    }
 }

@@ -84,4 +84,12 @@ public final class Block {
     public Instruction last() {
         return instructions.get(instructions.size() - 1);
     }
+
+    public Instruction previous(Instruction instruction) {
+        var index = instructions.indexOf(instruction);
+        if (index > 0) {
+            return instructions.get(index - 1);
+        }
+        return null;
+    }
 }

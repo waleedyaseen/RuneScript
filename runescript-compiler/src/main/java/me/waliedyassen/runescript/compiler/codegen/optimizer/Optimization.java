@@ -27,4 +27,14 @@ public abstract class Optimization {
      * @return the amount of units that has been optimized.
      */
     public abstract int run(Optimizer optimizer, Script script);
+
+    /**
+     * Cleans-up the state from the current run.
+     *
+     * @param optimizer
+     *         the optimizer which is running this optimizaiton.
+     * @param script
+     *         the script we ran the optimization on.
+     */
+    public abstract void clean(Optimizer optimizer, Script script);
 }
