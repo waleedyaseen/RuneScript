@@ -291,7 +291,7 @@ public final class CodeGenerator implements AstVisitor {
         var true_block = bind(generateBlock(if_true_label));
         ifStatement.getTrueStatement().accept(this);
         // generate the branch instructions for the if-true block.
-        instruction(true_block, BRANCH, if_end_label);
+        instruction(BRANCH, if_end_label);
         // generate the if-else statement block and code.
         var else_block = has_else ? generateBlock(if_else_label) : null;
         if (has_else) {
