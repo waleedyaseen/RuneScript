@@ -122,7 +122,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         var variables = new HashMap<>(localMap.getVariables());
         // create the switch tables list.
         var tables = new ArrayList<SwitchTable>(switchMap.getTables().size());
-        for (int id = 0; id < tables.size(); id++) {
+        for (int id = 0; id < switchMap.getTables().size(); id++) {
             tables.add(switchMap.getTables().get(id));
         }
         // clean-up the junk after code generation is done.
@@ -323,7 +323,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         // loop through each switch case and perform code generation on it.
         for (var index = 0; index < case_nodes.length; index++) {
             var case_node = case_nodes[index];
-            var case_entry = new SwitchCase(case_node.getResolvedKeys(), generateLabel("switch_" + switch_table.getId() + "_case"));
+            var case_entry = cases[index] = new SwitchCase(case_node.getResolvedKeys(), generateLabel("switch_" + switch_table.getId() + "_case"));
             // perform the code generation on the case.
             bind(generateBlock(case_entry.getLabel()));
             case_node.getCode().accept(this);
