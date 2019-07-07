@@ -33,13 +33,11 @@ public final class CommandInfo extends Symbol {
     @Getter
     private final String name;
 
-
     /**
      * The return type of the command.
      */
     @Getter
     private final Type type;
-
 
     /**
      * The argument type(s) of the command.

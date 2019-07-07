@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.codegen;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
@@ -20,7 +19,6 @@ import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
-import me.waliedyassen.runescript.compiler.codegen.asm.*;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockMap;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
@@ -30,8 +28,10 @@ import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.local.LocalMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
+import me.waliedyassen.runescript.compiler.codegen.script.Script;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchMap;
+import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
@@ -40,7 +40,7 @@ import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
-import java.util.Stack;
+import java.util.*;
 
 import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
 
@@ -60,7 +60,6 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * The blocks map of the current script.
      */
-    @Getter
     private final BlockMap blockMap = new BlockMap();
 
     /**
@@ -103,15 +102,33 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      */
     @Override
     public Script visit(AstScript script) {
+        // perform code generation on the script.
         pushContext(ContextType.SCRIPT);
-        var generated = new Script("[" + script.getTrigger().getText() + "," + script.getName().getText() + "]");
         for (var parameter : script.getParameters()) {
             parameter.accept(this);
         }
         bind(generateBlock("entry"));
         script.getCode().accept(this);
         popContext();
-        return generated;
+        // format the script name to be in the formal format.
+        var name = "[" + script.getTrigger().getText() + "," + script.getName().getText() + "]";
+        // put all of the blocks into a sorted map.
+        var blocks = new LinkedHashMap<Label, Block>();
+        for (var block : blockMap.getBlocks()) {
+            blocks.put(block.getLabel(), block);
+        }
+        // clone the local variables and parameter maps.
+        var parameters = new HashMap<>(localMap.getParameters());
+        var variables = new HashMap<>(localMap.getVariables());
+        // create the switch tables list.
+        var tables = new ArrayList<SwitchTable>(switchMap.getTables().size());
+        for (int id = 0; id < tables.size(); id++) {
+            tables.add(switchMap.getTables().get(id));
+        }
+        // clean-up the junk after code generation is done.
+        initialise();
+        // return the generated script object.
+        return new Script(name, blocks, parameters, variables, tables);
     }
 
     /**
@@ -234,11 +251,12 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     }
 
     /**
-     * Generates
+     * Generates the instruction(s) set for the specified {@link CommandInfo command}.
      *
      * @param info
+     *         the command info to generate the instruction(s) set for.
      *
-     * @return
+     * @return the last generated {@link Instruction} object.
      */
     private Instruction generateCommand(CommandInfo info) {
         return instruction(info.getOpcode(), info.isAlternative() ? 1 : 0);
@@ -251,7 +269,6 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     public Instruction visit(AstBinaryOperation binaryOperation) {
         throw new UnsupportedOperationException("You should not be doing this.");
     }
-
 
     /**
      * {@inheritDoc}
@@ -299,7 +316,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         instruction(SWITCH, switch_table);
         // generate the switch default case if it was present.
         if (switchStatement.getDefaultCase() != null) {
-            switchStatement.getDefaultCase().accept(this);
+            switchStatement.getDefaultCase().getCode().accept(this);
         }
         // add a branch to the exit label at the end of the switch.
         instruction(BRANCH, exit_label);

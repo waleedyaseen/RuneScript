@@ -228,6 +228,9 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     public Type visit(AstVariableDeclaration variableDeclaration) {
         var expression = variableDeclaration.getExpression();
         if (expression == null) {
+            if (variableDeclaration.getType().getDefaultValue() == null) {
+                checker.reportError(new SemanticError(variableDeclaration, "Variables with type '" + variableDeclaration.getType().getRepresentation() + "' must be initialised"));
+            }
             return null;
         }
         checkType(expression, variableDeclaration.getVariable().getType(), expression.accept(this));

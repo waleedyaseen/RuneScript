@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.local;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.type.Type;
 
@@ -22,11 +23,13 @@ public final class LocalMap {
     /**
      * The local parameters map.
      */
+    @Getter
     private final Map<StackType, List<Local>> parameters = new HashMap<>();
 
     /**
      * The local variables map.
      */
+    @Getter
     private final Map<StackType, List<Local>> variables = new HashMap<>();
 
     /**
