@@ -27,6 +27,7 @@ import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
@@ -34,8 +35,7 @@ import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 import java.util.Stack;
 
-import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.BRANCH;
-import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.BRANCH_IF_TRUE;
+import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
 
 /**
  * Represents the compiler bytecode generator.
@@ -173,7 +173,20 @@ public final class CodeGenerator implements AstVisitor {
         return instruction(CoreOpcode.GOSUB_WITH_PARAMS, script);
     }
 
-    // TODO: AstDynamic code generation.
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstDynamic dynamic) {
+        var name = dynamic.getName().getText();
+        var commandInfo = symbolTable.lookupCommand(name);
+        if (commandInfo != null) {
+            return generateCommand(commandInfo);
+        } else {
+            var configInfo = symbolTable.lookupConfig(name);
+            return instruction(PUSH_INT_CONSTANT, configInfo.getId());
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -201,11 +214,21 @@ public final class CodeGenerator implements AstVisitor {
      * {@inheritDoc}
      */
     public Instruction visit(AstCommand command) {
-        var symbol = symbolTable.lookupCommand(command.getName().getText());
         for (var argument : command.getArguments()) {
             argument.accept(this);
         }
-        return instruction(symbol.getOpcode(), symbol.isAlternative() ? 1 : 0);
+        return generateCommand(symbolTable.lookupCommand(command.getName().getText()));
+    }
+
+    /**
+     * Generates
+     *
+     * @param info
+     *
+     * @return
+     */
+    private Instruction generateCommand(CommandInfo info) {
+        return instruction(info.getOpcode(), info.isAlternative() ? 1 : 0);
     }
 
     /**
