@@ -93,7 +93,7 @@ public final class CodeGenerator implements AstVisitor {
         for (var parameter : script.getParameters()) {
             parameter.accept(this);
         }
-        bind(generateBlock());
+        bind(generateBlock("entry"));
         script.getCode().accept(this);
         popContext();
         return generated;
@@ -291,20 +291,23 @@ public final class CodeGenerator implements AstVisitor {
      */
     @Override
     public Object visit(AstIfStatement ifStatement) {
+        // store whether we have an else statement or not.
         var has_else = ifStatement.getFalseStatement() != null;
+        // grab the parent block of the if statement.
         var source_block = context().getBlock();
+        // generate the condition opcode of the if statement.
         var opcode = generateCondition(ifStatement.getCondition());
-        // generate the true statement block and code.
-        var true_block = bind(generateBlock());
+        // generate the if-true block of the statement
+        var true_block = bind(generateBlock("if_true"));
         ifStatement.getTrueStatement().accept(this);
         // generate the else statement block and code.
-        var else_block = has_else ? generateBlock() : null;
+        var else_block = has_else ? generateBlock("if_false") : null;
         if (has_else) {
             bind(else_block);
             ifStatement.getFalseStatement().accept(this);
         }
         // generate the false block and bind it.
-        var false_block = bind(generateBlock());
+        var false_block = bind(generateBlock("if_end"));
         // generate the branch instructions for all of the blocks.
         instruction(source_block, opcode, true_block);
         instruction(source_block, BRANCH, has_else ? else_block : false_block);
@@ -514,21 +517,27 @@ public final class CodeGenerator implements AstVisitor {
     /**
      * Generates a new {@link Block} object.
      *
+     * @param name
+     *         the name of the block label.
+     *
      * @return the generated {@link Block} object.
      * @see BlockMap#generate(Label)
      */
-    private Block generateBlock() {
-        return blockMap.generate(generateLabel());
+    private Block generateBlock(String name) {
+        return blockMap.generate(generateLabel(name));
     }
 
     /**
      * Generates a new unique {@link Label} object.
      *
+     * @param name
+     *         the name of the label.
+     *
      * @return the generated {@link Label} object.
-     * @see LabelGenerator#generate()
+     * @see LabelGenerator#generate(String)
      */
-    private Label generateLabel() {
-        return labelGenerator.generate();
+    private Label generateLabel(String name) {
+        return labelGenerator.generate(name);
     }
 
     /**

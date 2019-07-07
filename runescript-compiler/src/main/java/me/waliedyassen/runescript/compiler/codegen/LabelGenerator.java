@@ -9,6 +9,8 @@ package me.waliedyassen.runescript.compiler.codegen;
 
 import me.waliedyassen.runescript.compiler.codegen.asm.Label;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -19,23 +21,36 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class LabelGenerator {
 
     /**
-     * The unique id counter.
+     * The unique name counter.
      */
-    private AtomicInteger counter = new AtomicInteger();
+    private final Map<String, AtomicInteger> counters = new HashMap<>();
+
+    /**
+     * The unique shared counter.
+     */
+    private final AtomicInteger shared = new AtomicInteger();
 
     /**
      * Generates a new unique {@link Label} object.
      *
+     * @param name
+     *         the name of the label.
+     *
      * @return the created {@link Label} object instance.
      */
-    public Label generate() {
-        return new Label(counter.getAndIncrement());
+    public Label generate(String name) {
+        var counter = counters.get(name);
+        if (counter == null) {
+            counters.put(name, counter = new AtomicInteger());
+        }
+        return new Label(shared.getAndIncrement(), name + "_" + counter.getAndIncrement());
     }
 
     /**
      * Resets the state of this label generator.
      */
     public void reset() {
-        counter.set(0);
+        counters.clear();
+        shared.set(0);
     }
 }

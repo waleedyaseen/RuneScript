@@ -21,21 +21,22 @@ import lombok.RequiredArgsConstructor;
 public final class Label {
 
     /**
-     * The name format of the label.
-     */
-    private final String NAME_FORMAT = "label_%d";
-
-    /**
      * The id of the label.
      */
     @Getter
     private final int id;
 
     /**
+     * The name of the label.
+     */
+    @Getter
+    private final String name;
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
-        return String.format(NAME_FORMAT, id);
+        return name;
     }
 }
