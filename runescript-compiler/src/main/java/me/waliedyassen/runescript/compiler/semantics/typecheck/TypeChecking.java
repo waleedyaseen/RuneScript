@@ -12,10 +12,7 @@ import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -30,7 +27,9 @@ import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Represents the type checking semantic analysis.
@@ -254,13 +253,47 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     public Type visit(AstSwitchStatement switchStatement) {
         var type = switchStatement.getType();
         checkType(switchStatement.getCondition(), type, switchStatement.getCondition().accept(this));
+        var defined_keys = new HashSet<Integer>();
         for (var switchCase : switchStatement.getCases()) {
-            for (var key : switchCase.getKeys()) {
-                checkType(key, type, key.accept(this));
+            var resolvedKeys = new int[switchCase.getKeys().length];
+            for (var index = 0; index < resolvedKeys.length; index++) {
+                var key = switchCase.getKeys()[index];
+                if (checkType(key, type, key.accept(this))) {
+                    int resolvedKey = resolveCaseKey(key);
+                    if (!defined_keys.add(resolvedKey)) {
+                        checker.reportError(new SemanticError(key, "Duplicate case"));
+                    }
+                }
             }
+            switchCase.setResolvedKeys(resolvedKeys);
             switchCase.accept(this);
         }
         return null;
+    }
+
+
+    /**
+     * Resolves the specified case key expression integer value.
+     *
+     * @param expression
+     *         the case key expression to resolve its value.
+     *
+     * @return the integer value of that expression.
+     */
+    private int resolveCaseKey(AstExpression expression) {
+        if (expression instanceof AstLiteralInteger) {
+            return ((AstLiteralInteger) expression).getValue();
+        } else if (expression instanceof AstLiteralBool) {
+            return ((AstLiteralBool) expression).getValue() ? 1 : 0;
+        } else if (expression instanceof AstConstant) {
+            var symbol = symbolTable.lookupConstant(((AstConstant) expression).getName().getText());
+            return (int) symbol.getValue();
+        } else if (expression instanceof AstDynamic) {
+            return symbolTable.lookupConfig(((AstDynamic) expression).getName().getText()).getId();
+        } else {
+            checker.reportError(new SemanticError(expression, "Case keys must be known at compile-time."));
+        }
+        return 0;
     }
 
     /**
@@ -388,10 +421,14 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      *         the expected type to match against.
      * @param actual
      *         the actual type to match.
+     *
+     * @return <code>true</code> if the type matches the expected otherwise <code>false</code>.
      */
-    private void checkType(AstNode node, Type expected, Type actual) {
+    private boolean checkType(AstNode node, Type expected, Type actual) {
         if (!expected.equals(actual)) {
             checker.reportError(new SemanticError(node, "Type mismatch: cannot convert from " + actual.getRepresentation() + " to " + expected.getRepresentation()));
+            return false;
         }
+        return true;
     }
 }

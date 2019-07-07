@@ -52,11 +52,11 @@ public final class Block {
      *         if the instruction is a a child of another block.
      */
     public void add(Instruction instruction) {
-        if (instruction.owner != null) {
+        if (instruction.getOwner() != null) {
             throw new IllegalArgumentException("The specified Instruction is already a child of another block..");
         }
         instructions.add(instruction);
-        instruction.owner = this;
+        instruction.setOwner(this);
     }
 
     /**
@@ -69,11 +69,11 @@ public final class Block {
      *         if the instruction is not a child of this block.
      */
     public void remove(Instruction instruction) {
-        if (instruction.owner != this) {
+        if (instruction.getOwner() != this) {
             throw new IllegalArgumentException("The specified Instruction is not a child of this block..");
         }
         instructions.remove(instruction);
-        instruction.owner = null;
+        instruction.setOwner(null);
     }
 
     /**

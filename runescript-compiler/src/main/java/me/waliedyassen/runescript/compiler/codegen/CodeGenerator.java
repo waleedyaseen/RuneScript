@@ -30,6 +30,8 @@ import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.local.LocalMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
+import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
+import me.waliedyassen.runescript.compiler.codegen.sw.SwitchMap;
 import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
@@ -67,6 +69,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     private final LocalMap localMap = new LocalMap();
 
     /**
+     * The switch tables map of the current script.
+     */
+    private final SwitchMap switchMap = new SwitchMap();
+
+    /**
      * The symbol table which has all the information for the current generation.
      */
     private final SymbolTable symbolTable;
@@ -88,6 +95,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         labelGenerator.reset();
         blockMap.reset();
         localMap.reset();
+        switchMap.reset();
     }
 
     /**
@@ -271,7 +279,45 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         var local = variable.getDomain() == VariableDomain.LOCAL ? localMap.registerVariable(variable.getName(), variable.getType()) : variable;
         return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstSwitchStatement switchStatement) {
+        // grab the switch case nodes.
+        var case_nodes = switchStatement.getCases();
+        // create the switch cases.
+        var cases = new SwitchCase[case_nodes.length];
+        // generate a new switch table from the switch map.
+        var switch_table = switchMap.generateTable(cases);
+        // generate the switch condition code.
+        switchStatement.getCondition().accept(this);
+        // create the exit block label.
+        var exit_label = generateLabel("switch_" + switch_table.getId() + "_exit");
+        // generate the switch table instruction.
+        instruction(SWITCH, switch_table);
+        // generate the switch default case if it was present.
+        if (switchStatement.getDefaultCase() != null) {
+            switchStatement.getDefaultCase().accept(this);
+        }
+        // add a branch to the exit label at the end of the switch.
+        instruction(BRANCH, exit_label);
+        // loop through each switch case and perform code generation on it.
+        for (var index = 0; index < case_nodes.length; index++) {
+            var case_node = case_nodes[index];
+            var case_entry = new SwitchCase(case_node.getResolvedKeys(), generateLabel("switch_" + switch_table.getId() + "_case"));
+            // perform the code generation on the case.
+            bind(generateBlock(case_entry.getLabel()));
+            case_node.getCode().accept(this);
+            // add a branch to the exit label.
+            instruction(BRANCH, exit_label);
+        }
+        // generate a block for the exit label.
+        bind(generateBlock(exit_label));
+        return null;
+    }
+
     /**
      * {@inheritDoc}
      */

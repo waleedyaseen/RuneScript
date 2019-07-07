@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.codegen.asm;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 
@@ -35,7 +36,7 @@ public final class Instruction {
     /**
      * The owner block of this instruction.
      */
-    @Getter
+    @Getter @Setter
     protected Block owner;
 
     /**

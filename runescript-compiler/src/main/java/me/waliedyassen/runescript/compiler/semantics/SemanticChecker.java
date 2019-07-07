@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.semantics;
 
+import jdk.jfr.Threshold;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstNode;

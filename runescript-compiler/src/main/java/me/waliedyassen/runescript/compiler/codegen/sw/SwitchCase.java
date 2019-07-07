@@ -5,31 +5,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.codegen.context;
+package me.waliedyassen.runescript.compiler.codegen.sw;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import me.waliedyassen.runescript.compiler.codegen.block.Block;
+import me.waliedyassen.runescript.compiler.codegen.block.Label;
 
 /**
- * Represents a code generation context.
+ * Represents a generated switch case.
  *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public class Context {
+public final class SwitchCase {
 
     /**
-     * The type of this context.
+     * The switch case key(s).
      */
     @Getter
-    private final @NonNull ContextType type;
+    public final int[] keys;
 
     /**
-     * The current working block.
+     * The switch case label.
      */
-    @Getter @Setter
-    private Block block;
+    @Getter
+    private final Label label;
 }

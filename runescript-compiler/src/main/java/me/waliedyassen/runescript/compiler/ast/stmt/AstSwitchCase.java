@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.ast.stmt;
 
 import lombok.Getter;
+import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
@@ -30,6 +31,12 @@ public final class AstSwitchCase extends AstStatement {
      */
     @Getter
     private final AstBlockStatement code;
+
+    /**
+     * The resolved keys of this switch case.
+     */
+    @Getter @Setter
+    private int[] resolvedKeys;
 
     /**
      * Constructs a new {@link AstSwitchCase} type object instance.
