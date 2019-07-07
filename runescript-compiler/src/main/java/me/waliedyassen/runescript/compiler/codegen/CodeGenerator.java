@@ -34,6 +34,7 @@ import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import java.util.Stack;
 
 import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.BRANCH;
+import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.BRANCH_IF_TRUE;
 
 /**
  * Represents the compiler bytecode generator.
@@ -210,35 +211,8 @@ public final class CodeGenerator implements AstVisitor {
      * {@inheritDoc}
      */
     @Override
-    public CoreOpcode visit(AstBinaryOperation binaryOperation) {
-        var operator = binaryOperation.getOperator();
-        if (operator.isEquality() || operator.isRelational()) {
-            CoreOpcode opcode;
-            switch (operator) {
-                case EQUAL:
-                    opcode = CoreOpcode.BRANCH_EQUALS;
-                    break;
-                case LESS_THAN:
-                    opcode = CoreOpcode.BRANCH_LESS_THAN;
-                    break;
-                case GREATER_THAN:
-                    opcode = CoreOpcode.BRANCH_GREATER_THAN;
-                    break;
-                case LESS_THAN_OR_EQUALS:
-                    opcode = CoreOpcode.BRANCH_LESS_THAN_OR_EQUALS;
-                    break;
-                case GREATER_THAN_OR_EQUALS:
-                    opcode = CoreOpcode.BRANCH_GREATER_THAN_OR_EQUALS;
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unexpected operator: " + operator);
-            }
-            binaryOperation.getLeft().accept(this);
-            binaryOperation.getRight().accept(this);
-            return opcode;
-        } else {
-            throw new UnsupportedOperationException("Unexpected operator: " + operator);
-        }
+    public Instruction visit(AstBinaryOperation binaryOperation) {
+        throw new UnsupportedOperationException("You should not be doing this.");
     }
 
 
@@ -282,13 +256,10 @@ public final class CodeGenerator implements AstVisitor {
         var has_else = ifStatement.getFalseStatement() != null;
         // grab the parent block of the if statement.
         var source_block = context().getBlock();
-        // generate the condition opcode of the if statement.
-        var opcode = generateCondition(ifStatement.getCondition());
-        // generate the branch instructions for the source block.
-        instruction(source_block, opcode, if_true_label);
-        instruction(source_block, BRANCH, has_else ? if_else_label : if_end_label);
+        // generate the condition of the if statement.
+        generateCondition(ifStatement.getCondition(), source_block, if_true_label, has_else ? if_else_label : if_end_label);
         // generate the if-true block of the statement
-        var true_block = bind(generateBlock(if_true_label));
+        bind(generateBlock(if_true_label));
         ifStatement.getTrueStatement().accept(this);
         // generate the branch instructions for the if-true block.
         instruction(BRANCH, if_end_label);
@@ -310,15 +281,74 @@ public final class CodeGenerator implements AstVisitor {
      *
      * @param condition
      *         the condition expression to perform the code generation on.
+     * @param source_block
+     *         the source block of the condition.
+     * @param branch_true
+     *         the if-true block label.
+     * @param branch_false
+     *         the if-false block label.
      *
      * @return the {@link CoreOpcode} of the generated condition code.
      */
-    private CoreOpcode generateCondition(AstExpression condition) {
+    private void generateCondition(AstExpression condition, Block source_block, Label branch_true, Label branch_false) {
         if (condition instanceof AstBinaryOperation) {
-            return visit((AstBinaryOperation) condition);
+            var binaryOperation = (AstBinaryOperation) condition;
+            var operator = binaryOperation.getOperator();
+            if (operator.isEquality() || operator.isRelational()) {
+                CoreOpcode opcode;
+                switch (operator) {
+                    case EQUAL:
+                        opcode = CoreOpcode.BRANCH_EQUALS;
+                        break;
+                    case LESS_THAN:
+                        opcode = CoreOpcode.BRANCH_LESS_THAN;
+                        break;
+                    case GREATER_THAN:
+                        opcode = CoreOpcode.BRANCH_GREATER_THAN;
+                        break;
+                    case LESS_THAN_OR_EQUALS:
+                        opcode = CoreOpcode.BRANCH_LESS_THAN_OR_EQUALS;
+                        break;
+                    case GREATER_THAN_OR_EQUALS:
+                        opcode = CoreOpcode.BRANCH_GREATER_THAN_OR_EQUALS;
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Unexpected operator: " + operator);
+                }
+                binaryOperation.getLeft().accept(this);
+                binaryOperation.getRight().accept(this);
+                instruction(source_block, opcode, branch_true);
+                if (branch_false != null) {
+                    instruction(source_block, BRANCH, branch_false);
+                }
+            } else if (operator.isLogical()) {
+                switch (operator) {
+                    case LOGICAL_OR:
+                        generateCondition(binaryOperation.getLeft(), source_block, branch_true, null);
+                        bind(source_block);
+                        generateCondition(binaryOperation.getRight(), source_block, branch_true, null);
+                        if (branch_false != null) {
+                            instruction(source_block, BRANCH, branch_false);
+                        }
+                        break;
+                    case LOGICAL_AND:
+                        var if_and_label = labelGenerator.generate("if_and");
+                        generateCondition(binaryOperation.getLeft(), source_block, if_and_label, branch_false);
+                        var if_and_block = bind(generateBlock(if_and_label));
+                        generateCondition(binaryOperation.getRight(), if_and_block, branch_true, branch_false);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Unexpected operator: " + operator);
+                }
+            } else {
+                throw new UnsupportedOperationException("Unexpected operator: " + operator);
+            }
         } else {
             condition.accept(this);
-            return CoreOpcode.BRANCH_IF_TRUE;
+            instruction(source_block, BRANCH_IF_TRUE, branch_true);
+            if (branch_false != null) {
+                instruction(source_block, BRANCH, branch_false);
+            }
         }
     }
 

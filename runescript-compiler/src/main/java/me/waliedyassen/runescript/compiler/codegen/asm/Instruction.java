@@ -42,6 +42,6 @@ public final class Instruction {
      */
     @Override
     public String toString() {
-        return opcode + "\t" + operand;
+        return opcode + "\t" + (operand instanceof String ? "\"" + operand + "\"" : operand);
     }
 }
