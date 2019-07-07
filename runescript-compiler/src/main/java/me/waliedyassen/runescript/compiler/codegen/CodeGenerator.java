@@ -8,9 +8,7 @@
 package me.waliedyassen.runescript.compiler.codegen;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -26,9 +24,11 @@ import me.waliedyassen.runescript.compiler.codegen.context.Context;
 import me.waliedyassen.runescript.compiler.codegen.context.ContextType;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
+import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 import java.util.Stack;
@@ -319,10 +319,98 @@ public final class CodeGenerator implements AstVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstExpressionStatement expressionStatement) {
-        var entity = expressionStatement.getExpression().accept(this);
-        // TODO: Proper pop_x_discard emitting.
-        return entity;
+    public Void visit(AstExpressionStatement expressionStatement) {
+        var expression = expressionStatement.getExpression();
+        expression.accept(this);
+        var type = resolveType(expression);
+        if (type != null) {
+            var pushes = resolvePushCount(type);
+            generateDiscard(pushes[0], pushes[1], pushes[2]);
+        }
+        return null;
+    }
+    /**
+     * Generate a specific amount of discard instructions for each of the stack types.
+     *
+     * @param numInts
+     *         the amount of integer discard instructions.
+     * @param numStrings
+     *         the amount of string discard instructions.
+     * @param numLongs
+     *         the amount of long discard instructions.
+     */
+    private void generateDiscard(int numInts, int numStrings, int numLongs) {
+        if (numInts > 0) {
+            for (int index = 0; index < numInts; index++) {
+                instruction(CoreOpcode.POP_INT_DISCARD, 0);
+            }
+        }
+        if (numStrings > 0) {
+            for (int index = 0; index < numStrings; index++) {
+                instruction(CoreOpcode.POP_STRING_DISCARD, 0);
+            }
+        }
+        if (numLongs > 0) {
+            for (int index = 0; index < numLongs; index++) {
+                instruction(CoreOpcode.POP_LONG_DISCARD, 0);
+            }
+        }
+    }
+
+    /**
+     * Resolves the type of the specified {@link AstExpression expression}.
+     *
+     * @param expression
+     *         the expression to resolve for.
+     *
+     * @return the {@link Type} objectof the expression.
+     */
+    private Type resolveType(AstExpression expression) {
+        if (expression instanceof AstCommand) {
+            return symbolTable.lookupCommand(((AstCommand) expression).getName().getText()).getType();
+        } else if (expression instanceof AstGosub) {
+            return symbolTable.lookupScript(TriggerType.PROC, ((AstGosub) expression).getName().getText()).getType();
+        } else if (expression instanceof AstConstant) {
+            return symbolTable.lookupConstant(((AstConstant) expression).getName().getText()).getType();
+        }
+        return null;
+    }
+
+    /**
+     * Resolves how many pushes of each stack type does the specified element {@link Type type} do.
+     *
+     * @param type
+     *         the type to resolve for.
+     *
+     * @return the amount of pushes in one array in a specific order (int, string, long).
+     */
+    private int[] resolvePushCount(Type type) {
+        var numInts = 0;
+        var numStrings = 0;
+        var numLongs = 0;
+        if (type instanceof TupleType) {
+            var flatten = ((TupleType) type).getFlattened();
+            for (var elementType : flatten) {
+                var stackType = elementType.getStackType();
+                if (stackType == StackType.INT) {
+                    numInts++;
+                } else if (stackType == StackType.STRING) {
+                    numStrings++;
+                } else {
+                    numLongs++;
+                }
+            }
+        } else {
+            var stackType = type.getStackType();
+            if (stackType == StackType.INT) {
+                numInts++;
+            } else if (stackType == StackType.STRING) {
+                numStrings++;
+            } else {
+                numLongs++;
+            }
+        }
+        return new int[]{numInts, numStrings, numLongs};
     }
 
     /**
