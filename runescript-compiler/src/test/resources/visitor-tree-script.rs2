@@ -1,0 +1,34 @@
+[clientscript,visitor_tree_test](int $int0, string $string1, int $int1, long $long0)(bool)
+def_int $local0 = 0;
+def_long $local1; $local1 = ll;
+def_string $string1 = "string literal";
+def_string $concatenation = "hello<^my_string_constant>";
+dynamic_0;
+command(false);
+if ($local1 = 1l) {
+    another_command(true);
+}
+if (false) {
+    another_command(true);
+} else {
+
+}
+switch_int($local0) {
+    case 0,1,2,3,4,5:
+        $string1 = "Less than 5";
+    case 6,7,8,9:
+        $string1 = "More than 5";
+    case default:
+        $string1 = "Not a single digit";
+}
+def_string $string2;
+switch_int($local0) {
+     case 0,1,2,3,4,5:
+         $string2 = "Less than 5";
+     case 6,7,8,9:
+         $string2 = "More than 5";
+ }
+while ($int0 > 0) {
+    $int0 = sub($int0, 1);
+}
+return(~gosub_test($local0,$string1));
