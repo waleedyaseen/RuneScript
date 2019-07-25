@@ -33,7 +33,7 @@ public final class DeadBranchOptimization extends BlockOptimization {
             if (previous == null) {
                 return 0;
             }
-            if (previous != null && optimizer.is(previous, CoreOpcode.RETURN)) {
+            if (optimizer.is(previous, CoreOpcode.RETURN)) {
                 block.remove(instruction);
                 return 1;
             }
