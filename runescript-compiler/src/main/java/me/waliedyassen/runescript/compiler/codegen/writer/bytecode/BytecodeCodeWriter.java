@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.codegen.writer.asm;
+package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
@@ -19,11 +19,12 @@ import me.waliedyassen.runescript.compiler.stack.StackType;
 import java.util.*;
 
 /**
- * Represents a {@link CodeWriter} implementation that writes the input {@Link Script} objects to the byte code format.
+ * Represents a {@link CodeWriter} implementation that writes to asm bytecode format and outputs an {@link BytecodeScript}
+ * object containing all the data for the byte code.
  *
  * @author Walied K. Yassen
  */
-public final class BytecodeCodeWriter extends CodeWriter<AsmScript> {
+public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
 
     /**
      * An empty list to save some lines of code that compares if the variable stack is present or not.
@@ -34,17 +35,21 @@ public final class BytecodeCodeWriter extends CodeWriter<AsmScript> {
      * {@inheritDoc}
      */
     @Override
-    public AsmScript write(Script script) {
+    public BytecodeScript write(Script script) {
+        // Build the address table of the blocks.
         final var addressTable = buildAddressTable(script.getBlocks());
+        // Build the index table of the local variables.
         final var localTable = buildLocalTable(script.getParameters(), script.getVariables());
-        final var instructions = new ArrayList<AsmInstruction>();
+        // Calculate the local variables and  parameters count.
         var numIntParameters = script.getParameters().getOrDefault(StackType.INT, EMPTY).size();
         var numStringParameters = script.getParameters().getOrDefault(StackType.STRING, EMPTY).size();
         var numLongParameters = script.getParameters().getOrDefault(StackType.LONG, EMPTY).size();
         var numIntLocals = script.getVariables().getOrDefault(StackType.INT, EMPTY).size() + numIntParameters;
         var numStringLocals = script.getVariables().getOrDefault(StackType.STRING, EMPTY).size() + numStringParameters;
         var numLongLocals = script.getVariables().getOrDefault(StackType.LONG, EMPTY).size() + numLongParameters;
+        //
         var switchTables = new LinkedList<Hashtable<Integer, Integer>>();
+        final var instructions = new ArrayList<BytecodeInstruction>();
         for (var label : script.getBlocks().keySet()) {
             var $block = script.getBlocks().get(label);
             for (var $instruction : $block.getInstructions()) {
@@ -76,17 +81,22 @@ public final class BytecodeCodeWriter extends CodeWriter<AsmScript> {
                 if (operand == null) {
                     throw new IllegalStateException("Null operands are not allowed");
                 }
-                instructions.add(new AsmInstruction($instruction.getOpcode().getCode(), $instruction.getOpcode().isLarge(), operand));
+                instructions.add(new BytecodeInstruction($instruction.getOpcode().getCode(), $instruction.getOpcode().isLarge(), operand));
             }
         }
-        return new AsmScript(script.getName(), numIntParameters, numStringParameters, numLongParameters, numIntLocals, numStringLocals, numLongLocals, instructions.toArray(AsmInstruction[]::new), switchTables);
+        // Create the container object and return it.
+        return new BytecodeScript(script.getName(), numIntParameters, numStringParameters, numLongParameters, numIntLocals, numStringLocals, numLongLocals, instructions.toArray(BytecodeInstruction[]::new), switchTables);
     }
 
     /**
-     * @param parameters
-     * @param variables
+     * Builds the index table of the specified local variables nad parameters.
      *
-     * @return
+     * @param parameters
+     *         the parameters to  build the index table for.
+     * @param variables
+     *         the local variables to build the index table for.
+     *
+     * @return the index table as a {@link Map} object.
      */
     private Map<Local, Integer> buildLocalTable(Map<StackType, List<Local>> parameters, Map<StackType, List<Local>> variables) {
         final Map<StackType, List<Local>>[] combined = new Map[]{parameters, variables};
@@ -115,9 +125,12 @@ public final class BytecodeCodeWriter extends CodeWriter<AsmScript> {
     }
 
     /**
-     * @param blocks
+     * Builds the address table for the specified map of {@link Block blocks}.
      *
-     * @return
+     * @param blocks
+     *         the map of blocks to build the address table for.
+     *
+     * @return the address table as a {@link Map} object.
      */
     private Map<Label, Integer> buildAddressTable(Map<Label, Block> blocks) {
         var table = new HashMap<Label, Integer>();

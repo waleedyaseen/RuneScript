@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.codegen.writer.asm;
+package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +17,12 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 
 /**
- * Represents
+ * Represents a byte code script.
  *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class AsmScript {
+public final class BytecodeScript {
 
     /**
      * The name of the script.
@@ -70,7 +70,7 @@ public final class AsmScript {
      * The instructions of the script.
      */
     @Getter
-    private final AsmInstruction[] instructions;
+    private final BytecodeInstruction[] instructions;
 
     /**
      * The switch tables of the script.
@@ -82,8 +82,10 @@ public final class AsmScript {
      * Writes the byte code data to the specified {@link OutputStream stream}.
      *
      * @param stream
+     *         the stream to write the byte code data to.
      *
      * @throws IOException
+     *         if anything occurs while writing the data.
      */
     public void write(OutputStream stream) throws IOException {
         try (var data = new DataOutputStream(stream)) {
@@ -130,13 +132,17 @@ public final class AsmScript {
     }
 
     /**
-     * @param data
-     * @param value
+     * Writes a C-Style string (null terminated string) to the specified {@link DataOutputStream stream}.
      *
-     * @throws IOException
+     * @param stream
+     *         the stream to write to.
+     * @param value
+     *         the string to write.
+     *
+     * @throws IOException if anything occurs while writing the string to the stream.
      */
-    private void writeString(DataOutputStream data, String value) throws IOException {
-        data.writeBytes(value);
-        data.writeByte(0);
+    private void writeString(DataOutputStream stream, String value) throws IOException {
+        stream.writeBytes(value);
+        stream.writeByte(0);
     }
 }
