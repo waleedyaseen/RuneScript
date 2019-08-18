@@ -20,4 +20,11 @@ public interface Opcode {
      * @return the code number of the opcode.
      */
     int getCode();
+
+    /**
+     * Checks whether or not this opcode is a large opcode.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    boolean isLarge();
 }
