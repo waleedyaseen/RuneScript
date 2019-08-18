@@ -188,7 +188,12 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     @Override
     public Instruction visit(AstVariableExpression variableExpression) {
         var variable = variableExpression.getVariable();
-        return instruction(getPushVariableOpcode(variable.getDomain(), variable.getType()), variable);
+        if (variable.getDomain() == VariableDomain.LOCAL) {
+            var local = localMap.lookup(variable.getName());
+            return instruction(getPushVariableOpcode(variable.getDomain(), variable.getType()), local);
+        } else {
+            return instruction(getPushVariableOpcode(variable.getDomain(), variable.getType()), variable);
+        }
     }
 
     /**
@@ -293,7 +298,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     public Instruction visit(AstVariableInitializer variableInitializer) {
         variableInitializer.getExpression().accept(this);
         var variable = variableInitializer.getVariable();
-        var local = variable.getDomain() == VariableDomain.LOCAL ? localMap.registerVariable(variable.getName(), variable.getType()) : variable;
+        var local = variable.getDomain() == VariableDomain.LOCAL ? localMap.lookup(variable.getName()) : variable;
         return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
     }
 

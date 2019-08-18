@@ -35,11 +35,13 @@ public final class InstructionMap {
      *
      * @param opcode
      *         the core opcode to register for.
+     * @param large
+     *         whether or not the opcode has a large operand.
      * @param code
      *         the opcode code to register.
      */
-    public void registerCore(CoreOpcode opcode, int code) {
-        coreMap.put(opcode, new MappedOpcode(opcode, code));
+    public void registerCore(CoreOpcode opcode, int code, boolean large) {
+        coreMap.put(opcode, new MappedOpcode(opcode, code, large));
     }
 
     /**
@@ -71,7 +73,14 @@ public final class InstructionMap {
         /**
          * The opcode code number.
          */
+        @Getter
         private final int code;
+
+        /**
+         * Whether or not the opcode has a large operand.
+         */
+        @Getter
+        private final boolean large;
 
         /**
          * {@inheritDoc}
@@ -79,14 +88,6 @@ public final class InstructionMap {
         @Override
         public String toString() {
             return opcode.name();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int getCode() {
-            return code;
         }
     }
 }
