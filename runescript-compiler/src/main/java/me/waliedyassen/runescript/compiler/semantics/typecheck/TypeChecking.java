@@ -266,6 +266,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
                     if (!defined_keys.add(resolvedKey)) {
                         checker.reportError(new SemanticError(key, "Duplicate case"));
                     }
+                    resolvedKeys[index] = resolvedKey;
                 }
             }
             switchCase.setResolvedKeys(resolvedKeys);
