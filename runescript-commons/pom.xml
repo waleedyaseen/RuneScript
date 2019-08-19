@@ -14,4 +14,5 @@
     </parent>
     <artifactId>runescript-commons</artifactId>
     <name>RuneScript Commons</name>
+    <version>0.2-SNAPSHOT</version>
 </project>
