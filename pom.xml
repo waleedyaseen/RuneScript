@@ -25,6 +25,12 @@
         <module>runescript-commons</module>
         <module>runescript-compiler</module>
     </modules>
+    <scm>
+        <url>https://github.com/waliedyassen/RuneScript</url>
+        <connection>scm:git:git://github.com/waliedyassen/RuneScript</connection>
+        <developerConnection>scm:git:git@github.com:waliedyassen/RuneScript</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -81,6 +87,14 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
             </plugin>
         </plugins>
     </build>
