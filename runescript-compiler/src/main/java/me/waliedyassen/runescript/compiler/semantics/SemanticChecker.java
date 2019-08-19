@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.semantics;
 import jdk.jfr.Threshold;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
@@ -31,7 +32,7 @@ public final class SemanticChecker {
      * The generated errors during this semantic checker life time.
      */
     @Getter
-    private final List<SemanticError> errors = new ArrayList<>();
+    private final List<CompilerError> errors = new ArrayList<>();
 
     /**
      * The symbol table to resolve and register symbol information in.
@@ -42,14 +43,14 @@ public final class SemanticChecker {
     /**
      * Executes the semantic checking at the specified {@link AstNode node}.
      *
-     * @param trees
-     *         the node trees to perform the semantic checking for.
+     * @param scripts
+     *         the scripts to perform the semantic checking on.
      */
-    public void execute(Iterable<AstScript> trees) {
+    public void execute(Iterable<AstScript> scripts) {
         var pre = new PreTypeChecking(this, symbolTable);
-        trees.forEach(tree -> tree.accept(pre));
+        scripts.forEach(tree -> tree.accept(pre));
         var checker = new TypeChecking(this, symbolTable);
-        trees.forEach(tree -> tree.accept(checker));
+        scripts.forEach(tree -> tree.accept(checker));
     }
 
     /**

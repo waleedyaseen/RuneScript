@@ -31,6 +31,21 @@ public final class InstructionMap {
     private final EnumMap<CoreOpcode, MappedOpcode> coreMap = new EnumMap<>(CoreOpcode.class);
 
     /**
+     * Checks whether or not this instruction map is ready. A ready state means all of the core opcodes are registered
+     * and ready to be used.
+     *
+     * @return <code>true</code> if the map is ready otherwise <code>false</code>.
+     */
+    public boolean isReady() {
+        for (var opcode : CoreOpcode.values()) {
+            if (!coreMap.containsKey(opcode)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Registers the specified {@code id} for the given {@link CoreOpcode}.
      *
      * @param opcode

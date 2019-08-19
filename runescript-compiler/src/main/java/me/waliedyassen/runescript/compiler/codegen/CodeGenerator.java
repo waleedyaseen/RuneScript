@@ -73,6 +73,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     private final SwitchMap switchMap = new SwitchMap();
 
     /**
+     * The current block we are working on.
+     */
+    private final Stack<Context> contexts = new Stack<>();
+
+    /**
      * The symbol table which has all the information for the current generation.
      */
     private final SymbolTable symbolTable;
@@ -83,11 +88,6 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     private final InstructionMap instructionMap;
 
     /**
-     * The current block we are working on.
-     */
-    private final Stack<Context> contexts = new Stack<>();
-
-    /**
      * Initialises the code generator and reset its state.
      */
     public void initialise() {
@@ -95,6 +95,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         blockMap.reset();
         localMap.reset();
         switchMap.reset();
+        contexts.clear();
     }
 
     /**
