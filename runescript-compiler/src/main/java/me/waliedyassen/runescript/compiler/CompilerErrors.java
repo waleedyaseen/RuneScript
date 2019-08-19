@@ -20,7 +20,7 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class CompilerErrors extends RuntimeException {
+public final class CompilerErrors extends Exception {
 
     /**
      * The list of {@link CompilerError} objects that were thrown during the compilation process.

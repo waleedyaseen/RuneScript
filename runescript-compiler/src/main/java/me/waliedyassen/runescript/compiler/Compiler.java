@@ -104,8 +104,10 @@ public final class Compiler {
      *
      * @throws IOException
      *         if anything occurs while attempting to read or write the data to the source and output files.
+     * @throws CompilerErrors
+     *         if there was any syntax or semantic errors in the given source code file.
      */
-    public void compileFile(Path sourceFile, Path outputDirectory) throws IOException {
+    public void compileFile(Path sourceFile, Path outputDirectory) throws IOException, CompilerErrors {
         if (!Files.isRegularFile(sourceFile)) {
             throw new IllegalArgumentException("The specified source file path does not exist or is not a regular file path.");
         }
@@ -128,8 +130,10 @@ public final class Compiler {
      * @return an array of {@link CompiledScript} objects.
      * @throws IOException
      *         if anything occurs while writing the bytecode data.
+     * @throws CompilerErrors
+     *         if there was any syntax or semantic errors in the given source code.
      */
-    public CompiledScript[] compile(String source) throws IOException {
+    public CompiledScript[] compile(String source) throws IOException, CompilerErrors {
         return compile(source.getBytes(CHARSET));
     }
 
@@ -142,8 +146,10 @@ public final class Compiler {
      * @return an array of {@link CompiledScript} objects.
      * @throws IOException
      *         if anything occurs while writing the bytecode data.
+     * @throws CompilerErrors
+     *         if there was any syntax or semantic errors in the given source code data.
      */
-    public CompiledScript[] compile(byte[] source) throws IOException {
+    public CompiledScript[] compile(byte[] source) throws IOException, CompilerErrors {
         // Parse the Abstract Syntax Tree of the source.
         var scripts = parseSyntaxTree(source);
         if (scripts.size() < 1) {
