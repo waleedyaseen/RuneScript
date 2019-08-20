@@ -8,9 +8,11 @@
 package me.waliedyassen.runescript.compiler.semantics.scope;
 
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,6 +36,10 @@ public final class Scope {
      */
     private final Map<String, VariableInfo> variables = new LinkedHashMap<>();
 
+    /**
+     * The declared arrays within this scope.
+     */
+    private final Map<String, ArrayInfo> arrays = new LinkedHashMap<>();
 
     /**
      * Declares a new local variable with the specified {@code name} and {@code type} in this scope.
@@ -65,6 +71,55 @@ public final class Scope {
             variable = parent.getLocalVariable(name);
         }
         return variable;
+    }
+
+    /**
+     * Declares a new array with the specified {@code name} and {@code type} in this scope.
+     *
+     * @param name
+     *         the name of the array to declare.
+     * @param type
+     *         the type of the array to declare.
+     *
+     * @return the declared array information.
+     */
+    public ArrayInfo declareArray(String name, PrimitiveType type) {
+        if (getArrayCount() >= 5) {
+            throw new IllegalStateException("You cannot have more than 5 arrays in the same scope");
+        }
+        var info = new ArrayInfo(arrays.size(), name, type);
+        arrays.put(name, info);
+        return info;
+    }
+
+    /**
+     * Gets the declared array with the specified {@code name}.
+     *
+     * @param name
+     *         the name of the array.
+     *
+     * @return the {@link ArrayInfo} object if the array could be accessed otherwise {@code null}.
+     */
+    public ArrayInfo getArray(String name) {
+        var array = arrays.get(name);
+        if (array == null && parent != null) {
+            array = parent.getArray(name);
+        }
+        return array;
+    }
+
+    /**
+     * Gets the current declared arrays count.
+     *
+     * @return the current declared arrays count.
+     */
+    public int getArrayCount() {
+        var scope = this;
+        var count = 0;
+        do {
+            count += scope.arrays.size();
+        } while ((scope = scope.parent) != null);
+        return count;
     }
 
     /**

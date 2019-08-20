@@ -40,7 +40,10 @@ import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Stack;
 
 import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
 
@@ -201,6 +204,15 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
+    public Instruction visit(AstArrayExpression arrayExpression) {
+        arrayExpression.getIndex().accept(this);
+        return instruction(PUSH_ARRAY_INT, arrayExpression.getArray().getIndex());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Instruction visit(AstGosub gosub) {
         for (var argument : gosub.getArguments()) {
             argument.accept(this);
@@ -296,11 +308,31 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
+    public Instruction visit(AstArrayDeclaration arrayDeclaration) {
+        arrayDeclaration.getSize().accept(this);
+        var array = arrayDeclaration.getArray();
+        return instruction(DEFINE_ARRAY, (array.getIndex() << 16) | array.getType().getCode());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Instruction visit(AstVariableInitializer variableInitializer) {
         variableInitializer.getExpression().accept(this);
         var variable = variableInitializer.getVariable();
         var local = variable.getDomain() == VariableDomain.LOCAL ? localMap.lookup(variable.getName()) : variable;
         return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(AstArrayInitializer arrayInitializer) {
+        arrayInitializer.getValue().accept(this);
+        arrayInitializer.getIndex().accept(this);
+        return instruction(POP_ARRAY_INT, arrayInitializer.getArray().getIndex());
     }
 
     /**

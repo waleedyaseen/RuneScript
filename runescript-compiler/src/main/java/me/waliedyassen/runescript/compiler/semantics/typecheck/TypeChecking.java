@@ -20,6 +20,7 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.semantics.SemanticUtil;
+import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.type.Type;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
@@ -124,6 +125,14 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     @Override
     public Type visit(AstVariableExpression variableExpression) {
         return variableExpression.setType(variableExpression.getVariable().getType());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(AstArrayExpression arrayExpression) {
+        return arrayExpression.setType(arrayExpression.getArray().getType());
     }
 
     /**
@@ -241,10 +250,35 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
+    public Type visit(AstArrayDeclaration arrayDeclaration) {
+        if (arrayDeclaration.getType().getStackType() != StackType.INT) {
+            checker.reportError(new SemanticError(arrayDeclaration, "Arrays can only have a type that is derived from the int type"));
+        }
+        checkType(arrayDeclaration.getSize(), PrimitiveType.INT, arrayDeclaration.getSize().accept(this));
+        return PrimitiveType.UNDEFINED;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Type visit(AstVariableInitializer variableInitializer) {
         var expression = variableInitializer.getExpression();
         if (expression != null && variableInitializer.getVariable() != null) {
             checkType(expression, variableInitializer.getVariable().getType(), expression.accept(this));
+        }
+        return PrimitiveType.UNDEFINED;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(AstArrayInitializer arrayInitializer) {
+        checkType(arrayInitializer.getIndex(), PrimitiveType.INT, arrayInitializer.getIndex().accept(this));
+        var array = arrayInitializer.getArray();
+        if (array != null) {
+            checkType(arrayInitializer.getValue(), array.getType(), arrayInitializer.getValue().accept(this));
         }
         return PrimitiveType.UNDEFINED;
     }

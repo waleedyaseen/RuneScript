@@ -11,11 +11,10 @@ import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.ast.expr.AstArrayExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstGosub;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariableExpression;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDeclaration;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitializer;
+import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
@@ -151,6 +150,52 @@ public final class PreTypeChecking extends AstTreeVisitor {
             variableExpression.setVariable(variable);
         }
         return super.visit(variableExpression);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstArrayDeclaration declaration) {
+        var name = declaration.getName();
+        var array = scopes.lastElement().getArray(name.getText());
+        if (array != null) {
+            checker.reportError(new SemanticError(name, String.format("Duplicate array %s", name.getText())));
+        } else {
+            array = scopes.lastElement().declareArray(name.getText(), declaration.getType());
+            declaration.setArray(array);
+        }
+        return super.visit(declaration);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstArrayInitializer arrayInitializer) {
+        var name = arrayInitializer.getName();
+        var array = scopes.lastElement().getArray(name.getText());
+        if (array == null) {
+            checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to an array", name.getText())));
+        } else {
+            arrayInitializer.setArray(array);
+        }
+        return super.visit(arrayInitializer);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstArrayExpression arrayExpression) {
+        var name = arrayExpression.getName();
+        var array = scopes.lastElement().getArray(name.getText());
+        if (array == null) {
+            checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to an array", name.getText())));
+        } else {
+            arrayExpression.setArray(array);
+        }
+        return super.visit(arrayExpression);
     }
 
     /**

@@ -11,7 +11,10 @@ import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -137,6 +140,18 @@ public interface AstVisitor<E, S> {
     }
 
     /**
+     * Gets called when we have just visited an {@link AstArrayExpression} node.
+     *
+     * @param arrayExpression
+     *         the {@link AstArrayExpression} node we have just visited.
+     *
+     * @return the implementation output object.
+     */
+    default E visit(AstArrayExpression arrayExpression) {
+        return null;
+    }
+
+    /**
      * Gets called when we have just visited an {@link AstGosub} node.
      *
      * @param gosub
@@ -209,6 +224,18 @@ public interface AstVisitor<E, S> {
     }
 
     /**
+     * Gets called when we have just visited an {@link AstArrayDeclaration} node.
+     *
+     * @param arrayDeclaration
+     *         the {@link AstArrayDeclaration} node we have just visited.
+     *
+     * @return the implementation output object.
+     */
+    default S visit(AstArrayDeclaration arrayDeclaration) {
+        return null;
+    }
+
+    /**
      * Gets called when we have just visited an {@link AstVariableInitializer} node.
      *
      * @param variableInitializer
@@ -217,6 +244,18 @@ public interface AstVisitor<E, S> {
      * @return the implementation output object.
      */
     default S visit(AstVariableInitializer variableInitializer) {
+        return null;
+    }
+
+    /**
+     * Gets called when we have just visited an {@link AstArrayInitializer} node.
+     *
+     * @param arrayInitializer
+     *         the {@link AstVariableInitializer} node we have just visited.
+     *
+     * @return the implementation output object.
+     */
+    default S visit(AstArrayInitializer arrayInitializer) {
         return null;
     }
 

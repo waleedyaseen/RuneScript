@@ -27,37 +27,43 @@ public enum PrimitiveType implements Type {
     /**
      * The undefined primitive type.
      */
-    UNDEFINED(null, null, null),
+    UNDEFINED('\0', null, null, null),
 
     /**
      * The void primitive type.
      */
-    VOID("void", null, null),
+    VOID('\0', "void", null, null),
 
     /**
      * The integer primitive type.
      */
-    INT("int", StackType.INT, 0),
+    INT('i', "int", StackType.INT, 0),
 
     /**
      * The string primitive type.
      */
-    STRING("string", StackType.STRING, ""),
+    STRING('s', "string", StackType.STRING, ""),
 
     /**
      * The long primitive type.
      */
-    LONG("long", StackType.LONG, 0L),
+    LONG('\u00cf', "long", StackType.LONG, 0L),
 
     /**
      * The boolean primitive type.
      */
-    BOOL("bool", StackType.INT, false);
+    BOOL('1', "bool", StackType.INT, false);
 
     /**
      * The {@link PrimitiveType} by {@link #representation} look-up map.
      */
     private static Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
+
+    /**
+     * The code of this primitive type.
+     */
+    @Getter
+    private final char code;
 
     /**
      * The primitive type textual representation.

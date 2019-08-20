@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.visitor;
 
+import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -52,6 +53,34 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
      *         the node we have just entered.
      */
     public void exit(AstScript script) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstAnnotation annotation) {
+        enter(annotation);
+        exit(annotation);
+        return null;
+    }
+
+    /**
+     * Gets called when we have just entered an {@link AstAnnotation} node.
+     *
+     * @param annotation
+     *         the node we have just entered.
+     */
+    public void enter(AstAnnotation annotation) {
+    }
+
+    /**
+     * Gets called when we have just left an {@link AstScript} node.
+     *
+     * @param annotation
+     *         the node we have just entered.
+     */
+    public void exit(AstAnnotation annotation) {
     }
 
     /**
@@ -258,6 +287,34 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
      * {@inheritDoc}
      */
     @Override
+    public Void visit(AstArrayExpression arrayExpression) {
+        enter(arrayExpression);
+        exit(arrayExpression);
+        return null;
+    }
+
+    /**
+     * Gets called when we have just entered an {@link AstArrayExpression} node.
+     *
+     * @param array
+     *         the node we have just entered.
+     */
+    public void enter(AstArrayExpression array) {
+    }
+
+    /**
+     * Gets called when we have just left an {@link AstArrayExpression} node.
+     *
+     * @param array
+     *         the node we have just entered.
+     */
+    public void exit(AstArrayExpression array) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Void visit(AstGosub gosub) {
         enter(gosub);
         for (var expression : gosub.getArguments()) {
@@ -437,6 +494,35 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
      * {@inheritDoc}
      */
     @Override
+    public Void visit(AstArrayDeclaration arrayDeclaration) {
+        enter(arrayDeclaration);
+        arrayDeclaration.getSize().accept(this);
+        exit(arrayDeclaration);
+        return null;
+    }
+
+    /**
+     * Gets called when we have just entered an {@link AstArrayDeclaration} node.
+     *
+     * @param arrayDeclaration
+     *         the node we have just entered.
+     */
+    public void enter(AstArrayDeclaration arrayDeclaration) {
+    }
+
+    /**
+     * Gets called when we have just left an {@link AstArrayDeclaration} node.
+     *
+     * @param arrayDeclaration
+     *         the node we have just entered.
+     */
+    public void exit(AstArrayDeclaration arrayDeclaration) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Void visit(AstVariableInitializer variableInitializer) {
         enter(variableInitializer);
         variableInitializer.getExpression().accept(this);
@@ -460,6 +546,36 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
      *         the node we have just entered.
      */
     public void exit(AstVariableInitializer variableInitializer) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstArrayInitializer arrayInitializer) {
+        enter(arrayInitializer);
+        arrayInitializer.getIndex().accept(this);
+        arrayInitializer.getValue().accept(this);
+        exit(arrayInitializer);
+        return null;
+    }
+
+    /**
+     * Gets called when we have just entered an {@link AstArrayInitializer} node.
+     *
+     * @param arrayInitializer
+     *         the node we have just entered.
+     */
+    public void enter(AstArrayInitializer arrayInitializer) {
+    }
+
+    /**
+     * Gets called when we have just left an {@link AstArrayInitializer} node.
+     *
+     * @param arrayInitializer
+     *         the node we have just entered.
+     */
+    public void exit(AstArrayInitializer arrayInitializer) {
     }
 
     /**

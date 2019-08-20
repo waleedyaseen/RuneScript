@@ -118,7 +118,6 @@ public final class ScriptParser extends ParserBase {
         return new AstAnnotation(popRange(), name, value);
     }
 
-
     /**
      * Attempts to parse a list of {@link AstParameter} objects.
      *
@@ -126,7 +125,7 @@ public final class ScriptParser extends ParserBase {
      */
     public ArrayList<AstAnnotation> annotationList() {
         var annotations = new ArrayList<AstAnnotation>();
-        while (peekKind() == HASH) {
+        while (isAnnotation()) {
             annotations.add(annotation());
         }
         return annotations;
@@ -242,6 +241,9 @@ public final class ScriptParser extends ParserBase {
             case BOOL:
                 return bool();
             case DOLLAR:
+                if (peekKind(2) == LPAREN) {
+                    return arrayVariable();
+                }
                 return localVariable();
             case MODULO:
                 return globalVariable();
@@ -302,8 +304,15 @@ public final class ScriptParser extends ParserBase {
             case RETURN:
                 return returnStatement();
             case DEFINE:
+                if (peekKind(3) == LPAREN) {
+                    return arrayDeclaration();
+                }
                 return variableDeclaration();
             case DOLLAR:
+                if (peekKind(2) == LPAREN) {
+                    return arrayInitializer();
+                }
+                return variableInitializer();
             case MODULO:
                 return variableInitializer();
             case SWITCH:
@@ -419,7 +428,6 @@ public final class ScriptParser extends ParserBase {
         pushRange();
         var token = consume(DEFINE);
         var type = PrimitiveType.forRepresentation(token.getLexeme().substring(4));
-        // type can never be null here.
         if (!consumeIf(DOLLAR)) {
             throw createError(consume(), "Expecting a local variable name");
         }
@@ -435,13 +443,29 @@ public final class ScriptParser extends ParserBase {
     }
 
     /**
+     * Attempts to parse an {@link AstVariableDeclaration} from the next set of {@link Token token}s.
+     *
+     * @return the parsed {@link AstVariableDeclaration} object.
+     */
+    public AstArrayDeclaration arrayDeclaration() {
+        pushRange();
+        var token = consume(DEFINE);
+        var type = PrimitiveType.forRepresentation(token.getLexeme().substring(4));
+        if (!consumeIf(DOLLAR)) {
+            throw createError(consume(), "Expecting an array name");
+        }
+        var name = identifier();
+        var size = parExpression();
+        consume(SEMICOLON);
+        return new AstArrayDeclaration(popRange(), type, name, size);
+    }
+
+    /**
      * Attempts to parse an {@link AstVariableInitializer} from the next set of {@link Token token}s.
      *
      * @return the parsed {@link AstVariableInitializer} object.
      */
     public AstVariableInitializer variableInitializer() {
-        // we can turn this into an expression, but then it would result in
-        // the binary expression being confused between equality and assign operators.
         pushRange();
         var token = consume();
         var scope = VariableScope.forKind(token.getKind());
@@ -456,7 +480,23 @@ public final class ScriptParser extends ParserBase {
     }
 
     /**
-     * Attempts to p arse an {@link AstSwitchStatement} from the next set of {@link Token token}s.
+     * Attempts to parse an {@link AstArrayInitializer} from the next set of {@link Token token}s.
+     *
+     * @return the parsed {@link AstArrayInitializer} object.
+     */
+    public AstArrayInitializer arrayInitializer() {
+        pushRange();
+        consume(DOLLAR);
+        var name = identifier();
+        var index = parExpression();
+        consume(EQUALS);
+        var value = expression();
+        consume(SEMICOLON);
+        return new AstArrayInitializer(popRange(), name, index, value);
+    }
+
+    /**
+     * Attempts to parse an {@link AstSwitchStatement} from the next set of {@link Token token}s.
      *
      * @return the parsed {@link AstSwitchStatement} object.
      */
@@ -483,7 +523,7 @@ public final class ScriptParser extends ParserBase {
     }
 
     /**
-     * Attempts to p arse an {@link AstSwitchCase} from the next set of {@link Token token}s.
+     * Attempts to parse an {@link AstSwitchCase} from the next set of {@link Token token}s.
      *
      * @return the parsed {@link AstSwitchCase} object.
      */
@@ -604,6 +644,21 @@ public final class ScriptParser extends ParserBase {
         consume(DOLLAR);
         var name = identifier();
         return new AstVariableExpression(popRange(), VariableScope.LOCAL, name);
+    }
+
+    /**
+     * Attempts to match the next set of tokens to an {@link AstArrayExpression} object.
+     *
+     * @return the parsed {@link AstArrayExpression} object.
+     */
+    public AstArrayExpression arrayVariable() {
+        pushRange();
+        consume(DOLLAR);
+        var name = identifier();
+        consume(LPAREN);
+        var index = expression();
+        consume(RPAREN);
+        return new AstArrayExpression(popRange(), name, index);
     }
 
     /**
