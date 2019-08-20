@@ -15,12 +15,13 @@ import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
 import me.waliedyassen.runescript.compiler.stack.StackType;
+import me.waliedyassen.runescript.compiler.symbol.impl.ScriptInfo;
 
 import java.util.*;
 
 /**
- * Represents a {@link CodeWriter} implementation that writes to asm bytecode format and outputs an {@link BytecodeScript}
- * object containing all the data for the byte code.
+ * Represents a {@link CodeWriter} implementation that writes to asm bytecode format and outputs an {@link
+ * BytecodeScript} object containing all the data for the byte code.
  *
  * @author Walied K. Yassen
  */

@@ -41,14 +41,23 @@ public final class SemanticChecker {
     private final SymbolTable symbolTable;
 
     /**
-     * Executes the semantic checking at the specified {@link AstNode node}.
+     * Executes the pre semantic checking for the specified {@link AstScript scripts}.
+     *
+     * @param scripts
+     *         the scripts to perform the pre semantic checking on.
+     */
+    public void executePre(Iterable<AstScript> scripts) {
+        var pre = new PreTypeChecking(this, symbolTable);
+        scripts.forEach(tree -> tree.accept(pre));
+    }
+
+    /**
+     * Executes the semantic checking for the specified {@link AstNode node}.
      *
      * @param scripts
      *         the scripts to perform the semantic checking on.
      */
     public void execute(Iterable<AstScript> scripts) {
-        var pre = new PreTypeChecking(this, symbolTable);
-        scripts.forEach(tree -> tree.accept(pre));
         var checker = new TypeChecking(this, symbolTable);
         scripts.forEach(tree -> tree.accept(checker));
     }

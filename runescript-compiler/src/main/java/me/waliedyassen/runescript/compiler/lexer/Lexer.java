@@ -24,7 +24,7 @@ public final class Lexer {
     /**
      * The list of the {@linkplain Token}s that are availabe to this lexer.
      */
-    private final List<Token> tokens = new ArrayList<Token>();
+    private final List<Token> tokens = new ArrayList<>();
 
     /**
      * The current pointer index value.

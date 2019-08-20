@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents the main class for the RuneScript language compiler module.
@@ -40,6 +41,16 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 public final class Compiler {
+
+    /**
+     * The source file extension.
+     */
+    private static final String SOURCE_EXTENSION = ".rs2";
+
+    /**
+     * The output file extension.
+     */
+    private static final String OUTPUT_EXTENSION = ".cs2";
 
     /**
      * The charset of the source files.
@@ -92,6 +103,69 @@ public final class Compiler {
         optimizer.register(new NaturalFlowOptimization());
         optimizer.register(new DeadBranchOptimization());
         optimizer.register(new DeadBlockOptimization());
+    }
+
+    /**
+     * Compiles all of the scripts (the files that ends with .rs2) that are in the specified source directory and
+     * outputs the compiled scripts into the output directory. This method will also compile all of the scripts in the
+     * sub-directories.
+     *
+     * @param sourceDirectory
+     *         the source directory which contains all of the scripts
+     * @param outputDirectory
+     *         the output directory to output the compiled script to.
+     */
+    public void compileDirectory(Path sourceDirectory, Path outputDirectory) throws IOException, CompilerErrors {
+        // Collect all of the script files that we will compile.
+        var sourceFiles = collectSourceFiles(sourceDirectory);
+        // Do nothing if we have no files to compile.
+        if (sourceFiles.size() < 1) {
+            return;
+        }
+        // Parse all of the script files.
+        var scripts = new ArrayList<AstScript>();
+        for (var sourceFile : sourceFiles) {
+            scripts.addAll(parseSyntaxTree(Files.readAllBytes(sourceFile)));
+        }
+        // Perform pre type checking on all of the files.
+        var checker = new SemanticChecker(symbolTable);
+        checker.executePre(scripts);
+        checker.execute(scripts);
+        // Check if we have any errors and if so we do not compile.
+        if (checker.getErrors().size() > 0) {
+            throw new CompilerErrors(checker.getErrors());
+        }
+        // Compile all of the scripts and store them in a list.
+        var result = new ArrayList<CompiledScript>();
+        for (var script : scripts) {
+            // Run the code generator on the script.
+            var generated = codeGenerator.visit(script);
+            // Optimize the generated script.
+            optimizer.run(generated);
+            // Write the generated script to a bytecode format.
+            BytecodeScript bytecode = codeWriter.write(generated);
+            try (var stream = new ByteArrayOutputStream()) {
+                bytecode.write(stream);
+                result.add(new CompiledScript(generated.getName(), stream.toByteArray()));
+            }
+        }
+        // Loop through each compiled script and write it to the output directory.
+        for (var script : result) {
+            Files.write(outputDirectory.resolve(script.getName() + OUTPUT_EXTENSION), script.getData(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        }
+    }
+
+    /**
+     * Collects all of the script source files that are within the specified directory.
+     *
+     * @param directory
+     *         the directory path to collect from.
+     */
+    private List<Path> collectSourceFiles(Path directory) throws IOException {
+        if (!Files.isDirectory(directory)) {
+            throw new IllegalArgumentException("The specified source directory does not exist or is not a directory");
+        }
+        return Files.walk(directory).filter(sourceFile -> Files.isRegularFile(sourceFile) && sourceFile.toString().endsWith(SOURCE_EXTENSION)).collect(Collectors.toList());
     }
 
     /**
@@ -157,6 +231,7 @@ public final class Compiler {
         }
         // Perform semantic analysis checking on the parsed AST.
         var checker = new SemanticChecker(symbolTable);
+        checker.executePre(scripts);
         checker.execute(scripts);
         // Check if there is any compilation errors and throw them if there is any.
         if (checker.getErrors().size() > 0) {
