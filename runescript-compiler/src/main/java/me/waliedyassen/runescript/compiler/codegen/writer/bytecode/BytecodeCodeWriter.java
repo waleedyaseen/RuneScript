@@ -76,7 +76,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
                 } else if (operand instanceof Long) {
                     // NOOP
                 } else {
-                    throw new UnsupportedOperationException("Unsupported operand type: " + operand.getClass().getCanonicalName());
+                    throw new UnsupportedOperationException("Unsupported operand type: " + operand + ", for opcode: " + $instruction.getOpcode());
                 }
                 if (operand == null) {
                     throw new IllegalStateException("Null operands are not allowed");

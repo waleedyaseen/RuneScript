@@ -37,13 +37,11 @@ import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Stack;
+import java.util.*;
 
 import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
 
@@ -113,6 +111,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         }
         bind(generateBlock("entry"));
         script.getCode().accept(this);
+        generateDefaultReturn(script.getType());
         popContext();
         // format the script name to be in the formal format.
         var name = "[" + script.getTrigger().getText() + "," + script.getName().getText() + "]";
@@ -133,6 +132,26 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         initialise();
         // return the generated script object.
         return new Script(name, blocks, parameters, variables, tables);
+    }
+
+    /**
+     * Generates the default return instruction of the specified return {@link Type type}.
+     *
+     * @param returnType
+     *         the return type of the script.
+     */
+    private void generateDefaultReturn(Type returnType) {
+        if (returnType == PrimitiveType.VOID) {
+            // NOOP
+        } else if (returnType instanceof TupleType) {
+            var flattened = ((TupleType) returnType).getFlattened();
+            for (var type : flattened) {
+                instruction(getConstantOpcode(type), type.getDefaultValue());
+            }
+        } else {
+            instruction(getConstantOpcode(returnType), returnType.getDefaultValue());
+        }
+        instruction(RETURN, 0);
     }
 
     /**
