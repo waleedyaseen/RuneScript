@@ -105,6 +105,7 @@ public final class LexicalTable {
         registerSeparator(':', Kind.COLON);
         registerSeparator(';', Kind.SEMICOLON);
         registerSeparator('.', Kind.DOT);
+        registerSeparator('#', Kind.HASH);
         // register all of the operators.
         for (var operator : Operator.values()) {
             registerOperator(operator.getRepresentation(), operator.getKind());

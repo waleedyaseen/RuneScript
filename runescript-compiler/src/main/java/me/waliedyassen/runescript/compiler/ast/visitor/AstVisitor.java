@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.visitor;
 
+import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -36,6 +37,18 @@ public interface AstVisitor<E, S> {
      * @return the implementation output object.
      */
     default S visit(AstScript script) {
+        return null;
+    }
+
+    /**
+     * Gets called when we have just visited an {@link AstAnnotation} node.
+     *
+     * @param annotation
+     *         the {@link AstAnnotation} node we have just sitied.
+     *
+     * @return the implementation output object.
+     */
+    default S visit(AstAnnotation annotation) {
         return null;
     }
 

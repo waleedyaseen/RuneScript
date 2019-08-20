@@ -11,11 +11,11 @@ import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.ScriptInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 import java.util.HashMap;
@@ -153,6 +153,8 @@ public final class SymbolTable {
     /**
      * Defines a new script symbol information in this table.
      *
+     * @param annotations
+     *         the annotations of the script.
      * @param trigger
      *         the trigger of the script.
      * @param name
@@ -162,11 +164,11 @@ public final class SymbolTable {
      * @param arguments
      *         the arguments type which the script takes.
      */
-    public void defineScript(TriggerType trigger, String name, Type type, Type[] arguments) {
+    public void defineScript(Map<String, Annotation> annotations, TriggerType trigger, String name, Type type, Type[] arguments) {
         if (scripts.containsKey(name)) {
             throw new IllegalArgumentException("The script '" + name + "' is already defined.");
         }
-        scripts.put(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name), new ScriptInfo(name, trigger, type, arguments));
+        scripts.put(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name), new ScriptInfo(annotations, name, trigger, type, arguments));
     }
 
     /**

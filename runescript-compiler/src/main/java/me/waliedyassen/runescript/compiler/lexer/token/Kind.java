@@ -173,6 +173,11 @@ public enum Kind {
      */
     DOT,
 
+    /**
+     * The hash token kind.
+     */
+    HASH,
+
     // the operators chunk.
 
     /**

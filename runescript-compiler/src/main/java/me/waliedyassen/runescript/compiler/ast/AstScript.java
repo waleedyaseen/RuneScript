@@ -15,6 +15,8 @@ import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.type.Type;
 
+import java.util.List;
+
 /**
  * Represents a complete script with header and code statements. Contains unverified AST nodes that represents the
  * signature and the code statements.
@@ -25,33 +27,37 @@ import me.waliedyassen.runescript.compiler.type.Type;
 public final class AstScript extends AstNode {
 
     /**
-     * The script trigger type. The trigger type controls when the script will be executed, after the occurrence of a
-     * specific event or just after a direct call from another script.
+     * The annotations of the script.
+     */
+    @Getter
+    private final List<AstAnnotation> annotations;
+
+    /**
+     * The trigger type name of the script.
      */
     @Getter
     private final AstIdentifier trigger;
 
     /**
-     * The script name. The name must be unique all over the current compiling scripts, it is used for referring to this
-     * script from other scripts.
+     * The name of the script.
      */
     @Getter
     private final AstIdentifier name;
 
     /**
-     * The script parameters.
+     * The parameters list of the script..
      */
     @Getter
     private final AstParameter[] parameters;
 
     /**
-     * The script type.
+     * The return type of the script.
      */
     @Getter
     private final Type type;
 
     /**
-     * The script code statement.
+     * The code block of the script.
      */
     @Getter
     private final AstBlockStatement code;
@@ -59,6 +65,8 @@ public final class AstScript extends AstNode {
     /**
      * Construct a new {@link AstScript} type object instance.
      *
+     * @param annotations
+     *         the annotations of the script.
      * @param range
      *         the script source range.
      * @param trigger
@@ -72,8 +80,9 @@ public final class AstScript extends AstNode {
      * @param code
      *         the script code statement.
      */
-    public AstScript(Range range, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, Type type, AstBlockStatement code) {
+    public AstScript(Range range, List<AstAnnotation> annotations, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, Type type, AstBlockStatement code) {
         super(range);
+        this.annotations = annotations;
         this.trigger = trigger;
         this.name = name;
         this.parameters = parameters;

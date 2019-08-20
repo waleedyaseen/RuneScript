@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
+import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -58,6 +59,8 @@ public final class ScriptParser extends ParserBase {
      */
     public AstScript script() {
         pushRange();
+        // parse annotations if we have any.
+        var annotations = annotationList();
         // parse the script trigger and name.
         consume(LBRACKET);
         var trigger = identifier();
@@ -96,9 +99,47 @@ public final class ScriptParser extends ParserBase {
         // we will allow empty scripts for now.
         var code = unbracedBlockStatement();
         // return the parsed script.
-        return new AstScript(popRange(), trigger, name, parameters.toArray(AstParameter[]::new), type, code);
+        return new AstScript(popRange(), annotations, trigger, name, parameters.toArray(AstParameter[]::new), type, code);
     }
 
+    /**
+     * Attempts to parse an {@link AstAnnotation} object node.
+     *
+     * @return the parsed {@link AstAnnotation} object.
+     */
+    private AstAnnotation annotation() {
+        pushRange();
+        consume(HASH);
+        consume(LBRACKET);
+        var name = identifier();
+        consume(COLON);
+        var value = integerNumber();
+        consume(RBRACKET);
+        return new AstAnnotation(popRange(), name, value);
+    }
+
+
+    /**
+     * Attempts to parse a list of {@link AstParameter} objects.
+     *
+     * @return the parsed list of {@link AstParameter} objects.
+     */
+    public ArrayList<AstAnnotation> annotationList() {
+        var annotations = new ArrayList<AstAnnotation>();
+        while (peekKind() == HASH) {
+            annotations.add(annotation());
+        }
+        return annotations;
+    }
+
+    /**
+     * Checks whether or not the next tokens can be parsed as an {@link AstAnnotation} object.
+     *
+     * @return <code>true</code> if it can otherwise <code>false</code>.
+     */
+    private boolean isAnnotation() {
+        return peekKind(0) == HASH;
+    }
 
     /**
      * Attempts to parse an {@link AstParameter} object node.
@@ -131,7 +172,7 @@ public final class ScriptParser extends ParserBase {
     /**
      * Checks whether or not the next tokens can be parsed as a {@link AstParameter} object.
      *
-     * @return <code>true</code> if it is otherwise <code>false</code>.
+     * @return <code>true</code> if it can otherwise <code>false</code>.
      */
     private boolean isParameter() {
         return peekKind(0) == TYPE && peekKind(1) == DOLLAR;

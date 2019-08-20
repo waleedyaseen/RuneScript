@@ -8,8 +8,10 @@
 package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.ast.expr.AstGosub;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariableExpression;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDeclaration;
@@ -18,6 +20,7 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.semantics.scope.Scope;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.type.Type;
@@ -26,8 +29,7 @@ import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerProperties;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
-import java.util.Arrays;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Contains all of the procedures and functions that will be applied right before we perform our type checking semantic
@@ -58,7 +60,21 @@ public final class PreTypeChecking extends AstTreeVisitor {
      */
     @Override
     public Void visit(AstScript script) {
-        var type = script.getType();
+        // create the annotations list.
+        Map<String, Annotation> annotations;
+        if (script.getAnnotations().size() > 0) {
+            annotations = new HashMap<>();
+            for (var annotation : script.getAnnotations()) {
+                var name = annotation.getName().getText().toLowerCase();
+                if (annotations.containsKey(name)) {
+                    checker.reportError(new SemanticError(annotation.getName(), String.format("The annotation %s is already defined for this script", name)));
+                } else {
+                    annotations.put(name, new Annotation(name, annotation.getValue().getValue()));
+                }
+            }
+        } else {
+            annotations = Collections.emptyMap();
+        }
         // resolve the script trigger type.
         var triggerName = script.getTrigger();
         var trigger = TriggerType.forRepresentation(triggerName.getText());
@@ -76,7 +92,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
             if (symbolTable.lookupScript(trigger, name.getText()) != null) {
                 checker.reportError(new SemanticError(name, String.format("The script '%s' is already defined", name.getText())));
             } else {
-                symbolTable.defineScript(trigger, name.getText(), script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
+                symbolTable.defineScript(annotations, trigger, name.getText(), script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
             }
         }
         return super.visit(script);

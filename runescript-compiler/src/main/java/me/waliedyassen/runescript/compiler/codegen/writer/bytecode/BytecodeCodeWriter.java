@@ -15,7 +15,6 @@ import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
 import me.waliedyassen.runescript.compiler.stack.StackType;
-import me.waliedyassen.runescript.compiler.symbol.impl.ScriptInfo;
 
 import java.util.*;
 
@@ -30,7 +29,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
     /**
      * An empty list to save some lines of code that compares if the variable stack is present or not.
      */
-    private static final List<Local> EMPTY = Collections.unmodifiableList(new ArrayList<>(0));
+    private static final List<Local> EMPTY = Collections.emptyList();
 
     /**
      * {@inheritDoc}
