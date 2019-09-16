@@ -80,8 +80,9 @@ public final class BufferedCharStream implements CharStream {
      * @throws IOException
      *         if anything occurs while reading the data from the specified {@link InputStream}.
      */
-    public BufferedCharStream(InputStream stream, int tabSize) throws IOException {
+    private BufferedCharStream(InputStream stream, int tabSize) throws IOException {
         this.tabSize = tabSize;
+        // TODO: Always change to LF when parsing and ignore the CR.
         buffer = new char[stream.available()];
         for (int index = 0; index < buffer.length; index++) {
             buffer[index] = (char) stream.read();
@@ -157,15 +158,12 @@ public final class BufferedCharStream implements CharStream {
             if (!hasRemaining()) {
                 pos--;
             } else {
-                char ch = buffer[pos--];
-                if (ch == '\r') {
+                var ch = buffer[--pos];
+                if (ch == '\n') {
                     count++;
-                } else if (ch == '\n') {
+                } else if (ch == '\r') {
                     line--;
-                    column = 1;
-                    if (ch == '\r') {
-                        pos--;
-                    }
+                    column = calculateLineColumn();
                 } else if (ch == '\t') {
                     column -= tabSize - (column - 1) % tabSize;
                 } else {
@@ -173,6 +171,32 @@ public final class BufferedCharStream implements CharStream {
                 }
             }
         }
+    }
+
+    /**
+     * Calculates the current line column offset.
+     *
+     * @return teh current line column offset.
+     */
+    private int calculateLineColumn() {
+        var start = this.pos;
+        var end = this.pos;
+        do {
+            var ch = buffer[--start];
+            if (ch == '\n') {
+                break;
+            }
+        } while (start > 0);
+        var column = 0;
+        for (var index = start; index < end; index++) {
+            var ch = buffer[index];
+            if (ch == '\t') {
+                column += tabSize - (column - 1) % tabSize;
+            } else {
+                column++;
+            }
+        }
+        return column;
     }
 
     /**
