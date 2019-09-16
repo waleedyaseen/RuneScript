@@ -14,7 +14,7 @@
     <name>RuneScript</name>
     <properties>
         <junit.version>5.5.1</junit.version>
-        <java.version>11</java.version>
+        <java.version>12</java.version>
         <lombok.version>1.18.8</lombok.version>
         <jacoco.version>0.8.4</jacoco.version>
         <surefire.version>2.22.2</surefire.version>
@@ -24,6 +24,7 @@
     <modules>
         <module>runescript-commons</module>
         <module>runescript-compiler</module>
+        <module>runescript-configs</module>
     </modules>
     <scm>
         <url>https://github.com/waliedyassen/RuneScript</url>

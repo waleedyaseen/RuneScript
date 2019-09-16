@@ -1,7 +1,7 @@
 sudo: false
 language: java
 dist: trusty
-jdk: oraclejdk11
+jdk: oraclejdk12
 install: true
 script:
   - mvn clean verify jacoco:report
