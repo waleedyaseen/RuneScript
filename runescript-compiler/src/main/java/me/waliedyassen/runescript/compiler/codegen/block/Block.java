@@ -35,14 +35,6 @@ public final class Block {
     private final List<Instruction> instructions = new ArrayList<>();
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return label.toString();
-    }
-
-    /**
      * Adds the specified {@link Instruction instruction} to this block.
      *
      * @param instruction
@@ -85,6 +77,14 @@ public final class Block {
         return instructions.get(instructions.size() - 1);
     }
 
+    /**
+     * Gets the previous instruction to the specified {@link Instruction}.
+     *
+     * @param instruction
+     *         the instruction to get the previous instruction to.
+     *
+     * @return the {@link Instruction} previous to the specified one if it as present otherwise {@code null}.
+     */
     public Instruction previous(Instruction instruction) {
         var index = instructions.indexOf(instruction);
         if (index > 0) {

@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.commons.document;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -17,7 +18,7 @@ import lombok.ToString;
  * @author Walied K. Yassen
  */
 @EqualsAndHashCode
-@ToString
+@AllArgsConstructor
 public final class Range {
 
     /**
@@ -37,19 +38,6 @@ public final class Range {
      */
     public Range() {
         this(LineColumn.MAX, LineColumn.MIN);
-    }
-
-    /**
-     * Constructs a new {@link Range} type object instance.
-     *
-     * @param start
-     *         the start position.
-     * @param end
-     *         the end position.
-     */
-    public Range(LineColumn start, LineColumn end) {
-        this.start = start;
-        this.end = end;
     }
 
     /**
@@ -73,7 +61,7 @@ public final class Range {
      *         the ranges to perform for.
      */
     public void add(Range... ranges) {
-        for (Range range : ranges) {
+        for (var range : ranges) {
             add(range);
         }
     }
@@ -96,17 +84,14 @@ public final class Range {
      * @param position
      *         the position to check whether is it within this position range or not.
      *
-     * @return <code>true</code> if the specified position is within this range
-     * otherwise <code>false</code>.
+     * @return <code>true</code> if the specified position is within this range otherwise <code>false</code>.
      */
     public boolean contains(LineColumn position) {
         return position.isGreaterThan(start) && position.isLesserThan(end);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#clone()
+    /**
+     * {@inheritDoc}
      */
     @Override
     public Range clone() {

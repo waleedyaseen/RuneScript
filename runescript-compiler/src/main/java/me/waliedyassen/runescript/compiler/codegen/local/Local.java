@@ -32,12 +32,4 @@ public final class Local {
      */
     @Getter
     private final Type type;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return "$" + name;
-    }
 }

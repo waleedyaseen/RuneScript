@@ -7,10 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.context;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 
 /**
@@ -18,18 +15,16 @@ import me.waliedyassen.runescript.compiler.codegen.block.Block;
  *
  * @author Walied K. Yassen
  */
-@RequiredArgsConstructor
+@Data
 public class Context {
 
     /**
      * The type of this context.
      */
-    @Getter
-    private final @NonNull ContextType type;
+    private final ContextType type;
 
     /**
      * The current working block.
      */
-    @Getter @Setter
     private Block block;
 }

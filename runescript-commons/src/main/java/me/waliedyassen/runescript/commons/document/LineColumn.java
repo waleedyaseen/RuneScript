@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.commons.document;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -16,19 +17,18 @@ import lombok.ToString;
  *
  * @author Walied K. Yassen
  */
-@EqualsAndHashCode
-@ToString
+@Data
 public final class LineColumn {
 
     /**
      * The {@link LineColumn} object with the minimum position.
      */
-    static final LineColumn MIN = new LineColumn(0, 0);
+    public static final LineColumn MIN = new LineColumn(0, 0);
 
     /**
      * The {@link LineColumn} object with the maximum position.
      */
-    static final LineColumn MAX = new LineColumn(Short.MAX_VALUE, Short.MAX_VALUE);
+    public static final LineColumn MAX = new LineColumn(Short.MAX_VALUE, Short.MAX_VALUE);
 
     /**
      * The line number within the document.
@@ -41,19 +41,6 @@ public final class LineColumn {
      */
     @Getter
     private final int column;
-
-    /**
-     * Constructs a new {@link LineColumn} type object instance.
-     *
-     * @param line
-     *         the line number within the document.
-     * @param column
-     *         the column number within the line.
-     */
-    public LineColumn(int line, int column) {
-        this.line = line;
-        this.column = column;
-    }
 
     /**
      * Checks whether or not the given {@linkplain LineColumn position} is lesser than this position.

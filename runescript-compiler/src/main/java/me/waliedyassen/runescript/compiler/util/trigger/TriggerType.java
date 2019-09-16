@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.compiler.util.trigger;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -29,7 +28,7 @@ public enum TriggerType implements TriggerProperties {
     /**
      * The procedure trigger type.
      */
-    PROC("proc", CALLABLE, RETURNING);
+    PROC("proc", PROPERTY_INVOKE, PROPERTY_RETURN);
 
 
     /**
@@ -87,5 +86,4 @@ public enum TriggerType implements TriggerProperties {
     public static TriggerType forRepresentation(String representation) {
         return lookupMap.get(representation);
     }
-
 }

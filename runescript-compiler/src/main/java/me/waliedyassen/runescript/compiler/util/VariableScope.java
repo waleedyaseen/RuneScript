@@ -26,7 +26,6 @@ public enum VariableScope {
      */
     GLOBAL;
 
-
     /**
      * Attempts to find the {@link VariableScope} that is associated with the specified token {@link Kind kind}.
      *

@@ -8,11 +8,9 @@
 package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstArrayExpression;
-import me.waliedyassen.runescript.compiler.ast.expr.AstGosub;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariableExpression;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
@@ -82,7 +80,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
             checker.reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
         } else {
             // check if the trigger returning support matches the definition.
-            if (script.getType() != PrimitiveType.VOID && !trigger.hasProperty(TriggerProperties.RETURNING)) {
+            if (script.getType() != PrimitiveType.VOID && !trigger.hasProperty(TriggerProperties.PROPERTY_RETURN)) {
                 checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow return values", trigger.getRepresentation())));
             }
             // check if the script is already defined in the symbol table

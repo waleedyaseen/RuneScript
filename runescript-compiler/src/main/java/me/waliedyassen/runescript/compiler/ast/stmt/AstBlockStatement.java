@@ -32,7 +32,7 @@ public final class AstBlockStatement extends AstStatement {
      * @param statements
      *         the array of statements.
      */
-    public AstBlockStatement(Range range, AstStatement[] statements) {
+    public AstBlockStatement(Range range, AstStatement... statements) {
         super(range);
         this.statements = statements;
     }

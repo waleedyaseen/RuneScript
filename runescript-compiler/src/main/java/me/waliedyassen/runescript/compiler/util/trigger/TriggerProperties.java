@@ -17,10 +17,10 @@ public interface TriggerProperties {
     /**
      * Tells that the trigger can be called using '~' operator.
      */
-    int CALLABLE = 0x1;
+    int PROPERTY_INVOKE = 0x1;
 
     /**
      * Tells that the trigger can contain a return value.
      */
-    int RETURNING = 0x2;
+    int PROPERTY_RETURN = 0x2;
 }

@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.semantics.scope;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
@@ -29,6 +30,7 @@ public final class Scope {
     /**
      * The parent scope of this scope.
      */
+    @Getter
     private final Scope parent;
 
     /**

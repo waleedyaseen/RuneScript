@@ -38,12 +38,4 @@ public final class Instruction {
      */
     @Getter @Setter
     protected Block owner;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return opcode + "\t" + (operand instanceof String ? "\"" + operand + "\"" : operand);
-    }
 }

@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen;
 
-import lombok.EqualsAndHashCode;
+import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
@@ -76,13 +76,13 @@ public final class InstructionMap {
      *
      * @author Walied K. Yassen
      */
-    @RequiredArgsConstructor
-    @EqualsAndHashCode
-    private final class MappedOpcode implements Opcode {
+    @Data
+    public static final class MappedOpcode implements Opcode {
 
         /**
          * The core opcode we are remapping.
          */
+        @Getter
         private final CoreOpcode opcode;
 
         /**
@@ -96,13 +96,5 @@ public final class InstructionMap {
          */
         @Getter
         private final boolean large;
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String toString() {
-            return opcode.name();
-        }
     }
 }
