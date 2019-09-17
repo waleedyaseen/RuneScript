@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.config.annotation.ConfigArray;
 import me.waliedyassen.runescript.config.annotation.ConfigProps;
 import me.waliedyassen.runescript.config.var.ConfigVar;
+import me.waliedyassen.runescript.config.var.ConfigVarArray;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -61,7 +62,10 @@ public final class ConfigBinding<T> {
                 continue;
             }
             var array = field.getAnnotation(ConfigArray.class);
-            variables.put(props.name(), new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type()));
+            if (field.getType().isArray() ^ array != null) {
+                throw new IllegalStateException("ConfigArray must be always used with array type fields: " + field);
+            }
+            variables.put(props.name(), new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), array != null ? new ConfigVarArray(array.size()) : null));
         }
     }
 }

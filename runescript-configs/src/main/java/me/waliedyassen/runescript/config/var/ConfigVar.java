@@ -42,4 +42,9 @@ public final class ConfigVar {
      * The variable type of this configuration variable.
      */
     private final ConfigVarType type;
+
+    /**
+     * The variable array properties.
+     */
+    private final ConfigVarArray array;
 }

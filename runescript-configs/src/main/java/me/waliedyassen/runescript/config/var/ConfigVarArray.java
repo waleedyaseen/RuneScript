@@ -7,14 +7,20 @@
  */
 package me.waliedyassen.runescript.config.var;
 
+import lombok.Data;
+import lombok.Getter;
+
 /**
- * Represents a configuration variable type in the RuneScript type system.
+ * Represents a configuration variable array properties.
  *
  * @author Walied K. Yassen
  */
-public enum ConfigVarType {
+@Data
+public final class ConfigVarArray {
+
     /**
-     * The integer configuration variable type.
+     * The maximum size of the array.
      */
-    INT,
+    @Getter
+    public final int size;
 }

@@ -7,11 +7,18 @@
  */
 package me.waliedyassen.runescript.config.annotation;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * An annotation to specify the configuration array binding entry properties.
  *
  * @author Walied K. Yassen
  */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
 public @interface ConfigArray {
     /**
      * The size of ths configuration array binding entry.
