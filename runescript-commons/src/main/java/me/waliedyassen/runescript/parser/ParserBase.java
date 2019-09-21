@@ -5,24 +5,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.parser;
+package me.waliedyassen.runescript.parser;
 
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.SyntaxError;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.lexer.Lexer;
-import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.lexer.LexerBase;
 import me.waliedyassen.runescript.lexer.token.Token;
 
 import java.util.Stack;
 
 /**
- * Represents the base class for every parser implementation.
+ * Represents the base class for our parser.
  *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public abstract class ParserBase {
+public abstract class ParserBase<K> {
 
     /**
      * The {@link Range} object stack. It is used to calculate the nested {@link Range}s.
@@ -32,11 +32,11 @@ public abstract class ParserBase {
     /**
      * The lexical phase result object.
      */
-    protected final Lexer lexer;
+    protected final LexerBase<K> lexer;
 
     /**
-     * Takes the next {@link Token} object and checks whether or not its {@linkplain Kind kind} matches the specified
-     * {@linkplain Kind kind}.
+     * Takes the next {@link Token} object and checks whether or not its {@linkplain K kind} matches the specified
+     * {@linkplain K kind}.
      *
      * @param expected
      *         the expected token kind.
@@ -45,18 +45,17 @@ public abstract class ParserBase {
      * @throws SyntaxError
      *         if the next token does not match the expected token.
      */
-    protected Token<Kind> consume(Kind expected) {
+    protected Token<K> consume(K expected) {
         var token = consume();
-        var kind = token == null ? Kind.EOF : token.getKind();
-        if (kind != expected) {
-            throwError(token, "Unexpected rule: " + kind + ", expected: " + expected);
+        if (token.getKind() != expected) {
+            throwError(token, "Unexpected rule: " + token.getKind() + ", expected: " + expected);
         }
         return token;
     }
 
     /**
-     * Takes the next {@link Token} object and checks whether or not it's {@linkplain Kind kind} matches the specified
-     * {@linkplain Kind kind}.
+     * Takes the next {@link Token} object and checks whether or not it's {@linkplain K kind} matches the specified
+     * {@linkplain K kind}.
      *
      * @param expected
      *         the expected token kind.
@@ -65,9 +64,9 @@ public abstract class ParserBase {
      * @throws SyntaxError
      *         if the next token does not match the expected token.
      */
-    protected boolean consumeIf(Kind expected) {
+    protected boolean consumeIf(K expected) {
         var token = peek();
-        var kind = token == null ? Kind.EOF : token.getKind();
+        var kind = token.getKind();
         if (kind == expected) {
             consume();
             return true;
@@ -76,61 +75,52 @@ public abstract class ParserBase {
     }
 
     /**
-     * Takes the next {@link Token} object from the lexer.
+     * Takes the next {@link Token} object from the lexer and return it's kind.
      *
-     * @return the next {@link Token} object or {@code null}.
-     * @see Lexer#take()
+     * @return the token {@link K kind}
      */
-    protected Token<Kind> consume() {
-        var token = lexer.take();
-        appendRange(token);
-        return token;
-    }
-
-    /**
-     * Takes the next {@link Token} object from the lexer and return it's kind if it was present or {@link Kind#EOF}.
-     *
-     * @return the token {@link Kind} or {@link Kind#EOF} if it was not present.
-     */
-    protected Kind kind() {
-        var token = consume();
-        if (token == null) {
-            return Kind.EOF;
-        }
-        return token.getKind();
+    protected K kind() {
+        return consume().getKind();
     }
 
     /**
      * Takes the next {@link Token} object without advancing the lexer cursor.
      *
      * @return the next {@link Token} object or {@code null}.
-     * @see Lexer#peek()
+     * @see LexerBase#peek()
      */
-    protected Token<Kind> peek() {
+    protected Token<K> peek() {
         return lexer.peek();
     }
 
     /**
-     * Gets the next token {@link Kind} from the lexer without advancing the lexer cursor.
+     * Gets the next token {@link K kind} from the lexer without advancing the lexer cursor.
      *
-     * @return the next {@link Kind} or {@link Kind#EOF} if there is no more tokens.
+     * @return the next {@link K kind}.
      */
-    protected Kind peekKind() {
+    protected K peekKind() {
         return peekKind(0);
     }
 
     /**
-     * Attempts to get the token {@link Kind kind} that is placed after a specific amount of tokens defined by {@code
-     * n}.
+     * Attempts to get the token {@link K kind} that is placed after a specific amount of tokens defined by {@code n}.
      *
-     * @return the token {@link Kind kind } if it was present otherwise returns {@link Kind#EOF}.
+     * @return the token {@link K kind}.
      */
-    protected Kind peekKind(int n) {
-        var token = lexer.lookahead(n);
-        if (token == null) {
-            return Kind.EOF;
-        }
-        return token.getKind();
+    protected K peekKind(int n) {
+        return lexer.lookahead(n).getKind();
+    }
+
+    /**
+     * Takes the next {@link Token} object from the lexer.
+     *
+     * @return the next {@link Token} object or {@code null}.
+     * @see LexerBase#take()
+     */
+    protected Token<K> consume() {
+        var token = lexer.take();
+        appendRange(token);
+        return token;
     }
 
     /**
@@ -176,7 +166,7 @@ public abstract class ParserBase {
      * @param message
      *         the error message describing why the error has occurred.
      */
-    protected void throwError(Token<Kind> token, String message) {
+    protected void throwError(Token<K> token, String message) {
         throw createError(token, message);
     }
 
@@ -204,7 +194,7 @@ public abstract class ParserBase {
      *
      * @return the created {@link SyntaxError} object.
      */
-    protected SyntaxError createError(Token<Kind> token, String message) {
+    protected SyntaxError createError(Token<K> token, String message) {
         return new SyntaxError(token == null ? null : token.getRange(), message);
     }
 }

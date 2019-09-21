@@ -26,6 +26,7 @@ import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.lexer.token.Token;
+import me.waliedyassen.runescript.parser.ParserBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +34,11 @@ import java.util.List;
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
 
 /**
- * Represents the grammar parser, it takes a {@link Lexer} fed with {@link Token} objects, and then it attempts to apply
- * our RuneScript grammar rules to these tokens.
+ * Represents the scripts grammar Abstract-Syntax-Tree parser.
  *
  * @author Walied K. Yassen
  */
-public final class ScriptParser extends ParserBase {
+public final class ScriptParser extends ParserBase<Kind> {
 
     // TODO: Detailed documentation
 
@@ -46,7 +46,7 @@ public final class ScriptParser extends ParserBase {
      * Constructs a new {@link ScriptParser} type object instance.
      *
      * @param lexer
-     *         the lexical phase output object.
+     *         the lexical parser to use for tokens.
      */
     public ScriptParser(Lexer lexer) {
         super(lexer);
