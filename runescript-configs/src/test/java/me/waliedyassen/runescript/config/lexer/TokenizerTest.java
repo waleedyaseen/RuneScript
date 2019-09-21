@@ -21,7 +21,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class LexerTest {
+class TokenizerTest {
 
     private static LexicalTable<Kind> table;
 
@@ -105,8 +105,8 @@ class LexerTest {
         assertThrows(LexicalError.class, () -> fromString("()").parse());
     }
 
-    static Lexer fromString(String source) throws IOException {
+    static Tokenizer fromString(String source) throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream(source.getBytes()));
-        return new Lexer(table, stream);
+        return new Tokenizer(table, stream);
     }
 }

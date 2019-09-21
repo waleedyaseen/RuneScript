@@ -273,7 +273,7 @@ public final class Compiler {
         var lexer = new Lexer(tokenizer);
         var parser = new ScriptParser(lexer);
         var scripts = new ArrayList<AstScript>();
-        while (lexer.reminaing() > 0) {
+        while (lexer.remaining() > 0) {
             scripts.add(parser.script());
         }
         return scripts;

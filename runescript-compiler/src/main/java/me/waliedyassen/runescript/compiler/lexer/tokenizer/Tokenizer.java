@@ -8,11 +8,11 @@
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.LexicalError;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
-import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.lexer.LexerBase;
+import me.waliedyassen.runescript.lexer.TokenizerBase;
 import me.waliedyassen.runescript.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.lexer.token.Token;
 
@@ -28,7 +28,7 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class Tokenizer extends LexerBase {
+public final class Tokenizer extends TokenizerBase {
 
     // TODO: Interpolated strings proper range creation.
 
