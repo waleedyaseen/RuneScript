@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.compiler.parser;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
 /**
  * Represents a syntax error. The syntax error occurs when the input text sequence does not match the grammar rule or is
@@ -28,18 +27,18 @@ public class SyntaxError extends RuntimeException {
      * The token which the error has occurred at.
      */
     @Getter
-    private final Range token;
+    private final Range range;
 
     /**
      * Constructs a new {@link SyntaxError} type object instance.
      *
-     * @param token
+     * @param range
      *         the source code range which the error occurred within.
      * @param message
      *         the error message explaining why the error has occurred.
      */
-    public SyntaxError(Range token, String message) {
+    public SyntaxError(Range range, String message) {
         super(message);
-        this.token = token;
+        this.range = range;
     }
 }

@@ -12,7 +12,7 @@ import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.lexer.token.Token;
 
 import java.util.Stack;
 
@@ -45,7 +45,7 @@ public abstract class ParserBase {
      * @throws SyntaxError
      *         if the next token does not match the expected token.
      */
-    protected Token consume(Kind expected) {
+    protected Token<Kind> consume(Kind expected) {
         var token = consume();
         var kind = token == null ? Kind.EOF : token.getKind();
         if (kind != expected) {
@@ -81,7 +81,7 @@ public abstract class ParserBase {
      * @return the next {@link Token} object or {@code null}.
      * @see Lexer#take()
      */
-    protected Token consume() {
+    protected Token<Kind> consume() {
         var token = lexer.take();
         appendRange(token);
         return token;
@@ -106,7 +106,7 @@ public abstract class ParserBase {
      * @return the next {@link Token} object or {@code null}.
      * @see Lexer#peek()
      */
-    protected Token peek() {
+    protected Token<Kind> peek() {
         return lexer.peek();
     }
 
@@ -176,7 +176,7 @@ public abstract class ParserBase {
      * @param message
      *         the error message describing why the error has occurred.
      */
-    protected void throwError(Token token, String message) {
+    protected void throwError(Token<Kind> token, String message) {
         throw createError(token, message);
     }
 
@@ -204,7 +204,7 @@ public abstract class ParserBase {
      *
      * @return the created {@link SyntaxError} object.
      */
-    protected SyntaxError createError(Token token, String message) {
+    protected SyntaxError createError(Token<Kind> token, String message) {
         return new SyntaxError(token == null ? null : token.getRange(), message);
     }
 }

@@ -10,4 +10,12 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>runescript-configs</artifactId>
     <version>0.2-SNAPSHOT</version>
+    <dependencies>
+        <dependency>
+            <groupId>me.waliedyassen.runescript</groupId>
+            <artifactId>runescript-commons</artifactId>
+            <version>0.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>

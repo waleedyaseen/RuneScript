@@ -7,8 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.lexer;
 
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.lexer.token.Token;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public final class Lexer {
     /**
      * The list of the {@linkplain Token}s that are availabe to this lexer.
      */
-    private final List<Token> tokens = new ArrayList<>();
+    private final List<Token<Kind>> tokens = new ArrayList<>();
 
     /**
      * The current pointer index value.
@@ -57,7 +58,7 @@ public final class Lexer {
      *
      * @return the {@link Token} object if it was present otherwise {@code null}.
      */
-    public Token take() {
+    public Token<Kind> take() {
         if (index >= tokens.size()) {
             return null;
         }
@@ -69,7 +70,7 @@ public final class Lexer {
      *
      * @return the {@link Token} object if it was present otherwise {@code null}.
      */
-    public Token peek() {
+    public Token<Kind> peek() {
         if (index >= tokens.size()) {
             return null;
         }
@@ -81,7 +82,7 @@ public final class Lexer {
      *
      * @return the previous {@link Token} object.
      */
-    public Token previous() {
+    public Token<Kind> previous() {
         return tokens.get(index - 1);
     }
 
@@ -93,7 +94,7 @@ public final class Lexer {
      *
      * @return the {@link Token} if it was present otherwise {@code null}.
      */
-    public Token lookahead(int n) {
+    public Token<Kind> lookahead(int n) {
         if (index + n >= tokens.size()) {
             return null;
         }

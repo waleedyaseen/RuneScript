@@ -9,7 +9,8 @@ package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.LineColumn;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.lexer.token.Token;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -30,7 +31,7 @@ final class State {
     /**
      * The fallback tokens, they are prioritised over parsing new ones when we are calling parse().
      */
-    final Deque<Token> fallback = new ArrayDeque<>();
+    final Deque<Token<Kind>> fallback = new ArrayDeque<>();
 
     /**
      * The kind of this state, defines what this state is mainly for.

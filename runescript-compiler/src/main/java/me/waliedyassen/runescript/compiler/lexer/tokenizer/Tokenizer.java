@@ -7,12 +7,14 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
-import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.lexer.LexerBase;
+import me.waliedyassen.runescript.lexer.table.LexicalTable;
+import me.waliedyassen.runescript.lexer.token.Token;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -25,7 +27,8 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
  *
  * @author Walied K. Yassen
  */
-public final class Tokenizer {
+@RequiredArgsConstructor
+public final class Tokenizer extends LexerBase {
 
     // TODO: Interpolated strings proper range creation.
 
@@ -37,7 +40,7 @@ public final class Tokenizer {
     /**
      * The lexical symbol table.
      */
-    private final LexicalTable table;
+    private final LexicalTable<Kind> table;
 
     /**
      * The characters stream of the source.
@@ -50,24 +53,11 @@ public final class Tokenizer {
     private State state = State.emptyState(State.StateKind.REGULAR);
 
     /**
-     * Constructs a new {@link Tokenizer} type object instance.
-     *
-     * @param table
-     *         the lexical symbol table.
-     * @param stream
-     *         the source code input characters stream.
-     */
-    public Tokenizer(LexicalTable table, CharStream stream) {
-        this.table = table;
-        this.stream = stream;
-    }
-
-    /**
      * Tokenizes the next sequence of characters into some meaningful {@link Token} object.
      *
      * @return the {@link Token} object or {@code null} if none could be tokenized.
      */
-    public Token parse() {
+    public Token<Kind> parse() {
         // check whether or not we have any fallback tokens.
         if (!state.fallback.isEmpty()) {
             return state.fallback.removeFirst();
@@ -184,7 +174,7 @@ public final class Tokenizer {
                                 builder.append('>');
                                 break;
                             default:
-                                throwError("Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\'  \\\\ \\< \\>)");
+                                throwError("Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\\\ \\< \\>)");
                                 break;
                         }
                     } else if (current == '\"') {
@@ -392,29 +382,5 @@ public final class Tokenizer {
             }
         }
         return line.substring(start, end);
-    }
-
-    /**
-     * Checks whether or not the specified character can be used as the identifier's starting character.
-     *
-     * @param ch
-     *         the character to check.
-     *
-     * @return <code>true</code> if it can otherwise <code>false</code>.
-     */
-    private static boolean isIdentifierStart(char ch) {
-        return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch == '_';
-    }
-
-    /**
-     * Checks whether or not the specified character can be used as an identifier's character.
-     *
-     * @param ch
-     *         the character to check.
-     *
-     * @return <code>true</code> if it can otherwise <code>false</code>.
-     */
-    private static boolean isIdentifierPart(char ch) {
-        return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_';
     }
 }

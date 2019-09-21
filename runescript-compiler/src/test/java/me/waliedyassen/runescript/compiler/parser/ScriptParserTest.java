@@ -8,14 +8,17 @@
 package me.waliedyassen.runescript.compiler.parser;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
-import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
@@ -27,7 +30,6 @@ import java.io.IOException;
 import java.io.StringBufferInputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Walied K. Yassen
@@ -566,7 +568,7 @@ public final class ScriptParserTest {
 
     public static ScriptParser fromString(String text) {
         try (var stream = new StringBufferInputStream(text)) {
-            var tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             return new ScriptParser(lexer);
         } catch (IOException e) {
@@ -577,7 +579,7 @@ public final class ScriptParserTest {
 
     public static ScriptParser fromResource(String name) {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
-            Tokenizer tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
+            Tokenizer tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
             ScriptParser scriptParser = new ScriptParser(lexer);
             return scriptParser;

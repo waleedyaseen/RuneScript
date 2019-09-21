@@ -8,19 +8,14 @@
 package me.waliedyassen.runescript.compiler.codegen;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
+import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
-import me.waliedyassen.runescript.compiler.codegen.context.ContextType;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.script.Script;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
-import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
-import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
@@ -29,16 +24,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CodeGeneratorTest {
 
-    CodeGenerator generator;
-    SemanticChecker checker;
+    private CodeGenerator generator;
+    private SemanticChecker checker;
 
     @BeforeEach
     void setupGenerator() {
@@ -82,12 +76,12 @@ class CodeGeneratorTest {
 
     Script fromResource(String name) {
         try (var stream = getClass().getResourceAsStream(name)) {
-            var tokenizer = new Tokenizer(LexicalTable.DEFAULT_TABLE, new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(lexer);
             var script = parser.script();
-            checker.executePre(Arrays.asList(script));
-            checker.executePre(Arrays.asList(script));
+            checker.executePre(Collections.singletonList(script));
+            checker.executePre(Collections.singletonList(script));
             return generator.visit(script);
         } catch (IOException e) {
             e.printStackTrace();

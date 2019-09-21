@@ -5,12 +5,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.lexer.table;
+package me.waliedyassen.runescript.lexer.table;
 
-import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.stack.StackType;
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
-import me.waliedyassen.runescript.compiler.util.Operator;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,29 +17,30 @@ import java.util.Objects;
  * Represents the symbol table for the lexical phase of the compilation process, it holds all the symbols that we need
  * during the tokenizing process, whether it is being a separator, a keyword or an operator etc..
  *
+ * @param <K>
+ *         the lexical token kind type.
+ *
  * @author Walied K. Yassen
  */
-public final class LexicalTable {
-
-    /**
-     * An empty lexical phase symbol table.
-     */
-    public static final LexicalTable DEFAULT_TABLE = new LexicalTable(true);
+public final class LexicalTable<K> {
 
     /**
      * The registered keywords.
      */
-    private final Map<String, Kind> keywords = new HashMap<>();
+    @Getter
+    private final Map<String, K> keywords = new HashMap<>();
 
     /**
      * The registered separators.
      */
-    private final Map<Character, Kind> separators = new HashMap<>();
+    @Getter
+    private final Map<Character, K> separators = new HashMap<>();
 
     /**
      * The registered operators.
      */
-    private final Map<String, Kind> operators = new HashMap<>();
+    @Getter
+    private final Map<String, K> operators = new HashMap<>();
 
     /**
      * The operator max size.
@@ -55,64 +53,6 @@ public final class LexicalTable {
     private String operatorStarts;
 
     /**
-     * Constructs a new {@link LexicalTable} type object instance.
-     *
-     * @param defaultTable
-     *         whether should we register the default table content to this table or not.
-     */
-    public LexicalTable(boolean defaultTable) {
-        if (defaultTable) {
-            initialiseDefault();
-        }
-    }
-
-    /**
-     * Initialises the default lexical table content.
-     */
-    private void initialiseDefault() {
-        // the keywords chunk.
-        registerKeyword("true", Kind.BOOL);
-        registerKeyword("false", Kind.BOOL);
-        registerKeyword("if", Kind.IF);
-        registerKeyword("else", Kind.ELSE);
-        registerKeyword("while", Kind.WHILE);
-        registerKeyword("return", Kind.RETURN);
-        registerKeyword("case", Kind.CASE);
-        registerKeyword("default", Kind.DEFAULT);
-        for (var type : PrimitiveType.values()) {
-            if (type.getRepresentation() != null) {
-                registerKeyword(type.getRepresentation(), Kind.TYPE);
-            }
-            if (type.isDeclarable()) {
-                registerKeyword("def_" + type.getRepresentation(), Kind.DEFINE);
-            }
-            if (type.getStackType() == StackType.INT) {
-                registerKeyword("switch_" + type.getRepresentation(), Kind.SWITCH);
-            }
-        }
-        // the separators chunk.
-        registerSeparator('(', Kind.LPAREN);
-        registerSeparator(')', Kind.RPAREN);
-        registerSeparator('[', Kind.LBRACKET);
-        registerSeparator(']', Kind.RBRACKET);
-        registerSeparator('{', Kind.LBRACE);
-        registerSeparator('}', Kind.RBRACE);
-        registerSeparator(',', Kind.COMMA);
-        registerSeparator('~', Kind.TILDE);
-        registerSeparator('$', Kind.DOLLAR);
-        registerSeparator('%', Kind.MODULO);
-        registerSeparator('^', Kind.CARET);
-        registerSeparator(':', Kind.COLON);
-        registerSeparator(';', Kind.SEMICOLON);
-        registerSeparator('.', Kind.DOT);
-        registerSeparator('#', Kind.HASH);
-        // register all of the operators.
-        for (var operator : Operator.values()) {
-            registerOperator(operator.getRepresentation(), operator.getKind());
-        }
-    }
-
-    /**
      * Registers a new keyword into the table.
      *
      * @param word
@@ -123,7 +63,7 @@ public final class LexicalTable {
      * @throws IllegalArgumentException
      *         if the keyword was already registered.
      */
-    public void registerKeyword(String word, Kind kind) {
+    public void registerKeyword(String word, K kind) {
         Objects.requireNonNull(word, "word");
         Objects.requireNonNull(kind, "kind");
         word = word.toLowerCase();
@@ -134,14 +74,14 @@ public final class LexicalTable {
     }
 
     /**
-     * Looks-up the {@link Kind} for the specified keyword.
+     * Looks-up the {@link K} for the specified keyword.
      *
      * @param word
      *         the keyword text.
      *
-     * @return the {@link Kind} of the keyword if it was present otherwise {@code null}.
+     * @return the {@link K} of the keyword if it was present otherwise {@code null}.
      */
-    public Kind lookupKeyword(String word) {
+    public K lookupKeyword(String word) {
         return keywords.get(word);
     }
 
@@ -168,7 +108,7 @@ public final class LexicalTable {
      * @throws IllegalArgumentException
      *         if the separator was already registered.
      */
-    public void registerSeparator(char character, Kind kind) {
+    public void registerSeparator(char character, K kind) {
         Objects.requireNonNull(kind, "kind");
         if (separators.containsKey(character)) {
             throw new IllegalArgumentException("The specified separator was already registered.");
@@ -177,14 +117,14 @@ public final class LexicalTable {
     }
 
     /**
-     * Looks-up the separator token {@link Kind} for the specified separator character.
+     * Looks-up the separator token {@link K} for the specified separator character.
      *
      * @param character
      *         the separator character.
      *
-     * @return the {@link Kind} of the separator if it was present otherwise {@code null}.
+     * @return the {@link K} of the separator if it was present otherwise {@code null}.
      */
-    public Kind lookupSeparator(char character) {
+    public K lookupSeparator(char character) {
         return separators.get(character);
     }
 
@@ -211,7 +151,7 @@ public final class LexicalTable {
      * @throws IllegalArgumentException
      *         if the operator was already registered.
      */
-    public void registerOperator(String sequence, Kind kind) {
+    public void registerOperator(String sequence, K kind) {
         Objects.requireNonNull(sequence, "sequence");
         Objects.requireNonNull(kind, "kind");
         if (sequence.length() < 1) {
@@ -228,14 +168,14 @@ public final class LexicalTable {
     }
 
     /**
-     * Looks-up the operator token {@link Kind} for the specified operator sequence.
+     * Looks-up the operator token {@link K} for the specified operator sequence.
      *
      * @param sequence
      *         the operator sequence.
      *
-     * @return the {@link Kind} of the operator if it was present otherwise {@code null}.
+     * @return the {@link K} of the operator if it was present otherwise {@code null}.
      */
-    public Kind lookupOperator(String sequence) {
+    public K lookupOperator(String sequence) {
         return operators.get(sequence);
     }
 

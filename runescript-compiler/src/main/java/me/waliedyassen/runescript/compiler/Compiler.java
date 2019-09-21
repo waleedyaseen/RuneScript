@@ -18,11 +18,15 @@ import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.NaturalFlowOpt
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeScript;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
-import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
+import me.waliedyassen.runescript.compiler.stack.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.compiler.util.Operator;
+import me.waliedyassen.runescript.lexer.table.LexicalTable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -60,7 +64,7 @@ public final class Compiler {
     /**
      * The lexical table for our lexical analysis, it contains vario
      */
-    private final LexicalTable lexicalTable = new LexicalTable(true);
+    private final LexicalTable<Kind> lexicalTable;
 
     /**
      * The symbol table of the compiler.
@@ -98,6 +102,7 @@ public final class Compiler {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }
         this.instructionMap = instructionMap;
+        lexicalTable = createLexicalTable();
         codeGenerator = new CodeGenerator(symbolTable, instructionMap);
         optimizer = new Optimizer(instructionMap);
         optimizer.register(new NaturalFlowOptimization());
@@ -272,5 +277,56 @@ public final class Compiler {
             scripts.add(parser.script());
         }
         return scripts;
+    }
+
+    /**
+     * Create a new {@link LexicalTable} object and then register all of the lexical symbols for our RuneScript language
+     * syntax.
+     *
+     * @return the created {@link LexicalTable} object.
+     */
+    public static LexicalTable<Kind> createLexicalTable() {
+        var table = new LexicalTable<Kind>();
+        // the keywords chunk.
+        table.registerKeyword("true", Kind.BOOL);
+        table.registerKeyword("false", Kind.BOOL);
+        table.registerKeyword("if", Kind.IF);
+        table.registerKeyword("else", Kind.ELSE);
+        table.registerKeyword("while", Kind.WHILE);
+        table.registerKeyword("return", Kind.RETURN);
+        table.registerKeyword("case", Kind.CASE);
+        table.registerKeyword("default", Kind.DEFAULT);
+        for (var type : PrimitiveType.values()) {
+            if (type.getRepresentation() != null) {
+                table.registerKeyword(type.getRepresentation(), Kind.TYPE);
+            }
+            if (type.isDeclarable()) {
+                table.registerKeyword("def_" + type.getRepresentation(), Kind.DEFINE);
+            }
+            if (type.getStackType() == StackType.INT) {
+                table.registerKeyword("switch_" + type.getRepresentation(), Kind.SWITCH);
+            }
+        }
+        // the separators chunk.
+        table.registerSeparator('(', Kind.LPAREN);
+        table.registerSeparator(')', Kind.RPAREN);
+        table.registerSeparator('[', Kind.LBRACKET);
+        table.registerSeparator(']', Kind.RBRACKET);
+        table.registerSeparator('{', Kind.LBRACE);
+        table.registerSeparator('}', Kind.RBRACE);
+        table.registerSeparator(',', Kind.COMMA);
+        table.registerSeparator('~', Kind.TILDE);
+        table.registerSeparator('$', Kind.DOLLAR);
+        table.registerSeparator('%', Kind.MODULO);
+        table.registerSeparator('^', Kind.CARET);
+        table.registerSeparator(':', Kind.COLON);
+        table.registerSeparator(';', Kind.SEMICOLON);
+        table.registerSeparator('.', Kind.DOT);
+        table.registerSeparator('#', Kind.HASH);
+        // register all of the operators.
+        for (var operator : Operator.values()) {
+            table.registerOperator(operator.getRepresentation(), operator.getKind());
+        }
+        return table;
     }
 }

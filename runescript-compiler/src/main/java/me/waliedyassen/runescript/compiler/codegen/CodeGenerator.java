@@ -41,7 +41,10 @@ import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Stack;
 
 import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
 
@@ -767,7 +770,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      *
      * @return the active {@link Context} object.
      */
-    private Context context() {
+    public Context context() {
         return contexts.lastElement();
     }
 
@@ -779,7 +782,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      *
      * @return the created {@link Context} object.
      */
-    private Context pushContext(ContextType type) {
+    public Context pushContext(ContextType type) {
         var context = new Context(type);
         contexts.push(context);
         return context;
@@ -790,7 +793,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      *
      * @return the popped {@link Context} object.
      */
-    private Context popContext() {
+    public Context popContext() {
         return contexts.pop();
     }
 
