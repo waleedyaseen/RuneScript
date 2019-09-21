@@ -5,8 +5,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript;
+package me.waliedyassen.runescript.lexer;
 
+import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**

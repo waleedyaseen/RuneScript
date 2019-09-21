@@ -36,7 +36,7 @@ public final class ConfigParser extends ParserBase<Kind> {
      *         the lexical parser to use for tokens.
      */
     public ConfigParser(Lexer lexer) {
-        super(lexer);
+        super(lexer, EOF);
     }
 
     /**

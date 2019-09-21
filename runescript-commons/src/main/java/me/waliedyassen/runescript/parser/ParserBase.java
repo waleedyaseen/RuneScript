@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.parser;
 
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.SyntaxError;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.lexer.LexerBase;
@@ -35,6 +34,11 @@ public abstract class ParserBase<K> {
     protected final LexerBase<K> lexer;
 
     /**
+     * The End of File token kind (only used for returning EOF when no token is present).
+     */
+    protected final K eofKind;
+
+    /**
      * Takes the next {@link Token} object and checks whether or not its {@linkplain K kind} matches the specified
      * {@linkplain K kind}.
      *
@@ -47,8 +51,9 @@ public abstract class ParserBase<K> {
      */
     protected Token<K> consume(K expected) {
         var token = consume();
-        if (token.getKind() != expected) {
-            throwError(token, "Unexpected rule: " + token.getKind() + ", expected: " + expected);
+        var kind = token == null ? eofKind : token.getKind();
+        if (kind != expected) {
+            throwError(token, "Unexpected rule: " + kind + ", expected: " + expected);
         }
         return token;
     }
@@ -66,7 +71,7 @@ public abstract class ParserBase<K> {
      */
     protected boolean consumeIf(K expected) {
         var token = peek();
-        var kind = token.getKind();
+        var kind = token == null ? eofKind : token.getKind();
         if (kind == expected) {
             consume();
             return true;
@@ -80,7 +85,11 @@ public abstract class ParserBase<K> {
      * @return the token {@link K kind}
      */
     protected K kind() {
-        return consume().getKind();
+        var token = consume();
+        if (token == null) {
+            return eofKind;
+        }
+        return token.getKind();
     }
 
     /**
@@ -108,7 +117,11 @@ public abstract class ParserBase<K> {
      * @return the token {@link K kind}.
      */
     protected K peekKind(int n) {
-        return lexer.lookahead(n).getKind();
+        var token = lexer.lookahead(n);
+        if (token == null) {
+            return eofKind;
+        }
+        return token.getKind();
     }
 
     /**

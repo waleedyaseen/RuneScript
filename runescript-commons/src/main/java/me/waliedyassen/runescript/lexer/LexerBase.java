@@ -39,7 +39,7 @@ public abstract class LexerBase<K> {
      */
     public Token<K> take() {
         if (index >= tokens.size()) {
-            return last();
+            return null;
         }
         return tokens.get(index++);
     }
@@ -51,7 +51,7 @@ public abstract class LexerBase<K> {
      */
     public Token<K> peek() {
         if (index >= tokens.size()) {
-            return last();
+            return null;
         }
         return tokens.get(index);
     }
@@ -75,7 +75,7 @@ public abstract class LexerBase<K> {
      */
     public Token<K> lookahead(int n) {
         if (index + n >= tokens.size()) {
-            return last();
+            return null;
         }
         return tokens.get(index + n);
     }
@@ -86,6 +86,9 @@ public abstract class LexerBase<K> {
      * @return the last {@link Token}.
      */
     public Token<K> last() {
+        if (tokens.isEmpty()) {
+            return null;
+        }
         return tokens.get(tokens.size() - 1);
     }
 

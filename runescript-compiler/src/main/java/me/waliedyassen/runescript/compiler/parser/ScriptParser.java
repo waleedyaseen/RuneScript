@@ -49,7 +49,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      *         the lexical parser to use for tokens.
      */
     public ScriptParser(Lexer lexer) {
-        super(lexer);
+        super(lexer, Kind.EOF);
     }
 
     /**

@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
-import me.waliedyassen.runescript.LexicalError;
+import me.waliedyassen.runescript.lexer.LexicalError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;

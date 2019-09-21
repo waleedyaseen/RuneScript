@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.config.lexer;
 
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.LexicalError;
+import me.waliedyassen.runescript.lexer.LexicalError;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;

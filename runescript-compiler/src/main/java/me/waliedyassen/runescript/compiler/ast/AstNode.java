@@ -7,8 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.ast;
 
+import lombok.Data;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
@@ -18,7 +18,7 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
  *
  * @author Walied K. Yassen
  */
-@RequiredArgsConstructor
+@Data
 public abstract class AstNode implements Element {
 
     /**

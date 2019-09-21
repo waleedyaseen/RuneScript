@@ -25,7 +25,7 @@ public abstract class RuneScriptError extends RuntimeException {
      * @param message
      *         the error message text content.
      */
-    RuneScriptError(String message) {
+    public RuneScriptError(String message) {
         super(message);
     }
 

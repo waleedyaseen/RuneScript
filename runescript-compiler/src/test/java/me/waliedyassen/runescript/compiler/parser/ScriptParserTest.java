@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
+import me.waliedyassen.runescript.parser.SyntaxError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
