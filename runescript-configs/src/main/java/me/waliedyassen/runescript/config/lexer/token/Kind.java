@@ -30,6 +30,11 @@ public enum Kind {
     EQUAL,
 
     /**
+     * The Comma token kind.
+     */
+    COMMA,
+
+    /**
      * The identifier token kind.
      */
     IDENTIFIER,

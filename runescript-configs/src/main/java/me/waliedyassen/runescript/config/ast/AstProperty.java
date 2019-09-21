@@ -28,7 +28,7 @@ public final class AstProperty extends AstNode {
      * The property value.
      */
     @Getter
-    private final AstValue value;
+    private final AstValue[] values;
 
     /**
      * Constructs a new {@link AstProperty} type object instance.
@@ -37,12 +37,12 @@ public final class AstProperty extends AstNode {
      *         the node source range.
      * @param key
      *         the key of the property.
-     * @param value
-     *         the value of the property.
+     * @param values
+     *         the values of the property.
      */
-    public AstProperty(Range range, AstIdentifier key, AstValue value) {
+    public AstProperty(Range range, AstIdentifier key, AstValue[] values) {
         super(range);
         this.key = key;
-        this.value = value;
+        this.values = values;
     }
 }

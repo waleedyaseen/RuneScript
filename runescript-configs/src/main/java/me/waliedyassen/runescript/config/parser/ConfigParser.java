@@ -62,8 +62,8 @@ public final class ConfigParser extends ParserBase<Kind> {
         pushRange();
         var name = identifier();
         consume(EQUAL);
-        var value = value();
-        return new AstProperty(popRange(), name, value);
+        var values = values();
+        return new AstProperty(popRange(), name, values);
     }
 
     /**
@@ -78,6 +78,19 @@ public final class ConfigParser extends ParserBase<Kind> {
             properties.add(property());
         }
         return properties.toArray(AstProperty[]::new);
+    }
+
+    /**
+     * Attempts to parse an array of {@link AstValue} objects from the next sequence of tokens.
+     *
+     * @return the parsed array of {@link AstValue} objects.
+     */
+    private AstValue[] values() {
+        var values = new ArrayList<AstValue>();
+        do {
+            values.add(value());
+        } while (consumeIf(COMMA));
+        return values.toArray(AstValue[]::new);
     }
 
     /**

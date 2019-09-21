@@ -28,6 +28,7 @@ public final class ConfigCompiler {
         table.registerSeparator('[', Kind.LBRACKET);
         table.registerSeparator(']', Kind.RBRACKET);
         table.registerSeparator('=', Kind.EQUAL);
+        table.registerSeparator(',', Kind.COMMA);
         return table;
     }
 }
