@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.ast;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
@@ -17,12 +18,30 @@ import me.waliedyassen.runescript.commons.document.Range;
 public final class AstConfig extends AstNode {
 
     /**
+     * The configuration name.
+     */
+    @Getter
+    private final AstIdentifier name;
+
+    /**
+     * The configuration properties.
+     */
+    @Getter
+    private final AstProperty[] properties;
+
+    /**
      * Constructs a new {@link AstConfig} type object instance.
      *
      * @param range
      *         the node source code range.
+     * @param name
+     *         the configuration name.
+     * @param properties
+     *         the configuration properties.
      */
-    public AstConfig(Range range) {
+    public AstConfig(Range range, AstIdentifier name, AstProperty[] properties) {
         super(range);
+        this.name = name;
+        this.properties = properties;
     }
 }

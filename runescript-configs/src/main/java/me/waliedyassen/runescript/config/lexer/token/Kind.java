@@ -30,11 +30,6 @@ public enum Kind {
     EQUAL,
 
     /**
-     * The Caret token kind.
-     */
-    CARET,
-
-    /**
      * The identifier token kind.
      */
     IDENTIFIER,

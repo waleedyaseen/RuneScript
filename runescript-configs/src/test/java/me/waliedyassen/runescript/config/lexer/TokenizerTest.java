@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.config.lexer;
 
 import me.waliedyassen.runescript.LexicalError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
 import me.waliedyassen.runescript.lexer.table.LexicalTable;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,10 +28,7 @@ class TokenizerTest {
 
     @BeforeAll
     static void setupLexicalTable() {
-        table = new LexicalTable<>();
-        table.registerSeparator('[', Kind.LBRACKET);
-        table.registerSeparator(']', Kind.RBRACKET);
-        table.registerSeparator('=', Kind.EQUAL);
+        table = ConfigCompiler.createLexicalTable();
     }
 
     @Test
