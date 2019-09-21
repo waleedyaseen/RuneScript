@@ -5,28 +5,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.config.var;
+package me.waliedyassen.runescript.config.symbol;
 
 import lombok.Data;
-import lombok.Getter;
+import me.waliedyassen.runescript.config.ConfigGroup;
 
 /**
- * Represents a configuration variable array properties.
+ * Represents a configuration symbol in the symbols table.
  *
  * @author Walied K. Yassen
  */
 @Data
-public final class ConfigVarArray {
+public final class ConfigInfo {
 
     /**
-     * The variable array index.
+     * The name of the configuration.
      */
-    @Getter
-    private final int index;
+    private final String name;
 
     /**
-     * The maximum size of the array.
+     * The group of the configuration.
      */
-    @Getter
-    public final int size;
+    private final ConfigGroup group;
 }

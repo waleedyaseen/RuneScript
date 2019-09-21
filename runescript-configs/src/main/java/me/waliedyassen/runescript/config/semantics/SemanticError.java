@@ -5,10 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.semantics;
+package me.waliedyassen.runescript.config.semantics;
 
 import me.waliedyassen.runescript.CompilerError;
-import me.waliedyassen.runescript.compiler.ast.AstNode;
+import me.waliedyassen.runescript.config.ast.AstNode;
 
 /**
  * Represents a compiler error that occurred during the semantic analysis time.

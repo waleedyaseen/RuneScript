@@ -21,11 +21,11 @@ class ConfigBindingTest {
 
     @Test
     void testPopulateVars() {
-        var binding = new ConfigBinding<>(TestCasePopulateVars.class);
-        assertEquals(binding.getVariables().size(), 2);
+        var binding = new ConfigBinding<>(TestCasePopulateVars.class, null);
+        assertEquals(binding.getVariables().size(), 6);
         assertVarEquals(binding.getVariables().get("field"), 1, "field", false, ConfigVarType.INT, null);
-        assertVarEquals(binding.getVariables().get("array"), 2, "array", true, ConfigVarType.INT, new ConfigVarArray(5));
-        assertThrows(IllegalStateException.class, () -> new ConfigBinding<>(TestCaseArrayError.class));
+        assertVarEquals(binding.getVariables().get("array1"), 2, "array", true, ConfigVarType.INT, new ConfigVarArray(0, 5));
+        assertThrows(IllegalStateException.class, () -> new ConfigBinding<>(TestCaseArrayError.class, null));
     }
 
     void assertVarEquals(ConfigVar var, int opcode, String name, boolean required, ConfigVarType type, ConfigVarArray array) {

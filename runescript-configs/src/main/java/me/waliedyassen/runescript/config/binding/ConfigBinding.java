@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.config.binding;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.annotation.ConfigArray;
 import me.waliedyassen.runescript.config.annotation.ConfigProps;
 import me.waliedyassen.runescript.config.var.ConfigVar;
@@ -38,13 +38,22 @@ public final class ConfigBinding<T> {
     private final Class<T> type;
 
     /**
+     * The configuration group this binding is for.
+     */
+    @Getter
+    private final ConfigGroup group;
+
+    /**
      * Constructs a new {@link ConfigBinding} type object instance.
      *
      * @param type
      *         the type of the class to populate the bindings from.
+     * @param group
+     *         the configuration group this binding is for.
      */
-    public ConfigBinding(Class<T> type) {
+    public ConfigBinding(Class<T> type, ConfigGroup group) {
         this.type = type;
+        this.group = group;
         populateVars();
     }
 
@@ -65,7 +74,13 @@ public final class ConfigBinding<T> {
             if (field.getType().isArray() ^ array != null) {
                 throw new IllegalStateException("ConfigArray must be always used with array type fields: " + field);
             }
-            variables.put(props.name(), new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), array != null ? new ConfigVarArray(array.size()) : null));
+            if (array != null) {
+                for (var index = 1; index <= array.size(); index++) {
+                    variables.put(props.name() + index, new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), new ConfigVarArray(index - 1, array.size())));
+                }
+            } else {
+                variables.put(props.name(), new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), null));
+            }
         }
     }
 }

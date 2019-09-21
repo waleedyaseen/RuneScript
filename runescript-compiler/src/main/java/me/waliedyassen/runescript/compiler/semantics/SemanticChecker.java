@@ -7,10 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.semantics;
 
-import jdk.jfr.Threshold;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.compiler.CompilerError;
+import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;

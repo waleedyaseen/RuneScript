@@ -40,6 +40,19 @@ public final class ConfigParser extends ParserBase<Kind> {
     }
 
     /**
+     * Attempts to parse an array of {@link AstConfig} objects from the next sequence of tokens.
+     *
+     * @return the parsed array of {@link AstConfig} objects.
+     */
+    public AstConfig[] configs() {
+        var configs = new ArrayList<AstConfig>();
+        while (peekKind() == LBRACKET) {
+            configs.add(config());
+        }
+        return configs.toArray(AstConfig[]::new);
+    }
+
+    /**
      * Attempts to parse an {@link AstConfig} object from the next sequence of tokens.
      *
      * @return the parsed {@link AstConfig} object.
