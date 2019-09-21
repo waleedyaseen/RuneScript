@@ -39,7 +39,7 @@ public abstract class LexerBase<K> {
      */
     public Token<K> take() {
         if (index >= tokens.size()) {
-            return null;
+            return last();
         }
         return tokens.get(index++);
     }
@@ -51,7 +51,7 @@ public abstract class LexerBase<K> {
      */
     public Token<K> peek() {
         if (index >= tokens.size()) {
-            return null;
+            return last();
         }
         return tokens.get(index);
     }
@@ -66,7 +66,7 @@ public abstract class LexerBase<K> {
     }
 
     /**
-     * Getes the token at is located at {@code n} steps from the current index.
+     * Gets the token at is located at {@code n} steps from the current index.
      *
      * @param n
      *         the distance which the token is located at from the current index.
@@ -75,9 +75,18 @@ public abstract class LexerBase<K> {
      */
     public Token<K> lookahead(int n) {
         if (index + n >= tokens.size()) {
-            return null;
+            return last();
         }
         return tokens.get(index + n);
+    }
+
+    /**
+     * Gets the last {@link Token} in the tokens list.
+     *
+     * @return the last {@link Token}.
+     */
+    public Token<K> last() {
+        return tokens.get(tokens.size() - 1);
     }
 
     /**
