@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
-import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents command information.

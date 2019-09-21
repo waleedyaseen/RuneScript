@@ -13,7 +13,7 @@ import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
-import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.type.Type;
 
 import java.util.List;
 

@@ -14,7 +14,7 @@ import me.waliedyassen.runescript.compiler.codegen.script.Script;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
-import me.waliedyassen.runescript.compiler.stack.StackType;
+import me.waliedyassen.runescript.type.StackType;
 
 import java.util.*;
 

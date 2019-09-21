@@ -14,7 +14,7 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
-import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents a variable define (or declaration) statement.

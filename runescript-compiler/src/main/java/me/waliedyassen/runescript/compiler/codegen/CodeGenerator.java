@@ -32,13 +32,13 @@ import me.waliedyassen.runescript.compiler.codegen.script.Script;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchMap;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
-import me.waliedyassen.runescript.compiler.stack.StackType;
+import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
-import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
-import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
+import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 import java.util.ArrayList;

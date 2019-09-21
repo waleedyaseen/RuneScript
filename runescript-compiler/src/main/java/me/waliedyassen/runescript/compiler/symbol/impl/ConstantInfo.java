@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.symbol.impl;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
-import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents a compile-time constant symbol information.

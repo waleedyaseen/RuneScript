@@ -5,10 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.semantics;
-
-import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
+package me.waliedyassen.runescript.type;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * @author Walied K. Yassen
  */
-public final class SemanticUtil {
+public final class TypeUtil {
 
     /**
      * Creates a textual representation of the given {@link Type types} then join them all together into one {@link
@@ -57,7 +54,7 @@ public final class SemanticUtil {
         return flattened.toArray(Type[]::new);
     }
 
-    private SemanticUtil() {
+    private TypeUtil() {
         // NOOP
     }
 }

@@ -7,8 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.local;
 
-import me.waliedyassen.runescript.compiler.stack.StackType;
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.StackType;
+import me.waliedyassen.runescript.type.PrimitiveType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

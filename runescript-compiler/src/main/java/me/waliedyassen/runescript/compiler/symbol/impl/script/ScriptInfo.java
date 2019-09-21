@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.symbol.impl.script;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 import java.util.Map;

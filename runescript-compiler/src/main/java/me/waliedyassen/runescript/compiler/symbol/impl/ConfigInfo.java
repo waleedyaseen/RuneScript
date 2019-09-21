@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.symbol.impl;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
-import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents a configuration type value information.
@@ -19,6 +19,8 @@ import me.waliedyassen.runescript.compiler.type.Type;
  */
 @RequiredArgsConstructor
 public final class ConfigInfo extends Symbol {
+
+    // TODO: Create IDProvider instead of storing this in here.
 
     /**
      * The id of the configuration.

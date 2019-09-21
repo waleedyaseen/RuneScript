@@ -13,7 +13,7 @@ import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
-import me.waliedyassen.runescript.compiler.stack.StackType;
+import me.waliedyassen.runescript.type.StackType;
 
 import java.util.*;
 

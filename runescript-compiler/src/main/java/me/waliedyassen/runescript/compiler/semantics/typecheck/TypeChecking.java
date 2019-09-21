@@ -19,16 +19,15 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
-import me.waliedyassen.runescript.compiler.semantics.SemanticUtil;
-import me.waliedyassen.runescript.compiler.stack.StackType;
+import me.waliedyassen.runescript.type.TypeUtil;
+import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
-import me.waliedyassen.runescript.compiler.type.tuple.TupleType;
+import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -151,10 +150,10 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
             for (int index = 0; index < arguments.length; index++) {
                 types[index] = arguments[index].accept(this);
             }
-            var expected = SemanticUtil.flatten(types);
+            var expected = TypeUtil.flatten(types);
             var actual = script.getArguments();
             if (expected.length != actual.length || !Arrays.equals(expected, actual)) {
-                checker.reportError(new SemanticError(gosub, String.format("The script %s(%s) is not applicable for the arguments (%s)", name.getText(), SemanticUtil.createRepresentation(actual), SemanticUtil.createRepresentation(expected))));
+                checker.reportError(new SemanticError(gosub, String.format("The script %s(%s) is not applicable for the arguments (%s)", name.getText(), TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(expected))));
             }
         }
         return gosub.setType(script.getType());
@@ -169,7 +168,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         var commandInfo = symbolTable.lookupCommand(name.getText());
         if (commandInfo != null) {
             if (commandInfo.getArguments().length > 0) {
-                checker.reportError(new SemanticError(name, String.format("The command %s(%s) is not applicable for the arguments ()", name.getText(), SemanticUtil.createRepresentation(commandInfo.getArguments()))));
+                checker.reportError(new SemanticError(name, String.format("The command %s(%s) is not applicable for the arguments ()", name.getText(), TypeUtil.createRepresentation(commandInfo.getArguments()))));
             }
             return dynamic.setType(commandInfo.getType());
         }
@@ -212,10 +211,10 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         for (var index = 0; index < arguments.length; index++) {
             types[index] = arguments[index].accept(this);
         }
-        var expected = SemanticUtil.flatten(types);
+        var expected = TypeUtil.flatten(types);
         var actual = info.getArguments();
         if (expected.length != actual.length || !Arrays.equals(expected, actual)) {
-            checker.reportError(new SemanticError(command, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), SemanticUtil.createRepresentation(actual), SemanticUtil.createRepresentation(expected))));
+            checker.reportError(new SemanticError(command, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(expected))));
         }
         return command.setType(info.getType());
     }

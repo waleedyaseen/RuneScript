@@ -11,7 +11,7 @@ import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 /**
  * Represents a parameter AST node.

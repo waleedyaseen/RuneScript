@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.symbol.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 /**
  * Represents a local array symbol information.

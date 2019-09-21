@@ -8,11 +8,10 @@
 package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
-import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
-import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents an expression node, all the language expressions must be subclasses of this class.

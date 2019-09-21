@@ -5,17 +5,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.compiler.type.tuple;
+package me.waliedyassen.runescript.type;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.compiler.semantics.SemanticUtil;
-import me.waliedyassen.runescript.compiler.stack.StackType;
-import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * Represents a tuple type which is a combined type, it combines multiple type to be represented as a single type while
@@ -45,7 +39,7 @@ public final class TupleType implements Type {
      */
     public TupleType(Type... childs) {
         this.childs = childs;
-        flattened = SemanticUtil.flatten(childs);
+        flattened = TypeUtil.flatten(childs);
     }
 
     /**
@@ -64,7 +58,7 @@ public final class TupleType implements Type {
      */
     @Override
     public String getRepresentation() {
-        return SemanticUtil.createRepresentation(childs);
+        return TypeUtil.createRepresentation(flattened);
     }
 
     /**

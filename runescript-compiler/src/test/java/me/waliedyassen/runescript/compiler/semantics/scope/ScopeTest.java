@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.semantics.scope;
 
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.PrimitiveType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

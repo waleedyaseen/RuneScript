@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
-import me.waliedyassen.runescript.compiler.type.Type;
-import me.waliedyassen.runescript.compiler.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

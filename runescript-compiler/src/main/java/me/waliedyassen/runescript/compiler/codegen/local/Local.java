@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.codegen.local;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.compiler.type.Type;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents a local variable/parameter.
