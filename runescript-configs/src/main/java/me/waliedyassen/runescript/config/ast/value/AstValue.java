@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.config.ast.value;
 
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.config.ast.AstNode;
+import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 
 /**
  * Represents a configuration property value node
@@ -25,5 +26,13 @@ public abstract class AstValue extends AstNode {
      */
     public AstValue(Range range) {
         super(range);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <R> R visit(AstVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 }

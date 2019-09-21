@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.config.ast;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 
 /**
  * Represents a complete configuration tree node.
@@ -43,5 +44,13 @@ public final class AstConfig extends AstNode {
         super(range);
         this.name = name;
         this.properties = properties;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <R> R visit(AstVisitor<R> visitor) {
+        return visitor.visit(this);
     }
 }

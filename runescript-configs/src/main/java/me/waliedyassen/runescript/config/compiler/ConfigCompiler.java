@@ -7,8 +7,12 @@
  */
 package me.waliedyassen.runescript.config.compiler;
 
+import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
 import me.waliedyassen.runescript.lexer.table.LexicalTable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents the RuneScript configurations compiler.
@@ -16,6 +20,27 @@ import me.waliedyassen.runescript.lexer.table.LexicalTable;
  * @author Walied K. Yassen
  */
 public final class ConfigCompiler {
+
+    /**
+     * The registered bindings in this compiler.
+     */
+    private final Map<String, ConfigBinding<?>> bindings = new HashMap<>();
+
+    /**
+     * Registers a new configuration binding into this compiler.
+     *
+     * @param extension
+     *         the configuration file extension.
+     * @param binding
+     *         the configuration binding.
+     */
+    public void registerBinding(String extension, ConfigBinding<?> binding) {
+        extension = extension.toLowerCase();
+        if (bindings.containsKey(extension)) {
+            throw new IllegalArgumentException("The specified binding extension is already registered: " + extension);
+        }
+        bindings.put(extension, binding);
+    }
 
     /**
      * Create a new {@link LexicalTable} object and then register all of the lexical symbols for our configurations

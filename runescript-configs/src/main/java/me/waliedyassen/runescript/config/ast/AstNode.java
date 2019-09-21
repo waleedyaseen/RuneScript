@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 
 /**
  * Represents a simple node in the Abstract Syntax Tree (AST).
@@ -25,4 +26,16 @@ public abstract class AstNode implements Element {
      */
     @Getter
     private final Range range;
+
+    /**
+     * Visits this {@link AstNode node} in the specified {@link AstVisitor visitor}.
+     *
+     * @param visitor
+     *         the visitor to visit using.
+     * @param <R>
+     *         the returned result object type.
+     *
+     * @return the returned result object.
+     */
+    public abstract <R> R visit(AstVisitor<R> visitor);
 }
