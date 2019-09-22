@@ -74,6 +74,23 @@ public final class ConfigBinding<T> {
             if (field.getType().isArray() ^ array != null) {
                 throw new IllegalStateException("ConfigArray must be always used with array type fields: " + field);
             }
+            var type = field.getType().isArray() ? field.getType().getComponentType() : field.getType();
+            if (type.isPrimitive()) {
+                if (type == byte.class) {
+                    type = Byte.class;
+                } else if (type == short.class) {
+                    type = Short.class;
+                } else if (type == int.class) {
+                    type = Integer.class;
+                } else if (type == boolean.class) {
+                    type = Boolean.class;
+                } else {
+                    throw new IllegalStateException("The specified primitive configuration type is not allowed: " + type.getSimpleName());
+                }
+            }
+            if (!type.equals(props.type().getClassType())) {
+                throw new IllegalStateException("The configuration type is not compatible with the field type: " + type.getSimpleName() + " and " + props.type().getClassType().getSimpleName());
+            }
             if (array != null) {
                 for (var index = 1; index <= array.size(); index++) {
                     variables.put(props.name() + index, new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), new ConfigVarArray(index - 1, array.size())));

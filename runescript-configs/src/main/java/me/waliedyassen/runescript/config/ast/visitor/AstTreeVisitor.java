@@ -20,18 +20,18 @@ import me.waliedyassen.runescript.config.ast.value.AstValueString;
  *
  * @author Walied K. Yassen
  */
-public abstract class AstTreeVisitor implements AstVisitor<Void> {
+public abstract class AstTreeVisitor implements AstVisitor<Object> {
 
     /**
      * The default return  value for the visitor methods.
      */
-    protected static final Void DEFAULT = null;
+    protected static final Object DEFAULT = null;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstConfig config) {
+    public Object visit(AstConfig config) {
         config.getName().visit(this);
         for (var property : config.getProperties()) {
             property.visit(this);
@@ -43,7 +43,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstProperty property) {
+    public Object visit(AstProperty property) {
         property.getKey().visit(this);
         for (var value : property.getValues()) {
             value.visit(this);
@@ -55,7 +55,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstValue value) {
+    public Object visit(AstValue value) {
         return DEFAULT;
     }
 
@@ -63,7 +63,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstValueString value) {
+    public Object visit(AstValueString value) {
         return DEFAULT;
     }
 
@@ -71,7 +71,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstValueInteger value) {
+    public Object visit(AstValueInteger value) {
         return DEFAULT;
     }
 
@@ -79,7 +79,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstValueLong value) {
+    public Object visit(AstValueLong value) {
         return DEFAULT;
     }
 
@@ -87,7 +87,7 @@ public abstract class AstTreeVisitor implements AstVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstIdentifier identifier) {
+    public Object visit(AstIdentifier identifier) {
         return DEFAULT;
     }
 }
