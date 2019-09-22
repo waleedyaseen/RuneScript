@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.config.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.config.ast.AstProperty;
-import me.waliedyassen.runescript.config.ast.value.AstValue;
 import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
 import me.waliedyassen.runescript.config.ast.value.AstValueLong;
 import me.waliedyassen.runescript.config.ast.value.AstValueString;
@@ -20,7 +19,6 @@ import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
 import me.waliedyassen.runescript.config.symbol.SymbolTable;
 import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.TypeUtil;
 
 /**
  * Represents the type checking semantic analysis.
@@ -70,16 +68,25 @@ public final class TypeChecking extends AstTreeVisitor {
         return DEFAULT;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PrimitiveType visit(AstValueInteger value) {
         return PrimitiveType.INT;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PrimitiveType visit(AstValueLong value) {
         return PrimitiveType.LONG;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PrimitiveType visit(AstValueString value) {
         return PrimitiveType.STRING;

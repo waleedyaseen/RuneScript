@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.config.ast.visitor;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
-import me.waliedyassen.runescript.config.ast.value.AstValue;
 import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
 import me.waliedyassen.runescript.config.ast.value.AstValueLong;
 import me.waliedyassen.runescript.config.ast.value.AstValueString;
@@ -48,14 +47,6 @@ public abstract class AstTreeVisitor implements AstVisitor<Object> {
         for (var value : property.getValues()) {
             value.visit(this);
         }
-        return DEFAULT;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object visit(AstValue value) {
         return DEFAULT;
     }
 

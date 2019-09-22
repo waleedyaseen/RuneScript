@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.config.ast.visitor;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
-import me.waliedyassen.runescript.config.ast.value.AstValue;
 import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
 import me.waliedyassen.runescript.config.ast.value.AstValueLong;
 import me.waliedyassen.runescript.config.ast.value.AstValueString;
@@ -42,16 +41,6 @@ public interface AstVisitor<R> {
      * @return An object which is specified by the implementation.
      */
     R visit(AstProperty property);
-
-    /**
-     * Gets called when we have just visited an {@link AstValue} object.
-     *
-     * @param value
-     *         the object we have just visited.
-     *
-     * @return An object which is specified by the implementation.
-     */
-    R visit(AstValue value);
 
     /**
      * Gets called when we have just visited an {@link AstValueString} object.

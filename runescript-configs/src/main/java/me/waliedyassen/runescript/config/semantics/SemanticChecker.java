@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.config.ast.AstConfig;
-import me.waliedyassen.runescript.config.ast.AstNode;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.config.semantics.typecheck.TypeChecking;
