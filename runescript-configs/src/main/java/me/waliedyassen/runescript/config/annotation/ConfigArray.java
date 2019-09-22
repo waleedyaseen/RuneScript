@@ -20,6 +20,15 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ConfigArray {
+
+    /**
+     * The format of the array variables. The %s is the the variable name provided in {@link ConfigProps#name()} and %d
+     * is the {@code variable index + 1} in the array.
+     *
+     * @return the format of the configuration array variables.
+     */
+    String format() default "%s%d";
+
     /**
      * The size of ths configuration array binding entry.
      *

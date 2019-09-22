@@ -93,7 +93,8 @@ public final class ConfigBinding<T> {
             }
             if (array != null) {
                 for (var index = 1; index <= array.size(); index++) {
-                    variables.put(props.name() + index, new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), new ConfigVarArray(index - 1, array.size())));
+                    var name = String.format(array.format(), props.name(), index);
+                    variables.put(name, new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), new ConfigVarArray(index - 1, array.size())));
                 }
             } else {
                 variables.put(props.name(), new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), null));
