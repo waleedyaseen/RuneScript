@@ -13,6 +13,7 @@ import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.lexer.LexerBase;
 import me.waliedyassen.runescript.lexer.token.Token;
 
+import java.util.Arrays;
 import java.util.Stack;
 
 /**
@@ -180,7 +181,10 @@ public abstract class ParserBase<K> {
      *         the error message describing why the error has occurred.
      */
     protected void throwError(Token<K> token, String message) {
-        throw createError(token, message);
+        var error = createError(token, message);
+        var stackTrace = error.getStackTrace();
+        error.setStackTrace(Arrays.copyOfRange(stackTrace, 2, stackTrace.length));
+        throw error;
     }
 
     /**
