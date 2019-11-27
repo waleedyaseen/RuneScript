@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public enum Operator {
 
+    // The precedence of the operators are based on the Java language.
+
     /**
      * The logical OR operator type.
      */
@@ -61,7 +63,32 @@ public enum Operator {
     /**
      * The greater than or equals operator type.
      */
-    GREATER_THAN_OR_EQUALS(9, ">=", Kind.GREATER_THAN_OR_EQUAL, Associativity.LEFT);
+    GREATER_THAN_OR_EQUALS(9, ">=", Kind.GREATER_THAN_OR_EQUAL, Associativity.LEFT),
+
+    /**
+     * The arithmetic addition operator type.
+     */
+    ADD(11, "+", Kind.ADD, Associativity.LEFT),
+
+    /**
+     * The arithmetic subtraction operator type.
+     */
+    SUB(11, "-", Kind.SUB, Associativity.LEFT),
+
+    /**
+     * The arithmetic multiplication operator type.
+     */
+    MUL(12, "*", Kind.MUL, Associativity.LEFT),
+
+    /**
+     * The arithmetic division operator type.
+     */
+    DIV(12, "/", Kind.DIV, Associativity.LEFT),
+
+    /**
+     * The arithmetic modulo operator type.
+     */
+    MOD(12, "%", Kind.MOD, Associativity.LEFT);
 
     /**
      * The operators look-up map.
@@ -133,6 +160,24 @@ public enum Operator {
         switch (this) {
             case LOGICAL_AND:
             case LOGICAL_OR:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Checks whether or not this operator is an arithmetic operator.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isArithmetic() {
+        switch (this) {
+            case ADD:
+            case SUB:
+            case MUL:
+            case DIV:
+            case MOD:
                 return true;
             default:
                 return false;

@@ -200,6 +200,18 @@ public interface AstVisitor<E, S> {
     }
 
     /**
+     * Gets called when we have just visited an {@link AstCalc} node.
+     *
+     * @param calc
+     *         the {@link AstCalc} node we have just visited.
+     *
+     * @return the implementation output object.
+     */
+    default E visit(AstCalc calc) {
+        return null;
+    }
+
+    /**
      * Gets called when we have just visited an {@link AstBinaryOperation} node.
      *
      * @param binaryOperation

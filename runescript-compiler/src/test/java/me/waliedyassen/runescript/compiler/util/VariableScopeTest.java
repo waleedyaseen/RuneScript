@@ -17,6 +17,6 @@ class VariableScopeTest {
     @Test
     void testLookup(){
         assertEquals(VariableScope.LOCAL, VariableScope.forKind(Kind.DOLLAR));
-        assertEquals(VariableScope.GLOBAL, VariableScope.forKind(Kind.MODULO));
+        assertEquals(VariableScope.GLOBAL, VariableScope.forKind(Kind.MOD));
     }
 }

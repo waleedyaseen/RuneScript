@@ -12,21 +12,20 @@ import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
-import me.waliedyassen.runescript.type.TypeUtil;
-import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.type.Type;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
+import me.waliedyassen.runescript.type.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -178,7 +177,6 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         }
         checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a symbol", name.getText())));
         return PrimitiveType.UNDEFINED;
-
     }
 
     /**
@@ -217,6 +215,16 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
             checker.reportError(new SemanticError(command, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(expected))));
         }
         return command.setType(info.getType());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(AstCalc calc) {
+        var type = calc.getExpression().accept(this);
+        checkType(calc.getExpression(), PrimitiveType.INT, type);
+        return calc.setType(type);
     }
 
     /**
@@ -438,14 +446,14 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
                 applicable = left.equals(right);
             }
         } else if (operator.isLogical()) {
-            if (left == PrimitiveType.BOOL && right == PrimitiveType.BOOL) {
-                applicable = true;
-            }
+            applicable = left == PrimitiveType.BOOL && right == PrimitiveType.BOOL;
+        } else if (operator.isArithmetic()) {
+            applicable = left == PrimitiveType.INT && right == PrimitiveType.INT;
         }
         if (!applicable) {
             checker.reportError(new SemanticError(node, "The operator '" + operator.getRepresentation() + "' is undefined for the argument type(s) " + left.getRepresentation() + ", " + right.getRepresentation()));
         }
-        return PrimitiveType.BOOL;
+        return operator.isArithmetic() ? PrimitiveType.INT : PrimitiveType.BOOL;
     }
 
     /**

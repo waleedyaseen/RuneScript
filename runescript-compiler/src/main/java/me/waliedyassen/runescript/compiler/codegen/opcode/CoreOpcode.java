@@ -222,7 +222,32 @@ public enum CoreOpcode {
     /**
      * The gosub with parameters core instruction opcode.
      */
-    GOSUB_WITH_PARAMS;
+    GOSUB_WITH_PARAMS,
+
+    /**
+     * The arithmetic addition command instruction opcode.
+     */
+    ADD,
+
+    /**
+     * The arithmetic subtraction command instruction opcode.
+     */
+    SUB,
+
+    /**
+     * The arithmetic multiplication command instruction opcode.
+     */
+    MUL,
+
+    /**
+     * The arithmetic division command instruction opcode.
+     */
+    DIV,
+
+    /**
+     * The arithmetic modulo command instruction opcode.
+     */
+    MOD;
 
     /**
      * Checks whether or not this opcode requires a large operand (32-bit) and not a small operand (8-bit).
@@ -234,6 +259,11 @@ public enum CoreOpcode {
             case RETURN:
             case POP_INT_DISCARD:
             case POP_STRING_DISCARD:
+            case ADD:
+            case SUB:
+            case MUL:
+            case DIV:
+            case MOD:
                 return false;
             default:
                 return true;

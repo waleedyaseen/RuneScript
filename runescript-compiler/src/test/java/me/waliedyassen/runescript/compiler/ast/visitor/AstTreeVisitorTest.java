@@ -74,6 +74,7 @@ class AstTreeVisitorTest {
         final Counter dynamic = new Counter();
         final Counter constant = new Counter();
         final Counter command = new Counter();
+        final Counter calc = new Counter();
         final Counter binaryOperation = new Counter();
         final Counter variableDeclaration = new Counter();
         final Counter variableInitializer = new Counter();
@@ -97,6 +98,7 @@ class AstTreeVisitorTest {
             dynamic.reset();
             constant.reset();
             command.reset();
+            calc.reset();
             binaryOperation.reset();
             variableDeclaration.reset();
             variableInitializer.reset();
@@ -250,6 +252,18 @@ class AstTreeVisitorTest {
         public void exit(AstCommand command) {
             super.exit(command);
             this.command.numExits++;
+        }
+
+        @Override
+        public void enter(AstCalc calc) {
+            super.enter(calc);
+            this.calc.numEnters++;
+        }
+
+        @Override
+        public void exit(AstCalc calc) {
+            super.exit(calc);
+            this.calc.numExits++;
         }
 
         @Override

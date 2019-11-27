@@ -245,7 +245,7 @@ public final class ScriptParser extends ParserBase<Kind> {
                     return arrayVariable();
                 }
                 return localVariable();
-            case MODULO:
+            case MOD:
                 return globalVariable();
             case CARET:
                 return constant();
@@ -258,6 +258,8 @@ public final class ScriptParser extends ParserBase<Kind> {
                 return dynamic();
             case DOT:
                 return command();
+            case CALC:
+                return calc();
             default:
                 throw createError(consume(), "Expecting an expression");
         }
@@ -270,7 +272,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public boolean isExpression() {
         var kind = peekKind();
-        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MODULO || kind == CARET || kind == TILDE || kind == LPAREN || kind == DOT;
+        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == TILDE || kind == LPAREN || kind == DOT || kind == CALC;
     }
 
     /**
@@ -313,7 +315,7 @@ public final class ScriptParser extends ParserBase<Kind> {
                     return arrayInitializer();
                 }
                 return variableInitializer();
-            case MODULO:
+            case MOD:
                 return variableInitializer();
             case SWITCH:
                 return switchStatement();
@@ -333,7 +335,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     private boolean isStatement() {
         var kind = peekKind();
-        return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR || kind == MODULO || kind == SWITCH || isExpression();
+        return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR || kind == MOD || kind == SWITCH || isExpression();
     }
 
     /**
@@ -669,7 +671,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public AstVariableExpression globalVariable() {
         pushRange();
-        consume(MODULO);
+        consume(MOD);
         var name = identifier();
         return new AstVariableExpression(popRange(), VariableScope.GLOBAL, name);
     }
@@ -735,6 +737,18 @@ public final class ScriptParser extends ParserBase<Kind> {
             consume(RPAREN);
         }
         return new AstCommand(popRange(), name, arguments.toArray(AstExpression[]::new), alternative);
+    }
+
+    /**
+     * Attempts to parse an {@link AstCommand} from the next set of tokens.
+     *
+     * @return the parsed {@link AstCommand} object.
+     */
+    public AstCalc calc() {
+        pushRange();
+        consume(CALC);
+        var expr = expression();
+        return new AstCalc(popRange(), expr);
     }
 
     /**

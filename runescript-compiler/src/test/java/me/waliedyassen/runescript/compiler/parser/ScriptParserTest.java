@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
-import me.waliedyassen.runescript.parser.SyntaxError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
@@ -21,10 +20,11 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
+import me.waliedyassen.runescript.parser.SyntaxError;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.TupleType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -212,7 +212,7 @@ public final class ScriptParserTest {
             assertNotNull(expr);
             assertEquals("mycommand", expr.getName().getText());
             assertEquals(0, expr.getArguments().length);
-            assertEquals(true, expr.isAlternative());
+            assertTrue(expr.isAlternative());
         }, () -> {
             // valid non alternative comamnd with arguments
             var expr = fromString("mycommand(5 > 3, ~gosub, \"test\")").command();
@@ -223,6 +223,33 @@ public final class ScriptParserTest {
             assertTrue(expr.getArguments()[0] instanceof AstBinaryOperation);
             assertTrue(expr.getArguments()[1] instanceof AstGosub);
             assertTrue(expr.getArguments()[2] instanceof AstLiteralString);
+        });
+    }
+
+    @Test
+    void testCalcExpression() {
+        assertAll("calc expression", () -> {
+            // valid calc par expression
+            var expr = fromString("calc(1)").calc();
+            assertNotNull(expr);
+            assertTrue(expr.getExpression() instanceof AstLiteralInteger);
+        }, () -> {
+            // valid double calc no par expression
+            var parser = fromString("calc 1 = 5 calc 2 = 5");
+            var expr1 = parser.calc();
+            assertNotNull(expr1);
+            assertTrue(expr1.getExpression() instanceof AstBinaryOperation);
+            var expr2 = parser.calc();
+            assertNotNull(expr2);
+            assertTrue(expr2.getExpression() instanceof AstBinaryOperation);
+        }, () -> {
+            // expressionless no par calc
+            var parser = fromString("calc ");
+            assertThrows(SyntaxError.class, () -> parser.calc());
+        }, () -> {
+            // expressionless par calc
+            var parser = fromString("calc()");
+            assertThrows(SyntaxError.class, () -> parser.calc());
         });
     }
 

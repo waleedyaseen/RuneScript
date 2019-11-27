@@ -101,6 +101,11 @@ public enum Kind {
      */
     DEFAULT,
 
+    /**
+     * The calc keyword token kind.
+     */
+    CALC,
+
     // the separators chunk.
 
     /**
@@ -142,11 +147,6 @@ public enum Kind {
      * The dollar separator token kind.
      */
     DOLLAR,
-
-    /**
-     * The modulo separator token.
-     */
-    MODULO,
 
     /**
      * The caret separator token.
@@ -219,6 +219,31 @@ public enum Kind {
      * The "logical and" operator token kind.
      */
     LOGICAL_AND,
+
+    /**
+     * The arithmetic addition operator token.
+     */
+    ADD,
+
+    /**
+     * The arithmetic subtraction operator token.
+     */
+    SUB,
+
+    /**
+     * The arithmetic multiplication operator token.
+     */
+    MUL,
+
+    /**
+     * The arithmetic division operator token.
+     */
+    DIV,
+
+    /**
+     * The arithmetic modulo operator token.
+     */
+    MOD,
 
     // the misc chunk.
 

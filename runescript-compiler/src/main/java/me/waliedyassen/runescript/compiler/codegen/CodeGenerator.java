@@ -32,14 +32,14 @@ import me.waliedyassen.runescript.compiler.codegen.script.Script;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchMap;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
-import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
-import me.waliedyassen.runescript.type.Type;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.StackType;
+import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -291,6 +291,13 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public Instruction visit(AstCalc command) {
+        return command.getExpression().accept(this);
+    }
+
+    /**
      * Generates the instruction(s) set for the specified {@link CommandInfo command}.
      *
      * @param info
@@ -307,7 +314,32 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      */
     @Override
     public Instruction visit(AstBinaryOperation binaryOperation) {
-        throw new UnsupportedOperationException("You should not be doing this.");
+        if (!binaryOperation.getOperator().isArithmetic()) {
+            throw new UnsupportedOperationException("You should not be doing this.");
+        }
+        CoreOpcode opcode;
+        switch (binaryOperation.getOperator()) {
+            case ADD:
+                opcode = ADD;
+                break;
+            case SUB:
+                opcode = SUB;
+                break;
+            case MUL:
+                opcode = MUL;
+                break;
+            case DIV:
+                opcode = DIV;
+                break;
+            case MOD:
+                opcode = MOD;
+                break;
+            default:
+                throw new UnsupportedOperationException("Cannot generate code for operator: " + binaryOperation.getOperator());
+        }
+        binaryOperation.getLeft().accept(this);
+        binaryOperation.getRight().accept(this);
+        return instruction(opcode, 0);
     }
 
     /**

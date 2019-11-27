@@ -17,10 +17,20 @@ class CoreOpcodeTest {
     @Test
     void testLargeOperand() {
         for (var opcode : CoreOpcode.values()) {
-            if (opcode == CoreOpcode.RETURN || opcode == CoreOpcode.POP_INT_DISCARD || opcode == CoreOpcode.POP_STRING_DISCARD) {
-                assertFalse(opcode.isLargeOperand());
-            } else {
-                assertTrue(opcode.isLargeOperand());
+            switch (opcode){
+                case RETURN:
+                case POP_INT_DISCARD:
+                case POP_STRING_DISCARD:
+                case ADD:
+                case SUB:
+                case MUL:
+                case DIV:
+                case MOD:
+                    assertFalse(opcode.isLargeOperand());
+                    break;
+                default:
+                    assertTrue(opcode.isLargeOperand());
+                    break;
             }
         }
     }

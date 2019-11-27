@@ -296,6 +296,7 @@ public final class Compiler {
         table.registerKeyword("return", Kind.RETURN);
         table.registerKeyword("case", Kind.CASE);
         table.registerKeyword("default", Kind.DEFAULT);
+        table.registerKeyword("calc", Kind.CALC);
         for (var type : PrimitiveType.values()) {
             if (type.getRepresentation() != null) {
                 table.registerKeyword(type.getRepresentation(), Kind.TYPE);
@@ -317,7 +318,6 @@ public final class Compiler {
         table.registerSeparator(',', Kind.COMMA);
         table.registerSeparator('~', Kind.TILDE);
         table.registerSeparator('$', Kind.DOLLAR);
-        table.registerSeparator('%', Kind.MODULO);
         table.registerSeparator('^', Kind.CARET);
         table.registerSeparator(':', Kind.COLON);
         table.registerSeparator(';', Kind.SEMICOLON);

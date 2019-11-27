@@ -17,12 +17,13 @@ import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
-import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.StackType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -67,6 +68,26 @@ class CodeGeneratorTest {
         assertInstructionEquals(block.getInstructions().get(8), CoreOpcode.RETURN, 0);
     }
 
+    @Test
+    void testCalcPrecedence() {
+        var script = fromString("[proc,test](int $param)(int) return calc(1 + $param * 5);");
+        var block = script.getBlocks().get(new Label(0, "entry_0"));
+        assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 1);
+        assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
+        assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.PUSH_INT_CONSTANT, 5);
+        assertInstructionEquals(block.getInstructions().get(3), CoreOpcode.MUL, 0);
+        assertInstructionEquals(block.getInstructions().get(4), CoreOpcode.ADD, 0);
+        assertInstructionEquals(block.getInstructions().get(5), CoreOpcode.RETURN, 0);
+    }
+
+    @Test
+    void testCalcSimple() {
+        var script = fromString("[proc,test](int $param)(int) return calc($param);");
+        var block = script.getBlocks().get(new Label(0, "entry_0"));
+        assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
+        assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.RETURN, 0);
+    }
+
     void assertInstructionEquals(Instruction instruction, CoreOpcode opcode, Object operand) {
         var mapped = (InstructionMap.MappedOpcode) instruction.getOpcode();
         assertEquals(opcode, mapped.getOpcode());
@@ -81,7 +102,22 @@ class CodeGeneratorTest {
             var parser = new ScriptParser(lexer);
             var script = parser.script();
             checker.executePre(Collections.singletonList(script));
+            checker.execute(Collections.singletonList(script));
+            return generator.visit(script);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    Script fromString(String text) {
+        try (var stream = new ByteArrayInputStream(text.getBytes())) {
+            var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            var lexer = new Lexer(tokenizer);
+            var parser = new ScriptParser(lexer);
+            var script = parser.script();
             checker.executePre(Collections.singletonList(script));
+            checker.execute(Collections.singletonList(script));
             return generator.visit(script);
         } catch (IOException e) {
             e.printStackTrace();

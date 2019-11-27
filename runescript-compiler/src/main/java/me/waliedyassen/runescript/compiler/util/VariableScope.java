@@ -38,7 +38,7 @@ public enum VariableScope {
         switch (kind) {
             case DOLLAR:
                 return LOCAL;
-            case MODULO:
+            case MOD:
                 return GLOBAL;
             default:
                 return null;
