@@ -455,6 +455,9 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         } else if (operator.isLogical()) {
             applicable = left == PrimitiveType.BOOL && right == PrimitiveType.BOOL;
         } else if (operator.isArithmetic()) {
+            if (node.selectParent(parent -> parent instanceof AstCalc) == null) {
+                checker.reportError(new SemanticError(node, "Arithmetic expressions are only allowed within a 'calc' expression"));
+            }
             applicable = left == PrimitiveType.INT && right == PrimitiveType.INT;
         }
         if (!applicable) {

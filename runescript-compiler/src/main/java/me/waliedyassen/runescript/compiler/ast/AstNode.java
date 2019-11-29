@@ -15,6 +15,7 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Represents the smallest unit in the Abstract Syntax Tree (AST).
@@ -115,5 +116,24 @@ public abstract class AstNode implements Element {
         node.setParent(this);
         children.add(node);
         return node;
+    }
+
+    /**
+     * Selects one of the parent nodes to this node that passes the test of the specified {@link Predicate}.
+     *
+     * @param predicate
+     *         the predicate which will test the nodes.
+     *
+     * @return the selected {@link AstNode} if any has passed otherwise {@code null}.
+     */
+    public AstNode selectParent(Predicate<AstNode> predicate) {
+        var parent = this.parent;
+        while (parent != null) {
+            if (predicate.test(parent)) {
+                return parent;
+            }
+            parent = parent.parent;
+        }
+        return null;
     }
 }

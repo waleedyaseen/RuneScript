@@ -47,7 +47,7 @@ class TypeCheckingTest {
         checkResource("calc_01.rs2");
         assertEquals(0, checker.getErrors().size());
         checkResource("calc_02.rs2");
-        assertEquals(2, checker.getErrors().size());
+        assertEquals(4, checker.getErrors().size());
     }
 
     void checkResource(String name) throws IOException {
