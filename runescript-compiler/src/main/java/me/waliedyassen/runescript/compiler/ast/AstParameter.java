@@ -11,7 +11,6 @@ import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
-import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 
 /**
@@ -46,7 +45,7 @@ public final class AstParameter extends AstNode {
     public AstParameter(Range range, Type type, AstIdentifier name) {
         super(range);
         this.type = type;
-        this.name = name;
+        this.name = addChild(name);
     }
 
     /**

@@ -9,9 +9,9 @@ package me.waliedyassen.runescript.compiler.ast.stmt.conditional;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstStatement;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents an if-statement in the Abstract Syntax Tree.
@@ -52,9 +52,9 @@ public final class AstIfStatement extends AstStatement {
      */
     public AstIfStatement(Range range, AstExpression condition, AstStatement trueStatement, AstStatement falseStatement) {
         super(range);
-        this.condition = condition;
-        this.trueStatement = trueStatement;
-        this.falseStatement = falseStatement;
+        this.condition = addChild(condition);
+        this.trueStatement = addChild(trueStatement);
+        this.falseStatement = falseStatement != null ? addChild(falseStatement) : null;
     }
 
 

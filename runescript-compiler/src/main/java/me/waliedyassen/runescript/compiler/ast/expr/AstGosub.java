@@ -42,8 +42,8 @@ public final class AstGosub extends AstExpression {
      */
     public AstGosub(Range range, AstIdentifier name, AstExpression[] arguments) {
         super(range);
-        this.name = name;
-        this.arguments = arguments;
+        this.name = addChild(name);
+        this.arguments = addChild(arguments);
     }
 
     /**

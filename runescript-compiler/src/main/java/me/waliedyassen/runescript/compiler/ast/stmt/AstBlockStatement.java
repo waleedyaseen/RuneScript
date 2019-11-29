@@ -34,7 +34,7 @@ public final class AstBlockStatement extends AstStatement {
      */
     public AstBlockStatement(Range range, AstStatement... statements) {
         super(range);
-        this.statements = statements;
+        this.statements = addChild(statements);
     }
 
 

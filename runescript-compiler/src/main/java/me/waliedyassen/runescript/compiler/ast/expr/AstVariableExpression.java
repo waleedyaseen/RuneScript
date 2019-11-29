@@ -52,7 +52,7 @@ public final class AstVariableExpression extends AstExpression {
     public AstVariableExpression(Range range, VariableScope scope, AstIdentifier name) {
         super(range);
         this.scope = scope;
-        this.name = name;
+        this.name = addChild(name);
     }
 
     /**

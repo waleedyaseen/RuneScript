@@ -35,7 +35,7 @@ public final class AstConstant extends AstExpression {
      */
     public AstConstant(Range range, AstIdentifier name) {
         super(range);
-        this.name = name;
+        this.name = addChild(name);
     }
 
 

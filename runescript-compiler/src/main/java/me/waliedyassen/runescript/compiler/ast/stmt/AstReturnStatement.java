@@ -35,7 +35,7 @@ public final class AstReturnStatement extends AstStatement {
      */
     public AstReturnStatement(Range range, AstExpression[] expressions) {
         super(range);
-        this.expressions = expressions;
+        this.expressions = addChild(expressions);
     }
 
 

@@ -51,8 +51,8 @@ public final class AstArrayExpression extends AstExpression {
      */
     public AstArrayExpression(Range range, AstIdentifier name, AstExpression index) {
         super(range);
-        this.name = name;
-        this.index = index;
+        this.name = addChild(name);
+        this.index = addChild(index);
     }
 
     /**

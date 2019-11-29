@@ -34,7 +34,7 @@ public final class AstDynamic extends AstExpression {
      */
     public AstDynamic(Range range, AstIdentifier name) {
         super(range);
-        this.name = name;
+        this.name = addChild(name);
     }
 
     /**

@@ -61,9 +61,9 @@ public final class AstSwitchStatement extends AstStatement {
     public AstSwitchStatement(Range range, PrimitiveType type, AstExpression condition, AstSwitchCase[] cases, AstSwitchCase defaultCase) {
         super(range);
         this.type = type;
-        this.condition = condition;
-        this.cases = cases;
-        this.defaultCase = defaultCase;
+        this.condition = addChild(condition);
+        this.cases = addChild(cases);
+        this.defaultCase = defaultCase != null ? addChild(defaultCase) : null;
     }
 
 

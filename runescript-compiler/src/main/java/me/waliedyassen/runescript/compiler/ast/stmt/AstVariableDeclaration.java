@@ -63,8 +63,8 @@ public final class AstVariableDeclaration extends AstStatement {
     public AstVariableDeclaration(Range range, Type type, AstIdentifier name, AstExpression expression) {
         super(range);
         this.type = type;
-        this.name = name;
-        this.expression = expression;
+        this.name = addChild(name);
+        this.expression = expression != null ? addChild(expression) : null;
     }
 
     /**

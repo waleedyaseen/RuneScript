@@ -10,8 +10,6 @@ package me.waliedyassen.runescript.compiler.semantics.typecheck;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
-import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
@@ -23,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -41,9 +38,20 @@ class TypeCheckingTest {
     void testArray() throws IOException {
         checkResource("array_01.rs2");
         assertEquals(0, checker.getErrors().size());
+        checkResource("array_02.rs2");
+        assertEquals(1, checker.getErrors().size());
+    }
+
+    @Test
+    void testCalc() throws IOException {
+        checkResource("calc_01.rs2");
+        assertEquals(0, checker.getErrors().size());
+        checkResource("calc_02.rs2");
+        assertEquals(2, checker.getErrors().size());
     }
 
     void checkResource(String name) throws IOException {
+        checker.getSymbolTable().getScripts().clear();
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
@@ -54,13 +62,11 @@ class TypeCheckingTest {
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
-            if (checker.getErrors().size() > 0) {
-                checker.getErrors().forEach(System.out::println);
-            }
         }
     }
 
     void checkString(String text) throws IOException {
+        checker.getSymbolTable().getScripts().clear();
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
@@ -71,9 +77,6 @@ class TypeCheckingTest {
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
-            if (checker.getErrors().size() > 0) {
-                checker.getErrors().forEach(System.out::println);
-            }
         }
     }
 }

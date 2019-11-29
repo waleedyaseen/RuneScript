@@ -50,8 +50,8 @@ public final class AstCommand extends AstExpression {
      */
     public AstCommand(Range range, AstIdentifier name, AstExpression[] arguments, boolean alternative) {
         super(range);
-        this.name = name;
-        this.arguments = arguments;
+        this.name = addChild(name);
+        this.arguments = addChild(arguments);
         this.alternative = alternative;
     }
 

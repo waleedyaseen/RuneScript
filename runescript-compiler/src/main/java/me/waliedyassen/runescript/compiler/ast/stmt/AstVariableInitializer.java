@@ -63,8 +63,8 @@ public final class AstVariableInitializer extends AstStatement {
     public AstVariableInitializer(Range range, VariableScope scope, AstIdentifier name, AstExpression expression) {
         super(range);
         this.scope = scope;
-        this.name = name;
-        this.expression = expression;
+        this.name = addChild(name);
+        this.expression = addChild(expression);
     }
 
     /**

@@ -82,12 +82,12 @@ public final class AstScript extends AstNode {
      */
     public AstScript(Range range, List<AstAnnotation> annotations, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, Type type, AstBlockStatement code) {
         super(range);
-        this.annotations = annotations;
-        this.trigger = trigger;
-        this.name = name;
-        this.parameters = parameters;
+        this.annotations = addChild(annotations);
+        this.trigger = addChild(trigger);
+        this.name = addChild(name);
+        this.parameters = addChild(parameters);
         this.type = type;
-        this.code = code;
+        this.code = addChild(code);
     }
 
     /**

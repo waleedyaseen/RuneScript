@@ -32,7 +32,7 @@ public final class AstCalc extends AstExpression {
      */
     public AstCalc(Range range, AstExpression expression) {
         super(range);
-        this.expression = expression;
+        this.expression = addChild(expression);
     }
 
     /**

@@ -35,7 +35,7 @@ public final class AstExpressionStatement extends AstStatement {
      */
     public AstExpressionStatement(Range range, AstExpression expression) {
         super(range);
-        this.expression = expression;
+        this.expression = addChild(expression);
     }
 
 

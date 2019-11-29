@@ -64,8 +64,8 @@ public final class AstArrayDeclaration extends AstStatement {
     public AstArrayDeclaration(Range range, PrimitiveType type, AstIdentifier name, AstExpression size) {
         super(range);
         this.type = type;
-        this.name = name;
-        this.size = size;
+        this.name = addChild(name);
+        this.size = addChild(size);
     }
 
     /**

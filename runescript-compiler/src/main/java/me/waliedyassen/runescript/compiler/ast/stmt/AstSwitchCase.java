@@ -50,8 +50,8 @@ public final class AstSwitchCase extends AstStatement {
      */
     public AstSwitchCase(Range range, AstExpression[] keys, AstBlockStatement code) {
         super(range);
-        this.keys = keys;
-        this.code = code;
+        this.keys = addChild(keys);
+        this.code = addChild(code);
     }
 
     /**

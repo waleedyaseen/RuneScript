@@ -34,7 +34,7 @@ public final class AstConcatenation extends AstExpression {
      */
     public AstConcatenation(Range range, AstExpression[] expressions) {
         super(range);
-        this.expressions = expressions;
+        this.expressions = addChild(expressions);
     }
 
     /**

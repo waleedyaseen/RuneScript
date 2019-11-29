@@ -60,9 +60,9 @@ public final class AstArrayInitializer extends AstStatement {
      */
     public AstArrayInitializer(Range range, AstIdentifier name, AstExpression index, AstExpression value) {
         super(range);
-        this.name = name;
-        this.index = index;
-        this.value = value;
+        this.name = addChild(name);
+        this.index = addChild(index);
+        this.value = addChild(value);
     }
 
     /**

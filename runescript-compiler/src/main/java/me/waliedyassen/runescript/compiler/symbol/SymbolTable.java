@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.symbol;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
@@ -52,6 +53,7 @@ public final class SymbolTable {
     /**
      * The defined scripts map.
      */
+    @Getter
     private final Map<String, ScriptInfo> scripts = new HashMap<>();
 
     /**

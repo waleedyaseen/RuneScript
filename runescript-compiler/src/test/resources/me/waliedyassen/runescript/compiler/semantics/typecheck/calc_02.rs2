@@ -1,0 +1,9 @@
+[clientscript,calc_02](bool $param)
+// calc bool + bool should produce an error
+def_int $first = calc($param + true);
+// calc bool + int should produce an error
+def_int $second = calc($param + 2);
+// this calc should produce no error
+def_int $third = calc(2 / 2 + 1);
+// arithmetic without calc should produce an error
+def_int $fourth = 2 + 2 / 2;

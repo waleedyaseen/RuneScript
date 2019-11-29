@@ -45,8 +45,8 @@ public final class AstAnnotation extends AstNode {
      */
     public AstAnnotation(Range range, AstIdentifier name, AstLiteralInteger value) {
         super(range);
-        this.name = name;
-        this.value = value;
+        this.name = addChild(name);
+        this.value = addChild(value);
     }
 
     /**

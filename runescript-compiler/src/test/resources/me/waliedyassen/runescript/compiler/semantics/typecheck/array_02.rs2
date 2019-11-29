@@ -1,0 +1,8 @@
+[clientscript,caller_02]
+def_int $array0(1);
+def_int $array2(1);
+~test_02(array0, 0, array2);
+
+[proc,test_02](intarray $array0, int $index, intarray $array1)(int)
+return $array0(index);
+

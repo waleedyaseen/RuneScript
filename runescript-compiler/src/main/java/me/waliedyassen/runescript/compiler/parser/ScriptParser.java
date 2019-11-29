@@ -166,8 +166,9 @@ public final class ScriptParser extends ParserBase<Kind> {
         if (!type.isDeclarable()) {
             throwError(lexer.previous(), "Illegal type: " + type.getRepresentation());
         }
-        var local = localVariable();
-        return new AstParameter(popRange(), array ? new ArrayReference(type, index) : type, local.getName());
+        consume(DOLLAR);
+        var name = identifier();
+        return new AstParameter(popRange(), array ? new ArrayReference(type, index) : type, name);
     }
 
     /**

@@ -49,9 +49,9 @@ public final class AstBinaryOperation extends AstExpression {
      */
     public AstBinaryOperation(AstExpression left, Operator operator, AstExpression right) {
         super(new Range(left.getRange().getStart(), right.getRange().getEnd()));
-        this.left = left;
+        this.left = addChild(left);
         this.operator = operator;
-        this.right = right;
+        this.right = addChild(right);
     }
 
     /**

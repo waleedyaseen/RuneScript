@@ -44,8 +44,8 @@ public final class AstWhileStatement extends AstStatement {
      */
     public AstWhileStatement(Range range, AstExpression condition, AstStatement code) {
         super(range);
-        this.condition = condition;
-        this.code = code;
+        this.condition = addChild(condition);
+        this.code = addChild(code);
     }
 
 
