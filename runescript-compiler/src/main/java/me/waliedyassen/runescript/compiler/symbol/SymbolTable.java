@@ -15,8 +15,8 @@ import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
-import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
+import me.waliedyassen.runescript.type.Type;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.type;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.type.PrimitiveType;
@@ -19,6 +20,7 @@ import me.waliedyassen.runescript.type.Type;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
+@EqualsAndHashCode
 public final class ArrayReference implements Type {
 
     /**
@@ -37,9 +39,20 @@ public final class ArrayReference implements Type {
      * {@inheritDoc}
      */
     @Override
-    public String getRepresentation() {
-        return type.getRepresentation() + "array";
+    public String toString() {
+        return String.format("%sarray(%d)", type.getRepresentation(), index);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getRepresentation() {
+        // return type.getRepresentation() + "array";
+        // This will never be called at parser time.
+        return toString();
+    }
+
 
     /**
      * {@inheritDoc}

@@ -11,20 +11,22 @@ import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstArrayExpression;
+import me.waliedyassen.runescript.compiler.ast.expr.AstDynamic;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariableExpression;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.semantics.scope.Scope;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.type.Type;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerProperties;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.Type;
 
 import java.util.*;
 
@@ -100,7 +102,14 @@ public final class PreTypeChecking extends AstTreeVisitor {
      */
     @Override
     public Void visit(AstParameter parameter) {
-        scopes.lastElement().declareLocalVariable(parameter.getName().getText(), parameter.getType());
+        var type = parameter.getType();
+        // check if the type is an array reference and declare the array if it is.
+        if (type instanceof ArrayReference) {
+            var reference = (ArrayReference) type;
+            scopes.lastElement().declareArray(reference.getIndex(), parameter.getName().getText(), reference.getType());
+        } else {
+            scopes.lastElement().declareLocalVariable(parameter.getName().getText(), parameter.getType());
+        }
         return super.visit(parameter);
     }
 
@@ -194,6 +203,18 @@ public final class PreTypeChecking extends AstTreeVisitor {
             arrayExpression.setArray(array);
         }
         return super.visit(arrayExpression);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstDynamic dynamic) {
+        var arrayInfo = scopes.lastElement().getArray(dynamic.getName().getText());
+        if (arrayInfo != null) {
+            dynamic.setType(new ArrayReference(arrayInfo.getType(), arrayInfo.getIndex()));
+        }
+        return super.visit(dynamic);
     }
 
     /**

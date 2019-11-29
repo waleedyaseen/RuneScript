@@ -130,6 +130,9 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstArrayExpression arrayExpression) {
+        if (arrayExpression.getArray() == null) {
+            return PrimitiveType.UNDEFINED;
+        }
         return arrayExpression.setType(arrayExpression.getArray().getType());
     }
 
@@ -163,8 +166,11 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstDynamic dynamic) {
+        // If the type was determined by the PreTypeChecking, we just use that type instead.
+        if (dynamic.getType() != null) {
+            return dynamic.getType();
+        }
         var name = dynamic.getName();
-        // TODO: Array in here.
         var commandInfo = symbolTable.lookupCommand(name.getText());
         if (commandInfo != null) {
             if (commandInfo.getArguments().length > 0) {

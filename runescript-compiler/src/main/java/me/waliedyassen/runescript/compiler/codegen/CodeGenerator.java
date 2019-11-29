@@ -35,6 +35,7 @@ import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
+import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
@@ -248,13 +249,17 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      */
     @Override
     public Instruction visit(AstDynamic dynamic) {
-        var name = dynamic.getName().getText();
-        var commandInfo = symbolTable.lookupCommand(name);
-        if (commandInfo != null) {
-            return generateCommand(commandInfo);
+        if (dynamic.getType() instanceof ArrayReference) {
+            return instruction(PUSH_INT_CONSTANT, ((ArrayReference) dynamic.getType()).getIndex());
         } else {
-            var configInfo = symbolTable.lookupConfig(name);
-            return instruction(PUSH_INT_CONSTANT, configInfo.getId());
+            var name = dynamic.getName().getText();
+            var commandInfo = symbolTable.lookupCommand(name);
+            if (commandInfo != null) {
+                return generateCommand(commandInfo);
+            } else {
+                var configInfo = symbolTable.lookupConfig(name);
+                return instruction(PUSH_INT_CONSTANT, configInfo.getId());
+            }
         }
     }
 
