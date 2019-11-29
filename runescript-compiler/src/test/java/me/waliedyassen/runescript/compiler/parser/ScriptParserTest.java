@@ -20,6 +20,7 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.parser.SyntaxError;
@@ -98,8 +99,18 @@ public final class ScriptParserTest {
             assertThrows(SyntaxError.class, () -> fromString("strin $param").parameter());
             assertThrows(SyntaxError.class, () -> fromString("int0 $param").parameter());
         }, () -> {
-            // illegal parameter type.
+            // illegal parameter type
             assertThrows(SyntaxError.class, () -> fromString("void $param").parameter());
+        }, () -> {
+            // valid array reference parameter
+            var parameter = fromString("intarray $array0").parameter();
+            assertTrue(parameter.getType() instanceof ArrayReference);
+            var reference = (ArrayReference) parameter.getType();
+            assertEquals(PrimitiveType.INT, reference.getType());
+            assertEquals(0, reference.getIndex());
+        }, () -> {
+            // invalid array reference type
+            assertThrows(SyntaxError.class, () -> fromString("voidarray $array0").parameter());
         });
     }
 
@@ -219,7 +230,7 @@ public final class ScriptParserTest {
             assertNotNull(expr);
             assertEquals("mycommand", expr.getName().getText());
             assertEquals(3, expr.getArguments().length);
-            assertEquals(false, expr.isAlternative());
+            assertFalse(expr.isAlternative());
             assertTrue(expr.getArguments()[0] instanceof AstBinaryOperation);
             assertTrue(expr.getArguments()[1] instanceof AstGosub);
             assertTrue(expr.getArguments()[2] instanceof AstLiteralString);
@@ -591,6 +602,24 @@ public final class ScriptParserTest {
             assertThrows(SyntaxError.class, () -> fromString("int0").primitiveType());
         }, () -> {
             assertThrows(SyntaxError.class, () -> fromString("voi").primitiveType());
+        });
+    }
+
+    @Test
+    void testArrayType() {
+        assertAll("array type", () -> {
+            // all valid array types.
+            for (var type : PrimitiveType.values()) {
+                if (type.isArrayable()) {
+                    assertEquals(fromString(type.getRepresentation() + "array").arrayType(), type);
+                }
+            }
+        }, () -> {
+            // invalid array type.
+            assertThrows(SyntaxError.class, () -> fromString("noarray").primitiveType());
+        }, () -> {
+            // missing component type.
+            assertThrows(SyntaxError.class, () -> fromString("array").primitiveType());
         });
     }
 

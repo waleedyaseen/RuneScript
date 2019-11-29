@@ -77,12 +77,17 @@ public enum Kind {
     RETURN,
 
     /**
-     * The type keywords token kind.
+     * The type keyword token kind.
      */
     TYPE,
 
     /**
-     * The type define keywords token kind.
+     * The array type keyword token type.
+     */
+    ARRAY_TYPE,
+
+    /**
+     * The type define keyword token kind.
      */
     DEFINE,
 

@@ -12,6 +12,7 @@ import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents a parameter AST node.
@@ -21,13 +22,13 @@ import me.waliedyassen.runescript.type.PrimitiveType;
 public final class AstParameter extends AstNode {
 
     /**
-     * The parameter type
+     * The type of the parameter.
      */
     @Getter
-    private final PrimitiveType type;
+    private final Type type;
 
     /**
-     * The parameter name.
+     * The name of the parameter.
      */
     @Getter
     private final AstIdentifier name;
@@ -38,11 +39,11 @@ public final class AstParameter extends AstNode {
      * @param range
      *         the node source range.
      * @param type
-     *         the parameter type.
+     *         the type of the parameter.
      * @param name
-     *         the parameter name.
+     *         the name of the parameter.
      */
-    public AstParameter(Range range, PrimitiveType type, AstIdentifier name) {
+    public AstParameter(Range range, Type type, AstIdentifier name) {
         super(range);
         this.type = type;
         this.name = name;

@@ -56,16 +56,18 @@ class CodeGeneratorTest {
         assertEquals(new Local("int_param", PrimitiveType.INT), script.getParameters().get(StackType.INT).get(1));
         assertEquals(new Local("string_param", PrimitiveType.STRING), script.getParameters().get(StackType.STRING).get(0));
         assertEquals(new Local("long_param", PrimitiveType.LONG), script.getParameters().get(StackType.LONG).get(0));
-        assertEquals(9, block.getInstructions().size());
+        assertEquals(11, block.getInstructions().size());
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 1234);
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.POP_INT_LOCAL, new Local("my_int", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.PUSH_STRING_CONSTANT, "test");
         assertInstructionEquals(block.getInstructions().get(3), CoreOpcode.POP_STRING_LOCAL, new Local("my_string", PrimitiveType.STRING));
         assertInstructionEquals(block.getInstructions().get(4), CoreOpcode.PUSH_INT_CONSTANT, 1);
-        assertInstructionEquals(block.getInstructions().get(5), CoreOpcode.POP_INT_LOCAL, new Local("my_bool", PrimitiveType.BOOL));
+        assertInstructionEquals(block.getInstructions().get(5), CoreOpcode.POP_INT_LOCAL, new Local("my_true_bool", PrimitiveType.BOOL));
         assertInstructionEquals(block.getInstructions().get(6), CoreOpcode.PUSH_LONG_CONSTANT, 1234L);
         assertInstructionEquals(block.getInstructions().get(7), CoreOpcode.POP_LONG_LOCAL, new Local("my_long", PrimitiveType.LONG));
-        assertInstructionEquals(block.getInstructions().get(8), CoreOpcode.RETURN, 0);
+        assertInstructionEquals(block.getInstructions().get(8), CoreOpcode.PUSH_INT_CONSTANT, 0);
+        assertInstructionEquals(block.getInstructions().get(9), CoreOpcode.POP_INT_LOCAL, new Local("my_false_bool", PrimitiveType.BOOL));
+        assertInstructionEquals(block.getInstructions().get(10), CoreOpcode.RETURN, 0);
     }
 
     @Test
@@ -86,6 +88,16 @@ class CodeGeneratorTest {
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.RETURN, 0);
+    }
+
+    @Test
+    void testDiscard() {
+        var script = fromString("[proc,test](int $param) calc($param);");
+        var block = script.getBlocks().get(new Label(0, "entry_0"));
+        assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
+        assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.POP_INT_DISCARD, 0);
+        assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.RETURN, 0);
+        block.getInstructions().forEach(System.out::println);
     }
 
     void assertInstructionEquals(Instruction instruction, CoreOpcode opcode, Object operand) {

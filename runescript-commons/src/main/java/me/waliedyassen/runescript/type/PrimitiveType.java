@@ -102,4 +102,19 @@ public enum PrimitiveType implements Type {
     public static PrimitiveType forRepresentation(String representation) {
         return lookupMap.get(representation);
     }
+
+    /**
+     * Checks whether or not the type can be used as an array.
+     *
+     * @return <code>true</code> if it does otherwise <code>false</code>.
+     */
+    public boolean isArrayable() {
+        switch (this) {
+            case BOOL:
+                return false;
+            default:
+                return stackType == StackType.INT;
+        }
+    }
+
 }

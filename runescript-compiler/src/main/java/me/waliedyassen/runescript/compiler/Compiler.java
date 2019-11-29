@@ -22,11 +22,11 @@ import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
-import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.lexer.table.LexicalTable;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.StackType;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -303,6 +303,9 @@ public final class Compiler {
             }
             if (type.isDeclarable()) {
                 table.registerKeyword("def_" + type.getRepresentation(), Kind.DEFINE);
+            }
+            if (type.isArrayable()) {
+                table.registerKeyword(type.getRepresentation() + "array", Kind.ARRAY_TYPE);
             }
             if (type.getStackType() == StackType.INT) {
                 table.registerKeyword("switch_" + type.getRepresentation(), Kind.SWITCH);

@@ -20,13 +20,14 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.type.Type;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.lexer.token.Token;
 import me.waliedyassen.runescript.parser.ParserBase;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,15 +145,29 @@ public final class ScriptParser extends ParserBase<Kind> {
      * Attempts to parse an {@link AstParameter} object node.
      *
      * @return the parsed {@link AstParameter} object.
+     * @see #parameter(int)
      */
     public AstParameter parameter() {
+        return parameter(0);
+    }
+
+    /**
+     * Attempts to parse an {@link AstParameter} object node.
+     *
+     * @param index
+     *         the current index of the parameter used for array references.
+     *
+     * @return the parsed {@link AstParameter} object.
+     */
+    public AstParameter parameter(int index) {
         pushRange();
-        var type = primitiveType();
+        var array = peekKind() == ARRAY_TYPE;
+        var type = array ? arrayType() : primitiveType();
         if (!type.isDeclarable()) {
             throwError(lexer.previous(), "Illegal type: " + type.getRepresentation());
         }
         var local = localVariable();
-        return new AstParameter(popRange(), type, local.getName());
+        return new AstParameter(popRange(), array ? new ArrayReference(type, index) : type, local.getName());
     }
 
     /**
@@ -163,7 +178,7 @@ public final class ScriptParser extends ParserBase<Kind> {
     private List<AstParameter> parametersList() {
         var parameters = new ArrayList<AstParameter>();
         do {
-            parameters.add(parameter());
+            parameters.add(parameter(parameters.size()));
         } while (consumeIf(COMMA));
         return parameters;
     }
@@ -174,7 +189,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * @return <code>true</code> if it can otherwise <code>false</code>.
      */
     private boolean isParameter() {
-        return peekKind(0) == TYPE && peekKind(1) == DOLLAR;
+        return (peekKind(0) == ARRAY_TYPE || peekKind(0) == TYPE) && peekKind(1) == DOLLAR;
     }
 
     /**
@@ -311,6 +326,7 @@ public final class ScriptParser extends ParserBase<Kind> {
                 }
                 return variableDeclaration();
             case DOLLAR:
+                // TODO: We can check for an equal sign here if necessary.
                 if (peekKind(2) == LPAREN) {
                     return arrayInitializer();
                 }
@@ -697,7 +713,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         pushRange();
         consume(TILDE);
         var name = identifier();
-        var arguments = new ArrayList<>();
+        var arguments = new ArrayList<AstExpression>();
         if (consumeIf(LPAREN)) {
             do {
                 arguments.add(expression());
@@ -770,7 +786,17 @@ public final class ScriptParser extends ParserBase<Kind> {
     }
 
     /**
-     * Attempts to parse a {@link PrimitiveType} from the next token.
+     * Attempts to parse a {@link PrimitiveType} from the next array type token.
+     *
+     * @return the parsed {@link PrimitiveType} enum constant.
+     */
+    public PrimitiveType arrayType() {
+        var token = consume(ARRAY_TYPE);
+        return PrimitiveType.forRepresentation(token.getLexeme().substring(0, token.getLexeme().length() - 5));
+    }
+
+    /**
+     * Attempts to parse a {@link PrimitiveType} from the next type token.
      *
      * @return the parsed {@link PrimitiveType}.
      */

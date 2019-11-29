@@ -164,6 +164,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     @Override
     public Type visit(AstDynamic dynamic) {
         var name = dynamic.getName();
+        // TODO: Array in here.
         var commandInfo = symbolTable.lookupCommand(name.getText());
         if (commandInfo != null) {
             if (commandInfo.getArguments().length > 0) {
