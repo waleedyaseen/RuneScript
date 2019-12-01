@@ -318,31 +318,31 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstGosub gosub) {
-        enter(gosub);
-        for (var expression : gosub.getArguments()) {
+    public Void visit(AstCall call) {
+        enter(call);
+        for (var expression : call.getArguments()) {
             expression.accept(this);
         }
-        exit(gosub);
+        exit(call);
         return null;
     }
 
     /**
-     * Gets called when we have just entered an {@link AstGosub} node.
+     * Gets called when we have just entered an {@link AstCall} node.
      *
-     * @param gosub
+     * @param call
      *         the node we have just entered.
      */
-    public void enter(AstGosub gosub) {
+    public void enter(AstCall call) {
     }
 
     /**
-     * Gets called when we have just left an {@link AstGosub} node.
+     * Gets called when we have just left an {@link AstCall} node.
      *
-     * @param gosub
+     * @param call
      *         the node we have just entered.
      */
-    public void exit(AstGosub gosub) {
+    public void exit(AstCall call) {
     }
 
     /**

@@ -320,6 +320,7 @@ public final class Compiler {
         table.registerSeparator('}', Kind.RBRACE);
         table.registerSeparator(',', Kind.COMMA);
         table.registerSeparator('~', Kind.TILDE);
+        table.registerSeparator('@', Kind.AT);
         table.registerSeparator('$', Kind.DOLLAR);
         table.registerSeparator('^', Kind.CARET);
         table.registerSeparator(':', Kind.COLON);

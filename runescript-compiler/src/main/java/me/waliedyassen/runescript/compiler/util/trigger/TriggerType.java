@@ -28,7 +28,12 @@ public enum TriggerType implements TriggerProperties {
     /**
      * The procedure trigger type.
      */
-    PROC("proc", PROPERTY_INVOKE, PROPERTY_RETURN);
+    PROC("proc", PROPERTY_INVOKE, PROPERTY_RETURN),
+
+    /**
+     * The label trigger type.
+     */
+    LABEL("label", PROPERTY_INVOKE);
 
 
     /**

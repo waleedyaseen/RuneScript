@@ -220,6 +220,11 @@ public enum CoreOpcode {
     JOIN_STRING,
 
     /**
+     * The jump with parameters core instruction opcode.
+     */
+    JUMP_WITH_PARAMS,
+
+    /**
      * The gosub with parameters core instruction opcode.
      */
     GOSUB_WITH_PARAMS,

@@ -188,16 +188,16 @@ public final class ScriptParserTest {
     void testGosubExpression() {
         assertAll("gosub expression", () -> {
             // valid no arguments gosub
-            assertEquals("gosub", fromString("~gosub;").gosub().getName().getText());
+            assertEquals("gosub", fromString("~gosub;").call().getName().getText());
         }, () -> {
             // valid with arguments
-            assertEquals(3, fromString("~gosub(1234, \"test\", 5 > 4 > 3 > 2 > 1);").gosub().getArguments().length);
+            assertEquals(3, fromString("~gosub(1234, \"test\", 5 > 4 > 3 > 2 > 1);").call().getArguments().length);
         }, () -> {
             // invalid gosub name
-            assertThrows(SyntaxError.class, () -> fromString("~1234(1234);").gosub());
+            assertThrows(SyntaxError.class, () -> fromString("~1234(1234);").call());
         }, () -> {
             // invalid gosub arguments
-            assertThrows(SyntaxError.class, () -> fromString("~gosub(if);").gosub());
+            assertThrows(SyntaxError.class, () -> fromString("~gosub(if);").call());
         });
     }
 
@@ -232,7 +232,7 @@ public final class ScriptParserTest {
             assertEquals(3, expr.getArguments().length);
             assertFalse(expr.isAlternative());
             assertTrue(expr.getArguments()[0] instanceof AstBinaryOperation);
-            assertTrue(expr.getArguments()[1] instanceof AstGosub);
+            assertTrue(expr.getArguments()[1] instanceof AstCall);
             assertTrue(expr.getArguments()[2] instanceof AstLiteralString);
         });
     }

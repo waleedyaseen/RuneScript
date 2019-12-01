@@ -10,16 +10,23 @@ package me.waliedyassen.runescript.compiler.ast.expr;
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
 /**
- * Represents a gosub expression.
+ * Represents a call script expression.
  *
  * @author Walied K. Yassen
  */
-public final class AstGosub extends AstExpression {
+public final class AstCall extends AstExpression {
 
     /**
-     * The target script name.
+     * The trigger type of the script we want to call.
+     */
+    @Getter
+    private final TriggerType triggerType;
+
+    /**
+     * The name of the script we want to call
      */
     @Getter
     private final AstIdentifier name;
@@ -31,17 +38,20 @@ public final class AstGosub extends AstExpression {
     private final AstExpression[] arguments;
 
     /**
-     * Constructs a new {@link AstGosub} type object instance.
+     * Constructs a new {@link AstCall} type object instance.
      *
      * @param range
      *         the expression source code range.
+     * @param triggerType
+     *         the trigger type of the script we want to call.
      * @param name
-     *         the name of the target script.
+     *         the name of the script we want to call
      * @param arguments
      *         the arguments that will be passed to that script.
      */
-    public AstGosub(Range range, AstIdentifier name, AstExpression[] arguments) {
+    public AstCall(Range range, TriggerType triggerType, AstIdentifier name, AstExpression[] arguments) {
         super(range);
+        this.triggerType = triggerType;
         this.name = addChild(name);
         this.arguments = addChild(arguments);
     }

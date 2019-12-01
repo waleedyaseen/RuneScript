@@ -1,6 +1,0 @@
-[clientscript,basic_defines](bool $bool_param, int $int_param, string $string_param, long $long_param)
-def_int $my_int = 1234;
-def_string $my_string = "test";
-def_bool $my_true_bool = true;
-def_long $my_long = 1234L;
-def_bool $my_false_bool = false;

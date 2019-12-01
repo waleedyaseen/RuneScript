@@ -24,7 +24,6 @@ import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.util.Operator;
-import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.*;
 
 import java.util.Arrays;
@@ -140,25 +139,25 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstGosub gosub) {
-        var name = gosub.getName();
-        var script = symbolTable.lookupScript(TriggerType.PROC, name.getText());
+    public Type visit(AstCall call) {
+        var name = call.getName();
+        var script = symbolTable.lookupScript(call.getTriggerType(), name.getText());
         if (script == null) {
-            checker.reportError(new SemanticError(gosub, String.format("Could not resolve proc script with the name '%s'", name.getText())));
+            checker.reportError(new SemanticError(call, String.format("Could not resolve " + call.getTriggerType().getRepresentation() + " script with the name '%s'", name.getText())));
             return PrimitiveType.UNDEFINED;
         } else {
-            var arguments = gosub.getArguments();
-            var types = new Type[gosub.getArguments().length];
+            var arguments = call.getArguments();
+            var types = new Type[call.getArguments().length];
             for (int index = 0; index < arguments.length; index++) {
                 types[index] = arguments[index].accept(this);
             }
             var expected = TypeUtil.flatten(types);
             var actual = script.getArguments();
             if (expected.length != actual.length || !Arrays.equals(expected, actual)) {
-                checker.reportError(new SemanticError(gosub, String.format("The script %s(%s) is not applicable for the arguments (%s)", name.getText(), TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(expected))));
+                checker.reportError(new SemanticError(call, String.format("The script %s(%s) is not applicable for the arguments (%s)", name.getText(), TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(expected))));
             }
         }
-        return gosub.setType(script.getType());
+        return call.setType(script.getType());
     }
 
     /**

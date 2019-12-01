@@ -174,6 +174,11 @@ public enum Kind {
     TILDE,
 
     /**
+     * The at separator token kind.
+     */
+    AT,
+
+    /**
      * The dot separator token kind.
      */
     DOT,

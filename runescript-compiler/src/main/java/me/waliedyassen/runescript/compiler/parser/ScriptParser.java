@@ -23,6 +23,7 @@ import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.lexer.token.Token;
 import me.waliedyassen.runescript.parser.ParserBase;
 import me.waliedyassen.runescript.type.PrimitiveType;
@@ -266,7 +267,8 @@ public final class ScriptParser extends ParserBase<Kind> {
             case CARET:
                 return constant();
             case TILDE:
-                return gosub();
+            case AT:
+                return call();
             case IDENTIFIER:
                 if (peekKind(1) == LPAREN) {
                     return command();
@@ -288,7 +290,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public boolean isExpression() {
         var kind = peekKind();
-        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == TILDE || kind == LPAREN || kind == DOT || kind == CALC;
+        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == TILDE || kind == AT || kind == LPAREN || kind == DOT || kind == CALC;
     }
 
     /**
@@ -327,7 +329,6 @@ public final class ScriptParser extends ParserBase<Kind> {
                 }
                 return variableDeclaration();
             case DOLLAR:
-                // TODO: We can check for an equal sign here if necessary.
                 if (peekKind(2) == LPAREN) {
                     return arrayInitializer();
                 }
@@ -352,6 +353,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     private boolean isStatement() {
         var kind = peekKind();
+        // TODO: We can check for an EQUAL sign after the DOLLAR (kind == DOLLAR && peekKind(1) == EQUAL) to avoid errors.
         return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR || kind == MOD || kind == SWITCH || isExpression();
     }
 
@@ -706,13 +708,19 @@ public final class ScriptParser extends ParserBase<Kind> {
     }
 
     /**
-     * Attempts to parse an {@link AstGosub} from the next set of tokens.
+     * Attempts to parse an {@link AstCall} from the next set of tokens.
      *
-     * @return the parsed {@link AstGosub} object.
+     * @return the parsed {@link AstCall} object.
      */
-    public AstGosub gosub() {
+    public AstCall call() {
         pushRange();
-        consume(TILDE);
+        TriggerType triggerType;
+        if (consumeIf(AT)) {
+            triggerType = TriggerType.LABEL;
+        } else {
+            consume(TILDE);
+            triggerType = TriggerType.PROC;
+        }
         var name = identifier();
         var arguments = new ArrayList<AstExpression>();
         if (consumeIf(LPAREN)) {
@@ -721,7 +729,7 @@ public final class ScriptParser extends ParserBase<Kind> {
             } while (consumeIf(COMMA));
             consume(RPAREN);
         }
-        return new AstGosub(popRange(), name, arguments.toArray(AstExpression[]::new));
+        return new AstCall(popRange(), triggerType, name, arguments.toArray(AstExpression[]::new));
     }
 
     /**
@@ -757,9 +765,9 @@ public final class ScriptParser extends ParserBase<Kind> {
     }
 
     /**
-     * Attempts to parse an {@link AstCommand} from the next set of tokens.
+     * Attempts to parse an {@link AstCalc} from the next set of tokens.
      *
-     * @return the parsed {@link AstCommand} object.
+     * @return the parsed {@link AstCalc} object.
      */
     public AstCalc calc() {
         pushRange();

@@ -45,7 +45,7 @@ class AstTreeVisitorTest {
         assertEquals(visitor.literalString.count(), 7);
         assertEquals(visitor.concatenation.count(), 1);
         assertEquals(visitor.variableExpression.count(), 7);
-        assertEquals(visitor.gosub.count(), 1);
+        assertEquals(visitor.call.count(), 1);
         assertEquals(visitor.dynamic.count(), 2);
         assertEquals(visitor.constant.count(), 1);
         assertEquals(visitor.command.count(), 4);
@@ -70,7 +70,7 @@ class AstTreeVisitorTest {
         final Counter literalString = new Counter();
         final Counter concatenation = new Counter();
         final Counter variableExpression = new Counter();
-        final Counter gosub = new Counter();
+        final Counter call = new Counter();
         final Counter dynamic = new Counter();
         final Counter constant = new Counter();
         final Counter command = new Counter();
@@ -94,7 +94,7 @@ class AstTreeVisitorTest {
             literalString.reset();
             concatenation.reset();
             variableExpression.reset();
-            gosub.reset();
+            call.reset();
             dynamic.reset();
             constant.reset();
             command.reset();
@@ -207,15 +207,15 @@ class AstTreeVisitorTest {
         }
 
         @Override
-        public void enter(AstGosub gosub) {
-            super.enter(gosub);
-            this.gosub.numEnters++;
+        public void enter(AstCall call) {
+            super.enter(call);
+            this.call.numEnters++;
         }
 
         @Override
-        public void exit(AstGosub gosub) {
-            super.exit(gosub);
-            this.gosub.numExits++;
+        public void exit(AstCall call) {
+            super.exit(call);
+            this.call.numExits++;
         }
 
         @Override

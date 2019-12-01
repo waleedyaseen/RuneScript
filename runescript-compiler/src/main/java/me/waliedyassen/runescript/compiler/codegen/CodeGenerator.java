@@ -36,7 +36,6 @@ import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
-import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.type.TupleType;
@@ -236,12 +235,23 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstGosub gosub) {
-        for (var argument : gosub.getArguments()) {
+    public Instruction visit(AstCall call) {
+        for (var argument : call.getArguments()) {
             argument.accept(this);
         }
-        var script = symbolTable.lookupScript(TriggerType.PROC, gosub.getName().getText());
-        return instruction(CoreOpcode.GOSUB_WITH_PARAMS, script);
+        var script = symbolTable.lookupScript(call.getTriggerType(), call.getName().getText());
+        CoreOpcode opcode;
+        switch (call.getTriggerType()) {
+            case PROC:
+                opcode = GOSUB_WITH_PARAMS;
+                break;
+            case LABEL:
+                opcode = JUMP_WITH_PARAMS;
+                break;
+            default:
+                throw new IllegalStateException("Invalid trigger type");
+        }
+        return instruction(opcode, script);
     }
 
     /**

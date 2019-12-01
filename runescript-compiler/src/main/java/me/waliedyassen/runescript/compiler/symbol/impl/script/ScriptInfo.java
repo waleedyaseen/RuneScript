@@ -7,8 +7,10 @@
  */
 package me.waliedyassen.runescript.compiler.symbol.impl.script;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
@@ -20,6 +22,8 @@ import java.util.Map;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
+@EqualsAndHashCode
+@ToString
 public final class ScriptInfo {
 
     /**
@@ -51,12 +55,4 @@ public final class ScriptInfo {
      */
     @Getter
     private final Type[] arguments;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        return name;
-    }
 }

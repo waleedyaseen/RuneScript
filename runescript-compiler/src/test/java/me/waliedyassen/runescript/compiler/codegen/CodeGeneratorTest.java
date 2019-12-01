@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.codegen;
 
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
+import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
@@ -18,13 +19,17 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
+import me.waliedyassen.runescript.type.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -49,7 +54,7 @@ class CodeGeneratorTest {
 
     @Test
     void testLocalDefine() {
-        var script = fromResource("local_define.rs2");
+        var script = fromResource("local_01.rs2")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertEquals(4, script.getParameters().values().stream().mapToInt(Collection::size).sum());
         assertEquals(new Local("bool_param", PrimitiveType.BOOL), script.getParameters().get(StackType.INT).get(0));
@@ -72,7 +77,7 @@ class CodeGeneratorTest {
 
     @Test
     void testCalcPrecedence() {
-        var script = fromString("[proc,test](int $param)(int) return calc(1 + $param * 5);");
+        var script = fromString("[proc,test](int $param)(int) return calc(1 + $param * 5);")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 1);
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
@@ -84,7 +89,7 @@ class CodeGeneratorTest {
 
     @Test
     void testCalcSimple() {
-        var script = fromString("[proc,test](int $param)(int) return calc($param);");
+        var script = fromString("[proc,test](int $param)(int) return calc($param);")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.RETURN, 0);
@@ -92,12 +97,25 @@ class CodeGeneratorTest {
 
     @Test
     void testDiscard() {
-        var script = fromString("[proc,test](int $param) calc($param);");
+        var script = fromString("[proc,test](int $param) calc($param);")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.POP_INT_DISCARD, 0);
         assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.RETURN, 0);
-        block.getInstructions().forEach(System.out::println);
+    }
+
+    @Test
+    void testCall01() {
+        var scripts = fromString("[proc,my_proc](int $param) @my_label(0); [label,my_label](int $param) ~my_proc(0);");
+        assertEquals(2, scripts.length);
+        var first = scripts[0];
+        var first_block = first.getBlocks().get(new Label(0, "entry_0"));
+        assertInstructionEquals(first_block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 0);
+        assertInstructionEquals(first_block.getInstructions().get(1), CoreOpcode.JUMP_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_label", TriggerType.LABEL, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}));
+        var second = scripts[1];
+        var second_block = second.getBlocks().get(new Label(0, "entry_0"));
+        assertInstructionEquals(second_block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 0);
+        assertInstructionEquals(second_block.getInstructions().get(1), CoreOpcode.GOSUB_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_proc", TriggerType.PROC, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}));
     }
 
     void assertInstructionEquals(Instruction instruction, CoreOpcode opcode, Object operand) {
@@ -107,30 +125,45 @@ class CodeGeneratorTest {
         assertEquals(operand, instruction.getOperand());
     }
 
-    Script fromResource(String name) {
+    Script[] fromResource(String name) {
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(lexer);
-            var script = parser.script();
-            checker.executePre(Collections.singletonList(script));
-            checker.execute(Collections.singletonList(script));
-            return generator.visit(script);
+            var scripts = new ArrayList<AstScript>();
+            do {
+                scripts.add(parser.script());
+            } while (lexer.remaining() > 0);
+            checker.executePre(scripts);
+            checker.execute(scripts);
+            var parsed = new Script[scripts.size()];
+            for (var index = 0; index < parsed.length; index++) {
+                parsed[index] = generator.visit(scripts.get(index));
+            }
+            return parsed;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    Script fromString(String text) {
+    Script[] fromString(String text) {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(lexer);
-            var script = parser.script();
-            checker.executePre(Collections.singletonList(script));
-            checker.execute(Collections.singletonList(script));
-            return generator.visit(script);
+            var scripts = new ArrayList<AstScript>();
+            do {
+                scripts.add(parser.script());
+            } while (lexer.remaining() > 0);
+            checker.executePre(scripts);
+            checker.execute(scripts);
+            checker.getErrors().forEach(System.out::println);
+            var parsed = new Script[scripts.size()];
+            for (var index = 0; index < parsed.length; index++) {
+                parsed[index] = generator.visit(scripts.get(index));
+            }
+            return parsed;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

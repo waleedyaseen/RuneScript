@@ -50,6 +50,13 @@ class TypeCheckingTest {
         assertEquals(4, checker.getErrors().size());
     }
 
+    @Test
+    void testCall() throws IOException {
+        checkResource("call_01.rs2");
+        checker.getErrors().forEach(System.out::println);
+        assertEquals(0, checker.getErrors().size());
+    }
+
     void checkResource(String name) throws IOException {
         checker.getSymbolTable().getScripts().clear();
         try (var stream = getClass().getResourceAsStream(name)) {

@@ -7,8 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast;
 
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
@@ -22,7 +21,8 @@ import java.util.function.Predicate;
  *
  * @author Walied K. Yassen
  */
-@Data
+@RequiredArgsConstructor
+@EqualsAndHashCode
 public abstract class AstNode implements Element {
 
     /**
@@ -41,6 +41,8 @@ public abstract class AstNode implements Element {
      * The parent node of this node.
      */
     @Getter
+    @Setter(AccessLevel.PACKAGE)
+    @EqualsAndHashCode.Exclude
     private AstNode parent;
 
 

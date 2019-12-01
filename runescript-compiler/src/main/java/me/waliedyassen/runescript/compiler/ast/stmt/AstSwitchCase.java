@@ -63,7 +63,6 @@ public final class AstSwitchCase extends AstStatement {
         return keys.length == 0;
     }
 
-
     /**
      * {@inheritDoc}
      */

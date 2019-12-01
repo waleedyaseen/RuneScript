@@ -152,14 +152,14 @@ public interface AstVisitor<E, S> {
     }
 
     /**
-     * Gets called when we have just visited an {@link AstGosub} node.
+     * Gets called when we have just visited an {@link AstCall} node.
      *
-     * @param gosub
-     *         the {@link AstGosub} node we have just visited.
+     * @param call
+     *         the {@link AstCall} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default E visit(AstGosub gosub) {
+    default E visit(AstCall call) {
         return null;
     }
 
