@@ -21,11 +21,12 @@ class TupleTypeTest {
         assertArrayEquals(TYPES, TUPLE.getFlattened());
     }
 
+
     @Test
     void testEquals() {
-        assertTrue(TUPLE.equals(new TupleType(TYPES)));
-        assertFalse(TUPLE.equals(new Object()));
-        assertFalse(TUPLE.equals(null));
+        assertEquals(TUPLE, new TupleType(TYPES));
+        assertNotEquals(TUPLE, new Object());
+        assertNotEquals(null, TUPLE);
     }
 
     @Test
@@ -35,7 +36,7 @@ class TupleTypeTest {
     }
 
     @Test
-    void testNulls(){
+    void testNulls() {
         assertNull(TUPLE.getStackType());
         assertNull(TUPLE.getDefaultValue());
     }

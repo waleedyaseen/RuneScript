@@ -17,6 +17,7 @@ import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.DeadBranchOpti
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.NaturalFlowOptimization;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeScript;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
@@ -72,6 +73,11 @@ public final class Compiler {
     private final SymbolTable symbolTable = new SymbolTable();
 
     /**
+     * The compiler environment which is basically a user level symbol table.
+     */
+    private final CompilerEnvironment environment;
+
+    /**
      * The instruction map to use for the
      */
     private final InstructionMap instructionMap;
@@ -94,13 +100,16 @@ public final class Compiler {
     /**
      * Constructs a new {@link Compiler} type object instance.
      *
+     * @param environment
+     *         the environment of the compiler.
      * @param instructionMap
      *         the instruction map to use for this compiler.
      */
-    public Compiler(InstructionMap instructionMap) {
+    public Compiler(CompilerEnvironment environment, InstructionMap instructionMap) {
         if (!instructionMap.isReady()) {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }
+        this.environment = environment;
         this.instructionMap = instructionMap;
         lexicalTable = createLexicalTable();
         codeGenerator = new CodeGenerator(symbolTable, instructionMap);
@@ -133,7 +142,7 @@ public final class Compiler {
             scripts.addAll(parseSyntaxTree(Files.readAllBytes(sourceFile)));
         }
         // Perform pre type checking on all of the files.
-        var checker = new SemanticChecker(symbolTable);
+        var checker = new SemanticChecker(environment, symbolTable);
         checker.executePre(scripts);
         checker.execute(scripts);
         // Check if we have any errors and if so we do not compile.
@@ -235,7 +244,7 @@ public final class Compiler {
             return new CompiledScript[0];
         }
         // Perform semantic analysis checking on the parsed AST.
-        var checker = new SemanticChecker(symbolTable);
+        var checker = new SemanticChecker(environment, symbolTable);
         checker.executePre(scripts);
         checker.execute(scripts);
         // Check if there is any compilation errors and throw them if there is any.
@@ -271,7 +280,7 @@ public final class Compiler {
         var stream = new BufferedCharStream(new ByteArrayInputStream(data));
         var tokenizer = new Tokenizer(lexicalTable, stream);
         var lexer = new Lexer(tokenizer);
-        var parser = new ScriptParser(lexer);
+        var parser = new ScriptParser(environment, lexer);
         var scripts = new ArrayList<AstScript>();
         while (lexer.remaining() > 0) {
             scripts.add(parser.script());

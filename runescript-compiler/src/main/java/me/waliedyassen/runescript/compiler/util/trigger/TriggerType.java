@@ -7,88 +7,69 @@
  */
 package me.waliedyassen.runescript.compiler.util.trigger;
 
-import lombok.Getter;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
+import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.type.Type;
 
 /**
- * Represents a script trigger type.
+ * A trigger type of a script, it contains various information about how scripts should be or behave when it is marked
+ * with the trigger type as well information about the symbols of the trigger type.
  *
  * @author Walied K. Yassen
  */
-public enum TriggerType implements TriggerProperties {
+public interface TriggerType {
 
     /**
-     * The clientscript trigger type.
-     */
-    CLIENTSCRIPT("clientscript"),
-
-    /**
-     * The procedure trigger type.
-     */
-    PROC("proc", PROPERTY_INVOKE, PROPERTY_RETURN),
-
-    /**
-     * The label trigger type.
-     */
-    LABEL("label", PROPERTY_INVOKE);
-
-
-    /**
-     * The textual representation of the trigger type.
-     */
-    @Getter
-    private final String representation;
-
-    /**
-     * Whether or not this trigger type supports returning a value.
-     */
-    @Getter
-    private final int properties;
-
-    /**
-     * Constructs a new {@link TriggerType} enum constant.
+     * Gets the source code representation of the trigger type.
      *
-     * @param representation
-     *         the textual representation of the trigger.
-     * @param properties
-     *         the properties of the trigger.
+     * @return the source code representation.
      */
-    TriggerType(String representation, int... properties) {
-        this.representation = representation;
-        var _properties = 0;
-        for (var property : properties) _properties |= property;
-        this.properties = _properties;
-    }
+    String getRepresentation();
 
     /**
-     * Checks whether or not this {@link TriggerType} has the specified {@code property}.
+     * Returns the operator {@link Kind} which is used in the source code for calling scripts with the this trigger
+     * type, or alternatively returns {@code null} if the script cannot be called using an operator.
      *
-     * @param property
-     *         the property to check.
+     * @return the operator {@link Kind} of the trigger type if it can be called using an operator otherwise {@code
+     * null}.
+     */
+    Kind getOperator();
+
+    /**
+     * Returns the instruction {@link CoreOpcode opcode} of the trigger type, this requires the {@link #getOperator()}
+     * to not return a {@code null} value.
+     *
+     * @return the {@link CoreOpcode} of the trigger type it was present otherwise {@code null}.
+     */
+    CoreOpcode getOpcode();
+
+    /**
+     * Checks whether or not the trigger type can have arguments.
      *
      * @return <code>true</code> if it does otherwise <code>false</code>.
      */
-    public boolean hasProperty(int property) {
-        return (properties & property) == property;
-    }
+    boolean hasArguments();
 
     /**
-     * The look-up by representation map of the trigger types.
+     * Returns an array of {@link Type} that represent the argument value types that a script with this trigger type
+     * should have.
+     *
+     * @return an array {@link Type} if any is specified otherwise {@code null}.
      */
-    private static final Map<String, TriggerType> lookupMap = Arrays.stream(values()).collect(Collectors.toMap(TriggerType::getRepresentation, type -> type));
+    Type[] getArgumentTypes();
 
     /**
-     * Gets the {@link TriggerType} with the specified code {@code representation}.
+     * Checks whether or not the trigger type can have returns.
      *
-     * @param representation
-     *         the code representation of the trigger type.
-     *
-     * @return the {@link TriggerType} if it was present otherwise {@code null}.
+     * @return <code>true</code> if it does otherwise <code>false</code>.
      */
-    public static TriggerType forRepresentation(String representation) {
-        return lookupMap.get(representation);
-    }
+    boolean hasReturns();
+
+    /**
+     * Return an array of {@link Type} that represent the return value types that a script with this trigger type should
+     * be returning.
+     *
+     * @return an array {@link Type} if any is specified otherwise {@code null}.
+     */
+    Type[] getReturnTypes();
 }

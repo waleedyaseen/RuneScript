@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
@@ -18,14 +20,20 @@ import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
+import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.parser.SyntaxError;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.Type;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -38,6 +46,16 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SuppressWarnings("deprecation")
 public final class ScriptParserTest {
+
+    static CompilerEnvironment environment;
+
+    @BeforeAll
+    static void setupEnvironment() {
+        environment = new CompilerEnvironment();
+        for (TestTriggerType triggerType : TestTriggerType.values()) {
+            environment.registerTrigger(triggerType);
+        }
+    }
 
     @Test
     void testScript() {
@@ -627,7 +645,7 @@ public final class ScriptParserTest {
         try (var stream = new StringBufferInputStream(text)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            return new ScriptParser(lexer);
+            return new ScriptParser(environment, lexer);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -638,10 +656,47 @@ public final class ScriptParserTest {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
             Tokenizer tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            ScriptParser scriptParser = new ScriptParser(lexer);
+            ScriptParser scriptParser = new ScriptParser(environment, lexer);
             return scriptParser;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
+        }
+    }
+
+    @RequiredArgsConstructor
+    public enum TestTriggerType implements TriggerType {
+        PROC("proc", Kind.TILDE, CoreOpcode.GOSUB_WITH_PARAMS, true, true),
+        CLIENTSCRIPT("clientscript",null, null, true, false),
+        LABEL("label", Kind.AT, CoreOpcode.JUMP_WITH_PARAMS, true, false);
+
+        @Getter
+        private final String representation;
+        @Getter
+        private final Kind operator;
+        @Getter
+        private final CoreOpcode opcode;
+        private final boolean hasArguments;
+        private final boolean hasReturns;
+
+
+        @Override
+        public boolean hasArguments() {
+            return hasArguments;
+        }
+
+        @Override
+        public Type[] getArgumentTypes() {
+            return null;
+        }
+
+        @Override
+        public boolean hasReturns() {
+            return hasReturns;
+        }
+
+        @Override
+        public Type[] getReturnTypes() {
             return null;
         }
     }

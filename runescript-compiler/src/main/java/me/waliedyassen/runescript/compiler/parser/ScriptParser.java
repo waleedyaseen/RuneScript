@@ -18,12 +18,12 @@ import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
-import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.lexer.token.Token;
 import me.waliedyassen.runescript.parser.ParserBase;
 import me.waliedyassen.runescript.type.PrimitiveType;
@@ -45,13 +45,21 @@ public final class ScriptParser extends ParserBase<Kind> {
     // TODO: Detailed documentation
 
     /**
+     * The environment of the owner compiler.
+     */
+    private final CompilerEnvironment environment;
+
+    /**
      * Constructs a new {@link ScriptParser} type object instance.
      *
+     * @param environment
+     *         the environment of the compiler.
      * @param lexer
      *         the lexical parser to use for tokens.
      */
-    public ScriptParser(Lexer lexer) {
+    public ScriptParser(CompilerEnvironment environment, Lexer lexer) {
         super(lexer, Kind.EOF);
+        this.environment = environment;
     }
 
     /**
@@ -266,9 +274,6 @@ public final class ScriptParser extends ParserBase<Kind> {
                 return globalVariable();
             case CARET:
                 return constant();
-            case TILDE:
-            case AT:
-                return call();
             case IDENTIFIER:
                 if (peekKind(1) == LPAREN) {
                     return command();
@@ -279,7 +284,11 @@ public final class ScriptParser extends ParserBase<Kind> {
             case CALC:
                 return calc();
             default:
-                throw createError(consume(), "Expecting an expression");
+                if (isCall()) {
+                    return call();
+                } else {
+                    throw createError(consume(), "Expecting an expression");
+                }
         }
     }
 
@@ -290,7 +299,16 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public boolean isExpression() {
         var kind = peekKind();
-        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == TILDE || kind == AT || kind == LPAREN || kind == DOT || kind == CALC;
+        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == LPAREN || kind == DOT || kind == CALC || isCall();
+    }
+
+    /**
+     * Checks whether or not the next token is a valid trigger call start.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    private boolean isCall() {
+        return environment.lookupTrigger(peekKind()) != null;
     }
 
     /**
@@ -714,12 +732,10 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public AstCall call() {
         pushRange();
-        TriggerType triggerType;
-        if (consumeIf(AT)) {
-            triggerType = TriggerType.LABEL;
-        } else {
-            consume(TILDE);
-            triggerType = TriggerType.PROC;
+        var operator = consume();
+        var triggerType = environment.lookupTrigger(operator.getKind());
+        if (triggerType == null) {
+            throw createError(consume(), "Expecting an script call operator");
         }
         var name = identifier();
         var arguments = new ArrayList<AstExpression>();

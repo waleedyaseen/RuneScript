@@ -23,10 +23,10 @@ import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
-import me.waliedyassen.runescript.compiler.util.trigger.TriggerProperties;
-import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.TypeUtil;
 
 import java.util.*;
 
@@ -40,7 +40,7 @@ import java.util.*;
 public final class PreTypeChecking extends AstTreeVisitor {
 
     /**
-     * The scopes stack.
+     * The stack which holds all of the current scopes.
      */
     private final Stack<Scope> scopes = new Stack<>();
 
@@ -76,17 +76,30 @@ public final class PreTypeChecking extends AstTreeVisitor {
         }
         // resolve the script trigger type.
         var triggerName = script.getTrigger();
-        var trigger = TriggerType.forRepresentation(triggerName.getText());
+        var trigger = checker.getEnvironment().lookupTrigger(triggerName.getText());
         // check if the script trigger type is a valid trigger type, if not produce and error.
         if (trigger == null) {
             checker.reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
         } else {
-            // check if the trigger returning support matches the definition.
-            if (script.getType() != PrimitiveType.VOID && !trigger.hasProperty(TriggerProperties.PROPERTY_RETURN)) {
+            // check if the trigger supports return values.
+            if (script.getType() != PrimitiveType.VOID && !trigger.hasReturns()) {
                 checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow return values", trigger.getRepresentation())));
             }
-            // check if the script is already defined in the symbol table
-            // and define it if it was not, or produce an error if it was a duplicate.
+            // check if the trigger matches return types.
+            if (trigger.getReturnTypes() != null && !script.getType().equals(new TupleType(trigger.getReturnTypes()))) {
+                checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires return values of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(trigger.getReturnTypes()))));
+            }
+            // check if the trigger supports parameters.
+            if (script.getParameters().length > 0 && !trigger.hasArguments()) {
+                checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow parameters", trigger.getRepresentation())));
+            }
+            // check if the trigger matches parameters types.
+            var actual = Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new);
+            var expected = trigger.getArgumentTypes();
+            if (expected != null && (actual.length != expected.length || !Arrays.equals(actual, expected))) {
+                checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires parameters of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(expected))));
+            }
+            // check if the script is already defined in the symbol table, and define it if it was not, or produce an error if it was a duplicate.
             var name = script.getName();
             if (symbolTable.lookupScript(trigger, name.getText()) != null) {
                 checker.reportError(new SemanticError(name, String.format("The script '%s' is already defined", name.getText())));

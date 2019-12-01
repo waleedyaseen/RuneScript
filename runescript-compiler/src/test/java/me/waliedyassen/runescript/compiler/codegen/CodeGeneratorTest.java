@@ -14,9 +14,11 @@ import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.script.Script;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
+import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
@@ -24,6 +26,7 @@ import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.type.Type;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -37,9 +40,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CodeGeneratorTest {
 
-    private CodeGenerator generator;
-    private SemanticChecker checker;
+    CodeGenerator generator;
+    SemanticChecker checker;
+    static CompilerEnvironment environment;
 
+    @BeforeAll
+    static void setupEnvironment() {
+        environment = new CompilerEnvironment();
+        for (ScriptParserTest.TestTriggerType triggerType : ScriptParserTest.TestTriggerType.values()) {
+            environment.registerTrigger(triggerType);
+        }
+    }
     @BeforeEach
     void setupGenerator() {
         var table = new SymbolTable();
@@ -47,7 +58,7 @@ class CodeGeneratorTest {
         for (var opcode : CoreOpcode.values()) {
             map.registerCore(opcode, opcode.ordinal(), opcode.isLargeOperand());
         }
-        checker = new SemanticChecker(table);
+        checker = new SemanticChecker(environment, table);
         generator = new CodeGenerator(table, map);
         generator.initialise();
     }
@@ -111,11 +122,11 @@ class CodeGeneratorTest {
         var first = scripts[0];
         var first_block = first.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(first_block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 0);
-        assertInstructionEquals(first_block.getInstructions().get(1), CoreOpcode.JUMP_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_label", TriggerType.LABEL, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}));
+        assertInstructionEquals(first_block.getInstructions().get(1), CoreOpcode.JUMP_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_label", ScriptParserTest.TestTriggerType.LABEL, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}));
         var second = scripts[1];
         var second_block = second.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(second_block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 0);
-        assertInstructionEquals(second_block.getInstructions().get(1), CoreOpcode.GOSUB_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_proc", TriggerType.PROC, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}));
+        assertInstructionEquals(second_block.getInstructions().get(1), CoreOpcode.GOSUB_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_proc", ScriptParserTest.TestTriggerType.PROC, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}));
     }
 
     void assertInstructionEquals(Instruction instruction, CoreOpcode opcode, Object operand) {
@@ -129,7 +140,7 @@ class CodeGeneratorTest {
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(lexer);
+            var parser = new ScriptParser(environment, lexer);
             var scripts = new ArrayList<AstScript>();
             do {
                 scripts.add(parser.script());
@@ -151,7 +162,7 @@ class CodeGeneratorTest {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(lexer);
+            var parser = new ScriptParser(environment, lexer);
             var scripts = new ArrayList<AstScript>();
             do {
                 scripts.add(parser.script());

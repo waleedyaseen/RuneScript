@@ -19,7 +19,7 @@ import me.waliedyassen.runescript.type.Type;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public final class VariableInfo extends Symbol {
 
     /**

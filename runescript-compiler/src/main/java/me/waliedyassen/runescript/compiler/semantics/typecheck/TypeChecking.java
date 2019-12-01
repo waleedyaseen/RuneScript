@@ -255,7 +255,9 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
             }
             return null;
         }
-        checkType(expression, variableDeclaration.getVariable().getType(), expression.accept(this));
+        if (variableDeclaration.getVariable() != null) {
+            checkType(expression, variableDeclaration.getVariable().getType(), expression.accept(this));
+        }
         return PrimitiveType.VOID;
     }
 

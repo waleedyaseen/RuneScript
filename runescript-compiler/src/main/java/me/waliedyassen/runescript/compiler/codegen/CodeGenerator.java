@@ -240,18 +240,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
             argument.accept(this);
         }
         var script = symbolTable.lookupScript(call.getTriggerType(), call.getName().getText());
-        CoreOpcode opcode;
-        switch (call.getTriggerType()) {
-            case PROC:
-                opcode = GOSUB_WITH_PARAMS;
-                break;
-            case LABEL:
-                opcode = JUMP_WITH_PARAMS;
-                break;
-            default:
-                throw new IllegalStateException("Invalid trigger type");
-        }
-        return instruction(opcode, script);
+        return instruction(call.getTriggerType().getOpcode(), script);
     }
 
     /**

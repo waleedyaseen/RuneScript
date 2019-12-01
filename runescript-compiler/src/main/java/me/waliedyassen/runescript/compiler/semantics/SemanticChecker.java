@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecking;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
@@ -34,6 +35,12 @@ public final class SemanticChecker {
     private final List<CompilerError> errors = new ArrayList<>();
 
     /**
+     * The environment of the owner compiler.
+     */
+    @Getter
+    private final CompilerEnvironment environment;
+
+    /**
      * The symbol table to resolve and register symbol information in.
      */
     @Getter
@@ -46,7 +53,7 @@ public final class SemanticChecker {
      *         the scripts to perform the pre semantic checking on.
      */
     public void executePre(Iterable<AstScript> scripts) {
-        var pre = new PreTypeChecking(this, symbolTable);
+        var pre = new PreTypeChecking( this, symbolTable);
         scripts.forEach(tree -> tree.accept(pre));
     }
 
