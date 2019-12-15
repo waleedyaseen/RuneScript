@@ -8,6 +8,8 @@
 package me.waliedyassen.runescript.editor.ui;
 
 import com.alee.managers.style.StyleId;
+import lombok.Getter;
+import me.waliedyassen.runescript.editor.property.impl.StringProperty;
 
 import javax.swing.*;
 
@@ -24,14 +26,35 @@ public final class EditorUI {
     private final JFrame frame = new JFrame();
 
     /**
+     * The current frame title property.
+     */
+    @Getter
+    private final StringProperty title = new StringProperty("");
+
+    /**
      * Initialises the user-interface.
      */
     public void initialise() {
-        frame.setTitle("RuneScript Editor");
+        initialiseComponents();
+        initialiseProperties();
+    }
+
+    /**
+     * Initialises the components of the editor.
+     */
+    private void initialiseComponents() {
+        title.addListener(frame::setTitle);
         frame.setSize(800, 600);
         frame.setLocationRelativeTo(null);
         // This makes it so it won't style the frame using the WebLAF style.
         frame.getRootPane().putClientProperty(StyleId.STYLE_PROPERTY, StyleId.frame);
+    }
+
+    /**
+     * Initialises the properties of the editor.
+     */
+    private void initialiseProperties() {
+        title.set("RuneScript Editor");
     }
 
     /**
