@@ -50,17 +50,19 @@ public final class ProjectManager {
      * @param path
      *         the path of the project on the local disk.
      *
+     * @return the opened {@link Project} object.
      * @throws ProjectException
      *         if there is currently an active or an open project or there was a problem with loading the project
      *         information data from the local disk.
      */
-    public void open(Path path) {
+    public Project open(Path path) {
         if (!currentProject.isEmpty()) {
             throw new ProjectException("Please use close() to close the current project before opening another");
         }
         try {
             currentProject.set(openProject(path));
             activeProperty.set(true);
+            return currentProject.get();
         } catch (IOException e) {
             throw new ProjectException("Failed to open the project from the local disk", e);
         }

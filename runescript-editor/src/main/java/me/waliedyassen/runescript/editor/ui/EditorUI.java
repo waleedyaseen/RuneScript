@@ -14,9 +14,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.RuneScriptEditor;
 import me.waliedyassen.runescript.editor.property.impl.StringProperty;
-import me.waliedyassen.runescript.editor.ui.editor.CodeArea;
 import me.waliedyassen.runescript.editor.ui.editor.EditorView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
+import me.waliedyassen.runescript.editor.ui.explorer.tree.node.ProjectNode;
 import me.waliedyassen.runescript.editor.ui.status.StatusBar;
 
 import javax.swing.*;
@@ -84,6 +84,12 @@ public final class EditorUI implements WindowListener {
         initialiseDocks();
         initialiseMenu();
         frame.add(statusBar, BorderLayout.SOUTH);
+        editor.getProjectManager().getCurrentProject().addListener((project) -> {
+            var tree = explorerView.getTree();
+            tree.clear();
+            tree.getRoot().add(new ProjectNode(project));
+            tree.getModel().reload();
+        });
     }
 
     /**
@@ -138,6 +144,7 @@ public final class EditorUI implements WindowListener {
                 var result = chooser.getSelectedFile().toPath();
                 editor.getSettings().setCachedPath("open-project", result);
                 editor.getProjectManager().open(result);
+
             });
             fileMenu.add(menuItem);
             editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);

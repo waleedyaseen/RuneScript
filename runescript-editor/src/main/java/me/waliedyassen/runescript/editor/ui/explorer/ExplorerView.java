@@ -7,8 +7,14 @@
  */
 package me.waliedyassen.runescript.editor.ui.explorer;
 
+import lombok.Getter;
+import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
+import me.waliedyassen.runescript.editor.ui.explorer.tree.node.DirectoryNode;
+
 import javax.swing.*;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
+import java.nio.file.Paths;
 
 /**
  * The explorer file tree docking view.
@@ -25,7 +31,8 @@ public final class ExplorerView extends JPanel {
     /**
      * The tree of the explorer.
      */
-    private final JTree tree = new JTree();
+    @Getter
+    private final ExplorerTree tree = new ExplorerTree();
 
     /**
      * Constructs a new {@link ExplorerView} type object instance.
