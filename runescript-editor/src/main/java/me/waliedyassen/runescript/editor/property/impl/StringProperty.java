@@ -18,6 +18,13 @@ public final class StringProperty extends Property<String> {
 
     /**
      * Constructs a new {@link StringProperty} type object instance.
+     */
+    public StringProperty() {
+        this("");
+    }
+
+    /**
+     * Constructs a new {@link StringProperty} type object instance.
      *
      * @param value
      *         the initial value of the property.
