@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree;
 import lombok.Getter;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.DirectoryNode;
+import me.waliedyassen.runescript.editor.ui.explorer.tree.render.ExplorerRenderer;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -35,6 +36,7 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
     public ExplorerTree() {
         setRootVisible(false);
         setModel(new ExplorerModel(root));
+        setCellRenderer(new ExplorerRenderer());
         addTreeWillExpandListener(this);
     }
 
