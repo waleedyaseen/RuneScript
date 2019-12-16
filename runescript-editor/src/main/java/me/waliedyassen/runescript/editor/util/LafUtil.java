@@ -22,7 +22,9 @@ public final class LafUtil {
      * Sets-up the editor's Look and Feel system.
      */
     public static void setup() {
-        WebLookAndFeel.checkEventDispatchThread();
+        if (!SwingUtilities.isEventDispatchThread()) {
+            throw new IllegalStateException("You can only call setup() from the AWT events dispatch thread. Current thread is: " + Thread.currentThread().getName());
+        }
         JFrame.setDefaultLookAndFeelDecorated(true);
         JDialog.setDefaultLookAndFeelDecorated(true);
         WebLookAndFeel.install();

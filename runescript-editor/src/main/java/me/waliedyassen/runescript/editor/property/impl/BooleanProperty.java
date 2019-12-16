@@ -32,4 +32,16 @@ public final class BooleanProperty extends Property<Boolean> {
     public BooleanProperty(Boolean value) {
         super(value);
     }
+
+    /**
+     * Returns a {@link BooleanProperty} that will always hold the opposite value of this property, except for when the
+     * value is {@code null} the returned property will also hold a {@code null} value.
+     *
+     * @return the negated {@link BooleanProperty} object.
+     */
+    public BooleanProperty negate() {
+        var negated = new BooleanProperty();
+        bind(value -> negated.set(value == null ? null : !value));
+        return negated;
+    }
 }

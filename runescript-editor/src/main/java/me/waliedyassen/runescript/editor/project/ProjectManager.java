@@ -26,10 +26,17 @@ import java.nio.file.Path;
 public final class ProjectManager {
 
     /**
-     * A property which tells whether or not there is currently an active project.
+     * A property which will return {@link Boolean#TRUE} when there is an active project otherwise it will return {@link
+     * Boolean#FALSE}.
      */
     @Getter
     private final BooleanProperty activeProperty = new BooleanProperty();
+
+    /**
+     * A negated property which will hold the opposite value of {@link #activeProperty} at all times.
+     */
+    @Getter
+    private final BooleanProperty inactiveProperty = activeProperty.negate();
 
     /**
      * The project that is currently open and active.
@@ -48,7 +55,7 @@ public final class ProjectManager {
      *         information data from the local disk.
      */
     public void open(Path path) {
-        if (currentProject.isEmpty()) {
+        if (!currentProject.isEmpty()) {
             throw new ProjectException("Please use close() to close the current project before opening another");
         }
         try {

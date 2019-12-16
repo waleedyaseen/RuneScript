@@ -10,6 +10,9 @@ package me.waliedyassen.runescript.editor.ui;
 import com.alee.api.data.CompassDirection;
 import com.alee.extended.dock.SidebarButtonVisibility;
 import com.alee.extended.dock.WebDockablePane;
+import com.alee.laf.filechooser.WebFileChooser;
+import com.alee.laf.menu.WebMenu;
+import com.alee.laf.menu.WebMenuBar;
 import com.alee.managers.style.StyleId;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,8 @@ import me.waliedyassen.runescript.editor.ui.status.StatusBar;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -89,7 +94,7 @@ public final class EditorUI implements WindowListener {
      */
     private void initialiseFrame() {
         // Setup the initial frame properties.
-        title.addListener(frame::setTitle);
+        title.bind(frame::setTitle);
         frame.setSize(1270, 800);
         frame.setLocationRelativeTo(null);
         // Add the window listener to the frame.
@@ -115,12 +120,54 @@ public final class EditorUI implements WindowListener {
         pane.addFrame(explorerView);
     }
 
+    /**
+     * Initialises the menu bar of the editor.
+     */
     private void initialiseMenu() {
-        var bar = new JMenuBar();
-        var fileMenu = new JMenu("File");
-        fileMenu.add(new JMenuItem("Open", 'o'));
-        fileMenu.add(new JMenuItem("Close", 'c'));
-        fileMenu.add(new JMenuItem("Exit", 'e'));
+        var bar = new WebMenuBar();
+        var fileMenu = new WebMenu("File");
+        {
+            var menuItem = new JMenuItem("Open");
+            menuItem.setPreferredSize(new Dimension(100, 20));
+            menuItem.addActionListener((evt) -> {
+                if (!editor.getProjectManager().getCurrentProject().isEmpty()) {
+                    editor.getProjectManager().close();
+                }
+                var chooser = new WebFileChooser(StyleId.filechooser, editor.getSettings().getCachedPath("open-project").toFile());
+                chooser.setDialogTitle("Choose a project directory");
+                if (chooser.showOpenDialog(frame) != JFileChooser.APPROVE_OPTION) {
+                    return;
+                }
+                var result = chooser.getSelectedFile().toPath();
+                editor.getSettings().setCachedPath("open-project", result);
+                editor.getProjectManager().open(result);
+            });
+            fileMenu.add(menuItem);
+            editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
+
+            menuItem = new JMenuItem("Close");
+            menuItem.setPreferredSize(new Dimension(100, 20));
+            menuItem.addActionListener((evt) -> editor.getProjectManager().close());
+            fileMenu.add(menuItem);
+            editor.getProjectManager().getActiveProperty().bind(menuItem::setEnabled);
+
+            fileMenu.addSeparator();
+
+            menuItem = new JMenuItem("Create");
+            menuItem.setPreferredSize(new Dimension(100, 20));
+            menuItem.addActionListener((evt) -> editor.getProjectManager().close());
+            fileMenu.add(menuItem);
+            editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
+
+            fileMenu.addSeparator();
+
+            menuItem = new JMenuItem("Exit");
+            menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
+            menuItem.setPreferredSize(new Dimension(100, 20));
+            menuItem.addActionListener((evt) -> windowClosing(null));
+            fileMenu.add(menuItem);
+
+        }
         bar.add(fileMenu);
         frame.setJMenuBar(bar);
     }

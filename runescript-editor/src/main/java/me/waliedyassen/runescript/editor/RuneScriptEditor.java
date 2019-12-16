@@ -8,24 +8,43 @@
 package me.waliedyassen.runescript.editor;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.project.ProjectManager;
+import me.waliedyassen.runescript.editor.settings.Settings;
 import me.waliedyassen.runescript.editor.ui.EditorUI;
 import me.waliedyassen.runescript.editor.util.LafUtil;
 
 import javax.swing.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * The main class for the RuneScript Editor systems.
  *
  * @author Walied K. Yassen
  */
+@Slf4j
 public final class RuneScriptEditor {
+
+    /**
+     * The path of the editor directory in the user file.
+     */
+    @Getter
+    private static Path userDirectory;
 
     /**
      * The project manager of the editor.
      */
     @Getter
     private final ProjectManager projectManager = new ProjectManager();
+
+    /**
+     * The settings of the editor.
+     */
+    @Getter
+    private Settings settings;
 
     /**
      * The user-interface of the editor.
@@ -37,6 +56,27 @@ public final class RuneScriptEditor {
      * Initialises the RuneScript Editor.
      */
     private void initialise() {
+        initialiseSettings();
+        initialiseUi();
+    }
+
+    /**
+     * Initialises the editor settings.
+     */
+    private void initialiseSettings() {
+        settings = new Settings(userDirectory.resolve("settings.json"));
+        if (Files.exists(settings.getPath())) {
+            settings.load();
+        } else {
+            settings.save();
+        }
+
+    }
+
+    /**
+     * Initialises the editor's user-interface.
+     */
+    private void initialiseUi() {
         ui = new EditorUI(this);
         ui.initialise();
     }
@@ -46,6 +86,22 @@ public final class RuneScriptEditor {
      */
     private void show() {
         ui.show();
+    }
+
+    /**
+     * Initialises the editor user directory.
+     */
+    private static void initialiseDirectory() {
+        userDirectory = Paths.get(System.getProperty("user.home")).resolve(".runescript");
+        if (!Files.exists(userDirectory)) {
+            try {
+                Files.createDirectories(userDirectory);
+            } catch (IOException e) {
+                log.error("Failed to create the editor user directory: {}", userDirectory, e);
+                System.exit(1);
+            }
+        }
+        log.info("User directory is set to: {}", userDirectory);
     }
 
     /**
@@ -73,6 +129,7 @@ public final class RuneScriptEditor {
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            initialiseDirectory();
             initialiseLookAndFeel();
             initialiseSystem();
         });

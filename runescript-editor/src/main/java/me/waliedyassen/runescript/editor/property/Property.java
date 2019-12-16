@@ -82,6 +82,18 @@ public abstract class Property<T> {
     }
 
     /**
+     * Registers a new listener to this property. This is same as calling {@link #addListener(Consumer)} except that
+     * this method calls the specified {@link Consumer listener} with the current value before registering it.
+     *
+     * @param listener
+     *         the listener to call and register.
+     */
+    public void bind(Consumer<T> listener) {
+        listener.accept(value);
+        addListener(((property, oldValue, newValue) -> listener.accept(newValue)));
+    }
+
+    /**
      * Registers a new listener to this property.
      *
      * @param listener
