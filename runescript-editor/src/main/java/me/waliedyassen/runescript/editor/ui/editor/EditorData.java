@@ -8,6 +8,8 @@
 
 package me.waliedyassen.runescript.editor.ui.editor;
 
+import com.alee.extended.syntax.WebSyntaxArea;
+import com.alee.extended.syntax.WebSyntaxScrollPane;
 import com.alee.extended.tab.DocumentData;
 import com.alee.laf.scroll.WebScrollBar;
 import com.alee.laf.scroll.WebScrollPane;
@@ -21,7 +23,7 @@ import javax.swing.*;
  *
  * @author Walied K. Yassen
  */
-public final class EditorData extends DocumentData<WebScrollPane> {
+public final class EditorData extends DocumentData<WebSyntaxScrollPane> {
 
     /**
      * The code area which this editor data is for.
@@ -40,7 +42,7 @@ public final class EditorData extends DocumentData<WebScrollPane> {
      *         the {@link CodeArea} component of the code view.
      */
     public EditorData(String id, String title, CodeArea codeArea) {
-        super(id, title, new WebScrollPane(codeArea));
+        super(id, title, new WebSyntaxScrollPane(codeArea));
         this.codeArea = codeArea;
     }
 }

@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor;
 
 import lombok.Getter;
+import me.waliedyassen.runescript.editor.project.ProjectManager;
 import me.waliedyassen.runescript.editor.ui.EditorUI;
 import me.waliedyassen.runescript.editor.util.LafUtil;
 
@@ -21,6 +22,12 @@ import javax.swing.*;
 public final class RuneScriptEditor {
 
     /**
+     * The project manager of the editor.
+     */
+    @Getter
+    private final ProjectManager projectManager = new ProjectManager();
+
+    /**
      * The user-interface of the editor.
      */
     @Getter
@@ -30,7 +37,7 @@ public final class RuneScriptEditor {
      * Initialises the RuneScript Editor.
      */
     private void initialise() {
-        ui = new EditorUI();
+        ui = new EditorUI(this);
         ui.initialise();
     }
 

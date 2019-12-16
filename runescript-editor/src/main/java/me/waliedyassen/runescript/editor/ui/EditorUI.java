@@ -12,6 +12,8 @@ import com.alee.extended.dock.SidebarButtonVisibility;
 import com.alee.extended.dock.WebDockablePane;
 import com.alee.managers.style.StyleId;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.editor.RuneScriptEditor;
 import me.waliedyassen.runescript.editor.property.impl.StringProperty;
 import me.waliedyassen.runescript.editor.ui.editor.EditorView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
@@ -27,6 +29,7 @@ import java.awt.event.WindowListener;
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public final class EditorUI implements WindowListener {
 
     /**
@@ -59,12 +62,16 @@ public final class EditorUI implements WindowListener {
     private final StatusBar statusBar = new StatusBar();
 
     /**
+     * The owner {@link RuneScriptEditor} object.
+     */
+    private final RuneScriptEditor editor;
+
+    /**
      * Initialises the user-interface.
      */
     public void initialise() {
         initialiseComponents();
         initialiseProperties();
-        statusBar.getText().set("Ready");
     }
 
     /**
@@ -73,6 +80,7 @@ public final class EditorUI implements WindowListener {
     private void initialiseComponents() {
         initialiseFrame();
         initialiseDocks();
+        initialiseMenu();
         frame.add(statusBar, BorderLayout.SOUTH);
     }
 
@@ -107,11 +115,22 @@ public final class EditorUI implements WindowListener {
         pane.addFrame(explorerView);
     }
 
+    private void initialiseMenu() {
+        var bar = new JMenuBar();
+        var fileMenu = new JMenu("File");
+        fileMenu.add(new JMenuItem("Open", 'o'));
+        fileMenu.add(new JMenuItem("Close", 'c'));
+        fileMenu.add(new JMenuItem("Exit", 'e'));
+        bar.add(fileMenu);
+        frame.setJMenuBar(bar);
+    }
+
     /**
      * Initialises the properties of the editor.
      */
     private void initialiseProperties() {
         title.set("RuneScript Editor");
+        statusBar.getText().set("Ready");
     }
 
     /**

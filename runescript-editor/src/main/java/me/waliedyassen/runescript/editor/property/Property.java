@@ -58,6 +58,15 @@ public abstract class Property<T> {
     }
 
     /**
+     * Checks whether or not the property currently holds a null value.
+     *
+     * @return <code>true</code> if it does otherwise <code>false</code>.
+     */
+    public boolean isEmpty() {
+        return value == null;
+    }
+
+    /**
      * Fires all of the listeners.
      *
      * @param oldValue

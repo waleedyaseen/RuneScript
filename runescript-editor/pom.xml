@@ -20,6 +20,7 @@
     <version>0.2-SNAPSHOT</version>
     <properties>
         <weblaf.version>LATEST</weblaf.version>
+        <jackson.version>2.10.1</jackson.version>
     </properties>
     <dependencies>
         <dependency>
@@ -31,6 +32,16 @@
             <groupId>com.weblookandfeel</groupId>
             <artifactId>weblaf-ui</artifactId>
             <version>${weblaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
 </project>
