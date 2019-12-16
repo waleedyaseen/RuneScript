@@ -19,20 +19,21 @@
     <artifactId>runescript-editor</artifactId>
     <version>0.2-SNAPSHOT</version>
     <properties>
-        <weblaf.version>LATEST</weblaf.version>
+        <dockingframes.version>1.1.1</dockingframes.version>
         <jackson.version>2.10.1</jackson.version>
         <logback.verison>1.2.3</logback.verison>
+        <rsta.version>3.0.4</rsta.version>
     </properties>
     <dependencies>
         <dependency>
-            <groupId>com.weblookandfeel</groupId>
-            <artifactId>weblaf-core</artifactId>
-            <version>${weblaf.version}</version>
+            <groupId>xyz.cofe</groupId>
+            <artifactId>docking-frames-common</artifactId>
+            <version>1.1.2p20b.fix-1</version>
         </dependency>
         <dependency>
-            <groupId>com.weblookandfeel</groupId>
-            <artifactId>weblaf-ui</artifactId>
-            <version>${weblaf.version}</version>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>rsyntaxtextarea</artifactId>
+            <version>${rsta.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

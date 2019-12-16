@@ -7,24 +7,31 @@
  */
 package me.waliedyassen.runescript.editor.ui.explorer;
 
-import com.alee.extended.dock.WebDockableFrame;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * The explorer file tree docking view.
  *
  * @author Walied K. Yassen
  */
-public final class ExplorerView extends WebDockableFrame {
+public final class ExplorerView extends JPanel {
 
     /**
-     * The docking view id of the component.
+     * The docking {@code ID} for the explorer docking component.
      */
-    private static final String DOCK_ID = "explorer.view";
+    public static final String DOCK_ID = "explorer.dock";
+
+    /**
+     * The tree of the explorer.
+     */
+    private final JTree tree = new JTree();
 
     /**
      * Constructs a new {@link ExplorerView} type object instance.
      */
     public ExplorerView() {
-        super(DOCK_ID, "Explorer");
+        setLayout(new BorderLayout());
+        add(tree, BorderLayout.CENTER);
     }
 }

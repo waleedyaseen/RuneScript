@@ -7,77 +7,46 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor;
 
-import com.alee.extended.tab.DocumentAdapter;
-import com.alee.extended.tab.PaneData;
-import com.alee.extended.tab.WebDocumentPane;
-import com.alee.laf.panel.WebPanel;
-import com.alee.laf.toolbar.WebToolBar;
-import com.alee.managers.style.StyleId;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The editor main-view component.
  *
  * @author Walied K. Yassen
  */
-public final class EditorView extends WebPanel {
+public final class EditorView extends JPanel {
+
+    /**
+     * The docking {@code ID} for the editor docking component.
+     */
+    public static final String DOCK_ID = "editor.dock";
 
     /**
      * The tool bar for the editor view.
      */
-    private final WebToolBar toolBar = new WebToolBar(StyleId.toolbarAttachedNorth);
+    private final JToolBar toolBar = new JToolBar();
 
     /**
      * The documents pane for the code areas.
      */
-    private final WebDocumentPane<EditorData> documents = new WebDocumentPane<>();
-
-    /**
-     * A map of all the existing {@link EditorData} in the current system by their {@code id}.
-     */
-    private final Map<String, EditorData> cachedData = new HashMap<>();
+    private final JTabbedPane tabbedPane = new JTabbedPane();
 
     /**
      * Constructs a new {@link EditorView} type object instance.
      */
     public EditorView() {
         setLayout(new BorderLayout());
+        toolBar.setFloatable(false);
+        toolBar.add(new JButton("Cut"));
+        toolBar.add(new JButton("Copy"));
+        toolBar.addSeparator();
+        toolBar.add(new JButton("Paste"));
         add(toolBar, BorderLayout.NORTH);
-        add(documents, BorderLayout.CENTER);
-        setup();
-        documents.openDocument(createEditorData("Test"));
-    }
-
-    /**
-     * Sets-up the editor view document pane.
-     */
-    private void setup() {
-        documents.setTabbedPaneCustomizer(tabbedPane -> tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT));
-        documents.addDocumentListener(new DocumentAdapter<>() {
-            @Override
-            public void closed(EditorData document, PaneData<EditorData> pane, int index) {
-                cachedData.remove(document.getId());
-            }
-        });
-    }
-
-
-    /**
-     * Creates a new {@link EditorData} object with the specified {@code title} and cache it in the local map.
-     *
-     * @param title
-     *         the title of the tab or the name of the file.
-     *
-     * @return the created {@link EditorData} object.
-     */
-    private EditorData createEditorData(String title) {
-        var id = "editorview.codearea." + title.toLowerCase().replace(" ", "_") + System.currentTimeMillis();
-        var data = new EditorData(id, title, new CodeArea());
-        cachedData.put(id, data);
-        return data;
+        add(tabbedPane, BorderLayout.CENTER);
+        tabbedPane.addTab("File 1", new RTextScrollPane(new CodeArea()));
+        tabbedPane.addTab("File 2", new RTextScrollPane(new CodeArea()));
     }
 }

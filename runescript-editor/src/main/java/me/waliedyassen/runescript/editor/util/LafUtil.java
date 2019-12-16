@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.util;
 
-import com.alee.laf.WebLookAndFeel;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 
@@ -16,6 +16,7 @@ import javax.swing.*;
  *
  * @author Walied K. Yassen
  */
+@Slf4j
 public final class LafUtil {
 
     /**
@@ -27,7 +28,11 @@ public final class LafUtil {
         }
         JFrame.setDefaultLookAndFeelDecorated(true);
         JDialog.setDefaultLookAndFeelDecorated(true);
-        WebLookAndFeel.install();
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Throwable e) {
+            log.error("Failed to set the default Look and Feel", e);
+        }
     }
 
     private LafUtil() {

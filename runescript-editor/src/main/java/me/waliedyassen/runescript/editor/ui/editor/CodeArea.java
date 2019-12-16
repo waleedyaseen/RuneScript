@@ -8,14 +8,14 @@
 
 package me.waliedyassen.runescript.editor.ui.editor;
 
-import com.alee.extended.syntax.WebSyntaxArea;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 /**
  * Represents a RuneScript Editor code area.
  *
  * @author Walied K. Yassen
  */
-public class CodeArea extends WebSyntaxArea {
+public class CodeArea extends RSyntaxTextArea {
 
     /**
      * Constructs a new {@link CodeArea} type object instance.

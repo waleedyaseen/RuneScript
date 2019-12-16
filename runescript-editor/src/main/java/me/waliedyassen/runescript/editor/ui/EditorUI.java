@@ -7,17 +7,14 @@
  */
 package me.waliedyassen.runescript.editor.ui;
 
-import com.alee.api.data.CompassDirection;
-import com.alee.extended.dock.SidebarButtonVisibility;
-import com.alee.extended.dock.WebDockablePane;
-import com.alee.laf.filechooser.WebFileChooser;
-import com.alee.laf.menu.WebMenu;
-import com.alee.laf.menu.WebMenuBar;
-import com.alee.managers.style.StyleId;
+import bibliothek.gui.dock.common.CControl;
+import bibliothek.gui.dock.common.CGrid;
+import bibliothek.gui.dock.common.DefaultSingleCDockable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.RuneScriptEditor;
 import me.waliedyassen.runescript.editor.property.impl.StringProperty;
+import me.waliedyassen.runescript.editor.ui.editor.CodeArea;
 import me.waliedyassen.runescript.editor.ui.editor.EditorView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
 import me.waliedyassen.runescript.editor.ui.status.StatusBar;
@@ -99,42 +96,42 @@ public final class EditorUI implements WindowListener {
         frame.setLocationRelativeTo(null);
         // Add the window listener to the frame.
         frame.addWindowListener(this);
-        // This makes it so it won't style the frame using the WebLAF style.
-        frame.getRootPane().putClientProperty(StyleId.STYLE_PROPERTY, StyleId.frame);
     }
 
     /**
      * Initialise the docking system and docking views.
      */
     private void initialiseDocks() {
-        // Setup the docking pane properties.
-        var pane = new WebDockablePane(StyleId.dockablepaneCompact);
-        pane.setSidebarButtonVisibility(SidebarButtonVisibility.anyMinimized);
-        frame.add(pane, BorderLayout.CENTER);
-        // Setup the docking pane content.
-        pane.setContent(editorView);
-        // Setup the explorer view.
-        explorerView.setPosition(CompassDirection.west);
-        explorerView.setPreferredSize(230, 600);
-        explorerView.setClosable(false);
-        pane.addFrame(explorerView);
+        var control = new CControl(frame);
+        frame.add(control.getContentArea());
+        var grid = new CGrid(control);
+        var explorerArea = new DefaultSingleCDockable(ExplorerView.DOCK_ID, "Explorer", explorerView);
+        var editorArea = new DefaultSingleCDockable(EditorView.DOCK_ID, "Editor", editorView);
+        editorArea.setCloseable(false);
+        editorArea.setMaximizable(false);
+        editorArea.setMinimizable(false);
+        editorArea.setExternalizable(false);
+        editorArea.setStackable(false);
+        grid.add(0, 0, 0.2, 1, explorerArea);
+        grid.add(0.2, 0, 1, 1, editorArea);
+        control.getContentArea().deploy(grid);
     }
 
     /**
      * Initialises the menu bar of the editor.
      */
     private void initialiseMenu() {
-        var bar = new WebMenuBar();
-        var fileMenu = new WebMenu("File");
+        var bar = new JMenuBar();
+        var fileMenu = new JMenu("File");
         {
             var menuItem = new JMenuItem("Open");
-            menuItem.setPreferredSize(new Dimension(100, 20));
             menuItem.addActionListener((evt) -> {
                 if (!editor.getProjectManager().getCurrentProject().isEmpty()) {
                     editor.getProjectManager().close();
                 }
-                var chooser = new WebFileChooser(StyleId.filechooser, editor.getSettings().getCachedPath("open-project").toFile());
+                var chooser = new JFileChooser(editor.getSettings().getCachedPath("open-project").toFile());
                 chooser.setDialogTitle("Choose a project directory");
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 if (chooser.showOpenDialog(frame) != JFileChooser.APPROVE_OPTION) {
                     return;
                 }
@@ -146,7 +143,6 @@ public final class EditorUI implements WindowListener {
             editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
 
             menuItem = new JMenuItem("Close");
-            menuItem.setPreferredSize(new Dimension(100, 20));
             menuItem.addActionListener((evt) -> editor.getProjectManager().close());
             fileMenu.add(menuItem);
             editor.getProjectManager().getActiveProperty().bind(menuItem::setEnabled);
@@ -154,7 +150,6 @@ public final class EditorUI implements WindowListener {
             fileMenu.addSeparator();
 
             menuItem = new JMenuItem("Create");
-            menuItem.setPreferredSize(new Dimension(100, 20));
             menuItem.addActionListener((evt) -> editor.getProjectManager().close());
             fileMenu.add(menuItem);
             editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
@@ -163,7 +158,6 @@ public final class EditorUI implements WindowListener {
 
             menuItem = new JMenuItem("Exit");
             menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
-            menuItem.setPreferredSize(new Dimension(100, 20));
             menuItem.addActionListener((evt) -> windowClosing(null));
             fileMenu.add(menuItem);
 

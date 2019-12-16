@@ -70,7 +70,6 @@ public final class RuneScriptEditor {
         } else {
             settings.save();
         }
-
     }
 
     /**
