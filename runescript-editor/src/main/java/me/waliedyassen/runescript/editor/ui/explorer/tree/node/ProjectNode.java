@@ -9,7 +9,12 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.editor.project.Project;
+import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
+import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
+import me.waliedyassen.runescript.editor.shortcut.common.CommonShortcuts;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
+
+import javax.swing.*;
 
 /**
  * A project node in the project explorer tree.
@@ -41,8 +46,14 @@ public final class ProjectNode extends DirectoryNode {
      */
     @Override
     public void populateActions(ActionList actionList) {
-        actionList.addAction("Close Project", ()->{});
+        actionList.addAction("Close Project", CommonGroups.EXPLORER.lookup(CommonShortcuts.CLOSE_PROJECT));
         actionList.addSeparator();
         super.populateActions(actionList);
+    }
+
+    static {
+        ShortcutManager.getInstance().addShortcut(CommonGroups.EXPLORER, CommonShortcuts.CLOSE_PROJECT, KeyStroke.getKeyStroke("alt shift Q"), () -> {
+            System.out.println("Closing the project");
+        });
     }
 }

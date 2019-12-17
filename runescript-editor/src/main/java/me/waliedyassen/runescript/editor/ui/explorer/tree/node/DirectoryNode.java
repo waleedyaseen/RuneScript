@@ -46,6 +46,6 @@ public class DirectoryNode extends ExplorerNode<Path> {
      */
     @Override
     public void populateActions(ActionList actionList) {
-        actionList.addAction("Delete", ()->{});
+        actionList.addAction("Delete",()->{});
     }
 }

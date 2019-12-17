@@ -42,6 +42,13 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
         setModel(new ExplorerModel(root));
         setCellRenderer(new ExplorerRenderer());
         addTreeWillExpandListener(this);
+        setupPopup();
+    }
+
+    /**
+     * Sets-up the popup menu of the tree.
+     */
+    private void setupPopup() {
         addMouseListener(new MouseAdapter() {
             /**
              * {@inheritDoc}
@@ -52,6 +59,9 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
                     return;
                 }
                 var path = getPathForLocation(e.getX(), e.getY());
+                if (path == null) {
+                    path = getLeadSelectionPath();
+                }
                 if (path == null) {
                     return;
                 }

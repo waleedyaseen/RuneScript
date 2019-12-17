@@ -26,6 +26,11 @@ public final class Executable implements Action {
     private final String title;
 
     /**
+     * T he shortcut of the action.
+     */
+    private final KeyStroke keyStroke;
+
+    /**
      * A callback which is called when the action is executed.
      */
     private final Runnable callback;
@@ -36,6 +41,9 @@ public final class Executable implements Action {
     @Override
     public JComponent createComponent() {
         var item = new JMenuItem(title);
+        if (keyStroke != null) {
+            item.setAccelerator(keyStroke);
+        }
         item.addActionListener((evt) -> callback.run());
         return item;
     }
