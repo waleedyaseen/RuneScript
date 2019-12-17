@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
+import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
 import java.nio.file.Path;
 
@@ -27,5 +28,13 @@ public final class FileNode extends ExplorerNode<Path> {
     public FileNode(Path file) {
         super(file);
         setUserObject(file.getFileName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void populateActions(ActionList actionList) {
+        // NOOP
     }
 }

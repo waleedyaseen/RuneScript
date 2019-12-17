@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.explorer.tree.lazy;
 
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
+import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
 /**
  * A placeholder node used to make the tree expandable so it will trigger the expand listener.
@@ -23,5 +24,13 @@ public final class LoadingNode extends ExplorerNode<Void> {
         super(null);
         setUserObject("Loading");
         setAllowsChildren(false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void populateActions(ActionList actionList) {
+        // NOOP
     }
 }

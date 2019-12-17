@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree;
 import lombok.Getter;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.DirectoryNode;
-import me.waliedyassen.runescript.editor.ui.explorer.tree.node.ProjectNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.render.ExplorerRenderer;
+import me.waliedyassen.runescript.editor.ui.menu.action.ActionManager;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -55,13 +55,15 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
                 if (path == null) {
                     return;
                 }
-                var node = (TreeNode) path.getLastPathComponent();
-                var popup = createPopup(node);
-                if (popup == null) {
-                    return;
-                }
                 setSelectionPath(path);
-                popup.show(ExplorerTree.this, e.getX(), e.getY());
+                var node = (TreeNode) path.getLastPathComponent();
+                if (node instanceof ExplorerNode) {
+                    var list = ActionManager.getInstance().createList();
+                    ((ExplorerNode<?>) node).populateActions(list);
+                    if (!list.isEmpty()) {
+                        list.createPopupMenu().show(ExplorerTree.this, e.getX(), e.getY());
+                    }
+                }
             }
         });
     }
@@ -102,14 +104,5 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
      */
     public void clear() {
         root.removeAllChildren();
-    }
-
-    private JPopupMenu createPopup(TreeNode node) {
-        if (node instanceof ProjectNode) {
-            var popup = new JPopupMenu();
-            popup.add(new JMenuItem("Close Project"));
-            return popup;
-        }
-        return null;
     }
 }

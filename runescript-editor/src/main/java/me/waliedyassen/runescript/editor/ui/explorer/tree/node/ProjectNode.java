@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.editor.project.Project;
+import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
 /**
  * A project node in the project explorer tree.
@@ -33,5 +34,15 @@ public final class ProjectNode extends DirectoryNode {
         super(project.getDirectory());
         this.project = project;
         setUserObject(project.getName());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void populateActions(ActionList actionList) {
+        actionList.addAction("Close Project", ()->{});
+        actionList.addSeparator();
+        super.populateActions(actionList);
     }
 }

@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
+import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
 import java.nio.file.Path;
 
@@ -38,5 +39,13 @@ public class DirectoryNode extends ExplorerNode<Path> {
         super(value);
         setUserObject(value.getFileName());
         LazyLoading.setup(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void populateActions(ActionList actionList) {
+        actionList.addAction("Delete", ()->{});
     }
 }
