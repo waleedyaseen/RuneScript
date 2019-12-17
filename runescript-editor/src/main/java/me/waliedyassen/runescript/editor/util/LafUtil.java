@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.util;
 
+import com.formdev.flatlaf.FlatDarkLaf;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
@@ -26,10 +27,10 @@ public final class LafUtil {
         if (!SwingUtilities.isEventDispatchThread()) {
             throw new IllegalStateException("You can only call setup() from the AWT events dispatch thread. Current thread is: " + Thread.currentThread().getName());
         }
-        JFrame.setDefaultLookAndFeelDecorated(true);
-        JDialog.setDefaultLookAndFeelDecorated(true);
+        JFrame.setDefaultLookAndFeelDecorated(false);
+        JDialog.setDefaultLookAndFeelDecorated(false);
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel(FlatDarkLaf.class.getName());
         } catch (Throwable e) {
             log.error("Failed to set the default Look and Feel", e);
         }

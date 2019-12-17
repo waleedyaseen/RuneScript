@@ -43,7 +43,7 @@ public final class EditorIcons {
      *         if we could not locate the icon in the resources folder.
      */
     private static Icon loadIcon(String name) {
-        return new ImageIcon(Objects.requireNonNull(EditorIcons.class.getResource("/" + name), "Failed to find icon resource with the name: " + name);
+        return new ImageIcon(Objects.requireNonNull(EditorIcons.class.getResource("/" + name), "Failed to find icon resource with the name: " + name));
     }
 
     private EditorIcons() {

@@ -10,12 +10,16 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree;
 import lombok.Getter;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.DirectoryNode;
+import me.waliedyassen.runescript.editor.ui.explorer.tree.node.ProjectNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.render.ExplorerRenderer;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * The tree type of the project explorer tree.
@@ -38,6 +42,28 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
         setModel(new ExplorerModel(root));
         setCellRenderer(new ExplorerRenderer());
         addTreeWillExpandListener(this);
+        addMouseListener(new MouseAdapter() {
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (!SwingUtilities.isRightMouseButton(e)) {
+                    return;
+                }
+                var path = getPathForLocation(e.getX(), e.getY());
+                if (path == null) {
+                    return;
+                }
+                var node = (TreeNode) path.getLastPathComponent();
+                var popup = createPopup(node);
+                if (popup == null) {
+                    return;
+                }
+                setSelectionPath(path);
+                popup.show(ExplorerTree.this, e.getX(), e.getY());
+            }
+        });
     }
 
     /**
@@ -76,5 +102,14 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
      */
     public void clear() {
         root.removeAllChildren();
+    }
+
+    private JPopupMenu createPopup(TreeNode node) {
+        if (node instanceof ProjectNode) {
+            var popup = new JPopupMenu();
+            popup.add(new JMenuItem("Close Project"));
+            return popup;
+        }
+        return null;
     }
 }

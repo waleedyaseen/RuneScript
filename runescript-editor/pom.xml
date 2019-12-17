@@ -50,5 +50,10 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback.verison}</version>
         </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>0.21</version>
+        </dependency>
     </dependencies>
 </project>

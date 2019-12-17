@@ -87,8 +87,10 @@ public final class EditorUI implements WindowListener {
         editor.getProjectManager().getCurrentProject().addListener((project) -> {
             var tree = explorerView.getTree();
             tree.clear();
-            tree.getRoot().add(new ProjectNode(project));
-            tree.getModel().reload();
+            if (project != null) {
+                tree.getRoot().add(new ProjectNode(project));
+            }
+            tree.getModel().nodeStructureChanged(tree.getRoot());
         });
     }
 
@@ -153,7 +155,6 @@ public final class EditorUI implements WindowListener {
             menuItem.addActionListener((evt) -> editor.getProjectManager().close());
             fileMenu.add(menuItem);
             editor.getProjectManager().getActiveProperty().bind(menuItem::setEnabled);
-
             fileMenu.addSeparator();
 
             menuItem = new JMenuItem("Create");
