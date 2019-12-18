@@ -25,11 +25,6 @@ public final class EditorView extends JPanel {
     public static final String DOCK_ID = "editor.dock";
 
     /**
-     * The tool bar for the editor view.
-     */
-    private final JToolBar toolBar = new JToolBar();
-
-    /**
      * The documents pane for the code areas.
      */
     private final JTabbedPane tabbedPane = new JTabbedPane();
@@ -39,12 +34,6 @@ public final class EditorView extends JPanel {
      */
     public EditorView() {
         setLayout(new BorderLayout());
-        toolBar.setFloatable(false);
-        toolBar.add(new JButton("Cut"));
-        toolBar.add(new JButton("Copy"));
-        toolBar.addSeparator();
-        toolBar.add(new JButton("Paste"));
-        add(toolBar, BorderLayout.NORTH);
         add(tabbedPane, BorderLayout.CENTER);
         tabbedPane.addTab("File 1", new RTextScrollPane(new CodeArea()));
         tabbedPane.addTab("File 2", new RTextScrollPane(new CodeArea()));

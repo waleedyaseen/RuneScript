@@ -9,8 +9,10 @@ package me.waliedyassen.runescript.editor.ui.status;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.editor.property.impl.StringProperty;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 /**
  * The RuneScript Editor status bar.
@@ -29,7 +31,9 @@ public final class StatusBar extends JPanel {
      * Constructs a new {@link StatusBar} type object instance.
      */
     public StatusBar() {
+        setLayout(new MigLayout("fillx", "[][grow][]"));
         setupLabel();
+        add(new JPanel());
         setupMemory();
     }
 
@@ -46,6 +50,12 @@ public final class StatusBar extends JPanel {
      * Sets-up the memory bar at the ned of the status bar.
      */
     private void setupMemory() {
-        // TODO:
+        var progressBar = new JProgressBar();
+        progressBar.setMinimum(0);
+        progressBar.setMaximum((int) Runtime.getRuntime().totalMemory());
+        progressBar.setValue((int) (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()));
+        progressBar.setString("Used Memory");
+        progressBar.setStringPainted(true);
+        add(progressBar);
     }
 }

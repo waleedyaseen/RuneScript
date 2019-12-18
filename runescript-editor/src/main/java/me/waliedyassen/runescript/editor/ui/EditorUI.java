@@ -13,10 +13,12 @@ import bibliothek.gui.dock.common.DefaultSingleCDockable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.RuneScriptEditor;
-import me.waliedyassen.runescript.editor.property.impl.StringProperty;
 import me.waliedyassen.runescript.editor.ui.editor.EditorView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.ProjectNode;
+import me.waliedyassen.runescript.editor.ui.frame.top.TitleBar;
+import me.waliedyassen.runescript.editor.ui.frame.top.ToolBar;
+import me.waliedyassen.runescript.editor.ui.frame.top.TopUi;
 import me.waliedyassen.runescript.editor.ui.status.StatusBar;
 
 import javax.swing.*;
@@ -40,6 +42,12 @@ public final class EditorUI implements WindowListener {
     private final JFrame frame = new JFrame();
 
     /**
+     * The title bar of the main frame.
+     */
+    @Getter
+    private final TopUi topUi = new TopUi(new TitleBar(frame), new ToolBar());
+
+    /**
      * The view component of the explorer.
      */
     @Getter
@@ -51,11 +59,6 @@ public final class EditorUI implements WindowListener {
     @Getter
     private final EditorView editorView = new EditorView();
 
-    /**
-     * The current frame title property.
-     */
-    @Getter
-    private final StringProperty title = new StringProperty();
 
     /**
      * The status bar of the editor.
@@ -74,16 +77,6 @@ public final class EditorUI implements WindowListener {
     public void initialise() {
         initialiseComponents();
         initialiseProperties();
-    }
-
-    /**
-     * Initialises the components of the editor.
-     */
-    private void initialiseComponents() {
-        initialiseFrame();
-        initialiseDocks();
-        initialiseMenu();
-        frame.add(statusBar, BorderLayout.SOUTH);
         editor.getProjectManager().getCurrentProject().addListener((project) -> {
             var tree = explorerView.getTree();
             tree.clear();
@@ -95,15 +88,24 @@ public final class EditorUI implements WindowListener {
     }
 
     /**
+     * Initialises the components of the editor.
+     */
+    private void initialiseComponents() {
+        initialiseFrame();
+        initialiseMenu();
+        initialiseDocks();
+        frame.add(statusBar, BorderLayout.SOUTH);
+    }
+
+    /**
      * Initialises the main frame component.
      */
     private void initialiseFrame() {
-        // Setup the initial frame properties.
-        title.bind(frame::setTitle);
+        frame.setUndecorated(true);
         frame.setSize(1270, 800);
         frame.setLocationRelativeTo(null);
-        // Add the window listener to the frame.
         frame.addWindowListener(this);
+        frame.add(topUi, BorderLayout.NORTH);
     }
 
     /**
@@ -129,7 +131,7 @@ public final class EditorUI implements WindowListener {
      * Initialises the menu bar of the editor.
      */
     private void initialiseMenu() {
-        var bar = new JMenuBar();
+        var bar = topUi.getTitleBar().getMenuBar();
         var fileMenu = new JMenu("File");
         {
             var menuItem = new JMenuItem("Open");
@@ -171,14 +173,16 @@ public final class EditorUI implements WindowListener {
 
         }
         bar.add(fileMenu);
-        frame.setJMenuBar(bar);
+        bar.add(new JMenu("Edit"));
+        bar.add(new JMenu("Window"));
+        bar.add(new JMenu("Help"));
     }
 
     /**
      * Initialises the properties of the editor.
      */
     private void initialiseProperties() {
-        title.set("RuneScript Editor");
+        topUi.getTitleBar().getText().set("RuneScript Editor");
         statusBar.getText().set("Ready");
     }
 
