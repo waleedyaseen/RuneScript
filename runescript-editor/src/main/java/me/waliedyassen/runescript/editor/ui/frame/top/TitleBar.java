@@ -120,7 +120,6 @@ public final class TitleBar extends JPanel {
         add(panel);
     }
 
-
     /**
      * A window move handler, it gives a specific component(s) the ability to move the window when they are dragged.
      *

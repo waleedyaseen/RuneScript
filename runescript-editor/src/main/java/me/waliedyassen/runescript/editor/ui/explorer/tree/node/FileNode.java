@@ -28,6 +28,7 @@ public final class FileNode extends ExplorerNode<Path> {
     public FileNode(Path file) {
         super(file);
         setUserObject(file.getFileName());
+        setAllowsChildren(false);
     }
 
     /**

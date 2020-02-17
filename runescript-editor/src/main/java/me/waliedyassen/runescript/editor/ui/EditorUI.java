@@ -182,8 +182,16 @@ public final class EditorUI implements WindowListener {
      * Initialises the properties of the editor.
      */
     private void initialiseProperties() {
-        topUi.getTitleBar().getText().set("RuneScript Editor");
+        editor.getProjectManager().getActiveProperty().bind((val) -> refreshTitle());
         statusBar.getText().set("Ready");
+    }
+
+    /**
+     * Refreshes the title of the top bar.
+     */
+    private void refreshTitle() {
+        var activeProject = editor.getProjectManager().getCurrentProject();
+        topUi.getTitleBar().getText().set("RuneScript Editor" + (activeProject.isEmpty() ? "" : " - " + activeProject.get().getName()));
     }
 
     /**

@@ -100,8 +100,8 @@ public final class ProjectManager {
         try {
             save();
         } finally {
-            activeProperty.set(false);
             currentProject.set(null);
+            activeProperty.set(false);
         }
     }
 
