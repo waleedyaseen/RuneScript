@@ -55,9 +55,6 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
              */
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (!SwingUtilities.isRightMouseButton(e)) {
-                    return;
-                }
                 var path = getPathForLocation(e.getX(), e.getY());
                 if (path == null) {
                     path = getLeadSelectionPath();
@@ -67,9 +64,18 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
                 }
                 setSelectionPath(path);
                 var node = (TreeNode) path.getLastPathComponent();
-                if (node instanceof ExplorerNode) {
-                    var list = ActionManager.getInstance().createList();
-                    ((ExplorerNode<?>) node).populateActions(list);
+                if (!(node instanceof ExplorerNode)) {
+                    return;
+                }
+                ExplorerNode<?> explorerNode = (ExplorerNode<?>) node;
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    if (e.getClickCount() < 2) {
+                        return;
+                    }
+                    explorerNode.onActionClick();
+                } else if (SwingUtilities.isRightMouseButton(e)) {
+                    var list = ActionManager.getInstance().createList(ExplorerTree.this);
+                    explorerNode.populateActions(list);
                     if (!list.isEmpty()) {
                         list.createPopupMenu().show(ExplorerTree.this, e.getX(), e.getY());
                     }
@@ -86,7 +92,7 @@ public final class ExplorerTree extends JTree implements TreeWillExpandListener 
         var component = event.getPath().getLastPathComponent();
         if (component instanceof DirectoryNode) {
             var node = (DirectoryNode) component;
-            if (node.isLoaded()) {
+            if (node.isLoading() || node.isLoaded()) {
                 return;
             }
             LazyLoading.execute(this, node);

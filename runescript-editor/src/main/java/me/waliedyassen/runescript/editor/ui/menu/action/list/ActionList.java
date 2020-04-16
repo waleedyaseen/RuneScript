@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.menu.action.list;
 
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.shortcut.Shortcut;
+import me.waliedyassen.runescript.editor.shortcut.UiAction;
 import me.waliedyassen.runescript.editor.ui.menu.action.Action;
 import me.waliedyassen.runescript.editor.ui.menu.action.impl.Executable;
 import me.waliedyassen.runescript.editor.ui.menu.action.impl.Separator;
@@ -31,6 +32,11 @@ public final class ActionList {
      * A list of all the actions that are added to this list.
      */
     private final List<Action> actions = new ArrayList<>();
+
+    /**
+     * The source of the action list.
+     */
+    private final Object source;
 
     /**
      * Creates a {@link JPopupMenu} of all the actions that are currently in this actions list.
@@ -59,7 +65,7 @@ public final class ActionList {
      *         the shortcut of the action which holds the keystroke and the callback.
      */
     public void addAction(String title, Shortcut shortcut) {
-        add(new Executable(title, shortcut.getKeyStroke(), shortcut.getAction()));
+        add(new Executable(title, shortcut.getKeyStroke(), shortcut.getAction(), source));
     }
 
     /**
@@ -70,8 +76,8 @@ public final class ActionList {
      * @param callback
      *         the callback of the action which is called when the action is executed.
      */
-    public void addAction(String title, Runnable callback) {
-        add(new Executable(title, null, callback));
+    public void addAction(String title, UiAction callback) {
+        add(new Executable(title, null, callback, source));
     }
 
     /**

@@ -17,7 +17,6 @@ import me.waliedyassen.runescript.editor.ui.explorer.tree.node.FileNode;
 import javax.swing.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,6 +60,7 @@ public final class LazyLoading extends SwingWorker<List<ExplorerNode<?>>, Void> 
             node.removeAllChildren();
             children.forEach(node::add);
             node.setAllowsChildren(!children.isEmpty());
+            node.setLoading(false);
             tree.getModel().nodeStructureChanged(node);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -94,9 +94,10 @@ public final class LazyLoading extends SwingWorker<List<ExplorerNode<?>>, Void> 
      *         the directory node which we want to load it's children lazily.
      */
     public static void execute(ExplorerTree tree, DirectoryNode node) {
-        if (node.isLoaded() || node.getChildCount() > 1 || !(node.getChildAt(0) instanceof LoadingNode)) {
+        if (node.isLoaded() || node.isLoading() || node.getChildCount() > 1 || !(node.getChildAt(0) instanceof LoadingNode)) {
             throw new IllegalArgumentException("Please use LazyLoading.setup() before calling LazyLoading.execute()");
         }
+        node.setLoading(true);
         var loading = new LazyLoading(tree, node);
         loading.execute();
     }

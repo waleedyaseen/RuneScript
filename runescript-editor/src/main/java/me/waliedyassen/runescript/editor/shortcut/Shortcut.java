@@ -37,5 +37,5 @@ public final class Shortcut {
      * The action to perform when the callback is executed.
      */
     @Getter
-    private final Runnable action;
+    private final UiAction action;
 }

@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
+import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LoadingNode;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
 import java.nio.file.Path;
@@ -30,6 +31,13 @@ public class DirectoryNode extends ExplorerNode<Path> {
     private volatile boolean loaded;
 
     /**
+     * Whether or not the directory node is currently being loaded.
+     */
+    @Getter
+    @Setter
+    private boolean loading;
+
+    /**
      * Constructs a new {@link DirectoryNode} type object instance.
      *
      * @param value
@@ -46,6 +54,7 @@ public class DirectoryNode extends ExplorerNode<Path> {
      */
     @Override
     public void populateActions(ActionList actionList) {
-        actionList.addAction("Delete",()->{});
+        actionList.addAction("Delete", (source) -> {
+        });
     }
 }

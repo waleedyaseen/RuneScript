@@ -46,14 +46,14 @@ public final class ProjectNode extends DirectoryNode {
      */
     @Override
     public void populateActions(ActionList actionList) {
-        actionList.addAction("Close Project", CommonGroups.EXPLORER.lookup(CommonShortcuts.CLOSE_PROJECT));
+        actionList.addAction("Close Project", CommonGroups.EXPLORER.lookup(CommonShortcuts.EXPLORER_CLOSE_PROJECT));
         actionList.addSeparator();
         super.populateActions(actionList);
     }
 
     static {
-        ShortcutManager.getInstance().addShortcut(CommonGroups.EXPLORER, CommonShortcuts.CLOSE_PROJECT, KeyStroke.getKeyStroke("alt shift Q"), () -> {
-            System.out.println("Closing the project");
+        ShortcutManager.getInstance().addShortcut(CommonGroups.EXPLORER, CommonShortcuts.EXPLORER_CLOSE_PROJECT, KeyStroke.getKeyStroke("alt shift Q"), (source) -> {
+
         });
     }
 }

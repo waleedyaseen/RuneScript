@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.menu.action.impl;
 
 import lombok.Data;
+import me.waliedyassen.runescript.editor.shortcut.UiAction;
 import me.waliedyassen.runescript.editor.ui.menu.action.Action;
 
 import javax.swing.*;
@@ -33,7 +34,12 @@ public final class Executable implements Action {
     /**
      * A callback which is called when the action is executed.
      */
-    private final Runnable callback;
+    private final UiAction callback;
+
+    /**
+     * The source of the UI executable action.
+     */
+    private final Object source;
 
     /**
      * {@inheritDoc}
@@ -44,7 +50,7 @@ public final class Executable implements Action {
         if (keyStroke != null) {
             item.setAccelerator(keyStroke);
         }
-        item.addActionListener((evt) -> callback.run());
+        item.addActionListener((evt) -> callback.execute(source));
         return item;
     }
 }

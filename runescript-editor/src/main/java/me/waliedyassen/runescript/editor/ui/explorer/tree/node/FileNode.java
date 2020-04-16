@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
+import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
@@ -36,6 +37,37 @@ public final class FileNode extends ExplorerNode<Path> {
      */
     @Override
     public void populateActions(ActionList actionList) {
-        // NOOP
+        if (!isSourceFile()) {
+            return;
+        }
+        actionList.addAction("Open", (source) -> openFile());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onActionClick() {
+        openFile();
+    }
+
+    /**
+     *
+     */
+    private void openFile() {
+        var editorView = Api.getApi().getEditorView();
+        if (editorView.selectTab(getValue())) {
+            return;
+        }
+        Api.getApi().getEditorView().addTab(getValue());
+    }
+
+    /**
+     * Checks whether or not the file node is for a source file.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isSourceFile() {
+        return getValue().getFileName().toString().endsWith(".rs2");
     }
 }

@@ -20,4 +20,9 @@ public interface CommonGroups {
      * The explorer tree shortcuts.
      */
     ShortcutGroup<String> EXPLORER = ShortcutManager.getInstance().createGroup("Explorer Shortcuts");
+
+    /**
+     * The editor view shortcuts.
+     */
+    ShortcutGroup<String> EDITOR = ShortcutManager.getInstance().createGroup("Editor Shortcuts");
 }

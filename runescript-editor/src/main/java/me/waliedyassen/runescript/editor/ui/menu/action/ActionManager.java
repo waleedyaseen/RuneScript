@@ -33,9 +33,12 @@ public final class ActionManager {
     /**
      * Creates anew {@link ActionList} type object instance.
      *
+     * @param source
+     *         the source of the action list.
+     *
      * @return the created {@link ActionList} object.
      */
-    public ActionList createList() {
-        return new ActionList();
+    public ActionList createList(Object source) {
+        return new ActionList(source);
     }
 }

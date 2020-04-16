@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.explorer;
 
 import lombok.Getter;
+import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 
 import javax.swing.*;

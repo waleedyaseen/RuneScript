@@ -115,6 +115,7 @@ public final class RuneScriptEditor {
      */
     private static void initialiseSystem() {
         var editor = new RuneScriptEditor();
+        Api.setApi(new Api(editor));
         editor.initialise();
         editor.show();
     }

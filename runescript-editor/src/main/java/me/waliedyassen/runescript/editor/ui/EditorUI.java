@@ -39,6 +39,7 @@ public final class EditorUI implements WindowListener {
     /**
      * The main frame of the user-interface.
      */
+    @Getter
     private final JFrame frame = new JFrame();
 
     /**

@@ -13,8 +13,14 @@ package me.waliedyassen.runescript.editor.shortcut.common;
  * @author WaliedK. Yassen
  */
 public interface CommonShortcuts {
+
     /**
-     * The close project shortcut name.
+     * The explorer close project shortcut name.
      */
-    String CLOSE_PROJECT = "Close Project";
+    String EXPLORER_CLOSE_PROJECT = "Close Project";
+
+    /**
+     * The editor close file shortcut name.
+     */
+    String EDITOR_CLOSE_FILE = "Close Editor File";
 }

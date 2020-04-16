@@ -40,8 +40,10 @@ public final class ShortcutManager {
      *         the group to bind all of its shortcuts.
      * @param component
      *         the component to bind the shortcuts to.
+     * @param source
+     *         the source of the shortcut to pass to the shortcut action.
      */
-    public void bindShortcuts(ShortcutGroup<?> group, JComponent component) {
+    public void bindShortcuts(ShortcutGroup<?> group, JComponent component, Object source) {
         var shortcuts = this.shortcuts.get(group);
         if (shortcuts == null) {
             return;
@@ -50,7 +52,7 @@ public final class ShortcutManager {
             throw new IllegalArgumentException("The specified component is already listening to that shortcut group");
         }
         group.getListeningComponents().add(component);
-        shortcuts.values().forEach(shortcut -> bindShortcut(group, shortcut, component));
+        shortcuts.values().forEach(shortcut -> bindShortcut(group, shortcut, component, source));
     }
 
     /**
@@ -62,14 +64,16 @@ public final class ShortcutManager {
      *         the shortcut which we want to bind.
      * @param component
      *         the component which we want to bind the shortcut to.
+     * @param source
+     *         the source of the shortcut to pass to the shortcut action.
      */
-    private void bindShortcut(ShortcutGroup<?> group, Shortcut shortcut, JComponent component) {
+    private void bindShortcut(ShortcutGroup<?> group, Shortcut shortcut, JComponent component, Object source) {
         var actionKey = "shortcut/" + group.getKey() + "/" + shortcut.getName();
         component.getInputMap().put(shortcut.getKeyStroke(), actionKey);
         component.getActionMap().put(actionKey, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                shortcut.getAction().run();
+                shortcut.getAction().execute(source);
             }
         });
     }
@@ -112,7 +116,7 @@ public final class ShortcutManager {
      * @throws IllegalArgumentException
      *         if the shortcut group does not belong to this manager or the specified shortcut name is not unique.
      */
-    public Shortcut addShortcut(ShortcutGroup<?> group, String name, KeyStroke keyStroke, Runnable action) {
+    public Shortcut addShortcut(ShortcutGroup<?> group, String name, KeyStroke keyStroke, UiAction action) {
         var map = getShortcuts(group);
         if (map == null) {
             throw new IllegalArgumentException("The specified shortcut group does not belong to this manager. Please use createGroup() to create a shortcut group");
@@ -122,7 +126,7 @@ public final class ShortcutManager {
         }
         var shortcut = new Shortcut(name, keyStroke, action);
         map.put(name, shortcut);
-        group.getListeningComponents().forEach(component -> bindShortcut(group, shortcut, component));
+        group.getListeningComponents().forEach(component -> bindShortcut(group, shortcut, component, action));
         return shortcut;
     }
 

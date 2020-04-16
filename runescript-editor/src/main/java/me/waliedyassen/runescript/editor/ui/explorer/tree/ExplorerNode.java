@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -19,7 +20,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public abstract class ExplorerNode<T> extends DefaultMutableTreeNode {
+public abstract class ExplorerNode<T> extends DefaultMutableTreeNode implements ActionSource {
 
     /**
      * The value of the explorer node.
@@ -28,10 +29,9 @@ public abstract class ExplorerNode<T> extends DefaultMutableTreeNode {
     private final T value;
 
     /**
-     * Populates the actions of this explorer node into the specified {@link ActionList actions list}.
-     *
-     * @param actionList
-     *         the actions list to populate the actions into.
+     * Gets called when we double click the node in the tree.
      */
-    public abstract void populateActions(ActionList actionList);
+    public void onActionClick() {
+        // NOOP
+    }
 }

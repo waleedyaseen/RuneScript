@@ -8,8 +8,11 @@
 package me.waliedyassen.runescript.editor.ui.editor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.fife.ui.rsyntaxtextarea.LinkGeneratorResult;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
+
+import javax.swing.event.HyperlinkEvent;
 
 /**
  * Represents a RuneScript Editor code area.
@@ -20,6 +23,11 @@ import org.fife.ui.rsyntaxtextarea.Theme;
 public final class CodeArea extends RSyntaxTextArea {
 
     /**
+     * The syntax style of the code area.
+     */
+    private static final String SYNTAX_STYLE_RUNESCRIPT = "text/runescript";
+
+    /**
      * The default theme for the code areas.
      */
     private static Theme theme;
@@ -28,9 +36,11 @@ public final class CodeArea extends RSyntaxTextArea {
      * Constructs a new {@link CodeArea} type object instance.
      */
     public CodeArea() {
+        setSyntaxEditingStyle(SYNTAX_STYLE_RUNESCRIPT);
         setAutoIndentEnabled(true);
         setAntiAliasingEnabled(true);
         setAnimateBracketMatching(true);
+        setCodeFoldingEnabled(true);
         setAutoscrolls(true);
         setWrapStyleWord(false);
         if (theme != null) {
