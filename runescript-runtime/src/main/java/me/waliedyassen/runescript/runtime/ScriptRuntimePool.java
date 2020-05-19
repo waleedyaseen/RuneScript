@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.runtime;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Stack;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -28,7 +29,7 @@ public final class ScriptRuntimePool<R extends ScriptRuntime> {
     /**
      * The supplier of the script runtime.
      */
-    private final Supplier<R> supplier;
+    private final Function<ScriptRuntimePool<R>, R> supplier;
 
     /**
      * The maximum amount of {@link ScriptRuntime} we can store in the pool.
@@ -43,7 +44,7 @@ public final class ScriptRuntimePool<R extends ScriptRuntime> {
      */
     public R pop() {
         if (runtimes.isEmpty()) {
-            return supplier.get();
+            return supplier.apply(this);
         }
         var runtime = runtimes.pop();
         runtime.reset();

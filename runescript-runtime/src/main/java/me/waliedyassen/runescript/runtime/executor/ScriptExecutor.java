@@ -13,6 +13,8 @@ import me.waliedyassen.runescript.runtime.ScriptRuntimePool;
 import me.waliedyassen.runescript.runtime.executor.instruction.InstructionExecutorMap;
 import me.waliedyassen.runescript.runtime.script.Script;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -40,7 +42,7 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
      * @param runtimeSupplier the supplier of the runtime objects.
      * @param executorMap     the instructions executor map of the executor.
      */
-    public ScriptExecutor(int poolSize, Supplier<R> runtimeSupplier, InstructionExecutorMap executorMap) {
+    public ScriptExecutor(int poolSize, Function<ScriptRuntimePool<R>, R> runtimeSupplier, InstructionExecutorMap executorMap) {
         this.executorMap = executorMap;
         pool = new ScriptRuntimePool<>(runtimeSupplier, poolSize);
     }
