@@ -12,6 +12,7 @@ import me.waliedyassen.runescript.editor.shortcut.Shortcut;
 import me.waliedyassen.runescript.editor.shortcut.UiAction;
 import me.waliedyassen.runescript.editor.ui.menu.action.Action;
 import me.waliedyassen.runescript.editor.ui.menu.action.impl.Executable;
+import me.waliedyassen.runescript.editor.ui.menu.action.impl.Menu;
 import me.waliedyassen.runescript.editor.ui.menu.action.impl.Separator;
 
 import javax.swing.*;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class ActionList {
+public class ActionList {
 
     /**
      * A list of all the actions that are added to this list.
@@ -50,6 +51,18 @@ public final class ActionList {
     }
 
     /**
+     * Adds a new sub-menu action to the action list.
+     *
+     * @param title the title of the sub-menu.
+     * @return the sub-menu as {@link Menu} object.
+     */
+    public Menu addMenu(String title) {
+        var menu = new Menu(source, title);
+        actions.add(menu);
+        return menu;
+    }
+
+    /**
      * Adds a new separator action to the actions list.
      */
     public void addSeparator() {
@@ -59,10 +72,8 @@ public final class ActionList {
     /**
      * Adds a new executable action to the actions list.
      *
-     * @param title
-     *         the title of the action to display on the menu component.
-     * @param shortcut
-     *         the shortcut of the action which holds the keystroke and the callback.
+     * @param title    the title of the action to display on the menu component.
+     * @param shortcut the shortcut of the action which holds the keystroke and the callback.
      */
     public void addAction(String title, Shortcut shortcut) {
         add(new Executable(title, shortcut.getKeyStroke(), shortcut.getAction(), source));
@@ -71,10 +82,8 @@ public final class ActionList {
     /**
      * Adds a new executable action to the actions list.
      *
-     * @param title
-     *         the title of the action to display on the menu component.
-     * @param callback
-     *         the callback of the action which is called when the action is executed.
+     * @param title    the title of the action to display on the menu component.
+     * @param callback the callback of the action which is called when the action is executed.
      */
     public void addAction(String title, UiAction callback) {
         add(new Executable(title, null, callback, source));
@@ -83,8 +92,7 @@ public final class ActionList {
     /**
      * Adds a new {@link Action} to this actions list.
      *
-     * @param action
-     *         the action to add to this actions list.
+     * @param action the action to add to this actions list.
      */
     public void add(Action action) {
         if (actions.contains(action)) {
@@ -99,7 +107,7 @@ public final class ActionList {
      *
      * @return A {@link List} object which holds all of the created {@link JComponent} objects.
      */
-    private List<JComponent> createComponents() {
+    protected List<JComponent> createComponents() {
         return actions.stream().map(Action::createComponent).collect(Collectors.toList());
     }
 
