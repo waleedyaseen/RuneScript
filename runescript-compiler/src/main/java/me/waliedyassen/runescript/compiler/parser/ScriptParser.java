@@ -314,7 +314,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * @return <code>true</code> if it does otherwise <code>false</code.>
      */
     public boolean isComponent() {
-        return peekKind() == IDENTIFIER && peekKind(1) == COLON && peekKind(2) == IDENTIFIER;
+        return peekKind() == IDENTIFIER && peekKind(1) == COLON && (peekKind(2) == IDENTIFIER || peekKind(2) == IDENTIFIER);
     }
 
     /**
