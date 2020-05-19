@@ -23,6 +23,11 @@ import java.util.Stack;
 public final class ScriptRuntime implements AutoCloseable {
 
     /**
+     * The maximum amount of local fields we can have per runtime.
+     */
+    private static final int MAX_LOCALS = 256;
+
+    /**
      * The integer stack of the runtime.
      */
     @Getter
@@ -44,6 +49,24 @@ public final class ScriptRuntime implements AutoCloseable {
      * The owner {@link ScriptRuntimePool} of this object.
      */
     private final ScriptRuntimePool pool;
+
+    /**
+     * An array holding of all the long int fields values.
+     */
+    @Getter
+    private final int[] intLocals = new int[MAX_LOCALS];
+
+    /**
+     * An array holding of all the long string fields values.
+     */
+    @Getter
+    private final String[] stringLocals = new String[MAX_LOCALS];
+
+    /**
+     * An array holding of all the long local fields values.
+     */
+    @Getter
+    private final long[] longLocals = new long[MAX_LOCALS];
 
     /**
      * The script which we are currently executing.
@@ -72,8 +95,7 @@ public final class ScriptRuntime implements AutoCloseable {
     /**
      * Pushes a {@code int} value to the top of the int stack.
      *
-     * @param value
-     *         the int value to push to the int stack.
+     * @param value the int value to push to the int stack.
      */
     public void pushInt(int value) {
         intStack.push(value);
@@ -91,8 +113,7 @@ public final class ScriptRuntime implements AutoCloseable {
     /**
      * Pushes a {@link String} value to the top of the string stack.
      *
-     * @param value
-     *         the string value to push to the string stack.
+     * @param value the string value to push to the string stack.
      */
     public void pushString(String value) {
         stringStack.push(value);
@@ -110,8 +131,7 @@ public final class ScriptRuntime implements AutoCloseable {
     /**
      * Pushes a {@code long} value to the top of the long stack.
      *
-     * @param value
-     *         the long value to push to the long stack.
+     * @param value the long value to push to the long stack.
      */
     public void pushLong(long value) {
         longStack.push(value);
