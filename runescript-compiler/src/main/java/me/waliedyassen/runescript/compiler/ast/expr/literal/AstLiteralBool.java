@@ -15,24 +15,16 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
  *
  * @author Walied K. Yassen
  */
-public final class AstLiteralBool extends AstLiteral {
-
-    /**
-     * The boolean literal value.
-     */
-    private final boolean value;
+public final class AstLiteralBool extends AstLiteral<Boolean> {
 
     /**
      * Construct a new {@link AstLiteralBool} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param value
-     *         the boolean literal value
+     * @param range the node source code range.
+     * @param value the boolean literal value
      */
-    public AstLiteralBool(Range range, boolean value) {
-        super(range);
-        this.value = value;
+    public AstLiteralBool(Range range, Boolean value) {
+        super(range, value);
     }
 
     /**
@@ -41,14 +33,5 @@ public final class AstLiteralBool extends AstLiteral {
     @Override
     public <E, S> E accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
-    }
-
-    /**
-     * Gets this {@link AstLiteralBool} literal value.
-     *
-     * @return the boolean value of the literal.
-     */
-    public boolean getValue() {
-        return value;
     }
 }

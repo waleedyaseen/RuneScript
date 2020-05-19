@@ -69,6 +69,7 @@ class AstTreeVisitorTest {
         final Counter literalLong = new Counter();
         final Counter literalString = new Counter();
         final Counter concatenation = new Counter();
+        final Counter component = new Counter();
         final Counter variableExpression = new Counter();
         final Counter call = new Counter();
         final Counter dynamic = new Counter();
@@ -92,6 +93,7 @@ class AstTreeVisitorTest {
             literalInteger.reset();
             literalLong.reset();
             literalString.reset();
+            component.reset();
             concatenation.reset();
             variableExpression.reset();
             call.reset();
@@ -192,6 +194,18 @@ class AstTreeVisitorTest {
         public void exit(AstConcatenation concatenation) {
             super.exit(concatenation);
             this.concatenation.numExits++;
+        }
+
+        @Override
+        public void enter(AstComponent component) {
+            super.enter(component);
+            this.component.numEnters++;
+        }
+
+        @Override
+        public void exit(AstComponent component) {
+            super.exit(component);
+            this.component.numExits++;
         }
 
         @Override

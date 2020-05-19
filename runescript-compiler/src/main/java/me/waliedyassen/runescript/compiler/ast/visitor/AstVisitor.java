@@ -11,10 +11,7 @@ import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -112,6 +109,18 @@ public interface AstVisitor<E, S> {
      * @return the implementation output object.
      */
     default E visit(AstLiteralString string) {
+        return null;
+    }
+
+    /**
+     * Gets called when we have just visited an {@link AstComponent} node.
+     *
+     * @param string
+     *         the {@link AstComponent} node we have just visited.
+     *
+     * @return the implementation output object.
+     */
+    default E visit(AstComponent string) {
         return null;
     }
 

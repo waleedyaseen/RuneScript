@@ -59,12 +59,9 @@ public final class ScriptParser extends ParserBase<Kind> {
     /**
      * Constructs a new {@link ScriptParser} type object instance.
      *
-     * @param environment
-     *         the environment of the compiler.
-     * @param symbolTable
-     *         the symbol table to use for checking hooks.
-     * @param lexer
-     *         the lexical parser to use for tokens.
+     * @param environment the environment of the compiler.
+     * @param symbolTable the symbol table to use for checking hooks.
+     * @param lexer       the lexical parser to use for tokens.
      */
     public ScriptParser(CompilerEnvironment environment, SymbolTable symbolTable, Lexer lexer) {
         super(lexer, Kind.EOF);
@@ -83,9 +80,9 @@ public final class ScriptParser extends ParserBase<Kind> {
         var annotations = annotationList();
         // parse the script trigger and name.
         consume(LBRACKET);
-        var trigger = identifier();
+        var trigger = advancedIdentifier();
         consume(COMMA);
-        var name = identifier();
+        var name = advancedIdentifier();
         consume(RBRACKET);
         // parse the script return ype nad parameters list.
         Type type = PrimitiveType.VOID;
@@ -121,6 +118,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         // return the parsed script.
         return new AstScript(popRange(), annotations, trigger, name, parameters.toArray(AstParameter[]::new), type, code);
     }
+
 
     /**
      * Attempts to parse an {@link AstAnnotation} object node.
@@ -173,9 +171,7 @@ public final class ScriptParser extends ParserBase<Kind> {
     /**
      * Attempts to parse an {@link AstParameter} object node.
      *
-     * @param index
-     *         the current index of the parameter used for array references.
-     *
+     * @param index the current index of the parameter used for array references.
      * @return the parsed {@link AstParameter} object.
      */
     public AstParameter parameter(int index) {
@@ -224,9 +220,7 @@ public final class ScriptParser extends ParserBase<Kind> {
     /**
      * Attemps to parse a {@link AstExpression} tree with given lowest precedence allowed.
      *
-     * @param precedence
-     *         the lowest precedence that to be allowed in this tree.
-     *
+     * @param precedence the lowest precedence that to be allowed in this tree.
      * @return the parsed tree as a {@link AstExpression} object.
      */
     private AstExpression expression(int precedence) {
@@ -287,6 +281,8 @@ public final class ScriptParser extends ParserBase<Kind> {
             case IDENTIFIER:
                 if (peekKind(1) == LPAREN) {
                     return command();
+                } else if (isComponent()) {
+                    return component();
                 }
                 return dynamic();
             case DOT:
@@ -309,7 +305,16 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public boolean isExpression() {
         var kind = peekKind();
-        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == LPAREN || kind == DOT || kind == CALC || isCall();
+        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == LPAREN || kind == DOT || kind == CALC || isCall() || isComponent();
+    }
+
+    /**
+     * Checks whether or not the next token set matches a component expression.
+     *
+     * @return <code>true</code> if it does otherwise <code>false</code.>
+     */
+    public boolean isComponent() {
+        return peekKind() == IDENTIFIER && peekKind(1) == COLON && peekKind(2) == IDENTIFIER;
     }
 
     /**
@@ -683,6 +688,36 @@ public final class ScriptParser extends ParserBase<Kind> {
     }
 
     /**
+     * Attempts to match the next set of tokens to an {@link AstIdentifier} object. This method
+     * will also attempt to match any keyword to number to an identifier.
+     *
+     * @return the parsed {@link AstIdentifier} object.
+     */
+    private AstIdentifier advancedIdentifier() {
+        pushRange();
+        String text;
+        switch (peekKind()) {
+            case IF:
+            case ELSE:
+            case WHILE:
+            case RETURN:
+            case SWITCH:
+            case CASE:
+            case DEFAULT:
+            case CALC:
+            case IDENTIFIER:
+            case BOOL:
+            case INTEGER:
+            case LONG:
+                text = consume().getLexeme();
+                break;
+            default:
+                throw createError(popRange(), "Expected an identifier");
+        }
+        return new AstIdentifier(popRange(), text);
+    }
+
+    /**
      * Attempts to match the next set of tokens to an {@link AstVariableExpression} object with a variable scope of
      * {@link VariableScope#LOCAL}.
      *
@@ -784,7 +819,7 @@ public final class ScriptParser extends ParserBase<Kind> {
             if (isExpression()) {
                 int index = 0;
                 do {
-                    if (index < commandInfo.getArguments().length && commandInfo.getArguments()[index] == PrimitiveType.SCRIPT && peekKind() == STRING) {
+                    if (commandInfo != null && commandInfo.getArguments() != null && index < commandInfo.getArguments().length && commandInfo.getArguments()[index] == PrimitiveType.SCRIPT && peekKind() == STRING) {
                         arguments.add(hook());
                     } else {
                         arguments.add(expression());
@@ -795,6 +830,30 @@ public final class ScriptParser extends ParserBase<Kind> {
             consume(RPAREN);
         }
         return new AstCommand(popRange(), name, arguments.toArray(AstExpression[]::new), alternative);
+    }
+
+    /**
+     * Attempts to match the next set of token(s) to an {@link AstComponent}.
+     *
+     * @return the parsed {@link AstComponent} object.
+     */
+    public AstComponent component() {
+        // TODO: Switch to advancedIdentifier
+        pushRange();
+        var parent = identifier();
+        consume(COLON);
+        AstExpression component;
+        switch (peekKind()) {
+            case IDENTIFIER:
+                component = identifier();
+                break;
+            case INTEGER:
+                component = integerNumber();
+                break;
+            default:
+                throw createError(popRange(), "Expected a component name or id");
+        }
+        return new AstComponent(popRange(), parent, component);
     }
 
     private AstHook hook() {

@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.ast.expr.literal;
 
-import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
@@ -16,32 +15,23 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
  *
  * @author Walied K. Yassen
  */
-public final class AstLiteralInteger extends AstLiteralNumber {
-
-    /**
-     * The integer value.
-     */
-    @Getter
-    private final int value;
+public final class AstLiteralInteger extends AstLiteralNumber<Integer> {
 
     /**
      * Constructs a new {@link AstLiteralInteger} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param value
-     *         the integer value.
+     * @param range the node source code range.
+     * @param value the value of the literal.
      */
-    public AstLiteralInteger(Range range, int value) {
-        super(range);
-        this.value = value;
+    public AstLiteralInteger(Range range, Integer value) {
+        super(range, value);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <E, S> E accept(AstVisitor<E, S> visitor){
+    public <E, S> E accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
     }
 }

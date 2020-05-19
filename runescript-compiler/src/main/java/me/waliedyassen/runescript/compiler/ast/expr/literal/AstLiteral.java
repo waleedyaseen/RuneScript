@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.ast.expr.literal;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 
@@ -15,15 +16,22 @@ import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
  *
  * @author Walied K. Yassen
  */
-abstract class AstLiteral extends AstExpression {
+public abstract class AstLiteral<T> extends AstExpression {
+
+    /**
+     * The value of the literal.
+     */
+    @Getter
+    private final T value;
 
     /**
      * Constructs a new {@link AstLiteral} type object instance.
      *
-     * @param range
-     *         the node source code range.
+     * @param range the node source code range.
+     * @param value the value of the literal.
      */
-    AstLiteral(Range range) {
+    AstLiteral(Range range, T value) {
         super(range);
+        this.value = value;
     }
 }

@@ -13,6 +13,7 @@ import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.InterfaceInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
@@ -69,6 +70,11 @@ public final class SymbolTable {
     private final Map<String, VariableInfo> variables = new HashMap<>();
 
     /**
+     * A defined components map.
+     */
+    private final Map<String, InterfaceInfo> interfaces = new HashMap<>();
+
+    /**
      * Constructs a new {@link SymbolTable} type object instance.
      */
     public SymbolTable() {
@@ -83,7 +89,7 @@ public final class SymbolTable {
      * @param value the value of the constant.
      */
     public void defineConstant(String name, Type type, Object value) {
-        if (constants.containsKey(name)) {
+        if (lookupConfig(name) != null) {
             throw new IllegalArgumentException("The constant '" + name + "' is already defined.");
         }
         constants.put(name, new ConstantInfo(name, type, value));
@@ -114,7 +120,7 @@ public final class SymbolTable {
      * @param alternative whether or not this command supports alternative calls.
      */
     public void defineCommand(Opcode opcode, String name, Type type, Type[] arguments, boolean hook, boolean alternative) {
-        if (commands.containsKey(name)) {
+        if (lookupCommand(name) != null) {
             throw new IllegalArgumentException("The command '" + name + "' is already defined.");
         }
         commands.put(name, new CommandInfo(opcode, name, type, arguments, hook, alternative));
@@ -142,7 +148,7 @@ public final class SymbolTable {
      * @param type the type of the configuration.
      */
     public void defineConfig(int id, String name, Type type) {
-        if (configs.containsKey(name)) {
+        if (lookupConfig(name) != null) {
             throw new IllegalArgumentException("The configuration '" + name + "' is already defined.");
         }
         configs.put(name, new ConfigInfo(id, name, type));
@@ -172,7 +178,7 @@ public final class SymbolTable {
      * @param arguments   the arguments type which the script takes.
      */
     public void defineScript(Map<String, Annotation> annotations, TriggerType trigger, String name, Type type, Type[] arguments) {
-        if (scripts.containsKey(name)) {
+        if (lookupScript(trigger, name) != null) {
             throw new IllegalArgumentException("The script '" + name + "' is already defined.");
         }
         scripts.put(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name), new ScriptInfo(annotations, name, trigger, type, arguments));
@@ -201,7 +207,7 @@ public final class SymbolTable {
      * @param type   the type of the variable.
      */
     public void defineVariable(VariableDomain domain, String name, Type type) {
-        if (variables.containsKey(name)) {
+        if (lookupVariable(name) != null) {
             throw new IllegalArgumentException("The variable '" + name + "' is already defined.");
         }
         variables.put(name, new VariableInfo(domain, name, type));
@@ -217,6 +223,33 @@ public final class SymbolTable {
         var info = variables.get(name);
         if (info == null && parent != null) {
             info = parent.lookupVariable(name);
+        }
+        return info;
+    }
+
+    /**
+     * Defines a new interface symbol in this table.
+     *
+     * @param name the name of the interface.
+     * @param id   the id of the interface.
+     */
+    public void defineInterface(String name, int id) {
+        if (lookupInterface(name) != null) {
+            throw new IllegalArgumentException("The constant '" + name + "' is already defined.");
+        }
+        interfaces.put(name, new InterfaceInfo(name, id));
+    }
+
+    /**
+     * Looks-up for the {@link InterfaceInfo constant information} with the specified {@code name}.
+     *
+     * @param name the name of the interface.
+     * @return the {@link InterfaceInfo} if it was present otherwise {@code null}.
+     */
+    public InterfaceInfo lookupInterface(String name) {
+        var info = interfaces.get(name);
+        if (info == null && parent != null) {
+            info = parent.lookupInterface(name);
         }
         return info;
     }

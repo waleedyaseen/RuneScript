@@ -105,6 +105,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         return string.setType(PrimitiveType.STRING);
     }
 
+
     /**
      * {@inheritDoc}
      */
@@ -114,6 +115,23 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
             checkType(expr, PrimitiveType.STRING, expr.accept(this));
         }
         return concatenation.setType(PrimitiveType.STRING);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(AstComponent component) {
+        var interfaceInfo = symbolTable.lookupInterface(component.getParent().getText());
+        if (interfaceInfo == null) {
+            checker.reportError(new SemanticError(component.getParent(), String.format("Could not resolve interface with the name '%s'", component.getParent().getText())));
+        } else {
+            component.getParent().setType(PrimitiveType.INTERFACE);
+            if (interfaceInfo.lookupComponent(String.valueOf(component.getComponentName())) == null) {
+                checker.reportError(new SemanticError(component.getParent(), String.format("Could not resolve component with the name '%s' in '%s'", component.getComponentName(), component.getParent().getText())));
+            }
+        }
+        return component.setType(PrimitiveType.COMPONENT);
     }
 
     /**
@@ -328,9 +346,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     /**
      * Resolves the specified case key expression integer value.
      *
-     * @param expression
-     *         the case key expression to resolve its value.
-     *
+     * @param expression the case key expression to resolve its value.
      * @return the integer value of that expression.
      */
     private int resolveCaseKey(AstExpression expression) {
@@ -432,15 +448,10 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * Checks if the specified {@link Operator operator} is applicable to the given {@link Type left} and {@link Type
      * right} hand sides, and if it is not applicable, it will report an error back to the {@link #checker}.
      *
-     * @param node
-     *         the node which requested this check.
-     * @param left
-     *         the left hand side type.
-     * @param right
-     *         the right hand side type.
-     * @param operator
-     *         the operator to check.
-     *
+     * @param node     the node which requested this check.
+     * @param left     the left hand side type.
+     * @param right    the right hand side type.
+     * @param operator the operator to check.
      * @return the output value type of the operator.
      */
     private Type checkOperator(AstNode node, Type left, Type right, Operator operator) {
@@ -471,13 +482,9 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * Checks if the specified {@link Type expected type} matches the specified {@link Type actual type}, and if it does
      * not match, it will report an error back to the {@link #checker}.
      *
-     * @param node
-     *         the node which requested this check.
-     * @param expected
-     *         the expected type to match against.
-     * @param actual
-     *         the actual type to match.
-     *
+     * @param node     the node which requested this check.
+     * @param expected the expected type to match against.
+     * @param actual   the actual type to match.
      * @return <code>true</code> if the type matches the expected otherwise <code>false</code>.
      */
     private boolean checkType(AstNode node, Type expected, Type actual) {

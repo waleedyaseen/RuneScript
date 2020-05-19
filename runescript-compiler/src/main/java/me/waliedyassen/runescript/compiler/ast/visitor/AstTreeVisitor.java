@@ -11,10 +11,7 @@ import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -225,6 +222,34 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
      *         the node we have just entered.
      */
     public void exit(AstLiteralString string) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstComponent component) {
+        enter(component);
+        exit(component);
+        return null;
+    }
+
+    /**
+     * Gets called when we have just entered an {@link AstLiteralString} node.
+     *
+     * @param component
+     *         the node we have just entered.
+     */
+    public void enter(AstComponent component) {
+    }
+
+    /**
+     * Gets called when we have just left an {@link AstLiteralString} node.
+     *
+     * @param component
+     *         the node we have just entered.
+     */
+    public void exit(AstComponent component) {
     }
 
     /**

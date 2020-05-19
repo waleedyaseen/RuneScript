@@ -14,15 +14,15 @@ import me.waliedyassen.runescript.commons.document.Range;
  *
  * @author Walied K. Yassen
  */
-abstract class AstLiteralNumber extends AstLiteral {
+abstract class AstLiteralNumber<T extends Number> extends AstLiteral<T> {
 
     /**
      * Constructs a new {@link AstLiteralNumber} type object instance.
      *
-     * @param range
-     *         the node source code range.
+     * @param range  the node source code range.
+     * @param number the value of the literal.
      */
-    AstLiteralNumber(Range range) {
-        super(range);
+    AstLiteralNumber(Range range, T number) {
+        super(range, number);
     }
 }
