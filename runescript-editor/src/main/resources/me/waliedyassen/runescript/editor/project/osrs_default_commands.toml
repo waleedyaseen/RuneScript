@@ -36,3 +36,8 @@ arguments=["INT"]
 opcode=4006
 type=["INT"]
 arguments=["INT", "INT", "INT", "INT", "INT"]
+
+[tostring]
+opcode=4106
+type=["STRING"]
+arguments=["INT"]

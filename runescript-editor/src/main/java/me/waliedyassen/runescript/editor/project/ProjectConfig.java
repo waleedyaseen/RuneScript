@@ -29,6 +29,9 @@ public final class ProjectConfig {
      */
     public static Type[] parseTypes(CommentedConfig config, String name) {
         var types = config.<List<String>>get(name);
+        if (types == null) {
+            return new Type[0];
+        }
         var mapped = new Type[types.size()];
         for (var index = 0; index < types.size(); index++) {
             mapped[index] = PrimitiveType.valueOf(types.get(index));
