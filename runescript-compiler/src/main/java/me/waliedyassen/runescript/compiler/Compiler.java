@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler;
 
+import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
@@ -23,9 +24,11 @@ import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
+import me.waliedyassen.runescript.compiler.symbol.Symbol;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.lexer.table.LexicalTable;
+import me.waliedyassen.runescript.parser.SyntaxError;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 
@@ -37,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +59,7 @@ public final class Compiler {
     /**
      * The output file extension.
      */
-    private static final String OUTPUT_EXTENSION = ".cs2";
+    private static final String OUTPUT_EXTENSION = "";
 
     /**
      * The charset of the source files.
@@ -83,11 +87,6 @@ public final class Compiler {
     private final InstructionMap instructionMap;
 
     /**
-     * The code generator of the compiler.
-     */
-    private final CodeGenerator codeGenerator;
-
-    /**
      * The generated scripts optimizer.
      */
     private final Optimizer optimizer;
@@ -100,10 +99,8 @@ public final class Compiler {
     /**
      * Constructs a new {@link Compiler} type object instance.
      *
-     * @param environment
-     *         the environment of the compiler.
-     * @param instructionMap
-     *         the instruction map to use for this compiler.
+     * @param environment    the environment of the compiler.
+     * @param instructionMap the instruction map to use for this compiler.
      */
     public Compiler(CompilerEnvironment environment, InstructionMap instructionMap) {
         if (!instructionMap.isReady()) {
@@ -112,7 +109,6 @@ public final class Compiler {
         this.environment = environment;
         this.instructionMap = instructionMap;
         lexicalTable = createLexicalTable();
-        codeGenerator = new CodeGenerator(symbolTable, instructionMap);
         optimizer = new Optimizer(instructionMap);
         optimizer.register(new NaturalFlowOptimization());
         optimizer.register(new DeadBranchOptimization());
@@ -124,10 +120,8 @@ public final class Compiler {
      * outputs the compiled scripts into the output directory. This method will also compile all of the scripts in the
      * sub-directories.
      *
-     * @param sourceDirectory
-     *         the source directory which contains all of the scripts
-     * @param outputDirectory
-     *         the output directory to output the compiled script to.
+     * @param sourceDirectory the source directory which contains all of the scripts
+     * @param outputDirectory the output directory to output the compiled script to.
      */
     public void compileDirectory(Path sourceDirectory, Path outputDirectory) throws IOException, CompilerErrors {
         // Collect all of the script files that we will compile.
@@ -138,17 +132,25 @@ public final class Compiler {
         }
         // Parse all of the script files.
         var scripts = new ArrayList<AstScript>();
+        var errors = new ArrayList<CompilerError>();
         for (var sourceFile : sourceFiles) {
-            scripts.addAll(parseSyntaxTree(Files.readAllBytes(sourceFile)));
+            try {
+                scripts.addAll(parseSyntaxTree(symbolTable, Files.readAllBytes(sourceFile)));
+            } catch (SyntaxError error) {
+                errors.add(error);
+            }
         }
+        var symbolTable = this.symbolTable.createSubTable();
         // Perform pre type checking on all of the files.
         var checker = new SemanticChecker(environment, symbolTable);
         checker.executePre(scripts);
         checker.execute(scripts);
+        errors.addAll(checker.getErrors());
         // Check if we have any errors and if so we do not compile.
-        if (checker.getErrors().size() > 0) {
-            throw new CompilerErrors(checker.getErrors());
+        if (errors.size() > 0) {
+            throw new CompilerErrors(errors);
         }
+        var codeGenerator = new CodeGenerator(symbolTable, instructionMap);
         // Compile all of the scripts and store them in a list.
         var result = new ArrayList<CompiledScript>();
         for (var script : scripts) {
@@ -172,8 +174,7 @@ public final class Compiler {
     /**
      * Collects all of the script source files that are within the specified directory.
      *
-     * @param directory
-     *         the directory path to collect from.
+     * @param directory the directory path to collect from.
      */
     private List<Path> collectSourceFiles(Path directory) throws IOException {
         if (!Files.isDirectory(directory)) {
@@ -185,15 +186,10 @@ public final class Compiler {
     /**
      * Compiles the specified file content and outputs them into the specified directory.
      *
-     * @param sourceFile
-     *         the source file path to compile.
-     * @param outputDirectory
-     *         the output directory path for the compiled file.
-     *
-     * @throws IOException
-     *         if anything occurs while attempting to read or write the data to the source and output files.
-     * @throws CompilerErrors
-     *         if there was any syntax or semantic errors in the given source code file.
+     * @param sourceFile      the source file path to compile.
+     * @param outputDirectory the output directory path for the compiled file.
+     * @throws IOException    if anything occurs while attempting to read or write the data to the source and output files.
+     * @throws CompilerErrors if there was any syntax or semantic errors in the given source code file.
      */
     public void compileFile(Path sourceFile, Path outputDirectory) throws IOException, CompilerErrors {
         if (!Files.isRegularFile(sourceFile)) {
@@ -212,14 +208,10 @@ public final class Compiler {
     /**
      * Compiles the specified source file content.
      *
-     * @param source
-     *         the content of the source file.
-     *
+     * @param source the content of the source file.
      * @return an array of {@link CompiledScript} objects.
-     * @throws IOException
-     *         if anything occurs while writing the bytecode data.
-     * @throws CompilerErrors
-     *         if there was any syntax or semantic errors in the given source code.
+     * @throws IOException    if anything occurs while writing the bytecode data.
+     * @throws CompilerErrors if there was any syntax or semantic errors in the given source code.
      */
     public CompiledScript[] compile(String source) throws IOException, CompilerErrors {
         return compile(source.getBytes(CHARSET));
@@ -228,21 +220,23 @@ public final class Compiler {
     /**
      * Compiles the specified source file data.
      *
-     * @param source
-     *         the data of the source file in bytes.
-     *
+     * @param source the data of the source file in bytes.
      * @return an array of {@link CompiledScript} objects.
-     * @throws IOException
-     *         if anything occurs while writing the bytecode data.
-     * @throws CompilerErrors
-     *         if there was any syntax or semantic errors in the given source code data.
+     * @throws IOException    if anything occurs while writing the bytecode data.
+     * @throws CompilerErrors if there was any syntax or semantic errors in the given source code data.
      */
     public CompiledScript[] compile(byte[] source) throws IOException, CompilerErrors {
         // Parse the Abstract Syntax Tree of the source.
-        var scripts = parseSyntaxTree(source);
+        List<AstScript> scripts;
+        try {
+            scripts = parseSyntaxTree(symbolTable, source);
+        } catch (SyntaxError e) {
+            throw new CompilerErrors(Collections.singletonList(e));
+        }
         if (scripts.size() < 1) {
             return new CompiledScript[0];
         }
+        var symbolTable = this.symbolTable.createSubTable();
         // Perform semantic analysis checking on the parsed AST.
         var checker = new SemanticChecker(environment, symbolTable);
         checker.executePre(scripts);
@@ -251,6 +245,7 @@ public final class Compiler {
         if (checker.getErrors().size() > 0) {
             throw new CompilerErrors(checker.getErrors());
         }
+        var codeGenerator = new CodeGenerator(symbolTable, instructionMap);
         // Compile all of the parsed and checked scripts into a bytecode format.
         var result = new ArrayList<CompiledScript>();
         for (var script : scripts) {
@@ -271,16 +266,15 @@ public final class Compiler {
     /**
      * Parses the Abstract Syntax Tree of the specified source file data.
      *
-     * @param data
-     *         the source file data in bytes.
-     *
+     * @param symbolTable the symbol table to use for parsing.
+     * @param data        the source file data in bytes.
      * @return a {@link List list} of the parsed {@link AstScript} objects.
      */
-    private List<AstScript> parseSyntaxTree(byte[] data) throws IOException {
+    private List<AstScript> parseSyntaxTree(SymbolTable symbolTable, byte[] data) throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream(data));
         var tokenizer = new Tokenizer(lexicalTable, stream);
         var lexer = new Lexer(tokenizer);
-        var parser = new ScriptParser(environment, lexer);
+        var parser = new ScriptParser(environment, symbolTable, lexer);
         var scripts = new ArrayList<AstScript>();
         while (lexer.remaining() > 0) {
             scripts.add(parser.script());
@@ -295,6 +289,7 @@ public final class Compiler {
      * @return the created {@link LexicalTable} object.
      */
     public static LexicalTable<Kind> createLexicalTable() {
+        // TODO: Cache LexicalTable
         var table = new LexicalTable<Kind>();
         // the keywords chunk.
         table.registerKeyword("true", Kind.BOOL);

@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.symbol;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
@@ -28,12 +29,18 @@ import java.util.Map;
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public final class SymbolTable {
 
     /**
      * The script name template.
      */
     private static final String SCRIPT_NAME_TEMPLATE = "[%s,%s]";
+
+    /**
+     * The parent symbol table.
+     */
+    private final SymbolTable parent;
 
     /**
      * The defined constants map.
@@ -62,14 +69,18 @@ public final class SymbolTable {
     private final Map<String, VariableInfo> variables = new HashMap<>();
 
     /**
+     * Constructs a new {@link SymbolTable} type object instance.
+     */
+    public SymbolTable() {
+        this(null);
+    }
+
+    /**
      * Defines a new constant symbol in this table.
      *
-     * @param name
-     *         the name of the constant.
-     * @param type
-     *         the type of the constant.
-     * @param value
-     *         the value of the constant.
+     * @param name  the name of the constant.
+     * @param type  the type of the constant.
+     * @param value the value of the constant.
      */
     public void defineConstant(String name, Type type, Object value) {
         if (constants.containsKey(name)) {
@@ -81,57 +92,54 @@ public final class SymbolTable {
     /**
      * Looks-up for the {@link ConstantInfo constant information} with the specified {@code name}.
      *
-     * @param name
-     *         the name of the constant.
-     *
+     * @param name the name of the constant.
      * @return the {@link ConstantInfo} if it was present otherwise {@code null}.
      */
     public ConstantInfo lookupConstant(String name) {
-        return constants.get(name);
+        var info = constants.get(name);
+        if (info == null && parent != null) {
+            info = parent.lookupConstant(name);
+        }
+        return info;
     }
 
     /**
      * Defines a new command symbol in this table.
      *
-     * @param opcode
-     *         the opcode of the command.
-     * @param name
-     *         the name of the command.
-     * @param type
-     *         the type of the command.
-     * @param arguments
-     *         the arguments of hte command.
-     * @param alternative
-     *         whether or not this command supports alternative calls.
+     * @param opcode      the opcode of the command.
+     * @param name        the name of the command.
+     * @param type        the type of the command.
+     * @param arguments   the arguments of hte command.
+     * @param hook        whether or not this command is a hook command.
+     * @param alternative whether or not this command supports alternative calls.
      */
-    public void defineCommand(Opcode opcode, String name, Type type, Type[] arguments, boolean alternative) {
+    public void defineCommand(Opcode opcode, String name, Type type, Type[] arguments, boolean hook, boolean alternative) {
         if (commands.containsKey(name)) {
             throw new IllegalArgumentException("The command '" + name + "' is already defined.");
         }
-        commands.put(name, new CommandInfo(opcode, name, type, arguments, alternative));
+        commands.put(name, new CommandInfo(opcode, name, type, arguments, hook, alternative));
     }
 
     /**
      * Looks-up for the {@link ConstantInfo command information} with the specified {@code name}.
      *
-     * @param name
-     *         the name of the command.
-     *
+     * @param name the name of the command.
      * @return the {@link CommandInfo} if it was present otherwise {@code null}.
      */
     public CommandInfo lookupCommand(String name) {
-        return commands.get(name);
+        var info = commands.get(name);
+        if (info == null && parent != null) {
+            info = parent.lookupCommand(name);
+        }
+        return info;
     }
 
     /**
      * Defines a new configuration type value symbol in this table.
      *
-     * @param id
-     *         the id of the configuration.
-     * @param name
-     *         the name of the configuration.
-     * @param type
-     *         the type of the configuration.
+     * @param id   the id of the configuration.
+     * @param name the name of the configuration.
+     * @param type the type of the configuration.
      */
     public void defineConfig(int id, String name, Type type) {
         if (configs.containsKey(name)) {
@@ -143,28 +151,25 @@ public final class SymbolTable {
     /**
      * Looks-up for the {@link ConfigInfo configuration information} with the specified {@code name}.
      *
-     * @param name
-     *         the name of the configuration type value.
-     *
+     * @param name the name of the configuration type value.
      * @return the {@link ConfigInfo} if it was present otherwise {@code null}.
      */
     public ConfigInfo lookupConfig(String name) {
-        return configs.get(name);
+        var info = configs.get(name);
+        if (info == null && parent != null) {
+            info = parent.lookupConfig(name);
+        }
+        return info;
     }
 
     /**
      * Defines a new script symbol information in this table.
      *
-     * @param annotations
-     *         the annotations of the script.
-     * @param trigger
-     *         the trigger of the script.
-     * @param name
-     *         the name of the script.
-     * @param type
-     *         the type of the script.
-     * @param arguments
-     *         the arguments type which the script takes.
+     * @param annotations the annotations of the script.
+     * @param trigger     the trigger of the script.
+     * @param name        the name of the script.
+     * @param type        the type of the script.
+     * @param arguments   the arguments type which the script takes.
      */
     public void defineScript(Map<String, Annotation> annotations, TriggerType trigger, String name, Type type, Type[] arguments) {
         if (scripts.containsKey(name)) {
@@ -176,26 +181,24 @@ public final class SymbolTable {
     /**
      * Looks-up for the {@link ScriptInfo script information} with the specified {@code trigger} and {@code name}.
      *
-     * @param trigger
-     *         the trigger type of the script to lookup for.
-     * @param name
-     *         the name of the script to lookup for.
-     *
+     * @param trigger the trigger type of the script to lookup for.
+     * @param name    the name of the script to lookup for.
      * @return the {@link ScriptInfo} if it was present otherwise {@code null}.
      */
     public ScriptInfo lookupScript(TriggerType trigger, String name) {
-        return scripts.get(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name));
+        var info = scripts.get(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name));
+        if (info == null && parent != null) {
+            info = parent.lookupScript(trigger, name);
+        }
+        return info;
     }
 
     /**
      * Defines a new variable symbol information in this table.
      *
-     * @param domain
-     *         the domain of the variable.
-     * @param name
-     *         the name of the variable.
-     * @param type
-     *         the type of the variable.
+     * @param domain the domain of the variable.
+     * @param name   the name of the variable.
+     * @param type   the type of the variable.
      */
     public void defineVariable(VariableDomain domain, String name, Type type) {
         if (variables.containsKey(name)) {
@@ -207,12 +210,23 @@ public final class SymbolTable {
     /**
      * Looks-up for the {@link VariableInfo variable information} with the specified {@code name}.
      *
-     * @param name
-     *         the name of the variable to lookup for.
-     *
+     * @param name the name of the variable to lookup for.
      * @return the {@link VariableInfo} if it was present otherwise {@code null}.
      */
     public VariableInfo lookupVariable(String name) {
-        return variables.get(name);
+        var info = variables.get(name);
+        if (info == null && parent != null) {
+            info = parent.lookupVariable(name);
+        }
+        return info;
+    }
+
+    /**
+     * Creates a nested sub symbol table.
+     *
+     * @return the created {@link SymbolTable} object.
+     */
+    public SymbolTable createSubTable() {
+        return new SymbolTable(this);
     }
 }
