@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.runtime.executor.impl;
 
+import me.waliedyassen.runescript.runtime.ScriptRuntime;
 import me.waliedyassen.runescript.runtime.executor.instruction.InstructionExecutor;
 
 /**
@@ -19,5 +20,5 @@ public interface StringOps {
     /**
      * Takes an X integer and turn it into a string form.
      */
-    InstructionExecutor TOSTRING = (runtime, opcode) -> runtime.pushString(Integer.toString(runtime.popInt()));
+    InstructionExecutor<? extends ScriptRuntime> TOSTRING = runtime -> runtime.pushString(Integer.toString(runtime.popInt()));
 }

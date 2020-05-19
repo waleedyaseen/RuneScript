@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.runtime;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Stack;
+import java.util.function.Supplier;
 
 /**
  * Represents a pool of {@link ScriptRuntime} objects with a limited size.
@@ -17,12 +18,17 @@ import java.util.Stack;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class ScriptRuntimePool {
+public final class ScriptRuntimePool<R extends ScriptRuntime> {
 
     /**
      * A stack of the {@link ScriptRuntime} objects that are ready to be used.
      */
-    private final Stack<ScriptRuntime> runtimes = new Stack<>();
+    private final Stack<R> runtimes = new Stack<>();
+
+    /**
+     * The supplier of the script runtime.
+     */
+    private final Supplier<R> supplier;
 
     /**
      * The maximum amount of {@link ScriptRuntime} we can store in the pool.
@@ -35,9 +41,9 @@ public final class ScriptRuntimePool {
      *
      * @return the popped or created {@link ScriptRuntime} object.
      */
-    public ScriptRuntime pop() {
+    public R pop() {
         if (runtimes.isEmpty()) {
-            return new ScriptRuntime(this);
+            return supplier.get();
         }
         var runtime = runtimes.pop();
         runtime.reset();
@@ -48,10 +54,9 @@ public final class ScriptRuntimePool {
      * Attempts to push the specified {@link ScriptRuntime} object back into the pool stack, if the current pool stack
      * size exceeds the {@link #limit} nothing will happen.
      *
-     * @param runtime
-     *         the runtime object we want to push back into the pool stack.
+     * @param runtime the runtime object we want to push back into the pool stack.
      */
-    public void push(ScriptRuntime runtime) {
+    public void push(R runtime) {
         if (runtimes.size() >= limit) {
             return;
         }

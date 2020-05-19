@@ -16,17 +16,13 @@ import me.waliedyassen.runescript.runtime.executor.ExecutionException;
  * @author Walied K. Yassen
  */
 @FunctionalInterface
-public interface InstructionExecutor {
+public interface InstructionExecutor<R extends ScriptRuntime> {
 
     /**
      * Executes the instruction in the specified runtime.
      *
-     * @param runtime
-     *         the runtime we are executing the instruction in.
-     * @param opcode
-     *         the opcode of the instruction which we are executing.
-     *
-     * @throws ExecutionException
+     * @param runtime the runtime we are executing the instruction in.
+     * @throws ExecutionException if anything occurs during the execution of the instruction.
      */
-    void execute(ScriptRuntime runtime, int opcode) throws ExecutionException;
+    void execute(R runtime) throws ExecutionException;
 }

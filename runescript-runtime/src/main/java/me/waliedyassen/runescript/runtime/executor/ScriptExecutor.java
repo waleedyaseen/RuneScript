@@ -13,18 +13,20 @@ import me.waliedyassen.runescript.runtime.ScriptRuntimePool;
 import me.waliedyassen.runescript.runtime.executor.instruction.InstructionExecutorMap;
 import me.waliedyassen.runescript.runtime.script.Script;
 
+import java.util.function.Supplier;
+
 /**
  * A script executor, it is responsible for executing individual scripts.
  *
  * @author Walied K. Yassen
  */
-public final class ScriptExecutor {
+public final class ScriptExecutor<R extends ScriptRuntime> {
 
     /**
      * The {@link ScriptRuntime} objects pool of the executor.
      */
     @Getter
-    private final ScriptRuntimePool pool;
+    private final ScriptRuntimePool<R> pool;
 
     /**
      * The instruction executors map of the executor.
@@ -34,24 +36,20 @@ public final class ScriptExecutor {
     /**
      * Constructs a new {@link ScriptExecutor} type object instance.
      *
-     * @param poolSize
-     *         the runtime objects pool maximum size.
-     * @param executorMap
-     *         the instructions executor map of the executor.
+     * @param poolSize        the runtime objects pool maximum size.
+     * @param runtimeSupplier the supplier of the runtime objects.
+     * @param executorMap     the instructions executor map of the executor.
      */
-    public ScriptExecutor(int poolSize, InstructionExecutorMap executorMap) {
+    public ScriptExecutor(int poolSize, Supplier<R> runtimeSupplier, InstructionExecutorMap executorMap) {
         this.executorMap = executorMap;
-        pool = new ScriptRuntimePool(poolSize);
+        pool = new ScriptRuntimePool<>(runtimeSupplier, poolSize);
     }
 
     /**
      * Executes the specified {@link Script} in a new {@link ScriptRuntime runtime}.
      *
-     * @param script
-     *         the script which we want to execute.
-     *
-     * @throws ExecutionException
-     *         if anything occurs during the execution.
+     * @param script the script which we want to execute.
+     * @throws ExecutionException if anything occurs during the execution.
      */
     public void execute(Script script) throws ExecutionException {
         try (var runtime = pool.pop()) {
@@ -66,15 +64,12 @@ public final class ScriptExecutor {
     /**
      * Executes the specified {@link Script script} in the given {@link ScriptRuntime runtime}.
      *
-     * @param runtime
-     *         the runtime to execute the script in.
-     * @param script
-     *         the script which we want to execute.
-     *
-     * @throws ExecutionException
-     *         if anything occurs during the execution.
+     * @param runtime the runtime to execute the script in.
+     * @param script  the script which we want to execute.
+     * @throws ExecutionException if anything occurs during the execution.
      */
-    private void execute(ScriptRuntime runtime, Script script) throws ExecutionException {
+    @SuppressWarnings("unchecked")
+    private void execute(R runtime, Script script) throws ExecutionException {
         // Update the runtime script.
         runtime.setScript(script);
         // Grab the most-used variables from the runtime.
@@ -87,7 +82,7 @@ public final class ScriptExecutor {
             if (executor == null) {
                 throw new ExecutionException("Missing InstructionExecutor for instruction with opcode: " + opcode);
             }
-            executor.execute(runtime, opcode);
+            executor.execute(runtime);
             runtime.setAddress(runtime.getAddress() + 1);
         }
     }

@@ -20,7 +20,7 @@ import java.util.Stack;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class ScriptRuntime implements AutoCloseable {
+public abstract class ScriptRuntime implements AutoCloseable {
 
     /**
      * The maximum amount of local fields we can have per runtime.
@@ -46,11 +46,6 @@ public final class ScriptRuntime implements AutoCloseable {
     private final Stack<Long> longStack = new Stack<>();
 
     /**
-     * The owner {@link ScriptRuntimePool} of this object.
-     */
-    private final ScriptRuntimePool pool;
-
-    /**
      * An array holding of all the long int fields values.
      */
     @Getter
@@ -67,6 +62,12 @@ public final class ScriptRuntime implements AutoCloseable {
      */
     @Getter
     private final long[] longLocals = new long[MAX_LOCALS];
+
+    /**
+     * The owner {@link ScriptRuntimePool} of this object.
+     */
+    @SuppressWarnings("rawtypes")
+    private final ScriptRuntimePool pool;
 
     /**
      * The script which we are currently executing.
@@ -150,7 +151,8 @@ public final class ScriptRuntime implements AutoCloseable {
      * {@inheritDoc}
      */
     @Override
-    public void close() throws Exception {
+    @SuppressWarnings("unchecked")
+    public void close() {
         pool.push(this);
     }
 

@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.runtime.executor.impl;
 
+import me.waliedyassen.runescript.runtime.ScriptRuntime;
 import me.waliedyassen.runescript.runtime.executor.instruction.InstructionExecutor;
 
 /**
@@ -19,37 +20,37 @@ public interface MathOps {
     /**
      * A math operation which pops two ints from the stack, adds them, then pushes the result onto the stack.
      */
-    InstructionExecutor ADD = (runtime, opcode) -> runtime.pushInt(runtime.popInt() + runtime.popInt());
+    InstructionExecutor<? extends ScriptRuntime> ADD = runtime -> runtime.pushInt(runtime.popInt() + runtime.popInt());
 
     /**
      * A math operation which pops two ints from the stack, subtracts them, then pushes the result onto the stack.
      */
-    InstructionExecutor SUB = (runtime, opcode) -> runtime.pushInt(runtime.popInt() - runtime.popInt());
+    InstructionExecutor<? extends ScriptRuntime> SUB = runtime -> runtime.pushInt(runtime.popInt() - runtime.popInt());
 
     /**
      * A math operation which pops two ints from the stack, multiplies them, then pushes the result onto the stack.
      */
-    InstructionExecutor MUL = (runtime, opcode) -> runtime.pushInt(runtime.popInt() * runtime.popInt());
+    InstructionExecutor<? extends ScriptRuntime> MUL = runtime -> runtime.pushInt(runtime.popInt() * runtime.popInt());
 
     /**
      * A math operation which pops two ints from the stack, divides them, then pushes the result onto the stack.
      */
-    InstructionExecutor DIV = (runtime, opcode) -> runtime.pushInt(runtime.popInt() / runtime.popInt());
+    InstructionExecutor<? extends ScriptRuntime> DIV = runtime -> runtime.pushInt(runtime.popInt() / runtime.popInt());
 
     /**
      * A math operation which pops an int from the stack, then pushes a random number between 0 and the value.
      */
-    InstructionExecutor RANDOM = (runtime, opcode) -> runtime.pushInt((int) (Math.random() * runtime.popInt()));
+    InstructionExecutor<? extends ScriptRuntime> RANDOM = runtime -> runtime.pushInt((int) (Math.random() * runtime.popInt()));
 
     /**
      * A math operation which pops an int from the stack, then pushes a random number between 0 and the value inclusively.
      */
-    InstructionExecutor RANDOMINC = (runtime, opcode) -> runtime.pushInt((int) (Math.random() * (runtime.popInt()) + 1));
+    InstructionExecutor<? extends ScriptRuntime> RANDOMINC = runtime -> runtime.pushInt((int) (Math.random() * (runtime.popInt()) + 1));
 
     /**
      * A math operation which pops five ints from the stack and pushes one value onto the stack.
      */
-    InstructionExecutor INTERPOLATE = (runtime, opcode) -> {
+    InstructionExecutor<? extends ScriptRuntime> INTERPOLATE = runtime -> {
         int base = runtime.popInt();
         int original_from = runtime.popInt();
         int original_to = runtime.popInt();

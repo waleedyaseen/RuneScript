@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.runtime.executor.impl;
 
+import me.waliedyassen.runescript.runtime.ScriptRuntime;
 import me.waliedyassen.runescript.runtime.executor.instruction.InstructionExecutor;
 
 
@@ -20,5 +21,5 @@ public interface ConsoleOps {
     /**
      * An instruction which writes to the console of the host VM.
      */
-    InstructionExecutor WRITECONSOLE = (runtime, opcode) -> System.out.println(runtime.popString());
+    InstructionExecutor<? extends ScriptRuntime> WRITECONSOLE = runtime -> System.out.println(runtime.popString());
 }
