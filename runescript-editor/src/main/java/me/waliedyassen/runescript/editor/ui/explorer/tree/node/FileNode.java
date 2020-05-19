@@ -7,10 +7,16 @@
  */
 package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
+import me.waliedyassen.runescript.compiler.CompilerErrors;
 import me.waliedyassen.runescript.editor.Api;
+import me.waliedyassen.runescript.editor.ui.dialog.DialogManager;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
+import me.waliedyassen.runescript.parser.SyntaxError;
 
+import javax.swing.*;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -23,8 +29,7 @@ public final class FileNode extends ExplorerNode<Path> {
     /**
      * Constructs a new {@link FileNode} type object instance.
      *
-     * @param file
-     *         the path which leads to the file.
+     * @param file the path which leads to the file.
      */
     public FileNode(Path file) {
         super(file);
@@ -41,6 +46,8 @@ public final class FileNode extends ExplorerNode<Path> {
             return;
         }
         actionList.addAction("Open", (source) -> openFile());
+        actionList.addSeparator();
+        actionList.addAction("Pack", (source) -> packFile());
     }
 
     /**
@@ -52,7 +59,7 @@ public final class FileNode extends ExplorerNode<Path> {
     }
 
     /**
-     *
+     * Opens this file in the editor.
      */
     private void openFile() {
         var editorView = Api.getApi().getEditorView();
@@ -60,6 +67,26 @@ public final class FileNode extends ExplorerNode<Path> {
             return;
         }
         Api.getApi().getEditorView().addTab(getValue());
+    }
+
+    /**
+     * Packs the file.
+     */
+    private void packFile() {
+        var projectManager = Api.getApi().getProjectManager();
+        var project = projectManager.getCurrentProject().get();
+        var compiler = Api.getApi().getCompiler();
+        try {
+            var scripts = compiler.compile(Files.readAllBytes(getValue()));
+            System.out.println(scripts.length);
+            for (var script : scripts) {
+                project.getPackManager().pack(getValue(), script.getName(), script.getData());
+            }
+        } catch (IOException e) {
+            DialogManager.showErrorDialog("Pack Error", "An I/O error occurred while trying to read the file from the disk.");
+        } catch (CompilerErrors errors) {
+            DialogManager.showErrorDialog("Pack Error", "The file you tried to pack contains compile errors.\nPlease fix them before trying to pack again.");
+        }
     }
 
     /**

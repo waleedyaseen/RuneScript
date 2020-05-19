@@ -38,19 +38,22 @@ public final class PackManager {
     /**
      * Attempts to pack the specified {@code data} for the file with the specified {@link Path path}.
      *
-     * @param path the path which the data was produced from.
-     * @param data the encoded data of the file to pack.
+     * @param relativePath the path which the data was produced from.
+     * @param name         the name of the entity we are packing.
+     * @param data         the encoded data of the file to pack.
      */
-    public void pack(Path path, byte[] data) {
+    public void pack(Path relativePath, String name, byte[] data) {
         var formattedPath = (String) null;
         var fullName = (String) null;
-        for (var index = 0; index < path.getNameCount(); index++) {
-            if (index == path.getNameCount() - 1) {
-                fullName = path.getName(index).toString();
-            } else if (formattedPath == null) {
-                formattedPath = path.getName(index).toString();
+        for (var index = 0; index < relativePath.getNameCount(); index++) {
+            var part = relativePath.getName(index).toString();
+            if (index == relativePath.getNameCount() - 1) {
+                fullName = part;
+            }
+            if (formattedPath == null) {
+                formattedPath = part;
             } else {
-                formattedPath += '/' + path.getName(index).toString();
+                formattedPath += '/' + part;
             }
         }
         if (formattedPath == null) {
@@ -63,7 +66,6 @@ public final class PackManager {
         if (dot == -1) {
             throw new IllegalArgumentException("The specified file path does not have an extension");
         }
-        var name = fullName.substring(0, dot);
         var extension = fullName.substring(dot + 1);
         var pack = getPack(extension);
         if (pack == null) {

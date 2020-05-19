@@ -60,7 +60,6 @@ public final class EditorUI implements WindowListener {
     @Getter
     private final EditorView editorView = new EditorView();
 
-
     /**
      * The status bar of the editor.
      */

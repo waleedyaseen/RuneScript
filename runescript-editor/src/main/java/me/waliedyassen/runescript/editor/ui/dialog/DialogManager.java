@@ -21,9 +21,7 @@ public final class DialogManager {
     /**
      * Shows a close dialog at the top level component.
      *
-     * @param text
-     *         the text of the dialog message.
-     *
+     * @param text the text of the dialog message.
      * @return the {@link DialogResult result} of the dialog.
      */
     public static DialogResult showCloseDialog(String text) {
@@ -37,12 +35,26 @@ public final class DialogManager {
         return toDialogResult(result);
     }
 
+
+    /**
+     * Shows a dialog with an error message at the top level component.
+     *
+     * @param title   the title of the dialog.
+     * @param message the error message of the dialog.
+     */
+    public static void showErrorDialog(String title, String message) {
+        JOptionPane.showMessageDialog(
+                Api.getApi().getUi().getFrame(),
+                message,
+                title,
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
     /**
      * Converts the specified AWT dialog {@code result} constant to a {@link DialogResult} enum constant.
      *
-     * @param result
-     *         the AWT dialog result constant.
-     *
+     * @param result the AWT dialog result constant.
      * @return the {@link DialogResult} enum constant.
      */
     private static DialogResult toDialogResult(int result) {

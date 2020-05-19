@@ -34,17 +34,5 @@ public final class Script {
      * The integer operands of the script.
      */
     @Getter
-    private final int[] intOperands;
-
-    /**
-     * The string operands of the script.
-     */
-    @Getter
-    private final String[] stringOperands;
-
-    /**
-     * The long operands of the script.
-     */
-    @Getter
-    private final long[] longOperands;
+    private final Object[] operands;
 }

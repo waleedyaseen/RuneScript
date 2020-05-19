@@ -9,6 +9,8 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.waliedyassen.runescript.editor.shortcut.Shortcut;
+import me.waliedyassen.runescript.editor.shortcut.common.CommonShortcuts;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LoadingNode;
@@ -40,8 +42,7 @@ public class DirectoryNode extends ExplorerNode<Path> {
     /**
      * Constructs a new {@link DirectoryNode} type object instance.
      *
-     * @param value
-     *         the path which leads to the directory.
+     * @param value the path which leads to the directory.
      */
     public DirectoryNode(Path value) {
         super(value);
@@ -55,6 +56,7 @@ public class DirectoryNode extends ExplorerNode<Path> {
     @Override
     public void populateActions(ActionList actionList) {
         actionList.addAction("Delete", (source) -> {
+
         });
     }
 }

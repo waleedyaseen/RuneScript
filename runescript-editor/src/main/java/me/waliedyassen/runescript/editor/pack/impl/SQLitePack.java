@@ -34,7 +34,7 @@ public final class SQLitePack implements Pack {
     /**
      * The SQL syntax for packing a file.
      */
-    private static final String SQL_SYNTAX_PACK = "INSERT INTO `content` (`name`, `data`) VALUES(?,?)";
+    private static final String SQL_SYNTAX_PACK = "INSERT OR REPLACE INTO `content` (`name`, `data`) VALUES(?,?)";
 
     /**
      * The path which leads to the SQLite database.

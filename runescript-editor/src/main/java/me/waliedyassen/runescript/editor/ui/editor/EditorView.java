@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.editor;
 
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
@@ -108,8 +109,7 @@ public final class EditorView extends JPanel implements ActionSource {
     /**
      * Adds a new editor tab for the specified {@link Path path}.
      *
-     * @param path
-     *         the file path which the tab will be editing.
+     * @param path the file path which the tab will be editing.
      */
     public void addTab(Path path) {
         EditorTab tab = tabsByPath.get(path);
@@ -131,9 +131,7 @@ public final class EditorView extends JPanel implements ActionSource {
     /**
      * Selects the tab with the specified {@link Path path}.
      *
-     * @param path
-     *         the file path on the local disk to select it's editor tab.
-     *
+     * @param path the file path on the local disk to select it's editor tab.
      * @return <code>true</code> if the tab was selected or <code>false</code> if it was not.
      */
     public boolean selectTab(Path path) {
@@ -161,8 +159,7 @@ public final class EditorView extends JPanel implements ActionSource {
     /**
      * Closes the tab with the specified {@link Path path} if it is opened in the editor.
      *
-     * @param path
-     *         the path of the tab that we want to close.
+     * @param path the path of the tab that we want to close.
      */
     private void closeTab(Path path) {
         var tab = tabsByPath.get(path);
@@ -216,33 +213,14 @@ public final class EditorView extends JPanel implements ActionSource {
         /**
          * Constructs a new {@link EditorTab} type object instance.
          *
-         * @param path
-         *         the file path on the local disk which this tab is for.
-         *
-         * @throws IOException
-         *         if anything occurs during the loading of the editor tab content.
+         * @param path the file path on the local disk which this tab is for.
+         * @throws IOException if anything occurs during the loading of the editor tab content.
          */
         public EditorTab(Path path) throws IOException {
             this.path = path;
             ShortcutManager.getInstance().bindShortcuts(CommonGroups.EDITOR, codeArea, this);
             ShortcutManager.getInstance().bindShortcuts(CommonGroups.EDITOR, getComponent(), this);
             reload();
-            codeArea.getDocument().addDocumentListener(new DocumentListener() {
-                @Override
-                public void insertUpdate(DocumentEvent e) {
-                    modified = true;
-                }
-
-                @Override
-                public void removeUpdate(DocumentEvent e) {
-                    modified = true;
-                }
-
-                @Override
-                public void changedUpdate(DocumentEvent e) {
-                    modified = true;
-                }
-            });
         }
 
         /**
@@ -251,6 +229,7 @@ public final class EditorView extends JPanel implements ActionSource {
         @Override
         public void populateActions(ActionList actionList) {
             actionList.addAction("Close", CommonGroups.EDITOR.lookup(CommonShortcuts.EDITOR_CLOSE_FILE));
+            actionList.addAction("Close", CommonGroups.EDITOR.lookup(CommonShortcuts.EDITOR_SAVE_FILE));
         }
 
         /**
@@ -258,14 +237,8 @@ public final class EditorView extends JPanel implements ActionSource {
          */
         public void requestClose() {
             try {
-                if (modified) {
-                    var result = DialogManager.showCloseDialog("This file has unsaved changes. Do you want to save your changes before closing?");
-                    if (result == DialogResult.CANCEL) {
-                        return;
-                    }
-                    if (result == DialogResult.YES) {
-                        save();
-                    }
+                if (checkModifySave()) {
+                    return;
                 }
                 Api.getApi().getEditorView().closeTab(path);
             } catch (IOException e) {
@@ -274,21 +247,40 @@ public final class EditorView extends JPanel implements ActionSource {
         }
 
         /**
-         * Reloads the content of the tab from the file from the local disk.
-         *
+         * @return
          * @throws IOException
-         *         if anything occurs during reading the content of the file from the local disk.
          */
-        public void reload() throws IOException {
-            String content = Files.readString(path);
-            codeArea.setText(content);
+        public boolean checkModifySave() throws IOException {
+            if (modified) {
+                var result = DialogManager.showCloseDialog("This file has unsaved changes. Do you want to save your changes before closing?");
+                if (result == DialogResult.CANCEL) {
+                    return true;
+                }
+                if (result == DialogResult.YES) {
+                    save();
+                }
+            }
+            return false;
         }
 
         /**
-         * @throws IOException
+         * Reloads the content of the tab from the file from the local disk.
+         *
+         * @throws IOException if anything occurs during reading the content of the file from the local disk.
          */
-        public void save() throws IOException {
+        public void reload() throws IOException {
+            try (var reader = Files.newBufferedReader(path)) {
+                codeArea.read(reader, null);
+            }
+        }
+
+        /**
+         * Saves the content of this file to the disk.
+         */
+        @SneakyThrows
+        public void save() {
             Files.writeString(path, codeArea.getText(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+            modified = false;
         }
 
         /**
@@ -309,6 +301,10 @@ public final class EditorView extends JPanel implements ActionSource {
         ShortcutManager.getInstance().addShortcut(CommonGroups.EDITOR, CommonShortcuts.EDITOR_CLOSE_FILE, KeyStroke.getKeyStroke("ctrl W"), (source) -> {
             var editorTab = (EditorTab) source;
             editorTab.requestClose();
+        });
+        ShortcutManager.getInstance().addShortcut(CommonGroups.EDITOR, CommonShortcuts.EDITOR_SAVE_FILE, KeyStroke.getKeyStroke("ctrl S"), (source) -> {
+            var editorTab = (EditorTab) source;
+            editorTab.save();
         });
     }
 }

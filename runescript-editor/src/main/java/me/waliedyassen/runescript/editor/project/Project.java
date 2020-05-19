@@ -7,13 +7,26 @@
  */
 package me.waliedyassen.runescript.editor.project;
 
+import com.electronwill.nightconfig.core.CommentedConfig;
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
+import me.waliedyassen.runescript.compiler.Compiler;
+import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
+import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.util.Operator;
+import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
+import me.waliedyassen.runescript.editor.pack.manager.PackManager;
+import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,10 +64,32 @@ public final class Project {
     private BuildPath buildPath;
 
     /**
+     * The pack manager of the project.
+     */
+    @Getter
+    private PackManager packManager;
+
+    /**
+     * The compiler we are going to use for this project.
+     */
+    @Getter
+    private Compiler compiler;
+
+    /**
+     * The instruction map of the project.
+     */
+    private InstructionMap instructionMap;
+
+    /**
+     * The compiler environment of the project.
+     */
+    private CompilerEnvironment compilerEnvironment;
+
+
+    /**
      * Constructs a new {@link Project} type object instance.
      *
-     * @param directory
-     *         the root directory path of the project.
+     * @param directory the root directory path of the project.
      */
     Project(Path directory) {
         this.directory = directory;
@@ -63,8 +98,7 @@ public final class Project {
     /**
      * Attempts to load the project information data from the local disk.
      *
-     * @throws IOException
-     *         if anything occurs during the loading procedure.
+     * @throws IOException if anything occurs during the loading procedure.
      */
     void loadData() throws IOException {
         // Read the node tree from the file.
@@ -74,21 +108,150 @@ public final class Project {
         }
         // Read the project general information.
         name = JsonUtil.getTextOrThrow(root, "name", "The project name cannot be null or empty");
-        // Read the project build path.
+        loadBuildPath(root);
+        loadCompiler(root);
+        postLoad();
+    }
+
+
+    /**
+     * Attempts to load the {@link BuildPath} object from the specified {@link JsonNode} root object.
+     *
+     * @param root the root node which contains the build path node.
+     * @throws IOException if anything occurs during the loading procedure.
+     */
+    void loadBuildPath(JsonNode root) throws IOException {
         var object = JsonUtil.getObjectOrThrow(root, "build_path", "The build path object cannot be null");
-        // Extract the build path properties.
         var sourcePath = JsonUtil.getTextOrThrow(object, "source", "The source directory cannot be null or empty");
         var packPath = JsonUtil.getTextOrThrow(object, "pack", "The pack directory cannot be null or empty");
-        // Create the build path and ensure it's existence.
         buildPath = new BuildPath(directory.resolve(sourcePath), directory.resolve(packPath));
         buildPath.ensureExistence();
     }
 
     /**
+     * @param root
+     */
+    void loadCompiler(JsonNode root) {
+        var object = JsonUtil.getObjectOrThrow(root, "compiler", "The compiler object cannot be null");
+        var instructionPath = JsonUtil.getTextOrThrow(object, "instructions", "The instructions map cannot be null");
+        var triggersPath = JsonUtil.getTextOrThrow(object, "commands", "The instructions map cannot be null");
+        var commandsPath = JsonUtil.getTextOrThrow(object, "triggers", "The instructions map cannot be null");
+        compilerEnvironment = new CompilerEnvironment();
+        instructionMap = new InstructionMap();
+        loadInstructions(instructionPath);
+        loadTriggers(triggersPath);
+        compiler = new Compiler(compilerEnvironment, instructionMap);
+        loadCommands(commandsPath);
+    }
+
+
+    /**
+     * @param path
+     */
+    @SneakyThrows
+    void loadInstructions(String path) {
+        var file = (File) null;
+        if (path.startsWith("*")) {
+            path = path.substring(1);
+            if ("osrs_default".equals(path)) {
+                file = new File(getClass().getResource("osrs_default_instructions.toml").toURI());
+            } else {
+                throw new IllegalStateException("Unrecognised macro: " + path);
+            }
+        } else {
+            file = new File(path);
+        }
+        if (!file.exists()) {
+            throw new IllegalStateException("The specified instructions file does not exist");
+        }
+        try (var config = CommentedFileConfig.of(file)) {
+            config.load();
+            for (var entry : config.entrySet()) {
+                var key = entry.getKey();
+                var value = (CommentedConfig) entry.getValue();
+                var coreOpcode = CoreOpcode.valueOf(key.toUpperCase());
+                var opcode = value.getInt("opcode");
+                var large = value.getOrElse("large", false);
+                instructionMap.registerCore(coreOpcode, opcode, large);
+            }
+
+        }
+    }
+
+    /**
+     * @param path
+     */
+    @SneakyThrows
+    void loadTriggers(String path) {
+        var file = (File) null;
+        if (path.startsWith("*")) {
+            path = path.substring(1);
+            if ("osrs_default".equals(path)) {
+                file = new File(getClass().getResource("osrs_default_triggers.toml").toURI());
+            } else {
+                throw new IllegalStateException("Unrecognised macro: " + path);
+            }
+        } else {
+            file = new File(path);
+        }
+        if (!file.exists()) {
+            throw new IllegalStateException("The specified instructions file does not exist");
+        }
+        try (var config = CommentedFileConfig.of(file)) {
+            config.load();
+            for (var entry : config.entrySet()) {
+                var name = entry.getKey();
+                var value = (CommentedConfig) entry.getValue();
+                var operator = value.getOptionalEnum("operator", Kind.class).orElse(null);
+                var opcode = value.getOptionalEnum("opcode", CoreOpcode.class).orElse(null);
+                var supportArgument = value.getOrElse("support_arguments", false);
+                var supportReturn = value.getOrElse("support_return", false);
+                compilerEnvironment.registerTrigger(new BasicTriggerType(name, operator, opcode, supportArgument, null, supportReturn, null));
+            }
+        }
+    }
+
+
+    /**
+     * @param path
+     */
+    @SneakyThrows
+    void loadCommands(String path) {
+        var file = (File) null;
+        if (path.startsWith("*")) {
+            path = path.substring(1);
+            if ("osrs_default".equals(path)) {
+                file = new File(getClass().getResource("osrs_default_commands.toml").toURI());
+            } else {
+                throw new IllegalStateException("Unrecognised macro: " + path);
+            }
+        } else {
+            file = new File(path);
+        }
+        if (!file.exists()) {
+            throw new IllegalStateException("The specified instructions file does not exist");
+        }
+        try (var config = CommentedFileConfig.of(file)) {
+            config.load();
+            for (var entry : config.entrySet()) {
+                var key = entry.getKey();
+                var value = (CommentedConfig) entry.getValue();
+            }
+
+        }
+    }
+
+    /**
+     * Gets called after the project has been loaded.
+     */
+    private void postLoad() {
+        packManager = new PackManager(new SQLitePackProvider(buildPath.getPackDirectory().toAbsolutePath()));
+    }
+
+    /**
      * Saves the information data of the project to the local disk.
      *
-     * @throws IOException
-     *         if anything occurs during the saving procedure.
+     * @throws IOException if anything occurs during the saving procedure.
      */
     void saveData() throws IOException {
         // Create the project root node.

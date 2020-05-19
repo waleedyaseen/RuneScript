@@ -140,7 +140,7 @@ public final class ScriptRuntime implements AutoCloseable {
      * @return the {@code int} value of the operand.
      */
     public int intOperand() {
-        return script.getIntOperands()[address];
+        return (int) script.getOperands()[address];
     }
 
     /**
@@ -149,7 +149,7 @@ public final class ScriptRuntime implements AutoCloseable {
      * @return the {@link String} value of the operand.
      */
     public String stringOperand() {
-        return script.getStringOperands()[address];
+        return (String) script.getOperands()[address];
     }
 
     /**
@@ -158,6 +158,6 @@ public final class ScriptRuntime implements AutoCloseable {
      * @return the {@code long} value of the operand.
      */
     public long longOperand() {
-        return script.getLongOperands()[address];
+        return (long) script.getOperands()[address];
     }
 }

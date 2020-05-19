@@ -8,6 +8,8 @@
 package me.waliedyassen.runescript.editor;
 
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.Compiler;
+import me.waliedyassen.runescript.editor.project.ProjectManager;
 import me.waliedyassen.runescript.editor.ui.EditorUI;
 import me.waliedyassen.runescript.editor.ui.editor.EditorView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
@@ -75,6 +77,24 @@ public final class Api {
      */
     public ActionManager getActionManager() {
         return ActionManager.getInstance();
+    }
+
+    /**
+     * Returns the {@link ProjectManager} object instance.
+     *
+     * @return the {@link ProjectManager} object instance.
+     */
+    public ProjectManager getProjectManager() {
+        return editor.getProjectManager();
+    }
+
+    /**
+     * Returns the {@link Compiler} object instance.
+     *
+     * @return the {@link Compiler} object instance.
+     */
+    public Compiler getCompiler() {
+        return getProjectManager().getCurrentProject().get().getCompiler();
     }
 
     /**

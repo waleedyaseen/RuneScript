@@ -23,4 +23,9 @@ public interface CommonShortcuts {
      * The editor close file shortcut name.
      */
     String EDITOR_CLOSE_FILE = "Close Editor File";
+
+    /**
+     * The editor close file shortcut name.
+     */
+    String EDITOR_SAVE_FILE = "Save Editor File";
 }
