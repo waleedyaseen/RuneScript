@@ -84,6 +84,13 @@ public abstract class ScriptRuntime implements AutoCloseable {
     private int address;
 
     /**
+     * Whether or not we should abort the execution after the current instruction.
+     */
+    @Getter
+    @Setter
+    private boolean abort;
+
+    /**
      * Resets the state of the runtime.
      */
     public void reset() {
@@ -91,6 +98,17 @@ public abstract class ScriptRuntime implements AutoCloseable {
         stringStack.clear();
         longStack.clear();
         address = 0;
+        abort = false;
+    }
+
+    /**
+     * Aborts the execution of the runtime.
+     */
+    public void abort() {
+        if (abort) {
+            throw new IllegalStateException("An abort was already requested");
+        }
+        abort = true;
     }
 
     /**

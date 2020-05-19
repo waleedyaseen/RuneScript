@@ -10,12 +10,11 @@ package me.waliedyassen.runescript.runtime.executor;
 import lombok.Getter;
 import me.waliedyassen.runescript.runtime.ScriptRuntime;
 import me.waliedyassen.runescript.runtime.ScriptRuntimePool;
+import me.waliedyassen.runescript.runtime.ScriptRuntimeSetup;
 import me.waliedyassen.runescript.runtime.executor.instruction.InstructionExecutorMap;
 import me.waliedyassen.runescript.runtime.script.Script;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * A script executor, it is responsible for executing individual scripts.
@@ -50,11 +49,13 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
     /**
      * Executes the specified {@link Script} in a new {@link ScriptRuntime runtime}.
      *
+     * @param setup  the runtime setup.
      * @param script the script which we want to execute.
      * @throws ExecutionException if anything occurs during the execution.
      */
-    public void execute(Script script) throws ExecutionException {
+    public void execute(ScriptRuntimeSetup<R> setup, Script script) throws ExecutionException {
         try (var runtime = pool.pop()) {
+            setup.setup(runtime);
             execute(runtime, script);
         } catch (ExecutionException e) {
             throw e;
@@ -71,9 +72,20 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
      * @throws ExecutionException if anything occurs during the execution.
      */
     @SuppressWarnings("unchecked")
-    private void execute(R runtime, Script script) throws ExecutionException {
+    public void execute(R runtime, Script script) throws ExecutionException {
         // Update the runtime script.
         runtime.setScript(script);
+        resume(runtime);
+    }
+
+    /**
+     * Resumes the execution of the specified {@code runtime.}
+     *
+     * @param runtime the runtime to resume the execute for.
+     */
+    public void resume(R runtime) {
+        runtime.setAbort(false);
+        var script = runtime.getScript();
         // Grab the most-used variables from the runtime.
         var instructions = script.getInstructions();
         var count = instructions.length;
