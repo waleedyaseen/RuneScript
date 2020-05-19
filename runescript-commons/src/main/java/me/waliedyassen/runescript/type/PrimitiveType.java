@@ -25,7 +25,12 @@ public enum PrimitiveType implements Type {
     /**
      * The undefined primitive type.
      */
-    UNDEFINED('\0', null, null, null),
+    UNDEFINED('\ufff0', null, null, null),
+
+    /**
+     * The script call primitive type.
+     */
+    SCRIPT('\ufff1', null, null, null),
 
     /**
      * The void primitive type.
@@ -55,7 +60,7 @@ public enum PrimitiveType implements Type {
     /**
      * The {@link PrimitiveType} by {@link #representation} look-up map.
      */
-    private static Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
+    private static Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).filter(type -> type.getRepresentation() != null).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
 
     /**
      * The code of this primitive type.
@@ -94,9 +99,7 @@ public enum PrimitiveType implements Type {
     /**
      * Looks-up for the {@link PrimitiveType} with the textual representation.
      *
-     * @param representation
-     *         the textual representation of the {@link PrimitiveType}.
-     *
+     * @param representation the textual representation of the {@link PrimitiveType}.
      * @return the {@link PrimitiveType} if found otherwise {@code null}.
      */
     public static PrimitiveType forRepresentation(String representation) {
