@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.type;
 
+import jdk.jfr.StackTrace;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -48,6 +49,16 @@ public enum PrimitiveType implements Type {
     STRING('s', "string", StackType.STRING, ""),
 
     /**
+     * The interface primitive type.
+     */
+    INTERFACE('a', "interface", StackType.INT, -1),
+
+    /**
+     * The component primitive type.
+     */
+    COMPONENT('I', "component", StackType.INT, -1),
+
+    /**
      * The long primitive type.
      */
     LONG('\u00cf', "long", StackType.LONG, 0L),
@@ -60,7 +71,7 @@ public enum PrimitiveType implements Type {
     /**
      * The {@link PrimitiveType} by {@link #representation} look-up map.
      */
-    private static Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).filter(type -> type.getRepresentation() != null).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
+    private static final Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).filter(type -> type.getRepresentation() != null).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
 
     /**
      * The code of this primitive type.
@@ -112,12 +123,10 @@ public enum PrimitiveType implements Type {
      * @return <code>true</code> if it does otherwise <code>false</code>.
      */
     public boolean isArrayable() {
-        switch (this) {
-            case BOOL:
-                return false;
-            default:
-                return stackType == StackType.INT;
+        if (this == PrimitiveType.BOOL) {
+            return false;
         }
+        return stackType == StackType.INT;
     }
 
 }
