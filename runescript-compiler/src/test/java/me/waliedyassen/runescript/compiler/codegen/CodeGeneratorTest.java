@@ -22,7 +22,6 @@ import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
-import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.type.Type;
@@ -51,6 +50,7 @@ class CodeGeneratorTest {
             environment.registerTrigger(triggerType);
         }
     }
+
     @BeforeEach
     void setupGenerator() {
         var table = new SymbolTable();
@@ -140,7 +140,7 @@ class CodeGeneratorTest {
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, lexer);
+            var parser = new ScriptParser(environment, new SymbolTable(), lexer);
             var scripts = new ArrayList<AstScript>();
             do {
                 scripts.add(parser.script());
@@ -162,7 +162,7 @@ class CodeGeneratorTest {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, lexer);
+            var parser = new ScriptParser(environment, new SymbolTable(), lexer);
             var scripts = new ArrayList<AstScript>();
             do {
                 scripts.add(parser.script());

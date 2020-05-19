@@ -21,6 +21,8 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
@@ -45,6 +47,11 @@ public final class ScriptParser extends ParserBase<Kind> {
     // TODO: Detailed documentation
 
     /**
+     * The symbol table which we will use for checking hooks.
+     */
+    private final SymbolTable symbolTable;
+
+    /**
      * The environment of the owner compiler.
      */
     private final CompilerEnvironment environment;
@@ -54,12 +61,15 @@ public final class ScriptParser extends ParserBase<Kind> {
      *
      * @param environment
      *         the environment of the compiler.
+     * @param symbolTable
+     *         the symbol table to use for checking hooks.
      * @param lexer
      *         the lexical parser to use for tokens.
      */
-    public ScriptParser(CompilerEnvironment environment, Lexer lexer) {
+    public ScriptParser(CompilerEnvironment environment, SymbolTable symbolTable, Lexer lexer) {
         super(lexer, Kind.EOF);
         this.environment = environment;
+        this.symbolTable = symbolTable;
     }
 
     /**
@@ -770,14 +780,43 @@ public final class ScriptParser extends ParserBase<Kind> {
         var name = identifier();
         var arguments = new ArrayList<AstExpression>();
         if (consumeIf(LPAREN)) {
+            CommandInfo commandInfo = symbolTable.lookupCommand(name.getText());
+            if (isExpression()) {
+                int index = 0;
+                do {
+                    if (index < commandInfo.getArguments().length && commandInfo.getArguments()[index] == PrimitiveType.SCRIPT && peekKind() == STRING) {
+                        arguments.add(hook());
+                    } else {
+                        arguments.add(expression());
+                    }
+                    index++;
+                } while (consumeIf(COMMA));
+            }
+            consume(RPAREN);
+        }
+        return new AstCommand(popRange(), name, arguments.toArray(AstExpression[]::new), alternative);
+    }
+
+    private AstHook hook() {
+        var rawString = string();
+        pushRange();
+        var name = identifier();
+        var arguments = new ArrayList<AstExpression>();
+        var transmits = new ArrayList<AstIdentifier>();
+        if (consumeIf(LPAREN)) {
             if (isExpression()) {
                 do {
                     arguments.add(expression());
                 } while (consumeIf(COMMA));
             }
             consume(RPAREN);
+            if (consumeIf(LBRACE)) {
+                transmits.add(identifier());
+                consume(RBRACE);
+            }
         }
-        return new AstCommand(popRange(), name, arguments.toArray(AstExpression[]::new), alternative);
+        popRange();
+        return new AstHook(popRange(), name, arguments.toArray(AstExpression[]::new), transmits.toArray(AstIdentifier[]::new));
     }
 
     /**

@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @author Walied K. Yassen
  */
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
 public final class AstScript extends AstNode {
 
     /**

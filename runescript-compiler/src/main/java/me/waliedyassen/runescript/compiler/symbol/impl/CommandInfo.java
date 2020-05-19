@@ -46,6 +46,12 @@ public final class CommandInfo extends Symbol {
     private final Type[] arguments;
 
     /**
+     * Whether or not this command is a hook command.
+     */
+    @Getter
+    private final boolean hook;
+
+    /**
      * Whether or not this command can be alternative.
      */
     @Getter

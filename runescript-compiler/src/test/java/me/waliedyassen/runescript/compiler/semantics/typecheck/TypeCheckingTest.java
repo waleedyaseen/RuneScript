@@ -62,13 +62,13 @@ class TypeCheckingTest {
     }
 
     @Test
-    void testLocalDeclaration()throws IOException {
+    void testLocalDeclaration() throws IOException {
         checkString("[proc,test] def_int $local = 5;");
         assertEquals(0, checker.getErrors().size());
     }
 
     @Test
-    void testLocalDeclarationDuplicate()throws IOException {
+    void testLocalDeclarationDuplicate() throws IOException {
         checkString("[proc,test] def_int $local = 5;  def_int $local = 3;");
         assertEquals(1, checker.getErrors().size());
     }
@@ -149,7 +149,7 @@ class TypeCheckingTest {
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, lexer);
+            var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
             var scripts = new ArrayList<AstScript>();
             do {
                 scripts.add(parser.script());
@@ -165,7 +165,7 @@ class TypeCheckingTest {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, lexer);
+            var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
             var scripts = new ArrayList<AstScript>();
             do {
                 scripts.add(parser.script());

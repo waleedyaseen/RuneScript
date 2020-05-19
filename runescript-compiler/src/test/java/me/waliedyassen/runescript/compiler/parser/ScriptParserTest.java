@@ -25,6 +25,7 @@ import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
@@ -645,7 +646,7 @@ public final class ScriptParserTest {
         try (var stream = new StringBufferInputStream(text)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            return new ScriptParser(environment, lexer);
+            return new ScriptParser(environment, new SymbolTable(), lexer);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -656,7 +657,7 @@ public final class ScriptParserTest {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
             Tokenizer tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            ScriptParser scriptParser = new ScriptParser(environment, lexer);
+            ScriptParser scriptParser = new ScriptParser(environment, new SymbolTable(), lexer);
             return scriptParser;
         } catch (IOException e) {
             e.printStackTrace();
@@ -667,7 +668,7 @@ public final class ScriptParserTest {
     @RequiredArgsConstructor
     public enum TestTriggerType implements TriggerType {
         PROC("proc", Kind.TILDE, CoreOpcode.GOSUB_WITH_PARAMS, true, true),
-        CLIENTSCRIPT("clientscript",null, null, true, false),
+        CLIENTSCRIPT("clientscript", null, null, true, false),
         LABEL("label", Kind.AT, CoreOpcode.JUMP_WITH_PARAMS, true, false);
 
         @Getter
