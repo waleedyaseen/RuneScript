@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
@@ -74,6 +75,7 @@ public final class Compiler {
     /**
      * The symbol table of the compiler.
      */
+    @Getter
     private final SymbolTable symbolTable = new SymbolTable();
 
     /**

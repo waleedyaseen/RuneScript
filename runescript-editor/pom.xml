@@ -65,5 +65,20 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.31.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.electronwill.night-config</groupId>
+            <artifactId>core</artifactId>
+            <version>3.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.electronwill.night-config</groupId>
+            <artifactId>toml</artifactId>
+            <version>3.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>me.waliedyassen.runescript</groupId>
+            <artifactId>runescript-compiler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

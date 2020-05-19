@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
+import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.compiler.CompilerErrors;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.dialog.DialogManager;
@@ -78,7 +79,6 @@ public final class FileNode extends ExplorerNode<Path> {
         var compiler = Api.getApi().getCompiler();
         try {
             var scripts = compiler.compile(Files.readAllBytes(getValue()));
-            System.out.println(scripts.length);
             for (var script : scripts) {
                 project.getPackManager().pack(getValue(), script.getName(), script.getData());
             }
@@ -86,6 +86,7 @@ public final class FileNode extends ExplorerNode<Path> {
             DialogManager.showErrorDialog("Pack Error", "An I/O error occurred while trying to read the file from the disk.");
         } catch (CompilerErrors errors) {
             DialogManager.showErrorDialog("Pack Error", "The file you tried to pack contains compile errors.\nPlease fix them before trying to pack again.");
+            errors.getErrors().forEach(error -> System.out.println(error.getMessage()));
         }
     }
 

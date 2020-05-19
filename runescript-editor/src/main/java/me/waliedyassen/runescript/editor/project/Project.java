@@ -10,13 +10,16 @@ package me.waliedyassen.runescript.editor.project;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.sun.jdi.connect.Connector;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
+import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
+import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.util.Operator;
@@ -25,11 +28,16 @@ import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.Type;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A very basic project system that provides basic information such as the name and the build path directories.
@@ -144,9 +152,10 @@ public final class Project {
         loadCommands(commandsPath);
     }
 
-
     /**
-     * @param path
+     * Loads the instructiosn configuration of the project.
+     *
+     * @param path the path which leads to the instructions configuration.
      */
     @SneakyThrows
     void loadInstructions(String path) {
@@ -179,7 +188,9 @@ public final class Project {
     }
 
     /**
-     * @param path
+     * Loads the triggers configuration of the project.
+     *
+     * @param path the path which leads to the triggers configuration.
      */
     @SneakyThrows
     void loadTriggers(String path) {
@@ -205,15 +216,19 @@ public final class Project {
                 var operator = value.getOptionalEnum("operator", Kind.class).orElse(null);
                 var opcode = value.getOptionalEnum("opcode", CoreOpcode.class).orElse(null);
                 var supportArgument = value.getOrElse("support_arguments", false);
-                var supportReturn = value.getOrElse("support_return", false);
-                compilerEnvironment.registerTrigger(new BasicTriggerType(name, operator, opcode, supportArgument, null, supportReturn, null));
+                var supportReturn = value.getOrElse("support_returns", false);
+                var argumentTypes = value.contains("arguments") ? ProjectConfig.parseTypes(config, "arguments") : new Type[0];
+                var returnTypes = value.contains("returns") ? ProjectConfig.parseTypes(config, "returns") : new Type[0];
+                compilerEnvironment.registerTrigger(new BasicTriggerType(name, operator, opcode, supportArgument, argumentTypes, supportReturn, returnTypes));
             }
         }
     }
 
 
     /**
-     * @param path
+     * Loads the commands configuration of the project.
+     *
+     * @param path the path which leads to the commands configuration.
      */
     @SneakyThrows
     void loadCommands(String path) {
@@ -234,12 +249,18 @@ public final class Project {
         try (var config = CommentedFileConfig.of(file)) {
             config.load();
             for (var entry : config.entrySet()) {
-                var key = entry.getKey();
+                var name = entry.getKey();
                 var value = (CommentedConfig) entry.getValue();
+                var opcode = value.getInt("opcode");
+                var type = ProjectConfig.parseTypes(value, "type");
+                var arguments = ProjectConfig.parseTypes(value, "arguments");
+                var alternative = value.getOrElse("alternative", false);
+                var hook = value.getOrElse("hook", false);
+                compiler.getSymbolTable().defineCommand(new BasicOpcode(opcode, false), name, type.length > 1 ? new TupleType(type) : type[0], arguments, hook, alternative);
             }
-
         }
     }
+
 
     /**
      * Gets called after the project has been loaded.
