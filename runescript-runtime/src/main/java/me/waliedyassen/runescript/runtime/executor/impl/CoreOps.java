@@ -32,6 +32,21 @@ public interface CoreOps {
     InstructionExecutor PUSH_CONSTANT_LONG = (runtime, opcode) -> runtime.pushLong(runtime.longOperand());
 
     /**
+     * Discards the last value from the int stack.
+     */
+    InstructionExecutor POP_INT_DISCARD = (runtime, opcode) -> runtime.popInt();
+
+    /**
+     * Discards the last value from the string stack.
+     */
+    InstructionExecutor POP_STRING_DISCARD = (runtime, opcode) -> runtime.popString();
+
+    /**
+     * Discards the last value from the long stack.
+     */
+    InstructionExecutor POP_LONG_DISCARD = (runtime, opcode) -> runtime.popLong();
+
+    /**
      * Pushes the value of an integer local field to the stack.
      */
     InstructionExecutor PUSH_INT_LOCAL = (runtime, opcode) -> runtime.pushInt(runtime.getIntLocals()[runtime.intOperand()]);
@@ -60,4 +75,96 @@ public interface CoreOps {
      * Updates the value of a long local field from the stack.
      */
     InstructionExecutor POP_LONG_LOCAL = (runtime, opcode) -> runtime.getLongLocals()[runtime.intOperand()] = runtime.popLong();
+
+    /**
+     * Branch to an address that is X away from the current address.
+     */
+    InstructionExecutor BRANCH = (runtime, opcode) -> runtime.setAddress(runtime.getAddress() + runtime.intOperand());
+
+    /**
+     * Branch to address that is X away from the current address if the X value is not equal to Y value.
+     */
+    InstructionExecutor BRANCH_NOT = (runtime, opcode) -> {
+        var right = runtime.popInt();
+        var left = runtime.popInt();
+        if (left != right) {
+            runtime.setAddress(runtime.getAddress() + runtime.intOperand());
+        }
+    };
+
+    /**
+     * Branch to address that is X away from the current address if the X value is equal to Y value.
+     */
+    InstructionExecutor BRANCH_EQUALS = (runtime, opcode) -> {
+        var right = runtime.popInt();
+        var left = runtime.popInt();
+        if (left == right) {
+            runtime.setAddress(runtime.getAddress() + runtime.intOperand());
+        }
+    };
+
+    /**
+     * Branch to address that is X away from the current address if the X value is less than Y value.
+     */
+    InstructionExecutor BRANCH_LESS_THAN = (runtime, opcode) -> {
+        var right = runtime.popInt();
+        var left = runtime.popInt();
+        if (left < right) {
+            runtime.setAddress(runtime.getAddress() + runtime.intOperand());
+        }
+    };
+
+    /**
+     * Branch to address that is X away from the current address if the X value is greater than to Y value.
+     */
+    InstructionExecutor BRANCH_GREATER_THAN = (runtime, opcode) -> {
+        var right = runtime.popInt();
+        var left = runtime.popInt();
+        if (left > right) {
+            runtime.setAddress(runtime.getAddress() + runtime.intOperand());
+        }
+    };
+
+    /**
+     * Branch to address that is X away from the current address if the X value is greater than to Y value.
+     */
+    InstructionExecutor BRANCH_LESS_THAN_OR_EQUALS = (runtime, opcode) -> {
+        var right = runtime.popInt();
+        var left = runtime.popInt();
+        if (left <= right) {
+            runtime.setAddress(runtime.getAddress() + runtime.intOperand());
+        }
+    };
+
+    /**
+     * Branch to address that is X away from the current address if the X value is greater than to Y value.
+     */
+    InstructionExecutor BRANCH_GREATER_THAN_OR_EQUALS = (runtime, opcode) -> {
+        var right = runtime.popInt();
+        var left = runtime.popInt();
+        if (left >= right) {
+            runtime.setAddress(runtime.getAddress() + runtime.intOperand());
+        }
+    };
+
+    /**
+     * Takes an X amount of strings and combine them into one string then push that into the stack.
+     */
+    InstructionExecutor JOIN_STRING = (runtime, opcode) -> {
+        var count = runtime.intOperand();
+        var size = 0;
+        for (var index = 0; index < count; index++) {
+            var value = runtime.getStringStack().get(runtime.getStringStack().size() - count + index);
+            size += value == null ? 4 : value.length();
+        }
+        var builder = new StringBuilder(size);
+        for (var index = 0; index < count; index++) {
+            var value = runtime.getStringStack().get(runtime.getStringStack().size() - count + index);
+            builder.append(value);
+        }
+        for (var index = 0; index < count; index++) {
+            runtime.popString();
+        }
+        runtime.pushString(builder.toString());
+    };
 }
