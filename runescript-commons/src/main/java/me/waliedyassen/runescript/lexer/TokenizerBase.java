@@ -35,6 +35,6 @@ public abstract class TokenizerBase {
      * @return <code>true</code> if it can otherwise <code>false</code>.
      */
     public static boolean isIdentifierPart(char ch) {
-        return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_';
+        return ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_' || ch == ':';
     }
 }
