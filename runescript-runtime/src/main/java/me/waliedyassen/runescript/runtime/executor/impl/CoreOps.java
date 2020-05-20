@@ -175,7 +175,7 @@ public interface CoreOps {
     };
 
     /**
-     *
+     * Returns the execution to the script that is one level higher in execution stack or do nothing if there is none.
      */
     InstructionExecutor<? extends ScriptRuntime> RETURN = runtime -> {
         if (runtime.getFrames().isEmpty()) {
@@ -187,7 +187,7 @@ public interface CoreOps {
     };
 
     /**
-     *
+     * Jumps to the specific script and returns to the original when the execution is over.
      */
     InstructionExecutor<? extends ScriptRuntime> GOSUB_WITH_PARAMS = runtime -> {
         var name = runtime.stringOperand();
@@ -206,6 +206,49 @@ public interface CoreOps {
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             runtime.getLongLocals()[index] = index < script.getNumLongArguments() ? runtime.popLong() : 0;
+        }
+    };
+
+
+    /**
+     * Jumps to the specific script without returning to the original when the execution is over.
+     */
+    InstructionExecutor<? extends ScriptRuntime> JUMP_WITH_PARAMS = runtime -> {
+        var name = runtime.stringOperand();
+        var script = runtime.getPool().getCache().get(name);
+        if (script == null) {
+            throw new ExecutionException("Failed to resolve script for name: " + name);
+        }
+        runtime.setScript(script);
+        runtime.setAddress(-1);
+        for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
+            runtime.getIntLocals()[index] = index < script.getNumIntArguments() ? runtime.popInt() : 0;
+        }
+        for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
+            runtime.getStringLocals()[index] = index < script.getNumStringArguments() ? runtime.popString() : null;
+        }
+        for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
+            runtime.getLongLocals()[index] = index < script.getNumLongArguments() ? runtime.popLong() : 0;
+        }
+        runtime.getIntStack().clear();
+        runtime.getStringStack().clear();
+        runtime.getLongStack().clear();
+        while (!runtime.getFrames().isEmpty()) {
+            ScriptFramePool.push(runtime.getFrames().pop());
+        }
+    };
+
+    /**
+     * Performs a switch statement for the value on the stack with the switch table of the operand value.
+     */
+    InstructionExecutor<? extends ScriptRuntime> SWITCH = runtime -> {
+        var switchTable = runtime.getScript().getSwitchTable()[runtime.intOperand()];
+        if (switchTable == null) {
+            throw new ExecutionException("Failed to find a switch table for switch index: " + runtime.intOperand());
+        }
+        var jump = switchTable.get(runtime.popInt());
+        if (jump != null) {
+            runtime.setAddress(runtime.getAddress() + 1);
         }
     };
 }
