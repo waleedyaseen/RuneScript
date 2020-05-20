@@ -96,9 +96,11 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
      */
     public R resume(R runtime) {
         runtime.setAbort(false);
-        var script = runtime.getScript();
-        // Loop through instructions until the end or until the execution is halted.
-        while (runtime.getAddress() < script.getInstructions().length) {
+        while (true) {
+            var script = runtime.getScript();
+            if (runtime.getAddress() >= runtime.getScript().getInstructions().length) {
+                break;
+            }
             var opcode = script.getInstructions()[runtime.getAddress()];
             var executor = executorMap.lookup(opcode);
             if (executor == null) {
