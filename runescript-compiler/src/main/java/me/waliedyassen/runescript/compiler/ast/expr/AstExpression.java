@@ -60,7 +60,7 @@ public abstract class AstExpression extends AstNode {
      */
     public static String extractNameText(AstExpression name) {
         if (name instanceof AstComponent) {
-            return ((AstComponent) name).getComponentName();
+            return ((AstComponent) name).getParentInterface().getText() + ":" + ((AstComponent) name).getComponentName();
         }
         return ((AstIdentifier) name).getText();
     }
