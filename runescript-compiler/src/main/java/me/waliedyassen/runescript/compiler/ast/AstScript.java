@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.ast;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
@@ -42,7 +43,7 @@ public final class AstScript extends AstNode {
      * The name of the script.
      */
     @Getter
-    private final AstIdentifier name;
+    private final AstExpression name;
 
     /**
      * The parameters list of the script..
@@ -80,7 +81,7 @@ public final class AstScript extends AstNode {
      * @param code
      *         the script code statement.
      */
-    public AstScript(Range range, List<AstAnnotation> annotations, AstIdentifier trigger, AstIdentifier name, AstParameter[] parameters, Type type, AstBlockStatement code) {
+    public AstScript(Range range, List<AstAnnotation> annotations, AstIdentifier trigger, AstExpression name, AstParameter[] parameters, Type type, AstBlockStatement code) {
         super(range);
         this.annotations = addChild(annotations);
         this.trigger = addChild(trigger);

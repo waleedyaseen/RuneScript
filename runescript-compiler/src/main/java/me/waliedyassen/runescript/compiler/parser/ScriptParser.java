@@ -82,7 +82,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         consume(LBRACKET);
         var trigger = advancedIdentifier();
         consume(COMMA);
-        var name = advancedIdentifier();
+        var name = scriptName();
         consume(RBRACKET);
         // parse the script return ype nad parameters list.
         Type type = PrimitiveType.VOID;
@@ -117,6 +117,18 @@ public final class ScriptParser extends ParserBase<Kind> {
         var code = unbracedBlockStatement();
         // return the parsed script.
         return new AstScript(popRange(), annotations, trigger, name, parameters.toArray(AstParameter[]::new), type, code);
+    }
+
+    /**
+     * Attempts to parse a script name {@link AstExpression} object node.
+     *
+     * @return the parsed {@link AstExpression} object node.
+     */
+    private AstExpression scriptName() {
+        if (isComponent()) {
+            return component();
+        }
+        return advancedIdentifier();
     }
 
 
@@ -314,7 +326,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * @return <code>true</code> if it does otherwise <code>false</code.>
      */
     public boolean isComponent() {
-        return peekKind() == IDENTIFIER && peekKind(1) == COLON && (peekKind(2) == IDENTIFIER || peekKind(2) == IDENTIFIER);
+        return peekKind() == IDENTIFIER && peekKind(1) == COLON && (peekKind(2) == IDENTIFIER || peekKind(2) == INTEGER);
     }
 
     /**

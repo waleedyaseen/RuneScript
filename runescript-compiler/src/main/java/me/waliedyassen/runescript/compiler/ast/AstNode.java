@@ -45,7 +45,6 @@ public abstract class AstNode implements Element {
     @EqualsAndHashCode.Exclude
     private AstNode parent;
 
-
     /**
      * Accepts the given {@link AstVisitor} in this node and call the corresponding visit method to this node.
      *

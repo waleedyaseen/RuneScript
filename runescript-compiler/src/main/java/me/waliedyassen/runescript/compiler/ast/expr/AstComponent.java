@@ -23,7 +23,7 @@ public final class AstComponent extends AstExpression {
      * The parent name of the component.
      */
     @Getter
-    private final AstIdentifier parent;
+    private final AstIdentifier parentInterface;
 
     /**
      * The child name of the component.
@@ -34,13 +34,13 @@ public final class AstComponent extends AstExpression {
     /**
      * Constructs a new {@link AstComponent} type object instance.
      *
-     * @param range     the source code range of the node.
-     * @param parent    the parent name of the component.
-     * @param component the component name expression.
+     * @param range           the source code range of the node.
+     * @param parentInterface the parent name of the component.
+     * @param component       the component name expression.
      */
-    public AstComponent(Range range, AstIdentifier parent, AstExpression component) {
+    public AstComponent(Range range, AstIdentifier parentInterface, AstExpression component) {
         super(range);
-        this.parent = addChild(parent);
+        this.parentInterface = addChild(parentInterface);
         this.component = addChild(component);
     }
 

@@ -12,6 +12,7 @@ import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstArrayExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstDynamic;
+import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.expr.AstVariableExpression;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
@@ -100,11 +101,11 @@ public final class PreTypeChecking extends AstTreeVisitor {
                 checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires parameters of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(expected))));
             }
             // check if the script is already defined in the symbol table, and define it if it was not, or produce an error if it was a duplicate.
-            var name = script.getName();
-            if (symbolTable.lookupScript(trigger, name.getText()) != null) {
-                checker.reportError(new SemanticError(name, String.format("The script '%s' is already defined", name.getText())));
+            var name = AstExpression.extractNameText(script.getName());
+            if (symbolTable.lookupScript(trigger, name) != null) {
+                checker.reportError(new SemanticError(script.getName(), String.format("The script '%s' is already defined", name)));
             } else {
-                symbolTable.defineScript(annotations, trigger, name.getText(), script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
+                symbolTable.defineScript(annotations, trigger, name, script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
             }
         }
         return super.visit(script);
@@ -266,11 +267,8 @@ public final class PreTypeChecking extends AstTreeVisitor {
     /**
      * Attempts to resolve the variable with the given {@link VariableScope scope} and {@code name}.
      *
-     * @param scope
-     *         the variable scope to resolve.
-     * @param name
-     *         the variable name to resolve.
-     *
+     * @param scope the variable scope to resolve.
+     * @param name  the variable name to resolve.
      * @return the resolved {@link VariableInfo} if it was present otherwise {@code null}.
      */
     private VariableInfo resolveVariable(VariableScope scope, String name) {

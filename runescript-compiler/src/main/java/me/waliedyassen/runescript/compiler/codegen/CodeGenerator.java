@@ -114,7 +114,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         generateDefaultReturn(script.getType());
         popContext();
         // format the script name to be in the formal format.
-        var name = "[" + script.getTrigger().getText() + "," + script.getName().getText() + "]";
+        var name = "[" + script.getTrigger().getText() + "," + AstExpression.extractNameText(script.getName()) + "]";
         // put all of the blocks into a sorted map.
         var blocks = new LinkedHashMap<Label, Block>();
         for (var block : blockMap.getBlocks()) {
@@ -209,7 +209,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      */
     @Override
     public Instruction visit(AstComponent component) {
-        var interfaceInfo = symbolTable.lookupInterface(component.getParent().getText());
+        var interfaceInfo = symbolTable.lookupInterface(component.getParentInterface().getText());
         var parentId = interfaceInfo.getId();
         var componentId = interfaceInfo.lookupComponent(String.valueOf(component.getComponentName()));
         return instruction(PUSH_INT_CONSTANT, parentId << 16 | componentId);
