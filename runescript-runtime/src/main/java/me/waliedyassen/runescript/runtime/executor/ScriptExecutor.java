@@ -11,6 +11,7 @@ import lombok.Getter;
 import me.waliedyassen.runescript.runtime.ScriptRuntime;
 import me.waliedyassen.runescript.runtime.ScriptRuntimePool;
 import me.waliedyassen.runescript.runtime.ScriptRuntimeSetup;
+import me.waliedyassen.runescript.runtime.cache.ScriptCache;
 import me.waliedyassen.runescript.runtime.executor.instruction.InstructionExecutorMap;
 import me.waliedyassen.runescript.runtime.script.Script;
 
@@ -38,12 +39,13 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
      * Constructs a new {@link ScriptExecutor} type object instance.
      *
      * @param poolSize        the runtime objects pool maximum size.
+     * @param cache           the cache which is responsible for loading scripts.
      * @param runtimeSupplier the supplier of the runtime objects.
      * @param executorMap     the instructions executor map of the executor.
      */
-    public ScriptExecutor(int poolSize, Function<ScriptRuntimePool<R>, R> runtimeSupplier, InstructionExecutorMap executorMap) {
+    public ScriptExecutor(int poolSize, ScriptCache cache, Function<ScriptRuntimePool<R>, R> runtimeSupplier, InstructionExecutorMap executorMap) {
         this.executorMap = executorMap;
-        pool = new ScriptRuntimePool<>(runtimeSupplier, poolSize);
+        pool = new ScriptRuntimePool<>(runtimeSupplier, cache, poolSize);
     }
 
     /**

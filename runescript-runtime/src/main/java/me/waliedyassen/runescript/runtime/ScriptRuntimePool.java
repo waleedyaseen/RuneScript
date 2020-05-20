@@ -7,11 +7,13 @@
  */
 package me.waliedyassen.runescript.runtime;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.runtime.cache.ScriptCache;
+import me.waliedyassen.runescript.runtime.script.Script;
 
 import java.util.Stack;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Represents a pool of {@link ScriptRuntime} objects with a limited size.
@@ -30,6 +32,12 @@ public final class ScriptRuntimePool<R extends ScriptRuntime> {
      * The supplier of the script runtime.
      */
     private final Function<ScriptRuntimePool<R>, R> supplier;
+
+    /**
+     * The cache object which will provide the {@link Script} objects by name.
+     */
+    @Getter
+    private final ScriptCache cache;
 
     /**
      * The maximum amount of {@link ScriptRuntime} we can store in the pool.

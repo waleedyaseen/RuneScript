@@ -7,7 +7,9 @@
  */
 package me.waliedyassen.runescript.runtime.executor.impl;
 
+import me.waliedyassen.runescript.runtime.ScriptFrame;
 import me.waliedyassen.runescript.runtime.ScriptRuntime;
+import me.waliedyassen.runescript.runtime.executor.ExecutionException;
 import me.waliedyassen.runescript.runtime.executor.instruction.InstructionExecutor;
 
 import java.util.Stack;
@@ -170,5 +172,40 @@ public interface CoreOps {
             runtime.popString();
         }
         runtime.pushString(builder.toString());
+    };
+
+    /**
+     *
+     */
+    InstructionExecutor<? extends ScriptRuntime> RETURN = runtime -> {
+        if (runtime.getFrames().isEmpty()) {
+            return;
+        }
+        var frame = runtime.getFrames().pop();
+        runtime.set(frame);
+        ScriptFramePool.push(frame);
+    };
+
+    /**
+     *
+     */
+    InstructionExecutor<? extends ScriptRuntime> GOSUB_WITH_PARAMS = runtime -> {
+        var name = runtime.stringOperand();
+        var script = runtime.getPool().getCache().get(name);
+        if (script == null) {
+            throw new ExecutionException("Failed to resolve script for name: " + name);
+        }
+        var frame = ScriptFramePool.pop();
+        frame.set(runtime);
+        runtime.getFrames().push(frame);
+        for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
+            runtime.getIntLocals()[index] = index < script.getNumIntArguments() ? runtime.popInt() : 0;
+        }
+        for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
+            runtime.getStringLocals()[index] = index < script.getNumStringArguments() ? runtime.popString() : null;
+        }
+        for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
+            runtime.getLongLocals()[index] = index < script.getNumLongArguments() ? runtime.popLong() : 0;
+        }
     };
 }

@@ -25,7 +25,7 @@ public abstract class ScriptRuntime implements AutoCloseable {
     /**
      * The maximum amount of local fields we can have per runtime.
      */
-    private static final int MAX_LOCALS = 256;
+    public static final int MAX_LOCALS = 256;
 
     /**
      * The integer stack of the runtime.
@@ -64,9 +64,16 @@ public abstract class ScriptRuntime implements AutoCloseable {
     private final long[] longLocals = new long[MAX_LOCALS];
 
     /**
+     * The execution call frame of the runtime.
+     */
+    @Getter
+    private final Stack<ScriptFrame> frames = new Stack<>();
+
+    /**
      * The owner {@link ScriptRuntimePool} of this object.
      */
     @SuppressWarnings("rawtypes")
+    @Getter
     private final ScriptRuntimePool pool;
 
     /**
@@ -91,12 +98,26 @@ public abstract class ScriptRuntime implements AutoCloseable {
     private boolean abort;
 
     /**
+     * Sets the current execution frame of the runtime from the specified {@link ScriptFrame frame}.
+     *
+     * @param frame the frame which we want to set the execution frame based on.
+     */
+    public void set(ScriptFrame frame) {
+        script = frame.getScript();
+        address = frame.getAddress();
+        System.arraycopy(frame.getIntLocals(), 0, intLocals, 0, MAX_LOCALS);
+        System.arraycopy(frame.getStringLocals(), 0, stringLocals, 0, MAX_LOCALS);
+        System.arraycopy(frame.getLongLocals(), 0, longLocals, 0, MAX_LOCALS);
+    }
+
+    /**
      * Resets the state of the runtime.
      */
     public void reset() {
         intStack.clear();
         stringStack.clear();
         longStack.clear();
+        frames.clear();
         address = 0;
         abort = false;
     }
