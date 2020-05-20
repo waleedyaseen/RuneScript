@@ -163,7 +163,7 @@ opcode=37
 large=true
 
 [jump_with_params]
-opcode=-1
+opcode=80
 large=true
 
 [gosub_with_params]

@@ -98,7 +98,7 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
         runtime.setAbort(false);
         while (true) {
             var script = runtime.getScript();
-            if (runtime.getAddress() >= runtime.getScript().getInstructions().length) {
+            if (runtime.getAddress() >= script.getInstructions().length) {
                 break;
             }
             var opcode = script.getInstructions()[runtime.getAddress()];

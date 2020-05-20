@@ -201,14 +201,19 @@ public interface CoreOps {
         var frame = ScriptFramePool.pop();
         frame.set(runtime);
         runtime.getFrames().push(frame);
+        runtime.setScript(script);
+        runtime.setAddress(-1);
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
-            runtime.getIntLocals()[index] = index < script.getNumIntArguments() ? runtime.popInt() : 0;
+            var argument = index < script.getNumIntArguments();
+            runtime.getIntLocals()[argument ? script.getNumStringArguments() - index - 1: index] = argument ? runtime.popInt() : 0;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
-            runtime.getStringLocals()[index] = index < script.getNumStringArguments() ? runtime.popString() : null;
+            var argument = index < script.getNumStringArguments();
+            runtime.getStringLocals()[argument ? script.getNumStringArguments() - index - 1: index] = argument ? runtime.popString() : null;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
-            runtime.getLongLocals()[index] = index < script.getNumLongArguments() ? runtime.popLong() : 0;
+            var argument = index < script.getNumLongArguments();
+            runtime.getLongLocals()[argument ? script.getNumLongArguments() - index - 1: index] = argument ? runtime.popLong() : 0;
         }
     };
 
@@ -225,13 +230,16 @@ public interface CoreOps {
         runtime.setScript(script);
         runtime.setAddress(-1);
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
-            runtime.getIntLocals()[index] = index < script.getNumIntArguments() ? runtime.popInt() : 0;
+            var argument = index < script.getNumIntArguments();
+            runtime.getIntLocals()[argument ? script.getNumStringArguments() - index - 1: index] = argument ? runtime.popInt() : 0;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
-            runtime.getStringLocals()[index] = index < script.getNumStringArguments() ? runtime.popString() : null;
+            var argument = index < script.getNumStringArguments();
+            runtime.getStringLocals()[argument ? script.getNumStringArguments() - index - 1: index] = argument ? runtime.popString() : null;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
-            runtime.getLongLocals()[index] = index < script.getNumLongArguments() ? runtime.popLong() : 0;
+            var argument = index < script.getNumLongArguments();
+            runtime.getLongLocals()[argument ? script.getNumLongArguments() - index - 1: index] = argument ? runtime.popLong() : 0;
         }
         runtime.getIntStack().clear();
         runtime.getStringStack().clear();
