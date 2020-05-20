@@ -53,12 +53,19 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
      *
      * @param setup  the runtime setup.
      * @param script the script which we want to execute.
+     * @return the runtime to store if the execution was aborted.
      * @throws ExecutionException if anything occurs during the execution.
      */
-    public void execute(ScriptRuntimeSetup<R> setup, Script script) throws ExecutionException {
-        try (var runtime = pool.pop()) {
+    public R execute(ScriptRuntimeSetup<R> setup, Script script) throws ExecutionException {
+        try {
+            var runtime = pool.pop();
             setup.setup(runtime);
-            execute(runtime, script);
+            if (execute(runtime, script) != null) {
+                return runtime;
+            } else {
+                runtime.close();
+            }
+            return null;
         } catch (ExecutionException e) {
             throw e;
         } catch (Throwable e) {
@@ -71,21 +78,23 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
      *
      * @param runtime the runtime to execute the script in.
      * @param script  the script which we want to execute.
+     * @return the runtime to store if the execution was aborted.
      * @throws ExecutionException if anything occurs during the execution.
      */
     @SuppressWarnings("unchecked")
-    public void execute(R runtime, Script script) throws ExecutionException {
+    public R execute(R runtime, Script script) throws ExecutionException {
         // Update the runtime script.
         runtime.setScript(script);
-        resume(runtime);
+        return resume(runtime);
     }
 
     /**
      * Resumes the execution of the specified {@code runtime.}
      *
      * @param runtime the runtime to resume the execute for.
+     * @return R the runtime to store if the execution was aborted.
      */
-    public void resume(R runtime) {
+    public R resume(R runtime) {
         runtime.setAbort(false);
         var script = runtime.getScript();
         // Grab the most-used variables from the runtime.
@@ -100,6 +109,10 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
             }
             executor.execute(runtime);
             runtime.setAddress(runtime.getAddress() + 1);
+            if (runtime.isAbort()) {
+                return runtime;
+            }
         }
+        return null;
     }
 }
