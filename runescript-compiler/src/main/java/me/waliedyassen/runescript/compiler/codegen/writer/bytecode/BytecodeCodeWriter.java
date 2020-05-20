@@ -69,7 +69,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
                     operand = switchTables.size();
                     switchTables.add(jumps);
                 } else if (operand instanceof ScriptInfo) {
-                    operand = script.getName();
+                    operand = String.format("[%s,%s]", ((ScriptInfo) operand).getTrigger().getRepresentation(), ((ScriptInfo) operand).getName());
                 } else if (operand instanceof Local) {
                     operand = localTable.get(operand);
                 } else if (operand instanceof Integer) {

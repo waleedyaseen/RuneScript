@@ -217,7 +217,7 @@ public final class Project {
                 var opcode = value.getOptionalEnum("opcode", CoreOpcode.class).orElse(null);
                 var supportArgument = value.getOrElse("support_arguments", false);
                 var supportReturn = value.getOrElse("support_returns", false);
-                var argumentTypes = value.contains("arguments") ? ProjectConfig.parseTypes(config, "arguments") : new Type[0];
+                var argumentTypes = value.contains("arguments") ? ProjectConfig.parseTypes(config, "arguments") : null;
                 var returnTypes = value.contains("returns") ? ProjectConfig.parseTypes(config, "returns") : null;
                 compilerEnvironment.registerTrigger(new BasicTriggerType(name, operator, opcode, supportArgument, argumentTypes, supportReturn, returnTypes));
             }
