@@ -97,12 +97,9 @@ public final class ScriptExecutor<R extends ScriptRuntime> {
     public R resume(R runtime) {
         runtime.setAbort(false);
         var script = runtime.getScript();
-        // Grab the most-used variables from the runtime.
-        var instructions = script.getInstructions();
-        var count = instructions.length;
         // Loop through instructions until the end or until the execution is halted.
-        while (runtime.getAddress() < count) {
-            var opcode = instructions[runtime.getAddress()];
+        while (runtime.getAddress() < script.getInstructions().length) {
+            var opcode = script.getInstructions()[runtime.getAddress()];
             var executor = executorMap.lookup(opcode);
             if (executor == null) {
                 throw new ExecutionException("Missing InstructionExecutor for instruction with opcode: " + opcode);
