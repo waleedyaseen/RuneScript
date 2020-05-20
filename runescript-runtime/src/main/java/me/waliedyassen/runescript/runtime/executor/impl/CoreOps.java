@@ -195,6 +195,9 @@ public interface CoreOps {
         if (script == null) {
             throw new ExecutionException("Failed to resolve script for name: " + name);
         }
+        if (runtime.getFrames().size() >= 100) {
+            throw new ExecutionException("Script used more than 100 script frame, possible stuck in an infinite recursion, script: " + name);
+        }
         var frame = ScriptFramePool.pop();
         frame.set(runtime);
         runtime.getFrames().push(frame);
