@@ -155,6 +155,7 @@ public final class EditorView extends JPanel implements ActionSource {
                 return true;
             }
         }
+        return false;
     }
 
 

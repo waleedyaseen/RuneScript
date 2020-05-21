@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.editor.project;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.sun.jdi.connect.Connector;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,10 +18,8 @@ import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
-import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
@@ -30,14 +27,11 @@ import me.waliedyassen.runescript.editor.project.build.BuildPath;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
-import me.waliedyassen.runescript.type.Type;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * A very basic project system that provides basic information such as the name and the build path directories.
@@ -93,6 +87,20 @@ public final class Project {
      */
     private CompilerEnvironment compilerEnvironment;
 
+    /**
+     * The commands configuration path.
+     */
+    private String commandsPath;
+
+    /**
+     * The triggers configuration path.
+     */
+    private String triggersPath;
+
+    /**
+     * The instructions configuration path.
+     */
+    private String instructionsPath;
 
     /**
      * Constructs a new {@link Project} type object instance.
@@ -141,12 +149,12 @@ public final class Project {
      */
     void loadCompiler(JsonNode root) {
         var object = JsonUtil.getObjectOrThrow(root, "compiler", "The compiler object cannot be null");
-        var instructionPath = JsonUtil.getTextOrThrow(object, "instructions", "The instructions map cannot be null");
-        var triggersPath = JsonUtil.getTextOrThrow(object, "commands", "The instructions map cannot be null");
-        var commandsPath = JsonUtil.getTextOrThrow(object, "triggers", "The instructions map cannot be null");
+        instructionsPath = JsonUtil.getTextOrThrow(object, "instructions", "The instructions map cannot be null");
+        triggersPath = JsonUtil.getTextOrThrow(object, "commands", "The instructions map cannot be null");
+        commandsPath = JsonUtil.getTextOrThrow(object, "triggers", "The instructions map cannot be null");
         compilerEnvironment = new CompilerEnvironment();
         instructionMap = new InstructionMap();
-        loadInstructions(instructionPath);
+        loadInstructions(instructionsPath);
         loadTriggers(triggersPath);
         compiler = new Compiler(compilerEnvironment, instructionMap);
         loadCommands(commandsPath);
@@ -283,6 +291,10 @@ public final class Project {
         var buildPath = root.putObject("build_path");
         buildPath.put("source", directory.relativize(this.buildPath.getSourceDirectory()).toString());
         buildPath.put("pack", directory.relativize(this.buildPath.getPackDirectory()).toString());
+        var compiler = root.putObject("build_path");
+        compiler.put("instructions", instructionsPath);
+        compiler.put("triggers", triggersPath);
+        compiler.put("commands", commandsPath);
         // Write the serialised data into the project file.
         JsonUtil.getMapper().writerWithDefaultPrettyPrinter().writeValue(findProjectFile().toFile(), root);
     }
