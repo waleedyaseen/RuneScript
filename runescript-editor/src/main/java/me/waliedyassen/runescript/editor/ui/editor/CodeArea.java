@@ -9,12 +9,12 @@ package me.waliedyassen.runescript.editor.ui.editor;
 
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.Api;
+import me.waliedyassen.runescript.editor.ui.editor.folder.CodeFolder;
 import me.waliedyassen.runescript.editor.ui.editor.theme.CodeTheme;
 import me.waliedyassen.runescript.editor.ui.editor.tokenMaker.CodeTokenMaker;
 import me.waliedyassen.runescript.editor.ui.editor.tokenMaker.factory.TokenMakerFactoryImpl;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.Theme;
-import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
+import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
 
 /**
  * Represents a RuneScript Editor code area.
@@ -40,7 +40,6 @@ public final class CodeArea extends RSyntaxTextArea {
         setCodeFoldingEnabled(true);
         setAutoscrolls(true);
         setWrapStyleWord(false);
-        setShowMatchedBracketPopup(true);
         setTabSize(2);
         new CodeTheme(this).apply(this);
     }
@@ -48,5 +47,6 @@ public final class CodeArea extends RSyntaxTextArea {
     // Register the language highlighter and other stuff in the future.
     static {
         TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNESCRIPT, () -> new CodeTokenMaker(Api.getApi().getCompiler().getLexicalTable(), Api.getApi().getCompiler().getSymbolTable()));
+        FoldParserManager.get().addFoldParserMapping(SYNTAX_STYLE_RUNESCRIPT, new CodeFolder());
     }
 }
