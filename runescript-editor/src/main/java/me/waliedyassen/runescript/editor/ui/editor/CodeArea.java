@@ -7,14 +7,21 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.editor.folder.CodeFolder;
+import me.waliedyassen.runescript.editor.ui.editor.parser.ParserManager;
 import me.waliedyassen.runescript.editor.ui.editor.theme.CodeTheme;
 import me.waliedyassen.runescript.editor.ui.editor.tokenMaker.CodeTokenMaker;
 import me.waliedyassen.runescript.editor.ui.editor.tokenMaker.factory.TokenMakerFactoryImpl;
+import org.fife.ui.rsyntaxtextarea.ErrorStrip;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Represents a RuneScript Editor code area.
@@ -30,18 +37,29 @@ public final class CodeArea extends RSyntaxTextArea {
     private static final String SYNTAX_STYLE_RUNESCRIPT = "text/runescript";
 
     /**
+     * The view pane of the code area.
+     */
+    @Getter
+    private final JComponent viewPane = new JPanel(new BorderLayout());
+
+    /**
      * Constructs a new {@link CodeArea} type object instance.
      */
     public CodeArea() {
         setSyntaxEditingStyle(SYNTAX_STYLE_RUNESCRIPT);
+        setTabSize(2);
         setAutoIndentEnabled(true);
         setAntiAliasingEnabled(true);
         setAnimateBracketMatching(true);
         setCodeFoldingEnabled(true);
         setAutoscrolls(true);
         setWrapStyleWord(false);
-        setTabSize(2);
+        viewPane.add(new RTextScrollPane(this));
+        viewPane.add(new ErrorStrip(this), BorderLayout.LINE_END);
         new CodeTheme(this).apply(this);
+        ParserManager.installCodeParser(this);
+
+
     }
 
     // Register the language highlighter and other stuff in the future.

@@ -198,11 +198,6 @@ public final class EditorView extends JPanel implements ActionSource {
         private final Path path;
 
         /**
-         * The cached component of the editor view.
-         */
-        private JComponent component;
-
-        /**
          * Whether or not the tab has been modified.
          */
         @Getter
@@ -287,11 +282,7 @@ public final class EditorView extends JPanel implements ActionSource {
          * @return the cached or created {@link JComponent} object.
          */
         public JComponent getComponent() {
-            if (component != null) {
-                return component;
-            }
-            component = new RTextScrollPane(codeArea);
-            return component;
+            return codeArea.getViewPane();
         }
     }
 

@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.editor.ui.editor.folder;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.ui.editor.tokenMaker.CodeTokens;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rsyntaxtextarea.folding.Fold;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParser;
 import org.fife.ui.rsyntaxtextarea.folding.FoldType;
