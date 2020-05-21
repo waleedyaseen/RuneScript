@@ -22,6 +22,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
 import java.awt.*;
+import java.nio.file.Path;
 
 /**
  * Represents a RuneScript Editor code area.
@@ -43,9 +44,18 @@ public final class CodeArea extends RSyntaxTextArea {
     private final JComponent viewPane = new JPanel(new BorderLayout());
 
     /**
-     * Constructs a new {@link CodeArea} type object instance.
+     * The path of the code area.
      */
-    public CodeArea() {
+    @Getter
+    private final Path path;
+
+    /**
+     * Constructs a new {@link CodeArea} type object instance.
+     *
+     * @param path the file path of the code area.
+     */
+    public CodeArea(Path path) {
+        this.path = path;
         setSyntaxEditingStyle(SYNTAX_STYLE_RUNESCRIPT);
         setTabSize(2);
         setAutoIndentEnabled(true);

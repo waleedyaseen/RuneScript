@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.compiler.CompilerErrors;
 import me.waliedyassen.runescript.editor.Api;
+import me.waliedyassen.runescript.editor.ui.editor.CodeArea;
 import me.waliedyassen.runescript.editor.ui.editor.parser.notice.ErrorNotice;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -44,9 +45,12 @@ public final class CodeParser extends AbstractParser {
      */
     @Override
     public ParseResult parse(RSyntaxDocument doc, String style) {
+        var codeArea = (CodeArea) textArea;
         result.clearNotices();
         result.setParsedLines(0, textArea.getLineCount() - 1);
         var compiler = Api.getApi().getCompiler();
+        var errorsView = Api.getApi().getUi().getErrorsView();
+        errorsView.removeErrorForPath(codeArea.getPath().toString());
         try {
             var start = System.currentTimeMillis();
             compiler.compile(textArea.getText());
@@ -60,8 +64,9 @@ public final class CodeParser extends AbstractParser {
                     var endOffset = getOffset(error.getRange().getEnd());
                     var line = textArea.getLineOfOffset(startOffset);
                     result.addNotice(new ErrorNotice(this, error.getMessage(), line, startOffset, endOffset));
+                    errorsView.addError(codeArea.getPath().toString(), error.getRange().getStart().getLine(), error.getRange().getStart().getColumn(), error.getMessage());
                 } catch (Throwable e) {
-                    log.warn("An error occurred while adding the compiling errors to the result" + e);
+                    log.warn("An error occurred while adding the compiling errors to the result", e);
                 }
             }
         }

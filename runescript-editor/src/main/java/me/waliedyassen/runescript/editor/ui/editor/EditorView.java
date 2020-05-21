@@ -189,7 +189,7 @@ public final class EditorView extends JPanel implements ActionSource {
          * The code area which contains the content of the file.
          */
         @Getter
-        private final CodeArea codeArea = new CodeArea();
+        private final CodeArea codeArea;
 
         /**
          * The file path which the editor tab is editing.
@@ -211,6 +211,7 @@ public final class EditorView extends JPanel implements ActionSource {
          */
         public EditorTab(Path path) throws IOException {
             this.path = path;
+            codeArea = new CodeArea(path);
             ShortcutManager.getInstance().bindShortcuts(CommonGroups.EDITOR, codeArea, this);
             ShortcutManager.getInstance().bindShortcuts(CommonGroups.EDITOR, getComponent(), this);
             reload();

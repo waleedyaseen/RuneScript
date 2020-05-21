@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.ui.errors;
 
+import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
@@ -15,6 +16,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.util.*;
 
 /**
  * Represents the errors view of the editor.
@@ -39,6 +41,11 @@ public final class ErrorsView extends JPanel implements ActionSource {
     private final JTable table = new JTable(model);
 
     /**
+     *
+     */
+    private final Map<String, List<CompilerError>> errors = new HashMap<>();
+
+    /**
      * Constructs a new {@link ErrorsView} type object instance.
      */
     public ErrorsView() {
@@ -60,7 +67,20 @@ public final class ErrorsView extends JPanel implements ActionSource {
      * @param message the message of the error.
      */
     public void addError(String path, int line, int column, String message) {
-        model.addRow(new Object[]{message, path, "line " + line});
+        SwingUtilities.invokeLater(() -> {
+            model.addRow(new Object[]{message, path, "line " + line});
+        });
+    }
+
+    public void removeErrorForPath(String targetPath) {
+        SwingUtilities.invokeLater(() -> {
+            for (var row = model.getRowCount() - 1; row >= 0; row--) {
+                var path = (String) model.getValueAt(row, 1);
+                if (path != null || path.contentEquals(targetPath)) {
+                    model.removeRow(row);
+                }
+            }
+        });
     }
 
     /**
