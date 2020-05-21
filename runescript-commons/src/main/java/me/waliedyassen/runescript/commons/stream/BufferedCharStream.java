@@ -154,7 +154,7 @@ public final class BufferedCharStream implements CharStream {
      */
     @Override
     public void rollback(int count) {
-        while (count-- > 0) {
+        while (count--> 0) {
             if (!hasRemaining()) {
                 pos--;
             } else {

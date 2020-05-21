@@ -70,6 +70,7 @@ public final class Compiler {
     /**
      * The lexical table for our lexical analysis, it contains vario
      */
+    @Getter
     private final LexicalTable<Kind> lexicalTable;
 
     /**
