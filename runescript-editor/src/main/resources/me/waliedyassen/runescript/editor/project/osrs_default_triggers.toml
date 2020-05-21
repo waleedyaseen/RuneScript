@@ -1,3 +1,7 @@
+[clientscript]
+support_returns=false
+support_arguments=true
+
 [proc]
 operator="tilde"
 opcode="gosub_with_params"
