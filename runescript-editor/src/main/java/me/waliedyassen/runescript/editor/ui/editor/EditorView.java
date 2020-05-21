@@ -19,16 +19,21 @@ import me.waliedyassen.runescript.editor.ui.dialog.DialogResult;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.ui.util.DelegatingMouseListener;
+import me.waliedyassen.runescript.editor.util.MD5Util;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.Checksum;
 
 /**
  * The editor main-view component.
@@ -203,10 +208,9 @@ public final class EditorView extends JPanel implements ActionSource {
         private final Path path;
 
         /**
-         * Whether or not the tab has been modified.
+         * The disk md5 checksum of the tab.
          */
-        @Getter
-        private boolean modified;
+        private byte[] diskChecksum;
 
         /**
          * Constructs a new {@link EditorTab} type object instance.
@@ -250,7 +254,7 @@ public final class EditorView extends JPanel implements ActionSource {
          * @return <code>true</code> if the the operation should be cancelled otherwise <code>false</code>.
          */
         public boolean checkModifySave() {
-            if (modified) {
+            if (modified()) {
                 var result = DialogManager.showCloseDialog("This file has unsaved changes. Do you want to save your changes before closing?");
                 if (result == DialogResult.CANCEL) {
                     return true;
@@ -263,14 +267,25 @@ public final class EditorView extends JPanel implements ActionSource {
         }
 
         /**
+         * Checks whether or not the editor tab content has been modified compared to the local disk.
+         *
+         * @return <code>true</code> if it has been modified otherwise <code>false</code>.
+         */
+        private boolean modified() {
+            return !Arrays.equals(MD5Util.calculate(getCodeArea().getText().getBytes()), diskChecksum);
+        }
+
+        /**
          * Reloads the content of the tab from the file from the local disk.
          *
          * @throws IOException if anything occurs during reading the content of the file from the local disk.
          */
         public void reload() throws IOException {
-            try (var reader = Files.newBufferedReader(path)) {
+            var data = Files.readAllBytes(path);
+            try (var reader = new InputStreamReader(new ByteArrayInputStream(data))) {
                 codeArea.read(reader, null);
             }
+            diskChecksum = MD5Util.calculate(data);
         }
 
         /**
@@ -279,7 +294,7 @@ public final class EditorView extends JPanel implements ActionSource {
         @SneakyThrows
         public void save() {
             Files.writeString(path, codeArea.getText(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-            modified = false;
+            diskChecksum = MD5Util.calculate(codeArea.getText().getBytes());
         }
 
         /**

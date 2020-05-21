@@ -64,9 +64,10 @@ public final class DialogManager {
             case JOptionPane.YES_OPTION:
                 return DialogResult.YES;
             case JOptionPane.CANCEL_OPTION:
+            case JOptionPane.CLOSED_OPTION:
                 return DialogResult.CANCEL;
             default:
-                throw new IllegalStateException();
+                throw new IllegalStateException("" + result);
         }
     }
 

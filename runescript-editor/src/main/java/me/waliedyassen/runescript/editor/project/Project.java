@@ -145,7 +145,9 @@ public final class Project {
     }
 
     /**
-     * @param root
+     * Loads the compiler configuration of the project.
+     *
+     * @param root the root node to load the configuration from.
      */
     void loadCompiler(JsonNode root) {
         var object = JsonUtil.getObjectOrThrow(root, "compiler", "The compiler object cannot be null");
@@ -161,7 +163,7 @@ public final class Project {
     }
 
     /**
-     * Loads the instructiosn configuration of the project.
+     * Loads the instructions configuration of the project.
      *
      * @param path the path which leads to the instructions configuration.
      */
@@ -291,7 +293,7 @@ public final class Project {
         var buildPath = root.putObject("build_path");
         buildPath.put("source", directory.relativize(this.buildPath.getSourceDirectory()).toString());
         buildPath.put("pack", directory.relativize(this.buildPath.getPackDirectory()).toString());
-        var compiler = root.putObject("build_path");
+        var compiler = root.putObject("compiler");
         compiler.put("instructions", instructionsPath);
         compiler.put("triggers", triggersPath);
         compiler.put("commands", commandsPath);

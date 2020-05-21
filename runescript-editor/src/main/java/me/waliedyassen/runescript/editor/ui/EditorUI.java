@@ -7,9 +7,14 @@
  */
 package me.waliedyassen.runescript.editor.ui;
 
+import bibliothek.extension.gui.dock.theme.EclipseTheme;
+import bibliothek.extension.gui.dock.theme.SmoothTheme;
+import bibliothek.gui.DockTheme;
+import bibliothek.gui.DockUI;
 import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.common.CGrid;
 import bibliothek.gui.dock.common.DefaultSingleCDockable;
+import bibliothek.gui.dock.themes.NoStackTheme;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.RuneScriptEditor;
@@ -23,6 +28,7 @@ import me.waliedyassen.runescript.editor.ui.frame.top.TopUi;
 import me.waliedyassen.runescript.editor.ui.status.StatusBar;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -122,14 +128,15 @@ public final class EditorUI implements WindowListener {
         var control = new CControl(frame);
         frame.add(control.getContentArea());
         var grid = new CGrid(control);
+
         var explorerArea = new DefaultSingleCDockable(ExplorerView.DOCK_ID, "Explorer", explorerView);
         var editorArea = new DefaultSingleCDockable(EditorView.DOCK_ID, "Editor", editorView);
         var errorsArea = new DefaultSingleCDockable(ErrorsView.DOCK_ID, "Errors", errorsView);
-        errorsArea.setCloseable(false);
-        errorsArea.setMaximizable(false);
-        errorsArea.setMinimizable(false);
-        errorsArea.setExternalizable(false);
-        errorsArea.setStackable(false);
+        editorArea.setCloseable(false);
+        editorArea.setMaximizable(false);
+        editorArea.setMinimizable(false);
+        editorArea.setExternalizable(false);
+        editorArea.setStackable(false);
         grid.add(0, 0, 0.2, 1, explorerArea);
         grid.add(0.2, 0, 1, 1, editorArea);
         grid.add(0, 0.6, 1, 0.4, errorsArea);
