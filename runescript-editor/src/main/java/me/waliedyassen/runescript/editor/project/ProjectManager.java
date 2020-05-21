@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.project;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
 import me.waliedyassen.runescript.editor.property.impl.BooleanProperty;
 import me.waliedyassen.runescript.editor.property.impl.ReferenceProperty;
@@ -47,13 +48,10 @@ public final class ProjectManager {
     /**
      * Opens a new project from the local disk.
      *
-     * @param path
-     *         the path of the project on the local disk.
-     *
+     * @param path the path of the project on the local disk.
      * @return the opened {@link Project} object.
-     * @throws ProjectException
-     *         if there is currently an active or an open project or there was a problem with loading the project
-     *         information data from the local disk.
+     * @throws ProjectException if there is currently an active or an open project or there was a problem with loading the project
+     *                          information data from the local disk.
      */
     public Project open(Path path) {
         if (!currentProject.isEmpty()) {
@@ -71,9 +69,8 @@ public final class ProjectManager {
     /**
      * Saves the current active or open project information data to the local disk.
      *
-     * @throws ProjectException
-     *         if there is currently no active or open project or there was a problem with saving the project
-     *         information data on the local disk.
+     * @throws ProjectException if there is currently no active or open project or there was a problem with saving the project
+     *                          information data on the local disk.
      */
     public void save() {
         if (currentProject.isEmpty()) {
@@ -89,13 +86,15 @@ public final class ProjectManager {
     /**
      * Closes the current project or throws an exception if there is currently none open.
      *
-     * @throws ProjectException
-     *         if there is currently no active or open project or there was a problem whilst saving the project
-     *         information.
+     * @throws ProjectException if there is currently no active or open project or there was a problem whilst saving the project
+     *                          information.
      */
     public void close() {
         if (currentProject.isEmpty()) {
             throw new ProjectException("There is currently no project opened");
+        }
+        if (Api.getApi().getEditorView().closeAllTabs()) {
+            return;
         }
         try {
             save();
@@ -108,12 +107,9 @@ public final class ProjectManager {
     /**
      * Attempts to open the project that is located in the specified {@link Path directory}.
      *
-     * @param directory
-     *         the directory which contains the project.
-     *
+     * @param directory the directory which contains the project.
      * @return the opened {@link Project} object.
-     * @throws IOException
-     *         if anything occurs during accessing the data of the projct on the local disk.
+     * @throws IOException if anything occurs during accessing the data of the projct on the local disk.
      */
     private static Project openProject(Path directory) throws IOException {
         if (!Files.exists(directory.resolve(Project.FILE_NAME))) {
@@ -128,14 +124,10 @@ public final class ProjectManager {
      * Attempts to create a new {@link Project} with the specified {@code name} at the specified {@link Path directory}.
      * After it is created ,it will write all of the data of the project to the local disk.
      *
-     * @param name
-     *         the name of the project to create.
-     * @param directory
-     *         the root directory path of the project.
-     *
+     * @param name      the name of the project to create.
+     * @param directory the root directory path of the project.
      * @return the created {@link Project} object.
-     * @throws IOException
-     *         if anything occurs during the writing the data of the project to the local disk.
+     * @throws IOException if anything occurs during the writing the data of the project to the local disk.
      */
     private static Project createProject(String name, Path directory) throws IOException {
         if (Files.exists(directory.resolve(Project.FILE_NAME))) {

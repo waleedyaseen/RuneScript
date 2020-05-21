@@ -19,7 +19,6 @@ import me.waliedyassen.runescript.editor.ui.dialog.DialogResult;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.ui.util.DelegatingMouseListener;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
 import javax.swing.*;
 import java.awt.*;
@@ -143,16 +142,21 @@ public final class EditorView extends JPanel implements ActionSource {
 
     /**
      * Closes all of the tabs that are open in the editor.
+     *
+     * @return <code>true</code> if the operation was cancelled otherwise <code>false</code>.
      */
-    private void closeAllTabs() {
+    public boolean closeAllTabs() {
         for (var path : tabsByPath.keySet().toArray(new Path[0])) {
             var tab = tabsByPath.get(path);
             if (tab == null) {
                 continue;
             }
-            tab.requestClose();
+            if (tab.requestClose()) {
+                return true;
+            }
         }
     }
+
 
     /**
      * Closes the tab with the specified {@link Path path} if it is opened in the editor.
@@ -228,23 +232,23 @@ public final class EditorView extends JPanel implements ActionSource {
 
         /**
          * Requests a close action for this tab.
+         *
+         * @return <code>true</code> if the tab was closed otherwise <code>false</code>.
          */
-        public void requestClose() {
-            try {
-                if (checkModifySave()) {
-                    return;
-                }
-                Api.getApi().getEditorView().closeTab(path);
-            } catch (IOException e) {
-                log.error("An error occurred while requesting an editor tab to close", e);
+        public boolean requestClose() {
+            if (checkModifySave()) {
+                return false;
             }
+            Api.getApi().getEditorView().closeTab(path);
+            return true;
         }
 
         /**
-         * @return
-         * @throws IOException
+         * Asks the user to save the changes of the editor to the local disk if there was any changes.
+         *
+         * @return <code>true</code> if the the operation should be cancelled otherwise <code>false</code>.
          */
-        public boolean checkModifySave() throws IOException {
+        public boolean checkModifySave() {
             if (modified) {
                 var result = DialogManager.showCloseDialog("This file has unsaved changes. Do you want to save your changes before closing?");
                 if (result == DialogResult.CANCEL) {
