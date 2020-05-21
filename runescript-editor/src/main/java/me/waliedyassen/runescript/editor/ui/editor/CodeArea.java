@@ -58,8 +58,6 @@ public final class CodeArea extends RSyntaxTextArea {
         viewPane.add(new ErrorStrip(this), BorderLayout.LINE_END);
         new CodeTheme(this).apply(this);
         ParserManager.installCodeParser(this);
-
-
     }
 
     // Register the language highlighter and other stuff in the future.

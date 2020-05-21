@@ -222,7 +222,7 @@ public final class EditorView extends JPanel implements ActionSource {
         @Override
         public void populateActions(ActionList actionList) {
             actionList.addAction("Close", CommonGroups.EDITOR.lookup(CommonShortcuts.EDITOR_CLOSE_FILE));
-            actionList.addAction("Close", CommonGroups.EDITOR.lookup(CommonShortcuts.EDITOR_SAVE_FILE));
+            actionList.addAction("Save", CommonGroups.EDITOR.lookup(CommonShortcuts.EDITOR_SAVE_FILE));
         }
 
         /**

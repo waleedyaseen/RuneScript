@@ -10,6 +10,8 @@ package me.waliedyassen.runescript.editor.ui.editor.parser.notice;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
 import org.fife.ui.rsyntaxtextarea.parser.Parser;
 
+import java.awt.*;
+
 /**
  * A parser notice that indicates there is an error somewhere.
  *
@@ -29,5 +31,6 @@ public final class ErrorNotice extends DefaultParserNotice {
     public ErrorNotice(Parser parser, String message, int line, int startOffset, int endOffset) {
         super(parser, message, line, startOffset, endOffset - startOffset);
         setLevel(Level.ERROR);
+        setColor(Color.red);
     }
 }
