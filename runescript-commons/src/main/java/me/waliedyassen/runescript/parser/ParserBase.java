@@ -53,6 +53,10 @@ public abstract class ParserBase<K> {
     protected Token<K> consume(K expected) {
         var token = consume();
         var kind = token == null ? eofKind : token.getKind();
+        if (token == null) {
+            // This is only used for getting the range.
+            token = lexer.last();
+        }
         if (kind != expected) {
             throwError(token, "Unexpected rule: " + kind + ", expected: " + expected);
         }
