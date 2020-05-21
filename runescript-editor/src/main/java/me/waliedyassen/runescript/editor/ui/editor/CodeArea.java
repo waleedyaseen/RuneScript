@@ -8,11 +8,13 @@
 package me.waliedyassen.runescript.editor.ui.editor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.fife.ui.rsyntaxtextarea.LinkGeneratorResult;
+import me.waliedyassen.runescript.editor.Api;
+import me.waliedyassen.runescript.editor.ui.editor.theme.CodeTheme;
+import me.waliedyassen.runescript.editor.ui.editor.tokenMaker.CodeTokenMaker;
+import me.waliedyassen.runescript.editor.ui.editor.tokenMaker.factory.TokenMakerFactoryImpl;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
-
-import javax.swing.event.HyperlinkEvent;
+import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 
 /**
  * Represents a RuneScript Editor code area.
@@ -28,11 +30,6 @@ public final class CodeArea extends RSyntaxTextArea {
     private static final String SYNTAX_STYLE_RUNESCRIPT = "text/runescript";
 
     /**
-     * The default theme for the code areas.
-     */
-    private static Theme theme;
-
-    /**
      * Constructs a new {@link CodeArea} type object instance.
      */
     public CodeArea() {
@@ -43,16 +40,12 @@ public final class CodeArea extends RSyntaxTextArea {
         setCodeFoldingEnabled(true);
         setAutoscrolls(true);
         setWrapStyleWord(false);
-        if (theme != null) {
-            theme.apply(this);
-        }
+        setTabSize(2);
+        new CodeTheme(this).apply(this);
     }
 
+    // Register the language highlighter and other stuff in the future.
     static {
-        try {
-            theme = null;//Theme.load(CodeArea.class.getResourceAsStream("theme.xml"));
-        } catch (Throwable e) {
-            log.error("Failed to load the Theme object from the resource file", e);
-        }
+        TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNESCRIPT, () -> new CodeTokenMaker(Api.getApi().getCompiler().getLexicalTable(), Api.getApi().getCompiler().getSymbolTable()));
     }
 }
