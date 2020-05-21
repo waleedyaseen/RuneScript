@@ -40,6 +40,7 @@ public final class CodeArea extends RSyntaxTextArea {
         setCodeFoldingEnabled(true);
         setAutoscrolls(true);
         setWrapStyleWord(false);
+        setShowMatchedBracketPopup(true);
         setTabSize(2);
         new CodeTheme(this).apply(this);
     }

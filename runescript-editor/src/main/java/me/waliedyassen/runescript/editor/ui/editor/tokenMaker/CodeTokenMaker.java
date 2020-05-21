@@ -66,8 +66,9 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
         pushToken(initialTokenType, pos);
         for (; pos < end; pos++) {
             var ch = chs[pos];
-            var next = pos < chs.length - 1 ? chs[pos + 1] : '\0';
+            var next = pos < end - 1 ? chs[pos + 1] : '\0';
             var tokenType = temporaryTokens.isEmpty() ? NULL : temporaryTokens.peek().tokenType;
+
             switch (tokenType) {
                 case NULL:
                 case STRING_INTERPOLATE:
@@ -91,6 +92,8 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
                         pushToken(CONSTANT, pos);
                     } else if (ch == '/' && next == '/') {
                         pushToken(LINE_COMMENT, pos);
+                    } else if (ch == '/' && next == '*') {
+                        pushToken(MULTILINE_COMMENT, pos);
                     } else if (ch == '.') {
                         pushToken(COMMAND, pos);
                     } else if (TokenizerBase.isIdentifierStart(ch)) {
@@ -156,9 +159,16 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
                 case LINE_COMMENT:
                     // NOOP
                     break;
+                case MULTILINE_COMMENT:
+                    if (ch == '*' && next == '/') {
+                        popAddToken(text, ++pos);
+                    }
+                    break;
                 case IDENTIFIER:
-                    if (!TokenizerBase.isIdentifierPart(ch)) {
-                        pos--;
+                    if (!TokenizerBase.isIdentifierPart(ch) || next == '\0') {
+                        if (!TokenizerBase.isIdentifierPart(ch)) {
+                            pos--;
+                        }
                         var currentToken = temporaryTokens.peek();
                         var identifierText = new String(chs, currentToken.start, pos - currentToken.start + 1);
                         if (symbolTable.lookupCommand(identifierText) != null) {
@@ -178,13 +188,19 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
                     break;
             }
         }
+        var appendNullToken = true;
         if (!temporaryTokens.isEmpty()) {
             var token = temporaryTokens.peek();
             if (token.tokenType != STRING_INTERPOLATE) {
                 popAddToken(text, pos - 1);
             }
+            if (token.tokenType == MULTILINE_COMMENT) {
+                appendNullToken = false;
+            }
         }
-        addNullToken();
+        if (appendNullToken) {
+            addNullToken();
+        }
         return firstToken;
     }
 
