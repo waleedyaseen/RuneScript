@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.RuneScriptEditor;
 import me.waliedyassen.runescript.editor.ui.editor.EditorView;
+import me.waliedyassen.runescript.editor.ui.errors.ErrorsView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.ProjectNode;
 import me.waliedyassen.runescript.editor.ui.frame.top.TitleBar;
@@ -59,6 +60,12 @@ public final class EditorUI implements WindowListener {
      */
     @Getter
     private final EditorView editorView = new EditorView();
+
+    /**
+     * The errors component of the code editor.
+     */
+    @Getter
+    private final ErrorsView errorsView = new ErrorsView();
 
     /**
      * The status bar of the editor.
@@ -117,13 +124,15 @@ public final class EditorUI implements WindowListener {
         var grid = new CGrid(control);
         var explorerArea = new DefaultSingleCDockable(ExplorerView.DOCK_ID, "Explorer", explorerView);
         var editorArea = new DefaultSingleCDockable(EditorView.DOCK_ID, "Editor", editorView);
-        editorArea.setCloseable(false);
-        editorArea.setMaximizable(false);
-        editorArea.setMinimizable(false);
-        editorArea.setExternalizable(false);
-        editorArea.setStackable(false);
+        var errorsArea = new DefaultSingleCDockable(ErrorsView.DOCK_ID, "Errors", errorsView);
+        errorsArea.setCloseable(false);
+        errorsArea.setMaximizable(false);
+        errorsArea.setMinimizable(false);
+        errorsArea.setExternalizable(false);
+        errorsArea.setStackable(false);
         grid.add(0, 0, 0.2, 1, explorerArea);
         grid.add(0.2, 0, 1, 1, editorArea);
+        grid.add(0, 0.6, 1, 0.4, errorsArea);
         control.getContentArea().deploy(grid);
     }
 
@@ -148,7 +157,6 @@ public final class EditorUI implements WindowListener {
                 var result = chooser.getSelectedFile().toPath();
                 editor.getSettings().setCachedPath("open-project", result);
                 editor.getProjectManager().open(result);
-
             });
             fileMenu.add(menuItem);
             editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);

@@ -25,4 +25,9 @@ public interface CommonGroups {
      * The editor view shortcuts.
      */
     ShortcutGroup<String> EDITOR = ShortcutManager.getInstance().createGroup("Editor Shortcuts");
+
+    /**
+     * The errors view shortcuts.
+     */
+    ShortcutGroup<String> ERRORS = ShortcutManager.getInstance().createGroup("Errors Shortcuts");
 }

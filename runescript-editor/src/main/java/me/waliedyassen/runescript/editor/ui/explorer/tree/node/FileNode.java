@@ -77,6 +77,7 @@ public final class FileNode extends ExplorerNode<Path> {
         var projectManager = Api.getApi().getProjectManager();
         var project = projectManager.getCurrentProject().get();
         var compiler = Api.getApi().getCompiler();
+        Api.getApi().getUi().getErrorsView().clearErrors();
         try {
             var scripts = compiler.compile(Files.readAllBytes(getValue()));
             for (var script : scripts) {
@@ -85,8 +86,10 @@ public final class FileNode extends ExplorerNode<Path> {
         } catch (IOException e) {
             DialogManager.showErrorDialog("Pack Error", "An I/O error occurred while trying to read the file from the disk.");
         } catch (CompilerErrors errors) {
+            for (var error : errors.getErrors()) {
+                Api.getApi().getUi().getErrorsView().addError("Unknown", error.getRange().getStart().getColumn(), error.getRange().getStart().getColumn(), error.getMessage());
+            }
             DialogManager.showErrorDialog("Pack Error", "The file you tried to pack contains compile errors.\nPlease fix them before trying to pack again.");
-            errors.getErrors().forEach(error -> System.out.println(error.getMessage()));
         }
     }
 
