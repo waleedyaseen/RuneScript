@@ -24,10 +24,10 @@ import static me.waliedyassen.runescript.editor.ui.editor.tokenMaker.CodeTokens.
 public final class CodeTheme extends Theme {
 
     /**
-     * Whether or not we are currently using the IntelliJ theme. This is a temporary field
+     * Whether or not we are currently using the dark theme. This is a temporary field
      * that is going to be removed in the future when proper styling is done.
      */
-    public static final boolean INTELLIJ_MODE = true;
+    public static final boolean DARK_MODE = true;
 
     /**
      * Constructs a new {@link CodeTheme} type object instance.
@@ -36,7 +36,7 @@ public final class CodeTheme extends Theme {
      */
     public CodeTheme(RSyntaxTextArea textArea) {
         super(textArea);
-        if (INTELLIJ_MODE) {
+        if (DARK_MODE) {
             bgColor = new Color(43, 43, 43);
             gutterBackgroundColor = new Color(49, 51, 53);
             gutterBorderColor = new Color(85, 85, 85);
@@ -85,27 +85,25 @@ public final class CodeTheme extends Theme {
         public CodeScheme() {
             super(true);
             var styles = Arrays.copyOf(getStyles(), CodeTokens.NUM_TOKENS);
-            if (INTELLIJ_MODE) {
-
-                /***
-                 *
-                 */
-                styles[NULL] = new Style(new Color(168, 182, 197));
+            if (DARK_MODE) {
+                styles[NULL] = new Style(new Color(0xB0BEC5));
                 styles[UNDEFINED] = styles[NULL];
                 styles[WHITESPACE] = styles[NULL];
                 styles[IDENTIFIER] = styles[NULL];
-                styles[DECLARATION] = new Style(new Color(255, 0, 0));
-                styles[LOCAL_VARIABLE] = new Style(new Color(255, 127, 0));
-                styles[NUMBER_LITERAL] = new Style(new Color(255, 0, 71));
-                styles[GLOBAL_VARIABLE] = new Style(new Color(151, 117, 170));
-                styles[CONSTANT] = new Style(new Color(170, 155, 116));
-                styles[STRING_LITERAL] = new Style(new Color(128, 128, 128));
-                styles[STRING_INTERPOLATE] = new Style(new Color(59, 59, 161));
-                styles[LINE_COMMENT] = new Style(new Color(87, 132, 77));
-                styles[MULTILINE_COMMENT] = styles[LINE_COMMENT];
-                styles[KEYWORD] = new Style(new Color(202, 119, 51));
-                styles[TYPE_NAME] = new Style(new Color(0, 128, 6));
-                styles[COMMAND] = new Style(new Color(0, 128, 6));
+                styles[SEPARATOR] =new Style(new Color(0x89ddff));
+                styles[OPERATOR] = new Style(new Color(0x89ddff));
+                styles[COMMAND] = new Style(new Color(0xf07178));
+                styles[DECLARATION] = new Style(new Color(0x82aaff));
+                styles[LOCAL_VARIABLE] = new Style(new Color(0xf78c6c));
+                styles[NUMBER_LITERAL] = new Style(new Color(0xf78c6c));
+                styles[GLOBAL_VARIABLE] = styles[NULL];
+                styles[CONSTANT] = styles[NULL];
+                styles[STRING_LITERAL] = new Style(new Color(0xc3e88d));
+                styles[STRING_INTERPOLATE] = new Style(new Color(0xffcb6b));
+                styles[LINE_COMMENT] = new Style(new Color(0x616161));
+                styles[MULTILINE_COMMENT] = new Style(new Color(0x616161));
+                styles[KEYWORD] = new Style(new Color(0xc792ea));
+                styles[TYPE_NAME] = new Style(new Color(0xc792ea));
             } else {
                 styles[UNDEFINED] = styles[NULL];
                 styles[WHITESPACE] = styles[NULL];
