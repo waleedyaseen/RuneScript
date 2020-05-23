@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.ui.menu.action.list;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.shortcut.Shortcut;
 import me.waliedyassen.runescript.editor.shortcut.UiAction;
@@ -37,6 +38,7 @@ public class ActionList {
     /**
      * The source of the action list.
      */
+    @Getter
     private final Object source;
 
     /**
@@ -74,9 +76,12 @@ public class ActionList {
      *
      * @param title    the title of the action to display on the menu component.
      * @param shortcut the shortcut of the action which holds the keystroke and the callback.
+     * @return the {@link Executable} type object instance.
      */
-    public void addAction(String title, Shortcut shortcut) {
-        add(new Executable(title, shortcut.getKeyStroke(), shortcut.getAction(), source));
+    public Executable addAction(String title, Shortcut shortcut) {
+        var executable = new Executable(title, shortcut.getKeyStroke(), shortcut.getAction(), source);
+        add(executable);
+        return executable;
     }
 
     /**
@@ -84,9 +89,12 @@ public class ActionList {
      *
      * @param title    the title of the action to display on the menu component.
      * @param callback the callback of the action which is called when the action is executed.
+     * @return the {@link Executable} type object instance.
      */
-    public void addAction(String title, UiAction callback) {
-        add(new Executable(title, null, callback, source));
+    public Executable addAction(String title, UiAction callback) {
+        var executable = new Executable(title, null, callback, source);
+        add(executable);
+        return executable;
     }
 
     /**

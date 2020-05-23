@@ -8,10 +8,13 @@
 package me.waliedyassen.runescript.editor.ui.menu.action.impl;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import me.waliedyassen.runescript.editor.shortcut.UiAction;
 import me.waliedyassen.runescript.editor.ui.menu.action.Action;
 
 import javax.swing.*;
+import java.util.function.Predicate;
 
 /**
  * An executable {@link Action} implementation, this implementation creates a {@link JMenuItem} component.
@@ -42,15 +45,36 @@ public final class Executable implements Action {
     private final Object source;
 
     /**
+     * Whether or not this executable action is disabled (grayed out).
+     */
+    private Predicate<Executable> predicate;
+
+    /**
+     * Sets the enabled predicate of the executable action.
+     *
+     * @param predicate the predicate which determines the enabld status of the executable.
+     */
+    public void withPredicate(Predicate<Executable> predicate) {
+        this.predicate = predicate;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     public JComponent createComponent() {
         var item = new JMenuItem(title);
+        var enabled = predicate == null || predicate.test(this);
+        item.setEnabled(enabled);
         if (keyStroke != null) {
             item.setAccelerator(keyStroke);
         }
-        item.addActionListener((evt) -> callback.execute(source));
+        item.addActionListener((evt) -> {
+            if (!enabled) {
+                return;
+            }
+            callback.execute(source);
+        });
         return item;
     }
 }
