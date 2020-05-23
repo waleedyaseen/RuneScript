@@ -19,6 +19,19 @@ import javax.swing.*;
 public final class DialogManager {
 
     /**
+     * Asks the user to enter a directory or a file name.
+     *
+     * @param message the message to display for the user.
+     * @return the name the user entered or {@code null} if the user did not enter anything.
+     */
+    public static String askForName(String message) {
+        var result = JOptionPane.showInputDialog(
+                Api.getApi().getUi().getFrame(),
+                message);
+        return result;
+    }
+
+    /**
      * Shows a close dialog at the top level component.
      *
      * @param text the text of the dialog message.
