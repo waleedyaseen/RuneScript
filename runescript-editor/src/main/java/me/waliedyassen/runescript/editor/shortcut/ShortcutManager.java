@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.shortcut;
 
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -20,6 +21,7 @@ import java.util.Map;
  *
  * @author Walied K. Yassen
  */
+@Slf4j
 public final class ShortcutManager {
 
     /**
@@ -95,7 +97,7 @@ public final class ShortcutManager {
         if (shortcuts.containsKey(group)) {
             throw new IllegalArgumentException("There is a shortcut group with the same specified key already created");
         }
-        System.out.println("Creating shortcut group: " + value);
+        log.trace("Creating shortcut group: " + value);
         shortcuts.put(group, new HashMap<>());
         return group;
     }

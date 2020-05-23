@@ -12,6 +12,7 @@ import me.waliedyassen.runescript.compiler.CompilerErrors;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.dialog.DialogManager;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
+import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.parser.SyntaxError;
 
@@ -30,10 +31,11 @@ public final class FileNode extends ExplorerNode<Path> {
     /**
      * Constructs a new {@link FileNode} type object instance.
      *
+     * @param tree the owner tree of this explorer node.
      * @param file the path which leads to the file.
      */
-    public FileNode(Path file) {
-        super(file);
+    public FileNode(ExplorerTree tree, Path file) {
+        super(tree, file);
         setUserObject(file.getFileName());
         setAllowsChildren(false);
     }

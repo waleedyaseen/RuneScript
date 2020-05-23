@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.explorer.tree.lazy;
 
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
+import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
 /**
@@ -19,9 +20,11 @@ public final class LoadingNode extends ExplorerNode<Void> {
 
     /**
      * Constructs a new {@link LoadingNode} type object instance.
+     *
+     * @param tree the owner tree of the explorer node.
      */
-    public LoadingNode() {
-        super(null);
+    public LoadingNode(ExplorerTree tree) {
+        super(tree, null);
         setUserObject("Loading");
         setAllowsChildren(false);
     }

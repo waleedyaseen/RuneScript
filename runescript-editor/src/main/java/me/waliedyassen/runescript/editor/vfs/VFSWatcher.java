@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.editor.vfs;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -22,12 +24,18 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Walied K. Yassen
  */
+@Slf4j
 public final class VFSWatcher {
 
     /**
      * The executor service which is responsible for scheduling all of the watchers updating tasks.
      */
     private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+
+    /**
+     * The virtual fiel system which this watcher is for.
+     */
+    private final VFS vfs;
 
     /**
      * The watch service of the VFS watcher.
@@ -42,13 +50,13 @@ public final class VFSWatcher {
     /**
      * Constructs a new {@link VFSWatcher} type object instance.
      *
-     * @param root the path which leads to the root of the project.
+     * @param vfs the virtual file system this watcher is for.
      * @throws IOException if anything occurs while creating the watch service.
      */
-    public VFSWatcher(Path root) throws IOException {
+    public VFSWatcher(VFS vfs) throws IOException {
+        this.vfs = vfs;
         service = FileSystems.getDefault().newWatchService();
         future = executorService.scheduleAtFixedRate(this::performUpdate, 500, 500, TimeUnit.MILLISECONDS);
-        root.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
     }
 
     /**
@@ -60,18 +68,43 @@ public final class VFSWatcher {
             if (watchKey == null) {
                 break;
             }
-            for (var event : watchKey.pollEvents()) {
-                var path = (Path) event.context();
-                if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-                    System.out.println("Create: " + path.toAbsolutePath());
-                } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-                    System.out.println("Delete: " + path);
-                } else if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-                    System.out.println("Modified: " + path);
+            try {
+                var parent = (Path) watchKey.watchable();
+                var parentFile = vfs.resolveFile(parent);
+                if (parentFile.getListeners() == null || parentFile.getListeners().isEmpty()) {
+                    continue;
                 }
+                for (var event : watchKey.pollEvents()) {
+                    var path = parent.resolve((Path) event.context());
+                    if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+                        parentFile.getListeners().forEach(listener -> listener.onEntityCreate(path));
+                    } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
+                        parentFile.getListeners().forEach(listener -> listener.onEntityDelete(path));
+                    } else if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
+                        // NOOP
+                    }
+                }
+            } catch (Throwable e) {
+                log.error("An error occurred while performing the events for watch key: {}", watchKey, e);
+            } finally {
+                watchKey.reset();
             }
-            watchKey.reset();
         } while (true);
+    }
+
+
+    /**
+     * Registers the specified {@link Path} in the watch service.
+     *
+     * @param path the path to register in the watch service.
+     */
+    public void subscribe(Path path) {
+        try {
+            System.out.println("Subscribing: " + path);
+            path.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
+        } catch (IOException e) {
+            log.error("Failed to register a path in the watch service of a VFS. (path={})", path, e);
+        }
     }
 
     /**

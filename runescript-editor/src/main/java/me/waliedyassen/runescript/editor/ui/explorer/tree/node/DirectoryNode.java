@@ -9,17 +9,16 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.waliedyassen.runescript.editor.shortcut.Shortcut;
+import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonShortcuts;
 import me.waliedyassen.runescript.editor.ui.dialog.DialogManager;
-import me.waliedyassen.runescript.editor.ui.editor.EditorView;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
-import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LoadingNode;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
+import me.waliedyassen.runescript.editor.vfs.VFSFileListener;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -31,7 +30,7 @@ import java.nio.file.Path;
  *
  * @author Walied K. Yassen
  */
-public class DirectoryNode extends ExplorerNode<Path> {
+public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener {
 
     /**
      * Whether or not the directory node has been already loaded.
@@ -50,12 +49,15 @@ public class DirectoryNode extends ExplorerNode<Path> {
     /**
      * Constructs a new {@link DirectoryNode} type object instance.
      *
+     * @param tree  the owner tree of this explorer node.
      * @param value the path which leads to the directory.
      */
-    public DirectoryNode(Path value) {
-        super(value);
-        setUserObject(value.getFileName());
+    public DirectoryNode(ExplorerTree tree, Path value) {
+        super(tree, value);
+        setUserObject(value.getFileName().toString());
         LazyLoading.setup(this);
+        var file = Api.getApi().getProjectManager().getCurrentProject().get().getVfs().resolveFile(value);
+        file.addListener(this);
     }
 
     /**
@@ -101,6 +103,39 @@ public class DirectoryNode extends ExplorerNode<Path> {
         actionList.addAction("Delete", CommonGroups.EXPLORER.lookup(CommonShortcuts.EXPLORER_DELETE));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onEntityCreate(Path path) {
+        SwingUtilities.invokeLater(() -> {
+            if (Files.isDirectory(path)) {
+                add(new DirectoryNode(tree, path));
+            } else {
+                add(new FileNode(tree, path));
+            }
+            tree.getModel().nodesWereInserted(this, new int[]{getChildCount() - 1});
+        });
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onEntityDelete(Path path) {
+        SwingUtilities.invokeLater(() -> {
+            var count = getChildCount();
+            var name = path.getFileName().toString();
+            for (var index = 0; index < count; index++) {
+                var child = getChildAt(index);
+                if (child instanceof ExplorerNode && ((ExplorerNode) child).getUserObject().equals(name)) {
+                    ((ExplorerNode) child).removeFromParent();
+                    break;
+                }
+            }
+        });
+    }
+
     static {
         ShortcutManager.getInstance().addShortcut(CommonGroups.EXPLORER, CommonShortcuts.EXPLORER_DELETE, KeyStroke.getKeyStroke("DELETE"), source -> {
             var explorerTree = (ExplorerTree) source;
@@ -109,11 +144,14 @@ public class DirectoryNode extends ExplorerNode<Path> {
                 return;
             }
             for (var path : paths) {
-                var component = path.getLastPathComponent();
-                if (component instanceof DirectoryNode) {
-                    // TODO:
-                } else if (component instanceof FileNode) {
-                    // TODO:
+                var node = path.getLastPathComponent();
+                if (node instanceof DirectoryNode) {
+                    var directoryNode = (DirectoryNode) node;
+                } else if (node instanceof FileNode) {
+                    var fileNode = (FileNode) node;
+                    if (fileNode.isSourceFile()) {
+
+                    }
                 }
             }
         });

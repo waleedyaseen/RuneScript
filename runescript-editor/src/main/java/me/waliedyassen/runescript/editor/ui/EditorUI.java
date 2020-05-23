@@ -90,11 +90,11 @@ public final class EditorUI implements WindowListener {
     public void initialise() {
         initialiseComponents();
         initialiseProperties();
-        editor.getProjectManager().getCurrentProject().addListener((project) -> {
+        editor.getProjectManager().getCurrentProject().addListener(project -> {
             var tree = explorerView.getTree();
             tree.clear();
             if (project != null) {
-                tree.getRoot().add(new ProjectNode(project));
+                tree.getRoot().add(new ProjectNode(tree, project));
             }
             tree.getModel().nodeStructureChanged(tree.getRoot());
         });

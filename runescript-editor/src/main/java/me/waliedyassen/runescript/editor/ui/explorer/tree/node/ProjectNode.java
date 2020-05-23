@@ -12,6 +12,7 @@ import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonShortcuts;
+import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
 import javax.swing.*;
@@ -32,11 +33,11 @@ public final class ProjectNode extends DirectoryNode {
     /**
      * Constructs a new {@link ProjectNode} type object instance.
      *
-     * @param project
-     *         the project which the node is for.
+     * @param tree    the owner tree of the project node.
+     * @param project the project which the node is for.
      */
-    public ProjectNode(Project project) {
-        super(project.getDirectory());
+    public ProjectNode(ExplorerTree tree, Project project) {
+        super(tree, project.getDirectory());
         this.project = project;
         setUserObject(project.getName());
     }

@@ -23,10 +23,16 @@ import javax.swing.tree.DefaultMutableTreeNode;
 public abstract class ExplorerNode<T> extends DefaultMutableTreeNode implements ActionSource {
 
     /**
+     * The tree which owns this explorer node.
+     */
+    @Getter
+    protected final ExplorerTree tree;
+
+    /**
      * The value of the explorer node.
      */
     @Getter
-    private final T value;
+    protected final T value;
 
     /**
      * Gets called when we double click the node in the tree.

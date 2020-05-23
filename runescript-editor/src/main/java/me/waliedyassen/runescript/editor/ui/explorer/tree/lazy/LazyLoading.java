@@ -45,8 +45,8 @@ public final class LazyLoading extends SwingWorker<List<ExplorerNode<?>>, Void> 
     protected List<ExplorerNode<?>> doInBackground() throws Exception {
         var files = Files.list(node.getValue()).sorted().collect(Collectors.toList());
         var list = new ArrayList<ExplorerNode<?>>(files.size());
-        files.stream().filter(Files::isDirectory).map(DirectoryNode::new).forEach(list::add);
-        files.stream().filter(Files::isRegularFile).map(FileNode::new).forEach(list::add);
+        files.stream().filter(Files::isDirectory).map(path -> new DirectoryNode(tree, path)).forEach(list::add);
+        files.stream().filter(Files::isRegularFile).map(path -> new FileNode(tree, path)).forEach(list::add);
         return list;
     }
 
@@ -72,27 +72,22 @@ public final class LazyLoading extends SwingWorker<List<ExplorerNode<?>>, Void> 
     /**
      * Sets-up the lazy loading for the specified {@link DirectoryNode}.
      *
-     * @param node
-     *         the node to set up the lazy loading for.
-     *
-     * @throws IllegalArgumentException
-     *         if the node has elements or been loaded before.
+     * @param node the node to set up the lazy loading for.
+     * @throws IllegalArgumentException if the node has elements or been loaded before.
      */
     public static void setup(DirectoryNode node) {
         if (node.isLoaded() || node.getChildCount() > 0) {
             throw new IllegalArgumentException("The directory node needs to be empty before it can be lazily loaded");
         }
-        node.add(new LoadingNode());
+        node.add(new LoadingNode(node.getTree()));
         node.setAllowsChildren(true);
     }
 
     /**
      * Executes lazy loading for children for the specified {@link DirectoryNode}.
      *
-     * @param tree
-     *         the tree which owns the directory node.
-     * @param node
-     *         the directory node which we want to load it's children lazily.
+     * @param tree the tree which owns the directory node.
+     * @param node the directory node which we want to load it's children lazily.
      */
     public static void execute(ExplorerTree tree, DirectoryNode node) {
         if (node.isLoaded() || node.isLoading() || node.getChildCount() > 1 || !(node.getChildAt(0) instanceof LoadingNode)) {

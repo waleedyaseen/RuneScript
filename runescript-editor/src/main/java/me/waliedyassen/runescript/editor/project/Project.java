@@ -283,7 +283,7 @@ public final class Project {
      */
     private void postLoad() {
         packManager = new PackManager(new SQLitePackProvider(buildPath.getPackDirectory().toAbsolutePath()));
-        vfs = new VFS(buildPath.getSourceDirectory());
+        vfs = new VFS(directory);
     }
 
     /**
