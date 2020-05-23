@@ -96,8 +96,10 @@ public final class ProjectManager {
         if (Api.getApi().getEditorView().closeAllTabs()) {
             return;
         }
+        var project = currentProject.get();
         try {
             save();
+            project.closeVfs();
         } finally {
             currentProject.set(null);
             activeProperty.set(false);

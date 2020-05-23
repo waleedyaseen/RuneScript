@@ -25,6 +25,7 @@ import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
+import me.waliedyassen.runescript.editor.vfs.VFS;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
 
@@ -70,6 +71,12 @@ public final class Project {
      */
     @Getter
     private PackManager packManager;
+
+    /**
+     * The virtual file system of the project.
+     */
+    @Getter
+    private VFS vfs;
 
     /**
      * The compiler we are going to use for this project.
@@ -271,12 +278,12 @@ public final class Project {
         }
     }
 
-
     /**
      * Gets called after the project has been loaded.
      */
     private void postLoad() {
         packManager = new PackManager(new SQLitePackProvider(buildPath.getPackDirectory().toAbsolutePath()));
+        vfs = new VFS(buildPath.getSourceDirectory());
     }
 
     /**
@@ -299,6 +306,17 @@ public final class Project {
         compiler.put("commands", commandsPath);
         // Write the serialised data into the project file.
         JsonUtil.getMapper().writerWithDefaultPrettyPrinter().writeValue(findProjectFile().toFile(), root);
+    }
+
+    /**
+     * Closes the virtual file system of the project.
+     */
+    public void closeVfs() {
+        try {
+            vfs.close();
+        } finally {
+            vfs = null;
+        }
     }
 
     /**
