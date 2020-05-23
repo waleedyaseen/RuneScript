@@ -76,7 +76,7 @@ public final class ErrorsView extends JPanel implements ActionSource {
         SwingUtilities.invokeLater(() -> {
             for (var row = model.getRowCount() - 1; row >= 0; row--) {
                 var path = (String) model.getValueAt(row, 1);
-                if (path != null || path.contentEquals(targetPath)) {
+                if (path != null && path.contentEquals(targetPath)) {
                     model.removeRow(row);
                 }
             }
