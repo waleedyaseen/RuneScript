@@ -35,6 +35,13 @@ public abstract class Editor<K> {
     public abstract JComponent getViewComponent();
 
     /**
+     * Returns the icon of the editor.
+     *
+     * @return the icon of th4 editor.
+     */
+    public abstract Icon getIcon();
+
+    /**
      * Returns the title of the editor.
      *
      * @return the title of the editor.

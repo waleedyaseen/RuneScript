@@ -27,7 +27,7 @@ public final class ScriptFileType implements FileType {
      */
     @Override
     public Editor<?> createEditor(Path path) {
-        return new CodeEditor(path);
+        return new CodeEditor(this, path);
     }
 
     /**

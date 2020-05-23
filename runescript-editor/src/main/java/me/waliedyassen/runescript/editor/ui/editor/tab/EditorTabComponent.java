@@ -32,6 +32,10 @@ public final class EditorTabComponent extends TabComponent {
         super(new BorderLayout(2, 0));
         // Create and add the title  button.
         label = new JLabel(tab.getEditor().getTitle());
+        var icon = tab.getEditor().getIcon();
+        if (icon != null) {
+            label.setIcon(icon);
+        }
         add(label, BorderLayout.CENTER);
         // Create and add the close button.
         var button = new JButton("X");

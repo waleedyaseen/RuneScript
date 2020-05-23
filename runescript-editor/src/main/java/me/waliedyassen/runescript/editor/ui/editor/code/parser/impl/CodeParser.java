@@ -5,17 +5,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.editor.ui.editor.parser.impl;
+package me.waliedyassen.runescript.editor.ui.editor.code.parser.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.compiler.CompilerErrors;
 import me.waliedyassen.runescript.editor.Api;
-import me.waliedyassen.runescript.editor.ui.editor.CodeArea;
-import me.waliedyassen.runescript.editor.ui.editor.parser.notice.ErrorNotice;
+import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
+import me.waliedyassen.runescript.editor.ui.editor.code.parser.notice.ErrorNotice;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.parser.*;
 
 import javax.swing.text.BadLocationException;
@@ -38,19 +37,20 @@ public final class CodeParser extends AbstractParser {
     /**
      * The text area which the parser is for.
      */
-    private final RSyntaxTextArea textArea;
+    private final CodeEditor codeEditor;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public ParseResult parse(RSyntaxDocument doc, String style) {
-        var codeArea = (CodeArea) textArea;
+        var textArea = codeEditor.getTextArea();
         result.clearNotices();
         result.setParsedLines(0, textArea.getLineCount() - 1);
+        var errorPath = codeEditor.getKey().toAbsolutePath().toString();
         var compiler = Api.getApi().getCompiler();
         var errorsView = Api.getApi().getUi().getErrorsView();
-        errorsView.removeErrorForPath(codeArea.getPath().toString());
+        errorsView.removeErrorForPath(errorPath);
         try {
             var start = System.currentTimeMillis();
             compiler.compile(textArea.getText());
@@ -64,7 +64,7 @@ public final class CodeParser extends AbstractParser {
                     var endOffset = getOffset(error.getRange().getEnd());
                     var line = textArea.getLineOfOffset(startOffset);
                     result.addNotice(new ErrorNotice(this, error.getMessage(), line, startOffset, endOffset));
-                    errorsView.addError(codeArea.getPath().toString(), error.getRange().getStart().getLine(), error.getRange().getStart().getColumn(), error.getMessage());
+                    errorsView.addError(errorPath, error.getRange().getStart().getLine(), error.getRange().getStart().getColumn(), error.getMessage());
                 } catch (Throwable e) {
                     log.warn("An error occurred while adding the compiling errors to the result", e);
                 }
@@ -79,6 +79,6 @@ public final class CodeParser extends AbstractParser {
      * @param lineColumn the object which contains the line and column information.
      */
     private int getOffset(LineColumn lineColumn) throws BadLocationException {
-        return textArea.getLineStartOffset(lineColumn.getLine() - 1) + lineColumn.getColumn() - 1;
+        return codeEditor.getTextArea().getLineStartOffset(lineColumn.getLine() - 1) + lineColumn.getColumn() - 1;
     }
 }

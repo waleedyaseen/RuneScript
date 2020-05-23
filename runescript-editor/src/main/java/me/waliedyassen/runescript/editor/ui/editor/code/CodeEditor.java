@@ -7,29 +7,17 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor.code;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.Api;
-import me.waliedyassen.runescript.editor.ui.editor.Editor;
+import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.ui.editor.code.folder.CodeFolder;
 import me.waliedyassen.runescript.editor.ui.editor.code.parser.ParserManager;
 import me.waliedyassen.runescript.editor.ui.editor.code.theme.CodeTheme;
 import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokenMaker;
 import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.factory.TokenMakerFactoryImpl;
-import me.waliedyassen.runescript.editor.util.MD5Util;
-import org.fife.ui.rsyntaxtextarea.ErrorStrip;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
-import org.fife.ui.rtextarea.RTextScrollPane;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 
 /**
  * Represents a RuneScript Editor code area.
@@ -37,43 +25,22 @@ import java.util.Arrays;
  * @author Walied K. Yassen
  */
 @Slf4j
-public final class CodeEditor extends Editor<Path> {
+public final class CodeEditor extends FileEditor {
 
     /**
      * The syntax style of the code area.
      */
     private static final String SYNTAX_STYLE_RUNESCRIPT = "text/runescript";
 
-    /**
-     * The text area of the code editor.
-     */
-    @Getter
-    private final RSyntaxTextArea textArea = new RSyntaxTextArea();
-
-    /**
-     * The view pane of the code area.
-     */
-    @Getter
-    private final JComponent viewPane = new JPanel(new BorderLayout());
-
-    /**
-     * The path of the code area.
-     */
-    @Getter
-    private final Path path;
-
-    /**
-     * The checksum of the editor content on the local disk.
-     */
-    private byte[] diskChecksum;
 
     /**
      * Constructs a new {@link CodeEditor} type object instance.
      *
-     * @param path the file path of the code area.
+     * @param fileType the type of the file we are editing.
+     * @param path     the path of the file we are editing.
      */
-    public CodeEditor(Path path) {
-        this.path = path;
+    public CodeEditor(FileType fileType, Path path) {
+        super(fileType, path);
         textArea.setSyntaxEditingStyle(SYNTAX_STYLE_RUNESCRIPT);
         textArea.setTabSize(2);
         textArea.setAutoIndentEnabled(true);
@@ -82,8 +49,6 @@ public final class CodeEditor extends Editor<Path> {
         textArea.setCodeFoldingEnabled(true);
         textArea.setAutoscrolls(true);
         textArea.setWrapStyleWord(false);
-        viewPane.add(new RTextScrollPane(textArea));
-        viewPane.add(new ErrorStrip(textArea), BorderLayout.LINE_END);
         new CodeTheme(textArea).apply(textArea);
         ParserManager.installCodeParser(this);
         textArea.setPopupMenu(null);
@@ -93,75 +58,5 @@ public final class CodeEditor extends Editor<Path> {
     static {
         TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNESCRIPT, () -> new CodeTokenMaker(Api.getApi().getCompiler().getLexicalTable(), Api.getApi().getCompiler().getSymbolTable()));
         FoldParserManager.get().addFoldParserMapping(SYNTAX_STYLE_RUNESCRIPT, new CodeFolder());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void reload() {
-        try {
-            var data = Files.readAllBytes(path);
-            try (var reader = new InputStreamReader(new ByteArrayInputStream(data))) {
-                textArea.read(reader, null);
-            }
-            diskChecksum = MD5Util.calculate(data);
-        } catch (Throwable e) {
-            log.error("An error occured while trying to save code editor content to disk", e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void save() {
-        try {
-            var content = textArea.getText().getBytes();
-            Files.write(path, content, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-            diskChecksum = MD5Util.calculate(content);
-        } catch (Throwable e) {
-            log.error("An error occured while trying to save code editor content to disk", e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JComponent getViewComponent() {
-        return viewPane;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getTitle() {
-        return path.getFileName().toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getTooltip() {
-        return path.toString();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isModified() {
-        return !Arrays.equals(MD5Util.calculate(textArea.getText().getBytes()), diskChecksum);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Path getKey() {
-        return path;
     }
 }
