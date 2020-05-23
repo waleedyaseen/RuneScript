@@ -17,7 +17,12 @@ public interface CommonShortcuts {
     /**
      * The explorer close project shortcut name.
      */
-    String EXPLORER_CLOSE_PROJECT = "Close Project";
+    String EXPLORER_CLOSE_PROJECT = "Explorer Close Project";
+
+    /**
+     * The explorer close project shortcut name.
+     */
+    String EXPLORER_DELETE = "Explorer Delete";
 
     /**
      * The editor close file shortcut name.
