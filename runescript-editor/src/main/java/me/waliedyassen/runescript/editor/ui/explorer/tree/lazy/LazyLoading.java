@@ -61,6 +61,7 @@ public final class LazyLoading extends SwingWorker<List<ExplorerNode<?>>, Void> 
             children.forEach(node::add);
             node.setAllowsChildren(!children.isEmpty());
             node.setLoading(false);
+            node.setLoaded(true);
             tree.getModel().nodeStructureChanged(node);
         } catch (Throwable e) {
             e.printStackTrace();
