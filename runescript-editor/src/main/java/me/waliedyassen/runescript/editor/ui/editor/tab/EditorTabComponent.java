@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package me.waliedyassen.runescript.editor.ui.editor;
+package me.waliedyassen.runescript.editor.ui.editor.tab;
 
 import me.waliedyassen.runescript.editor.ui.tabbedpane.TabComponent;
 
@@ -17,11 +17,6 @@ import java.awt.*;
  * @author Walied K. Yassen
  */
 public final class EditorTabComponent extends TabComponent {
-
-    /**
-     * The editor tab which this component is for.
-     */
-    private final EditorTab tab;
 
     /**
      * The title label component of the tab component.
@@ -35,9 +30,8 @@ public final class EditorTabComponent extends TabComponent {
      */
     public EditorTabComponent(EditorTab tab) {
         super(new BorderLayout(2, 0));
-        this.tab = tab;
         // Create and add the title  button.
-        label = new JLabel(tab.getPath().getFileName().toString());
+        label = new JLabel(tab.getEditor().getTitle());
         add(label, BorderLayout.CENTER);
         // Create and add the close button.
         var button = new JButton("X");
@@ -45,7 +39,7 @@ public final class EditorTabComponent extends TabComponent {
         button.setToolTipText("Close");
         add(button, BorderLayout.EAST);
         // Set the tooltip of the tab component.
-        setTooltip(tab.getPath().toString());
+        setTooltip(tab.getEditor().getTooltip());
     }
 
 

@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.editor.ui.editor.tokenMaker;
+package me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import org.fife.ui.rsyntaxtextarea.TokenMap;
 import javax.swing.text.Segment;
 import java.util.Stack;
 
-import static me.waliedyassen.runescript.editor.ui.editor.tokenMaker.CodeTokens.*;
+import static me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokens.*;
 
 /**
  * Represents the RuneScript language code token maker.

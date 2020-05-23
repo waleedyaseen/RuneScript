@@ -7,18 +7,13 @@
  */
 package me.waliedyassen.runescript.editor.ui;
 
-import bibliothek.extension.gui.dock.theme.EclipseTheme;
-import bibliothek.extension.gui.dock.theme.SmoothTheme;
-import bibliothek.gui.DockTheme;
-import bibliothek.gui.DockUI;
 import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.common.CGrid;
 import bibliothek.gui.dock.common.DefaultSingleCDockable;
-import bibliothek.gui.dock.themes.NoStackTheme;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.RuneScriptEditor;
-import me.waliedyassen.runescript.editor.ui.editor.EditorView;
+import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.errors.ErrorsView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.ProjectNode;
@@ -28,7 +23,6 @@ import me.waliedyassen.runescript.editor.ui.frame.top.TopUi;
 import me.waliedyassen.runescript.editor.ui.status.StatusBar;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -130,7 +124,7 @@ public final class EditorUI implements WindowListener {
         var grid = new CGrid(control);
 
         var explorerArea = new DefaultSingleCDockable(ExplorerView.DOCK_ID, "Explorer", explorerView);
-        var editorArea = new DefaultSingleCDockable(EditorView.DOCK_ID, "Editor", editorView);
+        var editorArea = new DefaultSingleCDockable(EditorView.DOCK_ID, "Editor", this.editorView);
         var errorsArea = new DefaultSingleCDockable(ErrorsView.DOCK_ID, "Errors", errorsView);
         editorArea.setCloseable(false);
         editorArea.setMaximizable(false);

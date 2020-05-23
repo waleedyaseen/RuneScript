@@ -5,9 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.editor.ui.editor.parser;
+package me.waliedyassen.runescript.editor.ui.editor.code.parser;
 
-import me.waliedyassen.runescript.editor.ui.editor.parser.impl.CodeParser;
+import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
+import me.waliedyassen.runescript.editor.ui.editor.code.parser.impl.CodeParser;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 /**
@@ -37,10 +38,10 @@ public final class ParserManager {
     /**
      * Installs a code parser for the specified {@link RSyntaxTextArea text area}.
      *
-     * @param textArea the text area to install the parser for.
+     * @param codeEditor the text area to install the parser for.
      */
-    public static void installCodeParser(RSyntaxTextArea textArea) {
-        textArea.addParser(new CodeParser(textArea));
+    public static void installCodeParser(CodeEditor codeEditor) {
+        codeEditor.getTextArea().addParser(new CodeParser(codeEditor));
     }
 
     private ParserManager() {

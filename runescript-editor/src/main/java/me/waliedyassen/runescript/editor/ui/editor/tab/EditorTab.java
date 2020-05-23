@@ -6,7 +6,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package me.waliedyassen.runescript.editor.ui.editor;
+package me.waliedyassen.runescript.editor.ui.editor.tab;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -16,6 +16,8 @@ import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonShortcuts;
 import me.waliedyassen.runescript.editor.ui.dialog.DialogManager;
 import me.waliedyassen.runescript.editor.ui.dialog.DialogResult;
+import me.waliedyassen.runescript.editor.ui.editor.Editor;
+import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.util.MD5Util;
@@ -25,45 +27,29 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 
 /**
- * A single code editor tab in the editor view.
+ * A tab component for a single {@link Editor} object.
  *
  * @author Walied K. Yassen
  */
 public final class EditorTab implements ActionSource {
 
     /**
-     * The code area which contains the content of the file.
+     * The editor which this tab is for.
      */
     @Getter
-    private final CodeArea codeArea;
-
-    /**
-     * The file path which the editor tab is editing.
-     */
-    @Getter
-    private final Path path;
-
-    /**
-     * The disk MD5 checksum of the tab.
-     */
-    private byte[] diskChecksum;
+    private final Editor<?> editor;
 
     /**
      * Constructs a new {@link EditorTab} type object instance.
      *
-     * @param path the file path on the local disk which this tab is for.
-     * @throws IOException if anything occurs during the loading of the editor tab content.
+     * @param editor the editor which this tab is for.
      */
-    public EditorTab(Path path) throws IOException {
-        this.path = path;
-        codeArea = new CodeArea(path);
-        ShortcutManager.getInstance().bindShortcuts(CommonGroups.EDITOR, codeArea, this);
-        ShortcutManager.getInstance().bindShortcuts(CommonGroups.EDITOR, getViewComponent(), this);
+    public EditorTab(Editor<?> editor) {
+        this.editor = editor;
+        ShortcutManager.getInstance().bindShortcuts(CommonGroups.EDITOR, editor.getViewComponent(), this);
         reload();
     }
 
@@ -73,7 +59,7 @@ public final class EditorTab implements ActionSource {
     @Override
     public void populateActions(ActionList actionList) {
         actionList.addAction("Save", CommonGroups.EDITOR.lookup(CommonShortcuts.EDITOR_SAVE_FILE))
-                .withPredicate(action -> modified());
+                .withPredicate(action -> isModified());
         actionList.addSeparator();
         actionList.addAction("Close", CommonGroups.EDITOR.lookup(CommonShortcuts.EDITOR_CLOSE_FILE));
     }
@@ -87,7 +73,7 @@ public final class EditorTab implements ActionSource {
         if (checkModifySave()) {
             return false;
         }
-        Api.getApi().getEditorView().closeTab(path);
+        Api.getApi().getEditorView().closeTab(editor.getKey());
         return true;
     }
 
@@ -97,7 +83,7 @@ public final class EditorTab implements ActionSource {
      * @return <code>true</code> if the the operation should be cancelled otherwise <code>false</code>.
      */
     public boolean checkModifySave() {
-        if (modified()) {
+        if (isModified()) {
             var result = DialogManager.showCloseDialog("This file has unsaved changes. Do you want to save your changes before closing?");
             if (result == DialogResult.CANCEL) {
                 return true;
@@ -114,30 +100,22 @@ public final class EditorTab implements ActionSource {
      *
      * @return <code>true</code> if it has been modified otherwise <code>false</code>.
      */
-    private boolean modified() {
-        return !Arrays.equals(MD5Util.calculate(getCodeArea().getText().getBytes()), diskChecksum);
+    private boolean isModified() {
+        return editor.isModified();
     }
 
     /**
      * Reloads the content of the tab from the file from the local disk.
-     *
-     * @throws IOException if anything occurs during reading the content of the file from the local disk.
      */
-    public void reload() throws IOException {
-        var data = Files.readAllBytes(path);
-        try (var reader = new InputStreamReader(new ByteArrayInputStream(data))) {
-            codeArea.read(reader, null);
-        }
-        diskChecksum = MD5Util.calculate(data);
+    public void reload() {
+        editor.reload();
     }
 
     /**
      * Saves the content of this file to the disk.
      */
-    @SneakyThrows
     public void save() {
-        Files.writeString(path, codeArea.getText(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-        diskChecksum = MD5Util.calculate(codeArea.getText().getBytes());
+        editor.save();
     }
 
     /**
@@ -146,6 +124,6 @@ public final class EditorTab implements ActionSource {
      * @return the cached or created {@link JComponent} object.
      */
     public JComponent getViewComponent() {
-        return codeArea.getViewPane();
+        return editor.getViewComponent();
     }
 }

@@ -7,16 +7,19 @@
  */
 package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
-import me.waliedyassen.runescript.CompilerError;
+import lombok.Getter;
 import me.waliedyassen.runescript.compiler.CompilerErrors;
 import me.waliedyassen.runescript.editor.Api;
+import me.waliedyassen.runescript.editor.file.FileType;
+import me.waliedyassen.runescript.editor.file.FileTypeManager;
+import me.waliedyassen.runescript.editor.file.impl.ProjectFileType;
+import me.waliedyassen.runescript.editor.file.impl.ScriptFileType;
 import me.waliedyassen.runescript.editor.ui.dialog.DialogManager;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
-import me.waliedyassen.runescript.parser.SyntaxError;
+import me.waliedyassen.runescript.editor.util.ex.PathEx;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,14 +32,21 @@ import java.nio.file.Path;
 public final class FileNode extends ExplorerNode<Path> {
 
     /**
+     * The file type of the node.
+     */
+    @Getter
+    private final FileType fileType;
+
+    /**
      * Constructs a new {@link FileNode} type object instance.
      *
      * @param tree the owner tree of this explorer node.
-     * @param file the path which leads to the file.
+     * @param path the path which leads to the file.
      */
-    public FileNode(ExplorerTree tree, Path file) {
-        super(tree, file);
-        setUserObject(file.getFileName());
+    public FileNode(ExplorerTree tree, Path path) {
+        super(tree, path);
+        fileType = FileTypeManager.lookup(PathEx.getExtension(path));
+        setUserObject(path.getFileName());
         setAllowsChildren(false);
     }
 
@@ -45,12 +55,11 @@ public final class FileNode extends ExplorerNode<Path> {
      */
     @Override
     public void populateActions(ActionList actionList) {
-        if (!isSourceFile()) {
-            return;
+        if (fileType instanceof ScriptFileType) {
+            actionList.addAction("Open", (source) -> openFile());
+            actionList.addSeparator();
+            actionList.addAction("Pack", (source) -> packFile());
         }
-        actionList.addAction("Open", (source) -> openFile());
-        actionList.addSeparator();
-        actionList.addAction("Pack", (source) -> packFile());
     }
 
     /**
@@ -58,7 +67,9 @@ public final class FileNode extends ExplorerNode<Path> {
      */
     @Override
     public void onActionClick() {
-        openFile();
+        if (fileType instanceof ScriptFileType) {
+            openFile();
+        }
     }
 
     /**
@@ -69,7 +80,11 @@ public final class FileNode extends ExplorerNode<Path> {
         if (editorView.selectTab(getValue())) {
             return;
         }
-        Api.getApi().getEditorView().addTab(getValue());
+        var editor = fileType.createEditor(getValue());
+        if (editor == null) {
+            return;
+        }
+        Api.getApi().getEditorView().addTab(editor);
     }
 
     /**
@@ -96,11 +111,11 @@ public final class FileNode extends ExplorerNode<Path> {
     }
 
     /**
-     * Checks whether or not the file node is for a source file.
+     * Checks whether or not the file node is for a protected file.
      *
      * @return <code>true</code> if it is otherwise <code>false</code>.
      */
-    public boolean isSourceFile() {
-        return getValue().getFileName().toString().endsWith(".rs2");
+    public boolean isProtectedFile() {
+        return fileType instanceof ProjectFileType;
     }
 }

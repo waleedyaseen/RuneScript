@@ -1,17 +1,20 @@
 /*
- * Copyright (c) 2019 Walied K. Yassen, All rights reserved.
+ * Copyright (c) 2020 Walied K. Yassen, All rights reserved.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.editor.ui.editor;
+package me.waliedyassen.runescript.editor.ui.editor.area;
 
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonShortcuts;
+import me.waliedyassen.runescript.editor.ui.editor.Editor;
+import me.waliedyassen.runescript.editor.ui.editor.tab.EditorTab;
+import me.waliedyassen.runescript.editor.ui.editor.tab.EditorTabComponent;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.ui.tabbedpane.TabbedPane;
@@ -20,8 +23,6 @@ import me.waliedyassen.runescript.editor.ui.util.DelegatingMouseListener;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +48,7 @@ public final class EditorView extends JPanel implements ActionSource {
     /**
      * The tabs that are currently in the editor view.
      */
-    private final Map<Path, EditorTab> tabsByPath = new HashMap<>();
+    private final Map<Object, EditorTab> tabsByKey = new HashMap<>();
 
     /**
      * The tabs that are currently in the editor view.
@@ -84,7 +85,7 @@ public final class EditorView extends JPanel implements ActionSource {
                     return;
                 }
                 if (SwingUtilities.isMiddleMouseButton(e)) {
-                    closeTab(tab.getPath());
+                    closeTab(tab.getEditor().getKey());
                 } else if (SwingUtilities.isRightMouseButton(e)) {
                     var actionList = Api.getApi().getActionManager().createList(tab);
                     tab.populateActions(actionList);
@@ -116,36 +117,34 @@ public final class EditorView extends JPanel implements ActionSource {
     }
 
     /**
-     * Adds a new editor tab for the specified {@link Path path}.
+     * Adds a new editor tab to the editor view.
      *
-     * @param path the file path which the tab will be editing.
+     * @param editor the editor which we want to add as a tab.
      */
-    public void addTab(Path path) {
-        EditorTab tab = tabsByPath.get(path);
+    public void addTab(Editor<?> editor) {
+        var tab = tabsByKey.get(editor.getKey());
         if (tab != null) {
-            throw new IllegalStateException("The specified file path is already opened by another editor tab");
+            throw new IllegalStateException("The specified editor is already opened by another editor tab");
         }
-        try {
-            tab = new EditorTab(path);
-            var component = tab.getViewComponent();
-            tabsByPath.put(path, tab);
-            tabsByComponent.put(component, tab);
-            tabbedPane.addTab(path.getFileName().toString(), component);
-            tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(component), new EditorTabComponent(tab));
-            selectTab(path);
-        } catch (IOException e) {
-            log.error("Failed to create a new editor tab for path: {}", path, e);
-        }
+        var key = editor.getKey();
+        tab = new EditorTab(editor);
+        var component = editor.getViewComponent();
+        tabsByKey.put(key, tab);
+        tabsByComponent.put(component, tab);
+        tabbedPane.addTab(editor.getTitle(), component);
+        tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(component), new EditorTabComponent(tab));
+        selectTab(key);
+
     }
 
     /**
-     * Selects the tab with the specified {@link Path path}.
+     * Selects the tab with the specified {@link Object key}.
      *
-     * @param path the file path on the local disk to select it's editor tab.
+     * @param key the key which we want to select it's associated tab
      * @return <code>true</code> if the tab was selected or <code>false</code> if it was not.
      */
-    public boolean selectTab(Path path) {
-        EditorTab tab = tabsByPath.get(path);
+    public boolean selectTab(Object key) {
+        var tab = tabsByKey.get(key);
         if (tab == null) {
             return false;
         }
@@ -159,8 +158,8 @@ public final class EditorView extends JPanel implements ActionSource {
      * @return <code>true</code> if the operation was cancelled otherwise <code>false</code>.
      */
     public boolean closeAllTabs() {
-        for (var path : tabsByPath.keySet().toArray(new Path[0])) {
-            var tab = tabsByPath.get(path);
+        for (var key : tabsByKey.keySet().toArray(new Object[0])) {
+            var tab = tabsByKey.get(key);
             if (tab == null) {
                 continue;
             }
@@ -172,17 +171,17 @@ public final class EditorView extends JPanel implements ActionSource {
     }
 
     /**
-     * Closes the tab with the specified {@link Path path} if it is opened in the editor.
+     * Closes the tab with the specified {@link Object key} if it is opened in the editor.
      *
-     * @param path the path of the tab that we want to close.
+     * @param key the key which we want to close it's associated tab.
      */
-    void closeTab(Path path) {
-        var tab = tabsByPath.get(path);
+    public void closeTab(Object key) {
+        var tab = tabsByKey.get(key);
         if (tab == null) {
             return;
         }
         tabsByComponent.remove(tab.getViewComponent());
-        tabsByPath.remove(path);
+        tabsByKey.remove(key);
         tabbedPane.remove(tab.getViewComponent());
     }
 

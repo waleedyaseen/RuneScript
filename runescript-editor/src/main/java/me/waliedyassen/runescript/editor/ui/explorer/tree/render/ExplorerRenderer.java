@@ -35,11 +35,10 @@ public final class ExplorerRenderer extends DefaultTreeCellRenderer {
         } else if (value instanceof DirectoryNode) {
             setIcon(EditorIcons.FILETYPE_FOLDER_ICON);
         } else if (value instanceof FileNode) {
-            var name = ((FileNode) value).getValue().toString();
-            if (name.endsWith(".rs2")) {
-                setIcon(EditorIcons.FILETYPE_SCRIPT_ICON);
-            } else {
-                setIcon(EditorIcons.FILETYPE_FILE_ICON);
+            var fileType = ((FileNode) value).getFileType();
+            var icon = fileType.getIcon();
+            if (icon != null) {
+                setIcon(icon);
             }
         }
         return component;

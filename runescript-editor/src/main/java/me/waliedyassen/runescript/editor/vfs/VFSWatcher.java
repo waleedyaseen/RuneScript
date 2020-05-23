@@ -100,7 +100,6 @@ public final class VFSWatcher {
      */
     public void subscribe(Path path) {
         try {
-            System.out.println("Subscribing: " + path);
             path.register(service, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE);
         } catch (IOException e) {
             log.error("Failed to register a path in the watch service of a VFS. (path={})", path, e);

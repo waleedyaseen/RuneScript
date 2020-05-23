@@ -6,9 +6,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package me.waliedyassen.runescript.editor.ui.editor.tokenMaker.factory;
+package me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.factory;
 
-import lombok.Getter;
 import org.fife.ui.rsyntaxtextarea.TokenMaker;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 

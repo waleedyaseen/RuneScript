@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.editor.project.ProjectManager;
 import me.waliedyassen.runescript.editor.ui.EditorUI;
-import me.waliedyassen.runescript.editor.ui.editor.EditorView;
+import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionManager;

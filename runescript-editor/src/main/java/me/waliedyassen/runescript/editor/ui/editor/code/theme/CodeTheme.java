@@ -5,19 +5,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.editor.ui.editor.theme;
+package me.waliedyassen.runescript.editor.ui.editor.code.theme;
 
-import me.waliedyassen.runescript.editor.ui.editor.CodeArea;
-import me.waliedyassen.runescript.editor.ui.editor.tokenMaker.CodeTokens;
+import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
+import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokens;
 import org.fife.ui.rsyntaxtextarea.*;
 
 import java.awt.*;
 import java.util.Arrays;
 
-import static me.waliedyassen.runescript.editor.ui.editor.tokenMaker.CodeTokens.*;
+import static me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokens.*;
 
 /**
- * Represents the {@link CodeArea} theme object.
+ * Represents the {@link CodeEditor} theme object.
  *
  * @author Walied K. Yassen
  */

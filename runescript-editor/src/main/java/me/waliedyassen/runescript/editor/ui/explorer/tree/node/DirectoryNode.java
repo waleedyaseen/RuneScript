@@ -147,11 +147,10 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
                 var node = path.getLastPathComponent();
                 if (node instanceof DirectoryNode) {
                     var directoryNode = (DirectoryNode) node;
+                    // NOOP
                 } else if (node instanceof FileNode) {
                     var fileNode = (FileNode) node;
-                    if (fileNode.isSourceFile()) {
-
-                    }
+                    // NOOP
                 }
             }
         });

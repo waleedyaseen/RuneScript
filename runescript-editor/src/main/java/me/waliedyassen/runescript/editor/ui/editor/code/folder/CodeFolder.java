@@ -5,10 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.editor.ui.editor.folder;
+package me.waliedyassen.runescript.editor.ui.editor.code.folder;
 
 import lombok.extern.slf4j.Slf4j;
-import me.waliedyassen.runescript.editor.ui.editor.tokenMaker.CodeTokens;
+import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokens;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.folding.Fold;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParser;
