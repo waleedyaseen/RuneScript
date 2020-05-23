@@ -8,8 +8,6 @@
 
 package me.waliedyassen.runescript.editor.ui.editor;
 
-import me.waliedyassen.runescript.editor.ui.explorer.tree.node.FileNode;
-import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.ui.tabbedpane.TabComponent;
 
 import javax.swing.*;
@@ -38,11 +36,16 @@ public final class EditorTabComponent extends TabComponent {
     public EditorTabComponent(EditorTab tab) {
         super(new BorderLayout(2, 0));
         this.tab = tab;
+        // Create and add the title  button.
         label = new JLabel(tab.getPath().getFileName().toString());
+        add(label, BorderLayout.CENTER);
+        // Create and add the close button.
         var button = new JButton("X");
         button.addActionListener(evt -> tab.requestClose());
-        add(label, BorderLayout.CENTER);
+        button.setToolTipText("Close");
         add(button, BorderLayout.EAST);
+        // Set the tooltip of the tab component.
+        setTooltip(tab.getPath().toString());
     }
 
 

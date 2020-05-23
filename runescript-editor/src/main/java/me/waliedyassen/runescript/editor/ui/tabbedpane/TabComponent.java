@@ -24,6 +24,7 @@ public abstract class TabComponent extends JPanel {
      */
     public TabComponent(LayoutManager layout) {
         super(layout);
+        setOpaque(false);
     }
 
     /**
