@@ -21,6 +21,7 @@ import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.vfs.VFSFileListener;
 
 import javax.swing.*;
+import javax.swing.tree.MutableTreeNode;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -128,8 +129,8 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
             var name = path.getFileName().toString();
             for (var index = 0; index < count; index++) {
                 var child = getChildAt(index);
-                if (child instanceof ExplorerNode && ((ExplorerNode) child).getUserObject().equals(name)) {
-                    ((ExplorerNode) child).removeFromParent();
+                if (child instanceof ExplorerNode && ((ExplorerNode<?>) child).getUserObject().equals(name)) {
+                    tree.getModel().removeNodeFromParent((MutableTreeNode) child);
                     break;
                 }
             }
@@ -147,10 +148,10 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
                 var node = path.getLastPathComponent();
                 if (node instanceof DirectoryNode) {
                     var directoryNode = (DirectoryNode) node;
-                    // NOOP
+                    // TODO:
                 } else if (node instanceof FileNode) {
                     var fileNode = (FileNode) node;
-                    // NOOP
+                    // TODO:
                 }
             }
         });
