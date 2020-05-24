@@ -333,10 +333,16 @@ public final class Project {
             throw new ProjectException("Failed to generate the cache diff for the project cache", e);
         }
         updateErrors();
+        for (var cachedFile : cache.getCachedFiles().values()) {
+            var scripts = cachedFile.getScripts();
+            for (var script : scripts) {
+                compiler.getSymbolTable().defineScript(script);
+            }
+        }
     }
 
-    /***
-     *
+    /**
+     * Updates all of the errors of the project.
      */
     public void updateErrors() {
         var errorsView = Api.getApi().getUi().getErrorsView();
