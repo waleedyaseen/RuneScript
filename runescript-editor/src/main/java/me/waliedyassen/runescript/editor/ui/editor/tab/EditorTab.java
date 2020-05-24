@@ -9,7 +9,6 @@
 package me.waliedyassen.runescript.editor.ui.editor.tab;
 
 import lombok.Getter;
-import lombok.SneakyThrows;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
@@ -17,17 +16,10 @@ import me.waliedyassen.runescript.editor.shortcut.common.CommonShortcuts;
 import me.waliedyassen.runescript.editor.ui.dialog.DialogManager;
 import me.waliedyassen.runescript.editor.ui.dialog.DialogResult;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
-import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
-import me.waliedyassen.runescript.editor.util.MD5Util;
 
 import javax.swing.*;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 
 /**
  * A tab component for a single {@link Editor} object.
@@ -73,7 +65,7 @@ public final class EditorTab implements ActionSource {
         if (checkModifySave()) {
             return false;
         }
-        Api.getApi().getEditorView().closeTab(editor.getKey());
+        Api.getApi().getEditorView().removeTab(editor.getKey());
         return true;
     }
 

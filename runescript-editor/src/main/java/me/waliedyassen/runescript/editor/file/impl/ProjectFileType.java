@@ -7,9 +7,11 @@
  */
 package me.waliedyassen.runescript.editor.file.impl;
 
+import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
+import me.waliedyassen.runescript.editor.ui.editor.project.ProjectEditor;
 
 import javax.swing.*;
 import java.nio.file.Path;
@@ -26,7 +28,9 @@ public final class ProjectFileType implements FileType {
      */
     @Override
     public Editor<?> createEditor(Path path) {
-        return null;
+        // TODO: Maybe use the path to confirm we are opening the modifying project.
+        var currentProject = Api.getApi().getProjectManager().getCurrentProject().get();
+        return new ProjectEditor(currentProject);
     }
 
     /**

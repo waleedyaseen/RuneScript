@@ -97,16 +97,22 @@ public final class Project {
     /**
      * The commands configuration path.
      */
+    @Getter
+    @Setter
     private String commandsPath;
 
     /**
      * The triggers configuration path.
      */
+    @Getter
+    @Setter
     private String triggersPath;
 
     /**
      * The instructions configuration path.
      */
+    @Getter
+    @Setter
     private String instructionsPath;
 
     /**
@@ -136,7 +142,6 @@ public final class Project {
         postLoad();
     }
 
-
     /**
      * Attempts to load the {@link BuildPath} object from the specified {@link JsonNode} root object.
      *
@@ -161,6 +166,13 @@ public final class Project {
         instructionsPath = JsonUtil.getTextOrThrow(object, "instructions", "The instructions map cannot be null");
         triggersPath = JsonUtil.getTextOrThrow(object, "commands", "The instructions map cannot be null");
         commandsPath = JsonUtil.getTextOrThrow(object, "triggers", "The instructions map cannot be null");
+        reloadCompiler();
+    }
+
+    /**
+     * Reloads the compiler configuration of the project.
+     */
+    public void reloadCompiler() {
         compilerEnvironment = new CompilerEnvironment();
         instructionMap = new InstructionMap();
         loadInstructions(instructionsPath);

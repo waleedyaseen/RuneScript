@@ -85,7 +85,7 @@ public final class EditorView extends JPanel implements ActionSource {
                     return;
                 }
                 if (SwingUtilities.isMiddleMouseButton(e)) {
-                    closeTab(tab.getEditor().getKey());
+                    requestClose(tab.getEditor().getKey());
                 } else if (SwingUtilities.isRightMouseButton(e)) {
                     var actionList = Api.getApi().getActionManager().createList(tab);
                     tab.populateActions(actionList);
@@ -171,11 +171,24 @@ public final class EditorView extends JPanel implements ActionSource {
     }
 
     /**
-     * Closes the tab with the specified {@link Object key} if it is opened in the editor.
+     * Requests the tab with the specified {@link Object key} to be closed.
+     *
+     * @param key <code>true</code> if the tab was closed otherwise <code>false</code>.
+     */
+    public boolean requestClose(Object key) {
+        var tab = tabsByKey.get(key);
+        if (tab == null) {
+            return true;
+        }
+        return tab.requestClose();
+    }
+
+    /**
+     * Removes the tab with the specified {@link Object key} if it is opened in the editor.
      *
      * @param key the key which we want to close it's associated tab.
      */
-    public void closeTab(Object key) {
+    public void removeTab(Object key) {
         var tab = tabsByKey.get(key);
         if (tab == null) {
             return;
