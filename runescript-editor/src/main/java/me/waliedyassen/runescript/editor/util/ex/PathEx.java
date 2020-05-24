@@ -31,6 +31,25 @@ public final class PathEx {
         return name.substring(lastDot + 1).toLowerCase();
     }
 
+    /**
+     * Normalizes the specified {@link Path path} to a key string.
+     *
+     * @param root the root path, which when present the other {@code path} will be relativized against.
+     * @param path the path which we want to normalize to a key string.
+     * @return the normalized string form of the path.
+     */
+    public static String normaliseToString(Path root, Path path) {
+        var relative = root != null ? root.relativize(path.toAbsolutePath()) : path;
+        var builder = new StringBuilder();
+        for (var index = 0; index < relative.getNameCount(); index++) {
+            if (index != 0) {
+                builder.append("/");
+            }
+            builder.append(relative.getName(index).toString());
+        }
+        return builder.toString();
+    }
+
     private PathEx() {
         // NOOP
     }

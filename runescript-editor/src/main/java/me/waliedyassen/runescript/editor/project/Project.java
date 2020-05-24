@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
@@ -21,24 +22,31 @@ import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
+import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
+import me.waliedyassen.runescript.editor.project.cache.Cache;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
+import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.editor.vfs.VFS;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * A very basic project system that provides basic information such as the name and the build path directories.
  *
  * @author Walied K. Yassen
  */
+@Slf4j
 public final class Project {
 
     /**
@@ -93,6 +101,12 @@ public final class Project {
      * The compiler environment of the project.
      */
     private CompilerEnvironment compilerEnvironment;
+
+    /**
+     * The cache of the project.
+     */
+    @Getter
+    private Cache cache;
 
     /**
      * The commands configuration path.
@@ -296,6 +310,107 @@ public final class Project {
     private void postLoad() {
         packManager = new PackManager(new SQLitePackProvider(buildPath.getPackDirectory().toAbsolutePath()));
         vfs = new VFS(directory);
+        loadCache();
+    }
+
+    /**
+     * Loads the cache of the project.
+     */
+    private void loadCache() {
+        var rootPath = resolveRsPath();
+        var cacheFile = rootPath.resolve("cache.bin");
+        cache = new Cache(this);
+        if (Files.exists(cacheFile)) {
+            try (var stream = new DataInputStream(Files.newInputStream(cacheFile))) {
+                cache.read(stream);
+            } catch (IOException e) {
+                log.error("An error occurred while loading the project cache", e);
+            }
+        }
+        try {
+            cache.diff(buildPath.getSourceDirectory());
+        } catch (IOException e) {
+            throw new ProjectException("Failed to generate the cache diff for the project cache", e);
+        }
+        updateErrors();
+    }
+
+    /***
+     *
+     */
+    public void updateErrors() {
+        var errorsView = Api.getApi().getUi().getErrorsView();
+        errorsView.clearErrors();
+        for (var cachedFile : cache.getCachedFiles().values()) {
+            var path = cachedFile.getFullPath();
+            for (var cachedError : cachedFile.getErrors()) {
+                var line = cachedError.getRange().getStart().getLine();
+                var column = cachedError.getRange().getStart().getColumn();
+                errorsView.addError(path, line, column, cachedError.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Refreshes the errors list of the cached file at the specified {@link Path path}. This does only update
+     * the UI errors view, it does not alter the cached errors list.
+     *
+     * @param path the path of the cached file to grab the errors from.
+     */
+    public void updateErrors(Path path) {
+        var errorsPath = PathEx.normaliseToString(buildPath.getSourceDirectory(), path);
+        updateErrors(errorsPath);
+    }
+
+    /**
+     * Refreshes the errors list of the cached file at the specified {@code path}. This does only update
+     * the UI errors view, it does not alter the cached errors list.
+     *
+     * @param path the path of the cached file to grab the errors from.
+     */
+    public void updateErrors(String path) {
+        var errorsView = Api.getApi().getUi().getErrorsView();
+        errorsView.removeErrorForPath(path);
+        var cachedFile = cache.getCachedFiles().get(path);
+        if (cachedFile == null) {
+            return;
+        }
+        for (var cachedError : cachedFile.getErrors()) {
+            var line = cachedError.getRange().getStart().getLine();
+            var column = cachedError.getRange().getStart().getColumn();
+            errorsView.addError(path, line, column, cachedError.getMessage());
+        }
+    }
+
+    /**
+     * Saves the cache of the project.
+     */
+    public void saveCache() {
+        var rootPath = resolveRsPath();
+        var cacheFile = rootPath.resolve("cache.bin");
+        try (var stream = new DataOutputStream(Files.newOutputStream(cacheFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))) {
+            cache.write(stream);
+        } catch (IOException e) {
+            log.error("An error occurred while writing the project cache", e);
+        }
+    }
+
+    /**
+     * Resolves the root .rs directory path and create it if it does not exist.
+     *
+     * @return the {@link Path} object of the .rs directory.
+     * @throws ProjectException if the creation of the .rs directory failed.
+     */
+    private Path resolveRsPath() {
+        var path = directory.resolve(".rs/");
+        if (!Files.exists(path)) {
+            try {
+                Files.createDirectory(path);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to create the .rs directory in the project root directory", e);
+            }
+        }
+        return path;
     }
 
     /**
@@ -318,6 +433,8 @@ public final class Project {
         compiler.put("commands", commandsPath);
         // Write the serialised data into the project file.
         JsonUtil.getMapper().writerWithDefaultPrettyPrinter().writeValue(findProjectFile().toFile(), root);
+        // Save the cache of the project to the local disk.
+        cache.performSaving();
     }
 
     /**

@@ -55,11 +55,9 @@ public final class FileNode extends ExplorerNode<Path> {
      */
     @Override
     public void populateActions(ActionList actionList) {
-        if (fileType instanceof ScriptFileType) {
-            actionList.addAction("Open", (source) -> openFile());
-            actionList.addSeparator();
-            actionList.addAction("Pack", (source) -> packFile());
-        }
+        actionList.addAction("Open", (source) -> openFile());
+        actionList.addSeparator();
+        actionList.addAction("Pack", (source) -> packFile());
     }
 
     /**
@@ -67,9 +65,7 @@ public final class FileNode extends ExplorerNode<Path> {
      */
     @Override
     public void onActionClick() {
-        if (fileType instanceof ScriptFileType) {
-            openFile();
-        }
+        openFile();
     }
 
     /**
@@ -103,9 +99,6 @@ public final class FileNode extends ExplorerNode<Path> {
         } catch (IOException e) {
             DialogManager.showErrorDialog("Pack Error", "An I/O error occurred while trying to read the file from the disk.");
         } catch (CompilerErrors errors) {
-            for (var error : errors.getErrors()) {
-                Api.getApi().getUi().getErrorsView().addError("Unknown", error.getRange().getStart().getColumn(), error.getRange().getStart().getColumn(), error.getMessage());
-            }
             DialogManager.showErrorDialog("Pack Error", "The file you tried to pack contains compile errors.\nPlease fix them before trying to pack again.");
         }
     }

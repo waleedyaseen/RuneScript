@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 
 /**
  * Represents a single compiled bytecode script.
@@ -29,4 +30,10 @@ public final class CompiledScript {
      */
     @Getter
     private final byte[] data;
+
+    /**
+     * The info of the script that was compiled.
+     */
+    @Getter
+    private final ScriptInfo info;
 }

@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.editor.file.impl;
 import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
+import me.waliedyassen.runescript.editor.ui.editor.code.FileEditor;
 
 import javax.swing.*;
 import java.nio.file.Path;
@@ -26,7 +27,7 @@ public final class PlainFileType implements FileType {
      */
     @Override
     public Editor<?> createEditor(Path path) {
-        return null;
+        return new FileEditor(this, path);
     }
 
     /**

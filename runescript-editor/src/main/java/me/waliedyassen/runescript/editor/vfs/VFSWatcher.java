@@ -8,14 +8,13 @@
 package me.waliedyassen.runescript.editor.vfs;
 
 import lombok.extern.slf4j.Slf4j;
+import me.waliedyassen.runescript.editor.job.WorkExecutor;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -26,11 +25,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public final class VFSWatcher {
-
-    /**
-     * The executor service which is responsible for scheduling all of the watchers updating tasks.
-     */
-    private static final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
     /**
      * The virtual fiel system which this watcher is for.
@@ -56,7 +50,7 @@ public final class VFSWatcher {
     public VFSWatcher(VFS vfs) throws IOException {
         this.vfs = vfs;
         service = FileSystems.getDefault().newWatchService();
-        future = executorService.scheduleAtFixedRate(this::performUpdate, 500, 500, TimeUnit.MILLISECONDS);
+        future = WorkExecutor.getSingleThreadScheduler().scheduleAtFixedRate(this::performUpdate, 500, 500, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -71,7 +65,7 @@ public final class VFSWatcher {
             try {
                 var parent = (Path) watchKey.watchable();
                 var parentFile = vfs.resolveFile(parent);
-                if (parentFile.getListeners() == null || parentFile.getListeners().isEmpty()) {
+                if (parentFile == null || parentFile.getListeners() == null || parentFile.getListeners().isEmpty()) {
                     continue;
                 }
                 for (var event : watchKey.pollEvents()) {
@@ -80,6 +74,7 @@ public final class VFSWatcher {
                         parentFile.getListeners().forEach(listener -> listener.onEntityCreate(path));
                     } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
                         parentFile.getListeners().forEach(listener -> listener.onEntityDelete(path));
+                        vfs.removeFile(path);
                     } else if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
                         // NOOP
                     }

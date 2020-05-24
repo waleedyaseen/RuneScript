@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.editor.vfs;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import me.waliedyassen.runescript.editor.util.ex.PathEx;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,13 +56,23 @@ public final class VFS {
     }
 
     /**
-     * Returns the virtual file of the specified {@link Path path}.
+     * Returns the virtual file with the specified {@link Path path}.
      *
-     * @param path the virtual file of the specified path.
+     * @param path the path of the virtual file that we want to return.
      * @return the {@link VFSFile} object or {@code null} if it was not found.
      */
     public VFSFile getFile(Path path) {
         return filesByRelativePath.get(normalizeToKey(path));
+    }
+
+    /**
+     * Removes the virtual file with the specified {@link Path path}.
+     *
+     * @param path the path of the virtual file that we want to remove.
+     */
+    public void removeFile(Path path) {
+        var key = normalizeToKey(path);
+        filesByRelativePath.remove(key);
     }
 
     /**
@@ -89,15 +100,13 @@ public final class VFS {
         watcher.close();
     }
 
+    /**
+     * Normalizes the specified {@link Path} to a key string.
+     *
+     * @param path the path to normalize to a key string.
+     * @return the normalized string form of the path.
+     */
     private String normalizeToKey(Path path) {
-        var relative = rootPath.relativize(path.toAbsolutePath());
-        var builder = new StringBuilder();
-        for (var index = 0; index < relative.getNameCount(); index++) {
-            if (index != 0) {
-                builder.append("/");
-            }
-            builder.append(relative.getName(index).toString());
-        }
-        return builder.toString();
+        return PathEx.normaliseToString(rootPath, path);
     }
 }

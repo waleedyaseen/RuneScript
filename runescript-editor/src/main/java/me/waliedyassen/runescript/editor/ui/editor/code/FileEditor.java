@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
-import me.waliedyassen.runescript.editor.util.MD5Util;
+import me.waliedyassen.runescript.editor.util.ChecksumUtil;
 import org.fife.ui.rsyntaxtextarea.ErrorStrip;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -83,7 +83,7 @@ public class FileEditor extends Editor<Path> {
             try (var reader = new InputStreamReader(new ByteArrayInputStream(data))) {
                 textArea.read(reader, null);
             }
-            diskChecksum = MD5Util.calculate(data);
+            diskChecksum = ChecksumUtil.calculateMd5(data);
         } catch (Throwable e) {
             log.error("An error occured while trying to save code editor content to disk", e);
         }
@@ -97,7 +97,7 @@ public class FileEditor extends Editor<Path> {
         try {
             var content = textArea.getText().getBytes();
             Files.write(path, content, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-            diskChecksum = MD5Util.calculate(content);
+            diskChecksum = ChecksumUtil.calculateMd5(content);
         } catch (Throwable e) {
             log.error("An error occured while trying to save code editor content to disk", e);
         }
@@ -140,7 +140,7 @@ public class FileEditor extends Editor<Path> {
      */
     @Override
     public boolean isModified() {
-        return !Arrays.equals(MD5Util.calculate(textArea.getText().getBytes()), diskChecksum);
+        return !Arrays.equals(ChecksumUtil.calculateMd5(textArea.getText().getBytes()), diskChecksum);
     }
 
     /**

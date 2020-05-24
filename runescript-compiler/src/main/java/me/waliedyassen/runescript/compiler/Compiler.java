@@ -11,6 +11,7 @@ import lombok.Getter;
 import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
@@ -164,8 +165,10 @@ public final class Compiler {
             // Write the generated script to a bytecode format.
             BytecodeScript bytecode = codeWriter.write(generated);
             try (var stream = new ByteArrayOutputStream()) {
+                var trigger = environment.lookupTrigger(script.getTrigger().getText());
+                var info = symbolTable.lookupScript(trigger, AstExpression.extractNameText(script.getName()));
                 bytecode.write(stream);
-                result.add(new CompiledScript(generated.getName(), stream.toByteArray()));
+                result.add(new CompiledScript(generated.getName(), stream.toByteArray(), info));
             }
         }
         // Loop through each compiled script and write it to the output directory.
@@ -233,7 +236,7 @@ public final class Compiler {
         List<AstScript> scripts;
         try {
             scripts = parseSyntaxTree(symbolTable, source);
-        } catch (SyntaxError e) {
+        } catch (CompilerError e) {
             throw new CompilerErrors(Collections.singletonList(e));
         }
         if (scripts.size() < 1) {
@@ -252,15 +255,17 @@ public final class Compiler {
         // Compile all of the parsed and checked scripts into a bytecode format.
         var result = new ArrayList<CompiledScript>();
         for (var script : scripts) {
+            var trigger = environment.lookupTrigger(script.getTrigger().getText());
+            var info = symbolTable.lookupScript(trigger, AstExpression.extractNameText(script.getName()));
             // Run the code generator on each script.,
             var generated = codeGenerator.visit(script);
             // Optimize the generated script.
             optimizer.run(generated);
             // Write the generated script to a bytecode format.
-            BytecodeScript bytecode = codeWriter.write(generated);
+            var bytecode = codeWriter.write(generated);
             try (var stream = new ByteArrayOutputStream()) {
                 bytecode.write(stream);
-                result.add(new CompiledScript(generated.getName(), stream.toByteArray()));
+                result.add(new CompiledScript(generated.getName(), stream.toByteArray(), info));
             }
         }
         return result.toArray(CompiledScript[]::new);
@@ -273,7 +278,7 @@ public final class Compiler {
      * @param data        the source file data in bytes.
      * @return a {@link List list} of the parsed {@link AstScript} objects.
      */
-    private List<AstScript> parseSyntaxTree(SymbolTable symbolTable, byte[] data) throws IOException {
+    private List<AstScript> parseSyntaxTree(SymbolTable symbolTable, byte[] data) throws IOException, CompilerErrors {
         var stream = new BufferedCharStream(new ByteArrayInputStream(data));
         var tokenizer = new Tokenizer(lexicalTable, stream);
         var lexer = new Lexer(tokenizer);

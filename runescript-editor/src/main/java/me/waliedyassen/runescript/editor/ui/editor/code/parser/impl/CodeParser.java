@@ -47,28 +47,18 @@ public final class CodeParser extends AbstractParser {
         var textArea = codeEditor.getTextArea();
         result.clearNotices();
         result.setParsedLines(0, textArea.getLineCount() - 1);
-        var errorPath = codeEditor.getKey().toAbsolutePath().toString();
-        var compiler = Api.getApi().getCompiler();
-        var errorsView = Api.getApi().getUi().getErrorsView();
-        errorsView.removeErrorForPath(errorPath);
+        var project = Api.getApi().getProjectManager().getCurrentProject().get();
+        var compiler = project.getCompiler();
+        var fileData = textArea.getText().getBytes();
         try {
             var start = System.currentTimeMillis();
-            compiler.compile(textArea.getText());
+            var scripts = compiler.compile(fileData);
             result.setParseTime(System.currentTimeMillis() - start);
+            project.getCache().updateData(codeEditor.getKey(), null, scripts, fileData);
         } catch (IOException e) {
             log.error("An I/O error occurred while compiling the scripts for errors", e);
         } catch (CompilerErrors errors) {
-            for (var error : errors.getErrors()) {
-                try {
-                    var startOffset = getOffset(error.getRange().getStart());
-                    var endOffset = getOffset(error.getRange().getEnd());
-                    var line = textArea.getLineOfOffset(startOffset);
-                    result.addNotice(new ErrorNotice(this, error.getMessage(), line, startOffset, endOffset));
-                    errorsView.addError(errorPath, error.getRange().getStart().getLine(), error.getRange().getStart().getColumn(), error.getMessage());
-                } catch (Throwable e) {
-                    log.warn("An error occurred while adding the compiling errors to the result", e);
-                }
-            }
+            project.getCache().updateData(codeEditor.getKey(), errors, null, fileData);
         }
         return result;
     }
