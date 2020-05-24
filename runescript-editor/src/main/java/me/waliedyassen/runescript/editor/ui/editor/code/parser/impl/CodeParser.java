@@ -15,7 +15,9 @@ import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
 import me.waliedyassen.runescript.editor.ui.editor.code.parser.notice.ErrorNotice;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
-import org.fife.ui.rsyntaxtextarea.parser.*;
+import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
+import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
+import org.fife.ui.rsyntaxtextarea.parser.ParseResult;
 
 import javax.swing.text.BadLocationException;
 import java.io.IOException;
@@ -47,8 +49,11 @@ public final class CodeParser extends AbstractParser {
         var textArea = codeEditor.getTextArea();
         result.clearNotices();
         result.setParsedLines(0, textArea.getLineCount() - 1);
+        var errorPath = codeEditor.getKey().toAbsolutePath().toString();
         var project = Api.getApi().getProjectManager().getCurrentProject().get();
         var compiler = project.getCompiler();
+        var errorsView = Api.getApi().getUi().getErrorsView();
+        errorsView.removeErrorForPath(errorPath);
         var fileData = textArea.getText().getBytes();
         try {
             var start = System.currentTimeMillis();
@@ -58,6 +63,16 @@ public final class CodeParser extends AbstractParser {
         } catch (IOException e) {
             log.error("An I/O error occurred while compiling the scripts for errors", e);
         } catch (CompilerErrors errors) {
+            for (var error : errors.getErrors()) {
+                try {
+                    var startOffset = getOffset(error.getRange().getStart());
+                    var endOffset = getOffset(error.getRange().getEnd());
+                    var line = textArea.getLineOfOffset(startOffset);
+                    result.addNotice(new ErrorNotice(this, error.getMessage(), line, startOffset, endOffset));
+                } catch (Throwable e) {
+                    log.warn("An error occurred while adding the compiling errors to the result", e);
+                }
+            }
             project.getCache().updateData(codeEditor.getKey(), errors, null, fileData);
         }
         return result;
