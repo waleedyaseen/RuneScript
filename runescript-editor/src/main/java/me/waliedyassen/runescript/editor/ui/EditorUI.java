@@ -132,8 +132,8 @@ public final class EditorUI implements WindowListener {
         editorArea.setExternalizable(false);
         editorArea.setStackable(false);
         grid.add(0, 0, 0.2, 1, explorerArea);
-        grid.add(0.2, 0, 1, 1, editorArea);
-        grid.add(0, 0.6, 1, 0.4, errorsArea);
+        grid.add(0.2, 0, 0.8, 0.8, editorArea);
+        grid.add(0.2, 0.8, 0.8, 0.2, errorsArea);
         control.getContentArea().deploy(grid);
     }
 
