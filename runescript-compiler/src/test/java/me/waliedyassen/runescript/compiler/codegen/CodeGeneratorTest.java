@@ -22,6 +22,7 @@ import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
+import me.waliedyassen.runescript.compiler.util.Pair;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.type.Type;
@@ -141,15 +142,15 @@ class CodeGeneratorTest {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, new SymbolTable(), lexer);
-            var scripts = new ArrayList<AstScript>();
+            var scripts = new ArrayList<Pair<Object, AstScript>>();
             do {
-                scripts.add(parser.script());
+                scripts.add(Pair.of(null, parser.script()));
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
             var parsed = new Script[scripts.size()];
             for (var index = 0; index < parsed.length; index++) {
-                parsed[index] = generator.visit(scripts.get(index));
+                parsed[index] = generator.visit(scripts.get(index).getValue());
             }
             return parsed;
         } catch (IOException e) {
@@ -163,16 +164,16 @@ class CodeGeneratorTest {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, new SymbolTable(), lexer);
-            var scripts = new ArrayList<AstScript>();
+            var scripts = new ArrayList<Pair<Object, AstScript>>();
             do {
-                scripts.add(parser.script());
+                scripts.add(Pair.of(null, parser.script()));
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
             checker.getErrors().forEach(System.out::println);
             var parsed = new Script[scripts.size()];
             for (var index = 0; index < parsed.length; index++) {
-                parsed[index] = generator.visit(scripts.get(index));
+                parsed[index] = generator.visit(scripts.get(index).getValue());
             }
             return parsed;
         } catch (IOException e) {

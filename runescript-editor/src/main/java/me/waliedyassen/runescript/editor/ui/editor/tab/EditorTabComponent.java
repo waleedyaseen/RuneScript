@@ -14,6 +14,8 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
+ * A {@link TabComponent} implementation of the editor view.
+ *
  * @author Walied K. Yassen
  */
 public final class EditorTabComponent extends TabComponent {

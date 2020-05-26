@@ -161,9 +161,6 @@ public final class Compiler {
                 compilingScripts.removeIf(pairInList -> pairInList.getValue() == value.getScript());
             }
         }
-        if (!errors.isEmpty()) {
-            return CompileResult.of(Collections.emptyList(), errors);
-        }
         var codeGenerator = new CodeGenerator(symbolTable, instructionMap);
         // Compile all of the parsed and checked scripts into a bytecode format.
         var compiledScripts = new ArrayList<Pair<Object, CompiledScript>>();

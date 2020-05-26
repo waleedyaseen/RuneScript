@@ -47,10 +47,7 @@ public final class CodeParser extends AbstractParser {
         var textArea = codeEditor.getTextArea();
         parseResult.clearNotices();
         parseResult.setParsedLines(0, textArea.getLineCount() - 1);
-        var errorPath = codeEditor.getKey().toAbsolutePath().toString();
         var project = Api.getApi().getProjectManager().getCurrentProject().get();
-        var errorsView = Api.getApi().getUi().getErrorsView();
-        errorsView.removeErrorForPath(errorPath);
         var start = System.currentTimeMillis();
         var result = project.getCache().recompile(codeEditor.getKey(), textArea.getText().getBytes());
         parseResult.setParseTime(System.currentTimeMillis() - start);

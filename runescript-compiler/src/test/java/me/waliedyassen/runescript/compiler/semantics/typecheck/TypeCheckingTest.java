@@ -20,6 +20,7 @@ import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.util.Pair;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
@@ -150,9 +151,9 @@ class TypeCheckingTest {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
-            var scripts = new ArrayList<AstScript>();
+            var scripts = new ArrayList<Pair<Object, AstScript>>();
             do {
-                scripts.add(parser.script());
+                scripts.add(Pair.of(null, parser.script()));
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
@@ -166,9 +167,9 @@ class TypeCheckingTest {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
-            var scripts = new ArrayList<AstScript>();
+            var scripts = new ArrayList<Pair<Object, AstScript>>();
             do {
-                scripts.add(parser.script());
+                scripts.add(Pair.of(null, parser.script()));
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);

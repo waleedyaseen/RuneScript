@@ -15,7 +15,7 @@ import me.waliedyassen.runescript.commons.document.Range;
  *
  * @author Walied K. Yassen
  */
-public class CompilerError extends RuneScriptError {
+public abstract class CompilerError extends RuneScriptError {
 
     /**
      * The serialisation key of the {@link CompilerError} type.
@@ -31,10 +31,8 @@ public class CompilerError extends RuneScriptError {
     /**
      * Constructs a new {@link CompilerError} type object instance.
      *
-     * @param range
-     *         the error source code range.
-     * @param message
-     *         a message describing why the error has occurred.
+     * @param range   the error range in the source code.
+     * @param message a message describing why the error has occurred.
      */
     public CompilerError(Range range, String message) {
         super(message);

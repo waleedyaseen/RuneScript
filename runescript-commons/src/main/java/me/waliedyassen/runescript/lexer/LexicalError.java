@@ -15,7 +15,7 @@ import me.waliedyassen.runescript.commons.document.Range;
  *
  * @author Walied K. Yassen
  */
-public class LexicalError extends CompilerError {
+public final class LexicalError extends CompilerError {
 
     /**
      * The serialisation key of the {@link LexicalError} type.
@@ -25,10 +25,8 @@ public class LexicalError extends CompilerError {
     /**
      * Constructs a new {@link LexicalError} type object instance.
      *
-     * @param range
-     *         the error source code range.
-     * @param message
-     *         a message describing why the error has occurred.
+     * @param range   the error source code range.
+     * @param message a message describing why the error has occurred.
      */
     public LexicalError(Range range, String message) {
         super(range, message + " at line: " + range.getStart().getLine() + ", column: " + range.getStart().getColumn());
