@@ -97,4 +97,13 @@ public final class AstScript extends AstNode {
     public <E, S> S accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
     }
+
+    /**
+     * Returns the full name of the script.
+     *
+     * @return the full name of the script.
+     */
+    public String getFullName() {
+        return String.format("[%s,%s]", trigger.getText(), AstExpression.extractNameText(name));
+    }
 }

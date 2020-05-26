@@ -171,6 +171,15 @@ public final class SymbolTable {
     /**
      * Defines a new script symbol information in this table.
      *
+     * @param info the script info that we want to define.
+     */
+    public void defineScript(ScriptInfo info) {
+        defineScript(info.getAnnotations(), info.getTrigger(), info.getName(), info.getType(), info.getArguments());
+    }
+
+    /**
+     * Defines a new script symbol information in this table.
+     *
      * @param annotations the annotations of the script.
      * @param trigger     the trigger of the script.
      * @param name        the name of the script.
@@ -182,6 +191,17 @@ public final class SymbolTable {
             throw new IllegalArgumentException("The script '" + name + "' is already defined.");
         }
         scripts.put(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name), new ScriptInfo(annotations, name, trigger, type, arguments));
+    }
+
+    /**
+     * Undefines the script with the specified {@link TriggerType trigger} and {@code name}.
+     *
+     * @param trigger the trigger type of the script that we want to undefine.
+     * @param name    the name of the script of the script that we want to undefine.
+     */
+    public void undefineScript(TriggerType trigger, String name) {
+        var fullName = String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name);
+        scripts.remove(fullName);
     }
 
     /**

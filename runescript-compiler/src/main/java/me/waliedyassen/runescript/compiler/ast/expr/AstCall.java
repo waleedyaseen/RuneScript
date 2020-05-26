@@ -63,4 +63,13 @@ public final class AstCall extends AstExpression {
     public <E, S> E accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
     }
+
+    /**
+     * Returns the full name of the target script.
+     *
+     * @return the full name of the target script.
+     */
+    public String getFullName() {
+        return String.format("[%s,%s]", triggerType.getRepresentation(), name.getText());
+    }
 }
