@@ -103,7 +103,7 @@ public final class Cache {
         var filesCount = stream.readInt();
         for (var index = 0; index < filesCount; index++) {
             var cachedFile = new CachedFile();
-            cachedFile.read(stream);
+            cachedFile.read(project.getCompiler().getEnvironment(), stream);
             cachedFiles.put(cachedFile.getFullPath(), cachedFile);
         }
         var dependencyParentCount = stream.readInt();

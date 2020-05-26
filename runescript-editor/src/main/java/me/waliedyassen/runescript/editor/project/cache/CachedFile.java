@@ -11,12 +11,18 @@ import lombok.Getter;
 import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.TypeUtil;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -66,7 +72,7 @@ public final class CachedFile {
      * @param stream the stream to deserialise the content from.
      * @throws IOException if anything occurs while reading data from the specified stream.
      */
-    protected void read(DataInputStream stream) throws IOException {
+    protected void read(CompilerEnvironment environment, DataInputStream stream) throws IOException {
         path = stream.readUTF();
         name = stream.readUTF();
         crc = stream.readInt();
@@ -76,6 +82,22 @@ public final class CachedFile {
             var start = new LineColumn(stream.readInt(), stream.readInt());
             var end = new LineColumn(stream.readInt(), stream.readInt());
             errors.add(new CachedError(new Range(start, end), stream.readUTF()));
+        }
+        var scriptsCount = stream.readUnsignedShort();
+        for (var index = 0; index < scriptsCount; index++) {
+            var name = stream.readUTF();
+            var trigger = environment.lookupTrigger(stream.readUTF());
+            var argumentsCount = stream.readUnsignedByte();
+            var arguments = new Type[argumentsCount];
+            for (var argumentIndex = 0; argumentIndex < argumentsCount; argumentIndex++) {
+                arguments[argumentIndex] = PrimitiveType.forRepresentation(stream.readUTF());
+            }
+            var returnsCount = stream.readUnsignedByte();
+            var returns = new Type[returnsCount];
+            for (var returnIndex = 0; returnIndex < returnsCount; returnIndex++) {
+                returns[returnIndex] = PrimitiveType.forRepresentation(stream.readUTF());
+            }
+            scripts.add(new ScriptInfo(Collections.emptyMap(), name, trigger, returnsCount == 0 ? PrimitiveType.VOID : returnsCount > 1 ? new TupleType(returns) : returns[0], arguments));
         }
     }
 
@@ -96,6 +118,20 @@ public final class CachedFile {
             stream.writeInt(error.getRange().getEnd().getLine());
             stream.writeInt(error.getRange().getEnd().getColumn());
             stream.writeUTF(error.getMessage());
+        }
+        stream.writeShort(scripts.size());
+        for (var script : scripts) {
+            stream.writeUTF(script.getName());
+            stream.writeUTF(script.getTrigger().getRepresentation());
+            stream.writeByte(script.getArguments().length);
+            for (var argument : script.getArguments()) {
+                stream.writeUTF(argument.getRepresentation());
+            }
+            var returnTypes = TypeUtil.flatten(new Type[]{script.getType()});
+            stream.writeByte(returnTypes.length);
+            for (var returnType : returnTypes) {
+                stream.writeUTF(returnType.getRepresentation());
+            }
         }
     }
 

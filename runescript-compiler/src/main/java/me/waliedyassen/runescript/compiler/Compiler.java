@@ -66,6 +66,7 @@ public final class Compiler {
     /**
      * The compiler environment which is basically a user level symbol table.
      */
+    @Getter
     private final CompilerEnvironment environment;
 
     /**
