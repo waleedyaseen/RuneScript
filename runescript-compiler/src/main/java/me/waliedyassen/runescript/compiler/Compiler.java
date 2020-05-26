@@ -27,6 +27,7 @@ import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.util.Operator;
+import me.waliedyassen.runescript.compiler.util.Pair;
 import me.waliedyassen.runescript.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
@@ -34,7 +35,6 @@ import me.waliedyassen.runescript.type.StackType;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,11 +45,6 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 public final class Compiler {
-
-    /**
-     * The charset of the source files.
-     */
-    private static final Charset CHARSET = Charset.forName("cp1252");
 
     /**
      * The symbol table of the compiler.
@@ -131,18 +126,26 @@ public final class Compiler {
      * @throws IOException if somehow a problem occurred while writing or reading from the temporary streams.
      */
     public CompileResult compile(CompileInput input) throws IOException {
-        var compilingScripts = new ArrayList<AstScript>();
-        var errors = new ArrayList<CompilerError>();
+        var compilingScripts = new ArrayList<Pair<Object, AstScript>>();
+        var errors = new ArrayList<Pair<Object, CompilerError>>();
         for (var source : input.getSourceData()) {
             try {
-                compilingScripts.addAll(parseSyntaxTree(symbolTable, source));
+                var scripts = parseSyntaxTree(symbolTable, source.getValue());
+                for (var script : scripts) {
+                    compilingScripts.add(Pair.of(source.getKey(), script));
+                }
             } catch (CompilerError e) {
-                errors.add(e);
+                errors.add(Pair.of(source.getKey(), e));
             }
         }
         if (compilingScripts.isEmpty()) {
             return CompileResult.of(Collections.emptyList(), errors);
         }
+        input.getVisitors().forEach(visitor -> {
+            for (var script : compilingScripts) {
+                script.getValue().accept(visitor);
+            }
+        });
         var symbolTable = this.symbolTable.createSubTable();
         // Perform semantic analysis checking on the parsed AST.
         var checker = new SemanticChecker(environment, symbolTable);
@@ -150,18 +153,21 @@ public final class Compiler {
         checker.execute(compilingScripts);
         // Check if there is any compilation errors and throw them if there is any.
         if (checker.getErrors().size() > 0) {
-            errors.addAll(checker.getErrors());
+            for (var pair : checker.getErrors()) {
+                var key = pair.getKey();
+                var value = pair.getValue();
+                errors.add(Pair.of(key, value));
+                compilingScripts.removeIf(pairInList -> pairInList.getValue() == value.getScript());
+            }
         }
-        // TODO: Find a way to trace errors back to their source script and filter that script so that we can compile
-        // all of the non-erroneous scripts.
         if (!errors.isEmpty()) {
             return CompileResult.of(Collections.emptyList(), errors);
         }
         var codeGenerator = new CodeGenerator(symbolTable, instructionMap);
         // Compile all of the parsed and checked scripts into a bytecode format.
-        var compiledScripts = new ArrayList<CompiledScript>();
-        for (var script : compilingScripts) {
-
+        var compiledScripts = new ArrayList<Pair<Object, CompiledScript>>();
+        for (var pair : compilingScripts) {
+            var script = pair.getValue();
             var trigger = environment.lookupTrigger(script.getTrigger().getText());
             var info = symbolTable.lookupScript(trigger, AstExpression.extractNameText(script.getName()));
             // Run the code generator on each script.,
@@ -172,7 +178,7 @@ public final class Compiler {
             var bytecode = codeWriter.write(generated);
             try (var stream = new ByteArrayOutputStream()) {
                 bytecode.write(stream);
-                compiledScripts.add(new CompiledScript(generated.getName(), stream.toByteArray(), info));
+                compiledScripts.add(Pair.of(pair.getKey(), new CompiledScript(generated.getName(), stream.toByteArray(), info)));
             }
         }
         return CompileResult.of(compiledScripts, errors);

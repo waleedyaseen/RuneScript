@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.compiler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.CompilerError;
+import me.waliedyassen.runescript.compiler.util.Pair;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,13 +26,13 @@ public final class CompileResult {
      * The scripts that were compiled successfully.
      */
     @Getter
-    private final CompiledScript[] scripts;
+    private final Pair<Object, CompiledScript>[] scripts;
 
     /**
      * The errors that were produced while compiling the scripts.
      */
     @Getter
-    private final CompilerError[] errors;
+    private final Pair<Object, CompilerError>[] errors;
 
     /**
      * Whether or not the compilation was completely successful.
@@ -41,13 +41,40 @@ public final class CompileResult {
     private final boolean successful;
 
     /**
+     * Returns na array of all the errors in this result.
+     *
+     * @return an array object instance that contains all of the errors.
+     */
+    public CompilerError[] getErrorsValue() {
+        var errors = new CompilerError[this.errors.length];
+        for (var index = 0; index < this.errors.length; index++) {
+            errors[index] = this.errors[index].getValue();
+        }
+        return errors;
+    }
+
+    /**
+     * Returns na array of all the scripts in this result.
+     *
+     * @return an array object instance that contains all of the scripts.
+     */
+    public CompiledScript[] getScriptsValue() {
+        var scripts = new CompiledScript[this.scripts.length];
+        for (var index = 0; index < this.scripts.length; index++) {
+            scripts[index] = this.scripts[index].getValue();
+        }
+        return scripts;
+    }
+
+    /**
      * Creates a {@link CompileResult} object from the specified {@code scripts} and {@code errors} lists.
      *
      * @param scripts the scripts that should be added to the result.
      * @param errors  the errors that should be added to the result.
      * @return the created {@link CompileResult} object instance.
      */
-    public static CompileResult of(List<CompiledScript> scripts, List<CompilerError> errors) {
-        return new CompileResult(scripts.toArray(CompiledScript[]::new), errors.toArray(CompilerError[]::new), errors.isEmpty());
+    @SuppressWarnings("unchecked")
+    public static CompileResult of(List<Pair<Object, CompiledScript>> scripts, List<Pair<Object, CompilerError>> errors) {
+        return new CompileResult(scripts.toArray(Pair[]::new), errors.toArray(Pair[]::new), errors.isEmpty());
     }
 }

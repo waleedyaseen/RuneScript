@@ -67,7 +67,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
             for (var annotation : script.getAnnotations()) {
                 var name = annotation.getName().getText().toLowerCase();
                 if (annotations.containsKey(name)) {
-                    checker.reportError(new SemanticError(annotation.getName(), String.format("The annotation %s is already defined for this script", name)));
+                    reportError(new SemanticError(annotation.getName(), String.format("The annotation %s is already defined for this script", name)));
                 } else {
                     annotations.put(name, new Annotation(name, annotation.getValue().getValue()));
                 }
@@ -80,35 +80,39 @@ public final class PreTypeChecking extends AstTreeVisitor {
         var trigger = checker.getEnvironment().lookupTrigger(triggerName.getText());
         // check if the script trigger type is a valid trigger type, if not produce and error.
         if (trigger == null) {
-            checker.reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
+            reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
         } else {
             // check if the trigger supports return values.
             if (script.getType() != PrimitiveType.VOID && !trigger.hasReturns()) {
-                checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow return values", trigger.getRepresentation())));
+                reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow return values", trigger.getRepresentation())));
             }
             // check if the trigger matches return types.
             if (trigger.getReturnTypes() != null && !script.getType().equals(new TupleType(trigger.getReturnTypes()))) {
-                checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires return values of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(trigger.getReturnTypes()))));
+                reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires return values of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(trigger.getReturnTypes()))));
             }
             // check if the trigger supports parameters.
             if (script.getParameters().length > 0 && !trigger.hasArguments()) {
-                checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow parameters", trigger.getRepresentation())));
+                reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow parameters", trigger.getRepresentation())));
             }
             // check if the trigger matches parameters types.
             var actual = Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new);
             var expected = trigger.getArgumentTypes();
             if (expected != null && (actual.length != expected.length || !Arrays.equals(actual, expected))) {
-                checker.reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires parameters of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(expected))));
+                reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires parameters of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(expected))));
             }
             // check if the script is already defined in the symbol table, and define it if it was not, or produce an error if it was a duplicate.
             var name = AstExpression.extractNameText(script.getName());
             if (symbolTable.lookupScript(trigger, name) != null) {
-                checker.reportError(new SemanticError(script.getName(), String.format("The script '%s' is already defined", name)));
+                reportError(new SemanticError(script.getName(), String.format("The script '%s' is already defined", name)));
             } else {
                 symbolTable.defineScript(annotations, trigger, name, script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
             }
         }
         return super.visit(script);
+    }
+
+    private void reportError(SemanticError semanticError) {
+        checker.reportError(semanticError);
     }
 
     /**
@@ -135,7 +139,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
         var name = declaration.getName();
         var variable = resolveVariable(VariableScope.LOCAL, name.getText());
         if (variable != null) {
-            checker.reportError(new SemanticError(name, String.format("Duplicate local variable %s", name.getText())));
+            reportError(new SemanticError(name, String.format("Duplicate local variable %s", name.getText())));
         } else {
             variable = scopes.lastElement().declareLocalVariable(name.getText(), declaration.getType());
             declaration.setVariable(variable);
@@ -151,7 +155,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
         var name = variableInitializer.getName();
         var variable = resolveVariable(variableInitializer.getScope(), name.getText());
         if (variable == null) {
-            checker.reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to a variable", name.getText())));
+            reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to a variable", name.getText())));
         } else {
             variableInitializer.setVariable(variable);
         }
@@ -166,7 +170,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
         var name = variableExpression.getName();
         var variable = resolveVariable(variableExpression.getScope(), name.getText());
         if (variable == null) {
-            checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a variable", name.getText())));
+            reportError(new SemanticError(name, String.format("%s cannot be resolved to a variable", name.getText())));
         } else {
             variableExpression.setVariable(variable);
         }
@@ -181,7 +185,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
         var name = declaration.getName();
         var array = scopes.lastElement().getArray(name.getText());
         if (array != null) {
-            checker.reportError(new SemanticError(name, String.format("Duplicate array %s", name.getText())));
+            reportError(new SemanticError(name, String.format("Duplicate array %s", name.getText())));
         } else {
             array = scopes.lastElement().declareArray(name.getText(), declaration.getType());
             declaration.setArray(array);
@@ -197,7 +201,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
         var name = arrayInitializer.getName();
         var array = scopes.lastElement().getArray(name.getText());
         if (array == null) {
-            checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to an array", name.getText())));
+            reportError(new SemanticError(name, String.format("%s cannot be resolved to an array", name.getText())));
         } else {
             arrayInitializer.setArray(array);
         }
@@ -212,7 +216,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
         var name = arrayExpression.getName();
         var array = scopes.lastElement().getArray(name.getText());
         if (array == null) {
-            checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to an array", name.getText())));
+            reportError(new SemanticError(name, String.format("%s cannot be resolved to an array", name.getText())));
         } else {
             arrayExpression.setArray(array);
         }

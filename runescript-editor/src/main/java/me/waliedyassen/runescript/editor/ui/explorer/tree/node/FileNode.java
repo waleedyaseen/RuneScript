@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
 import lombok.Getter;
+import me.waliedyassen.runescript.compiler.CompileInput;
 import me.waliedyassen.runescript.compiler.CompilerErrors;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.file.FileType;
@@ -87,19 +88,22 @@ public final class FileNode extends ExplorerNode<Path> {
      * Packs the file.
      */
     private void packFile() {
+        // TODO: Do this in CodeParser.
         var projectManager = Api.getApi().getProjectManager();
         var project = projectManager.getCurrentProject().get();
         var compiler = Api.getApi().getCompiler();
         Api.getApi().getUi().getErrorsView().clearErrors();
         try {
-            var scripts = compiler.compile(Files.readAllBytes(getValue()));
-            for (var script : scripts) {
-                project.getPackManager().pack(getValue(), script.getName(), script.getData());
+            var scripts = compiler.compile(CompileInput.of(null, Files.readAllBytes(getValue())));
+            if (scripts.getErrors().length > 0) {
+                DialogManager.showErrorDialog("Pack Error", "The file you tried to pack contains compile errors.\nPlease fix them before trying to pack again.");
+            } else {
+                for (var script : scripts.getScripts()) {
+                    project.getPackManager().pack(getValue(), script.getValue().getName(), script.getValue().getData());
+                }
             }
         } catch (IOException e) {
             DialogManager.showErrorDialog("Pack Error", "An I/O error occurred while trying to read the file from the disk.");
-        } catch (CompilerErrors errors) {
-            DialogManager.showErrorDialog("Pack Error", "The file you tried to pack contains compile errors.\nPlease fix them before trying to pack again.");
         }
     }
 

@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.editor.ui.editor.code.parser.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.commons.document.LineColumn;
-import me.waliedyassen.runescript.compiler.CompilerErrors;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
 import me.waliedyassen.runescript.editor.ui.editor.code.parser.notice.ErrorNotice;
@@ -20,7 +19,6 @@ import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
 import org.fife.ui.rsyntaxtextarea.parser.ParseResult;
 
 import javax.swing.text.BadLocationException;
-import java.io.IOException;
 
 /**
  * The RuneScript language text area code parser.
@@ -34,7 +32,7 @@ public final class CodeParser extends AbstractParser {
     /**
      * The result of the
      */
-    private final DefaultParseResult result = new DefaultParseResult(this);
+    private final DefaultParseResult parseResult = new DefaultParseResult(this);
 
     /**
      * The text area which the parser is for.
@@ -47,35 +45,27 @@ public final class CodeParser extends AbstractParser {
     @Override
     public ParseResult parse(RSyntaxDocument doc, String style) {
         var textArea = codeEditor.getTextArea();
-        result.clearNotices();
-        result.setParsedLines(0, textArea.getLineCount() - 1);
+        parseResult.clearNotices();
+        parseResult.setParsedLines(0, textArea.getLineCount() - 1);
         var errorPath = codeEditor.getKey().toAbsolutePath().toString();
         var project = Api.getApi().getProjectManager().getCurrentProject().get();
-        var compiler = project.getCompiler();
         var errorsView = Api.getApi().getUi().getErrorsView();
         errorsView.removeErrorForPath(errorPath);
-        var fileData = textArea.getText().getBytes();
-        try {
-            var start = System.currentTimeMillis();
-            var scripts = compiler.compile(fileData);
-            result.setParseTime(System.currentTimeMillis() - start);
-            project.getCache().updateData(codeEditor.getKey(), null, scripts, fileData);
-        } catch (IOException e) {
-            log.error("An I/O error occurred while compiling the scripts for errors", e);
-        } catch (CompilerErrors errors) {
-            for (var error : errors.getErrors()) {
-                try {
-                    var startOffset = getOffset(error.getRange().getStart());
-                    var endOffset = getOffset(error.getRange().getEnd());
-                    var line = textArea.getLineOfOffset(startOffset);
-                    result.addNotice(new ErrorNotice(this, error.getMessage(), line, startOffset, endOffset));
-                } catch (Throwable e) {
-                    log.warn("An error occurred while adding the compiling errors to the result", e);
-                }
+        var start = System.currentTimeMillis();
+        var result = project.getCache().recompile(codeEditor.getKey(), textArea.getText().getBytes());
+        parseResult.setParseTime(System.currentTimeMillis() - start);
+        for (var pair : result.getErrors()) {
+            var error = pair.getValue();
+            try {
+                var startOffset = getOffset(error.getRange().getStart());
+                var endOffset = getOffset(error.getRange().getEnd());
+                var line = textArea.getLineOfOffset(startOffset);
+                parseResult.addNotice(new ErrorNotice(this, error.getMessage(), line, startOffset, endOffset));
+            } catch (Throwable e) {
+                log.warn("An error occurred while adding the compiling errors to the result", e);
             }
-            project.getCache().updateData(codeEditor.getKey(), errors, null, fileData);
         }
-        return result;
+        return parseResult;
     }
 
     /**

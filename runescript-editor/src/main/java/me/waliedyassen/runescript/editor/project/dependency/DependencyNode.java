@@ -91,4 +91,12 @@ public final class DependencyNode<K> {
     public DependencyNode<K> get(K key) {
         return dependsOn.get(key);
     }
+
+    /**
+     * Removes the dependency of this dependency node on any dependency node.
+     */
+    public void clearDependsOn() {
+        dependsOn.values().forEach(node -> node.getUsedBy().remove(key));
+        dependsOn.clear();
+    }
 }

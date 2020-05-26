@@ -55,7 +55,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * The environment of the owner compiler.
      */
     private final CompilerEnvironment environment;
-
+    
     /**
      * Constructs a new {@link ScriptParser} type object instance.
      *

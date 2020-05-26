@@ -47,9 +47,9 @@ public final class ProjectNode extends DirectoryNode {
      */
     @Override
     public void populateActions(ActionList actionList) {
-        actionList.addAction("Close Project", CommonGroups.EXPLORER.lookup(CommonShortcuts.EXPLORER_CLOSE_PROJECT));
-        actionList.addSeparator();
         super.populateActions(actionList);
+        actionList.addSeparator();
+        actionList.addAction("Close Project", CommonGroups.EXPLORER.lookup(CommonShortcuts.EXPLORER_CLOSE_PROJECT));
     }
 
     static {

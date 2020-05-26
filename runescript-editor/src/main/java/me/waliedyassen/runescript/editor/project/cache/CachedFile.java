@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
@@ -17,7 +16,6 @@ import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,26 +106,5 @@ public final class CachedFile {
      */
     public String getFullPath() {
         return path + "/" + name;
-    }
-
-    /**
-     * A cached error that is stored in a cached file.
-     *
-     * @author Walied K. Yassen
-     */
-    @RequiredArgsConstructor
-    public static final class CachedError {
-
-        /**
-         * The range of the error in the source code.
-         */
-        @Getter
-        private final Range range;
-
-        /**
-         * The message of the error.
-         */
-        @Getter
-        private final String message;
     }
 }

@@ -8,10 +8,10 @@
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.lexer.LexicalError;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.lexer.LexicalError;
 import me.waliedyassen.runescript.lexer.TokenizerBase;
 import me.waliedyassen.runescript.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.lexer.token.Token;
@@ -48,7 +48,7 @@ public final class Tokenizer extends TokenizerBase {
     private final CharStream stream;
 
     /**
-     * The current state
+     * The current state of the tokenizer.
      */
     private State state = State.emptyState(State.StateKind.REGULAR);
 
@@ -253,9 +253,7 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * Creates a new {@link Token} object with the specified {@code kind}.
      *
-     * @param kind
-     *         the kind of the token.
-     *
+     * @param kind the kind of the token.
      * @return the created {@link Token} object instance.
      * @see #createToken(Kind, String)
      */
@@ -269,11 +267,8 @@ public final class Tokenizer extends TokenizerBase {
      * Upon calling this method, the {@link State#mode} of the parser will be reset to it's default which is {@link
      * Mode#NONE}.
      *
-     * @param kind
-     *         the kind of the token.
-     * @param lexeme
-     *         the lexeme of the token.
-     *
+     * @param kind   the kind of the token.
+     * @param lexeme the lexeme of the token.
      * @return the created {@link Token} object instance.
      */
     private Token createToken(Kind kind, String lexeme) {
@@ -284,8 +279,7 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * Adds the specified {@link Token} object to the end of the current state {@link State#fallback fallback} deque.
      *
-     * @param token
-     *         the {@link Token token} object to add.
+     * @param token the {@link Token token} object to add.
      */
     private void feed(Token token) {
         state.fallback.addLast(token);
@@ -320,8 +314,7 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * Pushes a new empty state to the stack.
      *
-     * @param kind
-     *         the kind of the state that will be pushed as a new state.
+     * @param kind the kind of the state that will be pushed as a new state.
      */
     private void pushState(State.StateKind kind) {
         var previous = state;
@@ -342,8 +335,7 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * Creates and throws a parser error ranging from the marked position to the current position.
      *
-     * @param message
-     *         the error message of why the error has occurred.
+     * @param message the error message of why the error has occurred.
      */
     private void throwError(String message) {
         throw new LexicalError(range(), message);
@@ -353,11 +345,8 @@ public final class Tokenizer extends TokenizerBase {
      * Trims the comment from any decoration they have, whether it was the line start decoration character or it was a
      * redundant whitespace.
      *
-     * @param line
-     *         the comment line.
-     * @param trimStar
-     *         whether to trim the decorative star or not.
-     *
+     * @param line     the comment line.
+     * @param trimStar whether to trim the decorative star or not.
      * @return the trimmed comment line content.
      */
     private static String trimComment(String line, boolean trimStar) {

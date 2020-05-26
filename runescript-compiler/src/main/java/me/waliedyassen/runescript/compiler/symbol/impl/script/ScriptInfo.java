@@ -55,4 +55,13 @@ public final class ScriptInfo {
      */
     @Getter
     private final Type[] arguments;
+
+    /**
+     * Returns the full name of the script with the trigger.
+     *
+     * @return the full name of the script with the trigger.
+     */
+    public String getFullName() {
+        return String.format("[%s,%s]", trigger.getRepresentation(), name);
+    }
 }

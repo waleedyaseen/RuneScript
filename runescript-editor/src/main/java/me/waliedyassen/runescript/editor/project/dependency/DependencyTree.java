@@ -86,4 +86,45 @@ public final class DependencyTree<K> {
         nodesByKey.put(key, node);
         return node;
     }
+
+    /**
+     * Removes the dependency node with the specified {@link K key} from the dependency tree.
+     *
+     * @param key the key of the dependency node to remove.
+     */
+    public void remove(K key) {
+        var node = nodesByKey.remove(key);
+        if (node == null) {
+            return;
+        }
+        node.getUsedBy().values().forEach(other -> other.getDependsOn().remove(key));
+        node.getDependsOn().values().forEach(other -> other.getUsedBy().remove(key));
+    }
+
+    /**
+     * Returns the key set of the dependency tree.
+     *
+     * @return the key set of the dependency tree.
+     */
+    public Collection<K> keySet() {
+        return nodesByKey.keySet();
+    }
+
+    /**
+     * Returns the value set of the dependency tree.
+     *
+     * @return the value set of the dependency tree.
+     */
+    public Collection<DependencyNode<K>> valueSet() {
+        return nodesByKey.values();
+    }
+
+    /**
+     * Returns the size of the dependency tree.
+     *
+     * @return the sizze of the dependency tree.
+     */
+    public int size() {
+        return nodesByKey.size();
+    }
 }
