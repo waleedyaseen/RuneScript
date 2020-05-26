@@ -32,7 +32,6 @@ public final class CodeEditor extends FileEditor {
      */
     private static final String SYNTAX_STYLE_RUNESCRIPT = "text/runescript";
 
-
     /**
      * Constructs a new {@link CodeEditor} type object instance.
      *
@@ -52,6 +51,16 @@ public final class CodeEditor extends FileEditor {
         new CodeTheme(textArea).apply(textArea);
         ParserManager.installCodeParser(this);
         textArea.setPopupMenu(null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void save() {
+        var project = Api.getApi().getProjectManager().getCurrentProject().get();
+        project.getCache().recompile(path, textArea.getText().getBytes());
+        super.save();
     }
 
     // Register the language highlighter and other stuff in the future.

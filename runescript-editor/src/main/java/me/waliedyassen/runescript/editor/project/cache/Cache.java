@@ -9,13 +9,11 @@ package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.compiler.CompileInput;
 import me.waliedyassen.runescript.compiler.CompileResult;
-import me.waliedyassen.runescript.compiler.CompiledScript;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.ast.expr.AstCall;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.project.dependency.DependencyTree;
@@ -30,8 +28,10 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -46,7 +46,13 @@ public final class Cache {
      * A map of all the cached files in the project.
      */
     @Getter
-    private final Map<String, CachedFile> cachedFiles = new HashMap<>();
+    private final Map<String, CachedFile> filesByPath = new HashMap<>();
+
+    /**
+     * A map of all the declarations names associated by their container file.
+     */
+    @Getter
+    private final Map<String, CachedFile> filesByDeclaration = new HashMap<>();
 
     /**
      * The cached dependency tree of the project.
@@ -104,14 +110,14 @@ public final class Cache {
         for (var index = 0; index < filesCount; index++) {
             var cachedFile = new CachedFile();
             cachedFile.read(project.getCompiler().getEnvironment(), stream);
-            cachedFiles.put(cachedFile.getFullPath(), cachedFile);
+            addCachedFile(cachedFile);
         }
         var dependencyParentCount = stream.readInt();
         for (var parentIndex = 0; parentIndex < dependencyParentCount; parentIndex++) {
             var node = dependencyTree.findOrCreate(stream.readUTF());
             var dependencyChildCount = stream.readUnsignedShort();
             for (var childIndex = 0; childIndex < dependencyChildCount; childIndex++) {
-                node.add(stream.readUTF());
+                node.addDependency(stream.readUTF());
             }
         }
     }
@@ -123,8 +129,8 @@ public final class Cache {
      * @throws IOException if anything occurs while writing data to the specified stream.
      */
     public void write(DataOutputStream stream) throws IOException {
-        stream.writeInt(cachedFiles.size());
-        for (var file : cachedFiles.values()) {
+        stream.writeInt(filesByPath.size());
+        for (var file : filesByPath.values()) {
             file.write(stream);
         }
         stream.writeInt(dependencyTree.size());
@@ -151,26 +157,25 @@ public final class Cache {
         for (var path : paths) {
             var key = PathEx.normaliseToString(sourceDirectory, path);
             visited.add(key);
-            var cachedFile = cachedFiles.get(key);
+            var cachedFile = filesByPath.get(key);
             if (cachedFile == null) {
                 cachedFile = new CachedFile();
                 cachedFile.setPath(PathEx.normaliseToString(sourceDirectory, path.getParent()));
                 cachedFile.setName(path.getFileName().toString());
-                cachedFiles.put(key, cachedFile);
+                addCachedFile(cachedFile);
             }
             var diskData = Files.readAllBytes(path);
             var diskCrc = ChecksumUtil.calculateCrc32(diskData);
             if (cachedFile.getCrc() == diskCrc) {
                 continue;
             }
-            cachedFile.getErrors().clear();
-            cachedFile.getScripts().clear();
+            clearCachedFile(cachedFile);
             undeclareSymbols(cachedFile);
             input.addSourceCode(cachedFile, diskData);
             cachedFile.setCrc(diskCrc);
             modified = true;
         }
-        input.addVisitor(new DependencyTreeBuilder());
+        input.addVisitor(new DependencyTreeBuilder(dependencyTree));
         var result = project.getCompiler().compile(input);
         for (var pair : result.getErrors()) {
             var cachedFile = (CachedFile) pair.getKey();
@@ -178,15 +183,16 @@ public final class Cache {
         }
         for (var pair : result.getScripts()) {
             var cachedFile = (CachedFile) pair.getKey();
-            cachedFile.getScripts().add(pair.getValue().getInfo());
+            addScript(cachedFile, pair.getValue().getInfo());
         }
-        var deletedFiles = cachedFiles.keySet().stream().filter(file -> !visited.contains(file)).collect(Collectors.toSet());
+        var deletedFiles = filesByPath.keySet().stream().filter(file -> !visited.contains(file)).collect(Collectors.toSet());
         modified |= deletedFiles.size() > 0;
         for (var deletedFile : deletedFiles) {
-            var cachedFile = cachedFiles.remove(deletedFile);
+            var cachedFile = filesByPath.get(deletedFile);
+            removeCachedFile(cachedFile);
             undeclareSymbols(cachedFile);
         }
-        cachedFiles.values().forEach(this::declareSymbols);
+        filesByPath.values().forEach(this::declareSymbols);
         if (modified) {
             project.saveCache();
         }
@@ -201,18 +207,18 @@ public final class Cache {
      */
     public CompileResult recompile(Path path, byte[] data) {
         var key = PathEx.normaliseToString(project.getBuildPath().getSourceDirectory(), path);
-        var cachedFile = cachedFiles.get(key);
+        var cachedFile = filesByPath.get(key);
         if (cachedFile == null) {
             cachedFile = new CachedFile();
             cachedFile.setPath(PathEx.normaliseToString(project.getBuildPath().getSourceDirectory(), path.getParent()));
             cachedFile.setName(path.getFileName().toString());
-            cachedFiles.put(key, cachedFile);
+            filesByPath.put(key, cachedFile);
         }
         undeclareSymbols(cachedFile);
-        cachedFile.getErrors().clear();
-        cachedFile.getScripts().clear();
+        var changedDecls = cachedFile.getScripts().stream().collect(Collectors.toMap(ScriptInfo::getFullName, Function.identity()));
+        clearCachedFile(cachedFile);
         var input = CompileInput.of(null, data);
-        input.addVisitor(new DependencyTreeBuilder());
+        input.addVisitor(new DependencyTreeBuilder(dependencyTree));
         CompileResult result;
         try {
             result = project.getCompiler().compile(input);
@@ -220,17 +226,79 @@ public final class Cache {
             log.error("An I/O error occurred while updating a script", e);
             return null;
         }
-        for (var script : result.getScripts()) {
-            cachedFile.getScripts().add(script.getValue().getInfo());
-            declareSymbols(cachedFile);
+        for (var pair : result.getScripts()) {
+            var script = pair.getValue();
+            cachedFile.getScripts().add(script.getInfo());
+            var decl = changedDecls.get(script.getName());
+            if (decl != null && decl.equalSignature(script.getInfo())) {
+                changedDecls.remove(script.getName());
+            }
+            filesByDeclaration.put(script.getName(), cachedFile);
+        }
+        if (!changedDecls.isEmpty()) {
+            var affectedScripts = new HashSet<String>();
+            for (var changedDecl : changedDecls.keySet()) {
+                var node = dependencyTree.find(changedDecl);
+                if (node == null) {
+                    continue;
+                }
+                affectedScripts.addAll(node.getUsedBy().keySet());
+            }
+            var affectedCachedFiles = affectedScripts
+                    .stream()
+                    .map(filesByDeclaration::get)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            for (var affectedCachedFile : affectedCachedFiles) {
+                var affectedFilePath = project.getBuildPath().getSourceDirectory().resolve(affectedCachedFile.getFullPath());
+                if (Files.exists(affectedFilePath)) {
+                    try {
+                        recompile(affectedFilePath, Files.readAllBytes(affectedFilePath));
+                    } catch (IOException e) {
+                        log.error("Failed to read the file content from the disk", e);
+                    }
+                }
+            }
         }
         for (var error : result.getErrors()) {
             cachedFile.getErrors().add(new CachedError(error.getValue().getRange(), error.getValue().getMessage()));
         }
+
+        declareSymbols(cachedFile);
         cachedFile.setCrc(ChecksumUtil.calculateCrc32(data));
         project.updateErrors(path);
         dirty = true;
         return result;
+    }
+
+    /**
+     * Attempts to recompile the file at the specified {@link Path} and has the specified {@code data}. This is same
+     * as {@link #recompile(Path, byte[])} except that this does not save or alter the state of the cache.
+     *
+     * @param path the path which leads to the file that we want to recompile.
+     * @param data the source code data of the file that we want to recompile.
+     * @return the result of the re-compilation process.
+     */
+    public CompileResult recompileNonPersistent(Path path, byte[] data) {
+        var key = PathEx.normaliseToString(project.getBuildPath().getSourceDirectory(), path);
+        var cachedFile = filesByPath.get(key);
+        if (cachedFile != null) {
+            for (var script : cachedFile.getScripts()) {
+                project.getCompiler().getSymbolTable().undefineScript(script.getTrigger(), script.getName());
+            }
+        }
+        try {
+            return project.getCompiler().compile(CompileInput.of(null, data));
+        } catch (IOException e) {
+            log.error("An I/O error occurred while compiling a script non persistently", e);
+            return null;
+        } finally {
+            if (cachedFile != null) {
+                for (var script : cachedFile.getScripts()) {
+                    project.getCompiler().getSymbolTable().defineScript(script);
+                }
+            }
+        }
     }
 
     /**
@@ -252,49 +320,43 @@ public final class Cache {
     public void undeclareSymbols(CachedFile cachedFile) {
         for (var script : cachedFile.getScripts()) {
             project.getCompiler().getSymbolTable().undefineScript(script.getTrigger(), script.getName());
-            var dependencyNode = dependencyTree.findOrCreate(script.getFullName());
-            dependencyNode.clearDependsOn();
+            dependencyTree.remove(script.getFullName());
         }
     }
 
-    /**
-     * An {@link AstTreeVisitor} which will build a {@link DependencyTree} for all of the visited scripts.
-     *
-     * @author Walied K. Yassen
-     */
-    private final class DependencyTreeBuilder extends AstTreeVisitor {
-
-        /**
-         * The current script we are building the dependency tree for.
-         */
-        private String currentScript;
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void enter(AstScript script) {
-            currentScript = script.getFullName();
-            var node = dependencyTree.findOrCreate(currentScript);
-            node.clearDependsOn();
+    private void addCachedFile(CachedFile cachedFile) {
+        filesByPath.put(cachedFile.getFullPath(), cachedFile);
+        for (var script : cachedFile.getScripts()) {
+            filesByDeclaration.put(script.getFullName(), cachedFile);
         }
+    }
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void exit(AstScript script) {
-            currentScript = null;
+    private void removeCachedFile(CachedFile cachedFile) {
+        filesByPath.remove(cachedFile.getFullPath());
+        for (var script : cachedFile.getScripts()) {
+            filesByDeclaration.remove(script.getFullName());
         }
+    }
 
-        /**
-         * {@inheritDoc}
-         */
+    private void clearCachedFile(CachedFile cachedFile) {
+        for (var script : cachedFile.getScripts()) {
+            filesByDeclaration.remove(script.getFullName());
+        }
+        cachedFile.getScripts().clear();
+        cachedFile.getErrors().clear();
+    }
+
+    private void addScript(CachedFile cachedFile, ScriptInfo info) {
+        cachedFile.getScripts().add(info);
+        filesByDeclaration.put(info.getFullName(), cachedFile);
+    }
+
+    private static final class CompilationUnitCollector extends AstTreeVisitor {
+
         @Override
-        public Void visit(AstCall call) {
-            var node = dependencyTree.findOrCreate(currentScript);
-            node.add(call.getFullName());
-            return super.visit(call);
+        public Void visit(AstScript script) {
+            var name = script.getFullName();
+            return super.visit(script);
         }
     }
 }

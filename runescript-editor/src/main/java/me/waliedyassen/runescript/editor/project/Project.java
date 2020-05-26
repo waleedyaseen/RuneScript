@@ -341,7 +341,7 @@ public final class Project {
     public void updateErrors() {
         var errorsView = Api.getApi().getUi().getErrorsView();
         errorsView.clearErrors();
-        for (var cachedFile : cache.getCachedFiles().values()) {
+        for (var cachedFile : cache.getFilesByPath().values()) {
             var path = cachedFile.getFullPath();
             for (var cachedError : cachedFile.getErrors()) {
                 var line = cachedError.getRange().getStart().getLine();
@@ -371,7 +371,7 @@ public final class Project {
     public void updateErrors(String path) {
         var errorsView = Api.getApi().getUi().getErrorsView();
         errorsView.removeErrorForPath(path);
-        var cachedFile = cache.getCachedFiles().get(path);
+        var cachedFile = cache.getFilesByPath().get(path);
         if (cachedFile == null) {
             return;
         }

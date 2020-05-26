@@ -88,17 +88,29 @@ public final class DependencyTree<K> {
     }
 
     /**
+     * Finds the {@link DependencyNode} with the specified {@link K key}.
+     *
+     * @param key the key of the dependency node.
+     * @return the {@link DependencyNode} if found otherwise {@code null}.
+     */
+    public DependencyNode<K> find(K key) {
+        return nodesByKey.get(key);
+    }
+
+    /**
      * Removes the dependency node with the specified {@link K key} from the dependency tree.
      *
      * @param key the key of the dependency node to remove.
      */
     public void remove(K key) {
-        var node = nodesByKey.remove(key);
+        var node = nodesByKey.get(key);
         if (node == null) {
             return;
         }
-        node.getUsedBy().values().forEach(other -> other.getDependsOn().remove(key));
-        node.getDependsOn().values().forEach(other -> other.getUsedBy().remove(key));
+        node.clearDependsOn();
+        if (node.getUsedBy().isEmpty()) {
+            nodesByKey.remove(key);
+        }
     }
 
     /**

@@ -11,10 +11,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import me.waliedyassen.runescript.compiler.CompiledScript;
+import me.waliedyassen.runescript.compiler.util.Pair;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a declared script symbol information.
@@ -63,5 +67,16 @@ public final class ScriptInfo {
      */
     public String getFullName() {
         return String.format("[%s,%s]", trigger.getRepresentation(), name);
+    }
+
+    /**
+     * Checks whether not the signature is equal between (return and arugment types) this script and the specified
+     * {@code other} script.
+     *
+     * @param other the other script to check this script's signature against.
+     * @return <code>true</code> if the signature is equal otherwise <code>false</code>.
+     */
+    public boolean equalSignature(ScriptInfo other) {
+        return Objects.equals(type, other.type) && Arrays.equals(arguments, other.arguments);
     }
 }

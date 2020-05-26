@@ -52,7 +52,7 @@ public final class DependencyNode<K> {
      *
      * @param key the key of the dependency that we want to add.
      */
-    public void add(K key) {
+    public void addDependency(K key) {
         if (isChildFor(key)) {
             throw new CircularDependencyException("Circular dependency found in between " + this.key + " and " + key);
         }

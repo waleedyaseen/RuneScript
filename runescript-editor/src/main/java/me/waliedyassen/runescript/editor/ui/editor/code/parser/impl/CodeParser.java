@@ -13,6 +13,7 @@ import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
 import me.waliedyassen.runescript.editor.ui.editor.code.parser.notice.ErrorNotice;
+import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.parser.AbstractParser;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
@@ -44,15 +45,20 @@ public final class CodeParser extends AbstractParser {
      */
     @Override
     public ParseResult parse(RSyntaxDocument doc, String style) {
-        var textArea = codeEditor.getTextArea();
+        // TODO: Move error reporting again to recompileNonPersistent
+        final var project = Api.getApi().getProjectManager().getCurrentProject().get();
+        final var errorsView = Api.getApi().getUi().getErrorsView();
+        final var errorsPath = PathEx.normaliseToString(project.getBuildPath().getSourceDirectory(), codeEditor.getKey());
+        final var textArea = codeEditor.getTextArea();
         parseResult.clearNotices();
         parseResult.setParsedLines(0, textArea.getLineCount() - 1);
-        var project = Api.getApi().getProjectManager().getCurrentProject().get();
         var start = System.currentTimeMillis();
-        var result = project.getCache().recompile(codeEditor.getKey(), textArea.getText().getBytes());
+        var result = project.getCache().recompileNonPersistent(codeEditor.getKey(), textArea.getText().getBytes());
         parseResult.setParseTime(System.currentTimeMillis() - start);
+        errorsView.removeErrorForPath(errorsPath);
         for (var pair : result.getErrors()) {
             var error = pair.getValue();
+            errorsView.addError(errorsPath, error.getRange().getStart().getLine(), error.getRange().getStart().getColumn(), error.getMessage());
             try {
                 var startOffset = getOffset(error.getRange().getStart());
                 var endOffset = getOffset(error.getRange().getEnd());
