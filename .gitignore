@@ -80,6 +80,7 @@ local.properties
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+*.iml
 
 # Sensitive or high-churn files
 .idea/
