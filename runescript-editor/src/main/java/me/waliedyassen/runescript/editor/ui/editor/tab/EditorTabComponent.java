@@ -12,6 +12,7 @@ import me.waliedyassen.runescript.editor.ui.tabbedpane.TabComponent;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseListener;
 
 /**
  * A {@link TabComponent} implementation of the editor view.
@@ -30,7 +31,7 @@ public final class EditorTabComponent extends TabComponent {
      *
      * @param tab the tab which the tab component is for.
      */
-    public EditorTabComponent(EditorTab tab) {
+    public EditorTabComponent(EditorTab tab, MouseListener tabsMouseListener) {
         super(new BorderLayout(2, 0));
         // Create and add the title  button.
         label = new JLabel(tab.getEditor().getTitle());
@@ -38,11 +39,13 @@ public final class EditorTabComponent extends TabComponent {
         if (icon != null) {
             label.setIcon(icon);
         }
+        label.addMouseListener(tabsMouseListener);
         add(label, BorderLayout.CENTER);
         // Create and add the close button.
         var button = new JButton("X");
         button.addActionListener(evt -> tab.requestClose());
         button.setToolTipText("Close");
+        button.addMouseListener(tabsMouseListener);
         add(button, BorderLayout.EAST);
         // Set the tooltip of the tab component.
         setTooltip(tab.getEditor().getTooltip());

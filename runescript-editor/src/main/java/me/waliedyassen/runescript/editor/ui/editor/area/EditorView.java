@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor.area;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
@@ -18,11 +19,11 @@ import me.waliedyassen.runescript.editor.ui.editor.tab.EditorTabComponent;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.ui.tabbedpane.TabbedPane;
-import me.waliedyassen.runescript.editor.ui.util.DelegatingMouseListener;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,48 +57,21 @@ public final class EditorView extends JPanel implements ActionSource {
     private final Map<Component, EditorTab> tabsByComponent = new HashMap<>();
 
     /**
+     * The editor tab events handler.
+     */
+    private final EditorTabHandler editorTabHandler;
+
+    /**
      * Constructs a new {@link EditorView} type object instance.
      */
     public EditorView() {
         setLayout(new BorderLayout());
         add(tabbedPane, BorderLayout.CENTER);
         // We replace the original mouse listener of the tabbed pane.
-        var listener = tabbedPane.getMouseListeners()[0];
-        tabbedPane.removeMouseListener(listener);
-        tabbedPane.addMouseListener(new DelegatingMouseListener(listener) {
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e)) {
-                    super.mousePressed(e);
-                }
-                var tabIndex = tabbedPane.indexAtLocation(e.getX(), e.getY());
-                if (tabIndex == -1) {
-                    return;
-                }
-                var component = tabbedPane.getComponentAt(tabIndex);
-                var tab = tabsByComponent.get(component);
-                if (tab == null) {
-                    log.warn("Failed to find an EditorTab object for Component: {}", component);
-                    return;
-                }
-                if (SwingUtilities.isMiddleMouseButton(e)) {
-                    requestClose(tab.getEditor().getKey());
-                } else if (SwingUtilities.isRightMouseButton(e)) {
-                    var actionList = Api.getApi().getActionManager().createList(tab);
-                    tab.populateActions(actionList);
-                    populateActions(actionList);
-                    if (actionList.isEmpty()) {
-                        return;
-                    }
-                    var popup = actionList.createPopupMenu();
-                    popup.show(tabbedPane, e.getX(), e.getY());
-                }
-            }
-        });
+        var delegateListener = tabbedPane.getMouseListeners()[0];
+        tabbedPane.removeMouseListener(delegateListener);
+        editorTabHandler = new EditorTabHandler(delegateListener);
+        tabbedPane.addMouseListener(editorTabHandler);
     }
 
     /**
@@ -132,7 +106,7 @@ public final class EditorView extends JPanel implements ActionSource {
         tabsByKey.put(key, tab);
         tabsByComponent.put(component, tab);
         tabbedPane.addTab(editor.getTitle(), component);
-        tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(component), new EditorTabComponent(tab));
+        tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(component), new EditorTabComponent(tab, editorTabHandler));
         selectTab(key);
 
     }
@@ -264,5 +238,96 @@ public final class EditorView extends JPanel implements ActionSource {
             var editorTab = (EditorTab) source;
             editorTab.save();
         });
+    }
+
+    /**
+     * Represents the handler of the editor tab mouse listener.
+     *
+     * @author Walied K. Yasen
+     */
+    @RequiredArgsConstructor
+    private final class EditorTabHandler implements MouseListener {
+
+        private final MouseListener delegateHandler;
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            delegateHandler.mouseClicked(translateMouseEvent(e));
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void mousePressed(MouseEvent e) {
+            e = translateMouseEvent(e);
+            if (SwingUtilities.isLeftMouseButton(e)) {
+                delegateHandler.mousePressed(e);
+            }
+            var tabIndex = tabbedPane.indexAtLocation(e.getX(), e.getY());
+            if (tabIndex == -1) {
+                return;
+            }
+            var component = tabbedPane.getComponentAt(tabIndex);
+            var tab = tabsByComponent.get(component);
+            if (tab == null) {
+                log.warn("Failed to find an EditorTab object for Component: {}", component);
+                return;
+            }
+            if (SwingUtilities.isMiddleMouseButton(e)) {
+                requestClose(tab.getEditor().getKey());
+            } else if (SwingUtilities.isRightMouseButton(e)) {
+                var actionList = Api.getApi().getActionManager().createList(tab);
+                tab.populateActions(actionList);
+                populateActions(actionList);
+                if (actionList.isEmpty()) {
+                    return;
+                }
+                var popup = actionList.createPopupMenu();
+                popup.show(tabbedPane, e.getX(), e.getY());
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            delegateHandler.mouseReleased(translateMouseEvent(e));
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            delegateHandler.mouseEntered(translateMouseEvent(e));
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void mouseExited(MouseEvent e) {
+            delegateHandler.mouseExited(translateMouseEvent(e));
+        }
+
+        /**
+         * Translates the specified {@link MouseEvent} to be for the {@link #tabbedPane} object.
+         *
+         * @param event the event that we want to translate.
+         * @return the translated {@link MouseEvent} if the parent needs changing or the same {@link MouseEvent event}
+         * that was passed as a parameter..
+         */
+        private MouseEvent translateMouseEvent(MouseEvent event) {
+            if (event.getComponent() == tabbedPane) {
+                return event;
+            } else {
+                return SwingUtilities.convertMouseEvent(event.getComponent(), event, tabbedPane);
+            }
+        }
     }
 }
