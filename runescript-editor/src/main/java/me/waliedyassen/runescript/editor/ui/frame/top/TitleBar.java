@@ -48,8 +48,7 @@ public final class TitleBar extends JPanel {
     /**
      * Constructs a new {@link TitleBar} type object instance.
      *
-     * @param frame
-     *         the frame which the title bar is for.
+     * @param frame the frame which the title bar is for.
      */
     public TitleBar(JFrame frame) {
         this.frame = frame;
@@ -84,34 +83,25 @@ public final class TitleBar extends JPanel {
     private void setupControls() {
         var panel = new JPanel(new MigLayout("gap 0, ins 0"));
         panel.add(new ControlButton(ControlButtonType.MINIMISE, new AbstractAction() {
-
-            /**
-             * {@inheritDoc}
-             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setExtendedState(frame.getExtendedState() | JFrame.ICONIFIED);
             }
         }));
         panel.add(new ControlButton(ControlButtonType.MAXIMISE, new AbstractAction() {
-
-            /**
-             * {@inheritDoc}
-             */
             @Override
             public void actionPerformed(ActionEvent e) {
-                if ((frame.getExtendedState() & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH) {
-                    frame.setExtendedState(frame.getExtendedState() & ~JFrame.MAXIMIZED_BOTH);
-                } else {
+                var controlButton = (ControlButton) e.getSource();
+                if (controlButton.getType() == ControlButtonType.MAXIMISE) {
+                    controlButton.setType(ControlButtonType.RESTORE);
                     frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+                } else {
+                    controlButton.setType(ControlButtonType.MAXIMISE);
+                    frame.setExtendedState(frame.getExtendedState() & ~JFrame.MAXIMIZED_BOTH);
                 }
             }
         }));
         panel.add(new ControlButton(ControlButtonType.CLOSE, new AbstractAction() {
-
-            /**
-             * {@inheritDoc}
-             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
@@ -141,8 +131,7 @@ public final class TitleBar extends JPanel {
         /**
          * Installs the movement handler on the specified component.
          *
-         * @param component
-         *         the component to install the handler on.
+         * @param component the component to install the handler on.
          */
         void install(JComponent component) {
             component.addMouseListener(this);
@@ -179,10 +168,8 @@ public final class TitleBar extends JPanel {
         /**
          * Installs the {@link WindowMoveHandler} on the specified {@link JComponent component}.
          *
-         * @param component
-         *         the component to install the movement handler on.
-         * @param frame
-         *         the frame which will be moved by the movement handler.
+         * @param component the component to install the movement handler on.
+         * @param frame     the frame which will be moved by the movement handler.
          */
         static void install(JComponent component, JFrame frame) {
             new WindowMoveHandler(frame).install(component);

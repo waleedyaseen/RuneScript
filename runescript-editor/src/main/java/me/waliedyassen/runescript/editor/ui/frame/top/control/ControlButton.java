@@ -7,14 +7,12 @@
  */
 package me.waliedyassen.runescript.editor.ui.frame.top.control;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.ui.frame.top.menu.MenuBar;
 
 import javax.accessibility.AccessibleContext;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -29,8 +27,8 @@ public final class ControlButton extends JButton {
     /**
      * The type of the control button.
      */
-    @Getter(AccessLevel.PRIVATE)
-    private final ControlButtonType type;
+    @Getter
+    private ControlButtonType type;
 
     /**
      * The style handler of the control button.
@@ -40,16 +38,14 @@ public final class ControlButton extends JButton {
     /**
      * Constructs a new {@link ControlButton} type object instance.
      *
-     * @param type
-     *         the type of the control button.
-     * @param action
-     *         the action of the control button.
+     * @param type   the type of the control button.
+     * @param action the action of the control button.
      */
     public ControlButton(ControlButtonType type, Action action) {
         super((String) null);
         this.type = type;
         setAction(action);
-        setBorder(new EmptyBorder(0, 0, 0, 0));
+        setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         setPreferredSize(new Dimension(47, MenuBar.HEIGHT));
         addMouseListener(styleHandler = new StyleHandler(this));
         putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY, type.getName());
@@ -62,6 +58,16 @@ public final class ControlButton extends JButton {
     public void paint(Graphics g) {
         styleHandler.update();
         super.paint(g);
+    }
+
+    /**
+     * Updates the type of the control button.
+     *
+     * @param type the type of the control button.
+     */
+    public void setType(ControlButtonType type) {
+        this.type = type;
+        repaint();
     }
 
     /**
@@ -95,13 +101,13 @@ public final class ControlButton extends JButton {
             final var colorCode = button.getType().getColor();
             Color color;
             if (pressed) {
-                color = colorCode == -1 ?  button.getParent().getBackground().brighter() : new Color(colorCode).darker();
+                color = colorCode == null ? button.getParent().getBackground().brighter() : colorCode.darker();
             } else if (hovered) {
-                color = colorCode == -1 ? button.getParent().getBackground().brighter() : new Color(colorCode);
+                color = colorCode == null ? button.getParent().getBackground().brighter() : colorCode;
             } else {
                 color = button.getParent().getBackground();
             }
-            button.setIcon(button.getType().getIcon());
+            button.setIcon(hovered || pressed ? button.getType().getHoverIcon() : button.getType().getIcon());
             button.setBackground(color);
         }
 
