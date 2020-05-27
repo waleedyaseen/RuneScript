@@ -17,6 +17,7 @@ import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.errors.ErrorsView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.ProjectNode;
+import me.waliedyassen.runescript.editor.ui.frame.TitledFrame;
 import me.waliedyassen.runescript.editor.ui.frame.top.TitleBar;
 import me.waliedyassen.runescript.editor.ui.frame.top.ToolBar;
 import me.waliedyassen.runescript.editor.ui.frame.top.TopUi;
@@ -41,13 +42,13 @@ public final class EditorUI implements WindowListener {
      * The main frame of the user-interface.
      */
     @Getter
-    private final JFrame frame = new JFrame();
+    private final TitledFrame frame = new TitledFrame();
 
     /**
      * The title bar of the main frame.
      */
     @Getter
-    private final TopUi topUi = new TopUi(new TitleBar(frame), new ToolBar());
+    private final TopUi topUi = new TopUi(frame.getTitleBar(), new ToolBar());
 
     /**
      * The view component of the explorer.
@@ -101,15 +102,17 @@ public final class EditorUI implements WindowListener {
         initialiseFrame();
         initialiseMenu();
         initialiseDocks();
+        statusBar.setOpaque(false);
         frame.add(statusBar, BorderLayout.SOUTH);
+        frame.pack();
     }
 
     /**
      * Initialises the main frame component.
      */
     private void initialiseFrame() {
-        frame.setUndecorated(true);
-        frame.setSize(1270, 800);
+        frame.setPreferredSize(new Dimension(1270, 768));
+        frame.setMinimumSize(new Dimension(600, 400));
         frame.setLocationRelativeTo(null);
         frame.addWindowListener(this);
         frame.add(topUi, BorderLayout.NORTH);
@@ -182,9 +185,15 @@ public final class EditorUI implements WindowListener {
 
         }
         bar.add(fileMenu);
-        bar.add(new JMenu("Edit"));
-        bar.add(new JMenu("Window"));
-        bar.add(new JMenu("Help"));
+        var editMenu = new JMenu("Edit");
+        editMenu.add(new JMenuItem("Test"));
+        bar.add(editMenu);
+        var windowMenu = new JMenu("Window");
+        windowMenu.add(new JMenuItem("Test"));
+        bar.add(windowMenu);
+        var helpMenu = new JMenu("Help");
+        helpMenu.add(new JMenuItem("Test"));
+        bar.add(helpMenu);
     }
 
     /**

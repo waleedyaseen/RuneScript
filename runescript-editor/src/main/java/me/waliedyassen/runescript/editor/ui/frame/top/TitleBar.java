@@ -13,20 +13,21 @@ import me.waliedyassen.runescript.editor.property.impl.StringProperty;
 import me.waliedyassen.runescript.editor.ui.frame.top.control.ControlButton;
 import me.waliedyassen.runescript.editor.ui.frame.top.control.ControlButtonType;
 import me.waliedyassen.runescript.editor.ui.frame.top.menu.MenuBar;
+import me.waliedyassen.runescript.editor.util.ex.SwingUtilitiesEx;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A title bar with a menu bar for dialogs and frames.
  *
  * @author Walied K. Yassen
  */
-public final class TitleBar extends JPanel {
+public final class TitleBar extends JPanel implements ComponentListener {
 
     /**
      * The current text of the title bar.
@@ -39,6 +40,17 @@ public final class TitleBar extends JPanel {
      */
     @Getter
     private final MenuBar menuBar = new MenuBar();
+
+    /**
+     * The panel which contains all of the controls;.
+     */
+    private final JPanel controlsPanel = new JPanel();
+
+    /**
+     * The bounds of the hit test spots of the title bar.
+     */
+    @Getter
+    private final List<Rectangle> hitTestBounds = new ArrayList<>();
 
     /**
      * The window which the title bar is for.
@@ -56,7 +68,6 @@ public final class TitleBar extends JPanel {
         setupMenuBar();
         setupTitle();
         setupControls();
-        WindowMoveHandler.install(this, frame);
     }
 
     /**
@@ -66,6 +77,7 @@ public final class TitleBar extends JPanel {
         menuBar.setBorderPainted(false);
         menuBar.setMinimumSize(new Dimension());
         add(menuBar);
+        addComponentListener(this);
     }
 
     /**
@@ -81,14 +93,14 @@ public final class TitleBar extends JPanel {
      * Sets-up the title controls.
      */
     private void setupControls() {
-        var panel = new JPanel(new MigLayout("gap 0, ins 0"));
-        panel.add(new ControlButton(ControlButtonType.MINIMISE, new AbstractAction() {
+        controlsPanel.setLayout(new MigLayout("gap 0, ins 0"));
+        controlsPanel.add(new ControlButton(ControlButtonType.MINIMISE, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setExtendedState(frame.getExtendedState() | JFrame.ICONIFIED);
             }
         }));
-        panel.add(new ControlButton(ControlButtonType.MAXIMISE, new AbstractAction() {
+        controlsPanel.add(new ControlButton(ControlButtonType.MAXIMISE, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 var controlButton = (ControlButton) e.getSource();
@@ -101,13 +113,55 @@ public final class TitleBar extends JPanel {
                 }
             }
         }));
-        panel.add(new ControlButton(ControlButtonType.CLOSE, new AbstractAction() {
+        controlsPanel.add(new ControlButton(ControlButtonType.CLOSE, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.dispose();
             }
         }));
-        add(panel);
+        add(controlsPanel);
+    }
+
+    /**
+     * Updates the hit test spots boundaries.
+     */
+    public void updateHitTestBounds() {
+        hitTestBounds.clear();
+        hitTestBounds.add(SwingUtilitiesEx.getComponentHitTestBounds(menuBar));
+        hitTestBounds.add(SwingUtilitiesEx.getComponentHitTestBounds(controlsPanel));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void componentResized(ComponentEvent e) {
+        updateHitTestBounds();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void componentMoved(ComponentEvent e) {
+        System.out.println("Movewd");
+        updateHitTestBounds();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void componentShown(ComponentEvent e) {
+        updateHitTestBounds();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void componentHidden(ComponentEvent e) {
+        updateHitTestBounds();
     }
 
     /**
