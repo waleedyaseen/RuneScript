@@ -113,7 +113,6 @@ public final class EditorUI implements WindowListener {
     private void initialiseFrame() {
         frame.setPreferredSize(new Dimension(1270, 768));
         frame.setMinimumSize(new Dimension(600, 400));
-        frame.setLocationRelativeTo(null);
         frame.addWindowListener(this);
         frame.add(topUi, BorderLayout.NORTH);
     }
@@ -220,6 +219,8 @@ public final class EditorUI implements WindowListener {
             return;
         }
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
+        frame.toFront();
     }
 
     /**

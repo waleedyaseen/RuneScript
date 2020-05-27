@@ -17,6 +17,7 @@ import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokenMake
 import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.factory.TokenMakerFactoryImpl;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
 
+import java.awt.*;
 import java.nio.file.Path;
 
 /**

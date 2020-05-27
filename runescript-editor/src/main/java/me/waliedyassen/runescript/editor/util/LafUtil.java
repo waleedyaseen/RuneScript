@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.util;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,7 +31,7 @@ public final class LafUtil {
         JFrame.setDefaultLookAndFeelDecorated(false);
         JDialog.setDefaultLookAndFeelDecorated(false);
         try {
-            UIManager.setLookAndFeel(FlatDarkLaf.class.getName());
+            UIManager.setLookAndFeel(FlatDarculaLaf.class.getName());
         } catch (Throwable e) {
             log.error("Failed to set the default Look and Feel", e);
         }

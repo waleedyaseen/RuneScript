@@ -21,6 +21,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A title bar with a menu bar for dialogs and frames.
@@ -50,7 +51,7 @@ public final class TitleBar extends JPanel implements ComponentListener {
      * The bounds of the hit test spots of the title bar.
      */
     @Getter
-    private final List<Rectangle> hitTestBounds = new ArrayList<>();
+    private final List<Rectangle> hitTestBounds = new CopyOnWriteArrayList<>();
 
     /**
      * The window which the title bar is for.
