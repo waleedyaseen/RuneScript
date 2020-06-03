@@ -10,10 +10,7 @@ package me.waliedyassen.runescript.compiler.ast.visitor;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -37,27 +34,27 @@ class AstTreeVisitorTest {
     void testAll() {
         var script = ScriptParserTest.fromResource("visitor-tree-script.rs2").script();
         script.accept(visitor);
-        assertEquals(visitor.scripts.count(), 1);
-        assertEquals(visitor.parameters.count(), 4);
-        assertEquals(visitor.literalBool.count(), 4);
-        assertEquals(visitor.literalInteger.count(), 23);
-        assertEquals(visitor.literalLong.count(), 1);
-        assertEquals(visitor.literalString.count(), 7);
-        assertEquals(visitor.concatenation.count(), 1);
-        assertEquals(visitor.variableExpression.count(), 7);
-        assertEquals(visitor.call.count(), 1);
-        assertEquals(visitor.dynamic.count(), 2);
-        assertEquals(visitor.constant.count(), 1);
-        assertEquals(visitor.command.count(), 4);
-        assertEquals(visitor.binaryOperation.count(), 2);
-        assertEquals(visitor.variableDeclaration.count(), 5);
-        assertEquals(visitor.variableInitializer.count(), 7);
-        assertEquals(visitor.switchStatement.count(), 2);
-        assertEquals(visitor.switchCase.count(), 5);
-        assertEquals(visitor.ifStatement.count(), 2);
-        assertEquals(visitor.whileStatement.count(), 1);
-        assertEquals(visitor.expressionStatement.count(), 4);
-        assertEquals(visitor.returnStatement.count(), 1);
+        assertEquals(1, visitor.scripts.count());
+        assertEquals(4, visitor.parameters.count());
+        assertEquals(4, visitor.literalBool.count());
+        assertEquals(23, visitor.literalInteger.count());
+        assertEquals(1, visitor.literalLong.count());
+        assertEquals(7, visitor.literalString.count());
+        assertEquals(1, visitor.concatenation.count());
+        assertEquals(7, visitor.variableExpression.count());
+        assertEquals(1, visitor.call.count());
+        assertEquals(2, visitor.dynamic.count());
+        assertEquals(1, visitor.constant.count());
+        assertEquals(4, visitor.command.count());
+        assertEquals(2, visitor.binaryOperation.count());
+        assertEquals(6, visitor.variableDeclaration.count());
+        assertEquals(7, visitor.variableInitializer.count());
+        assertEquals(2, visitor.switchStatement.count());
+        assertEquals(5, visitor.switchCase.count());
+        assertEquals(2, visitor.ifStatement.count());
+        assertEquals(1, visitor.whileStatement.count());
+        assertEquals(4, visitor.expressionStatement.count());
+        assertEquals(1, visitor.returnStatement.count());
     }
 
     static class CountingVisitor extends AstTreeVisitor {
@@ -68,6 +65,7 @@ class AstTreeVisitorTest {
         final Counter literalInteger = new Counter();
         final Counter literalLong = new Counter();
         final Counter literalString = new Counter();
+        final Counter literalCoordgrid = new Counter();
         final Counter concatenation = new Counter();
         final Counter component = new Counter();
         final Counter variableExpression = new Counter();
@@ -93,6 +91,7 @@ class AstTreeVisitorTest {
             literalInteger.reset();
             literalLong.reset();
             literalString.reset();
+            literalCoordgrid.reset();
             component.reset();
             concatenation.reset();
             variableExpression.reset();
@@ -182,6 +181,18 @@ class AstTreeVisitorTest {
         public void exit(AstLiteralString string) {
             super.exit(string);
             this.literalString.numExits++;
+        }
+
+        @Override
+        public void enter(AstLiteralCoordgrid coordgrid) {
+            super.enter(coordgrid);
+            this.literalCoordgrid.numEnters++;
+        }
+
+        @Override
+        public void exit(AstLiteralCoordgrid coordgrid) {
+            super.exit(coordgrid);
+            this.literalCoordgrid.numExits++;
         }
 
         @Override

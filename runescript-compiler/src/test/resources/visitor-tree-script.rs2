@@ -31,4 +31,6 @@ switch_int($local0) {
 while ($int0 > 0) {
     $int0 = sub($int0, 1);
 }
+
+def_coordgrid $coord = 0_50_50_32_32;
 return(~gosub_test($local0,$string1));

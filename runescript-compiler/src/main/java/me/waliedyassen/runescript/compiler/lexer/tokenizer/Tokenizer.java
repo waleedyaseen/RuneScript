@@ -209,7 +209,7 @@ public final class Tokenizer extends TokenizerBase {
                         state.mode = Mode.COORDGRID_LITERAL;
                     }
                     var coordgrid = state.mode == Mode.COORDGRID_LITERAL;
-                    if (Character.isDigit(current) || current == '_' && Character.isDigit(next) && coordgrid) {
+                    if (Character.isDigit(current) || current == '_') {
                         builder.append(current);
                         stream.mark();
                     } else {

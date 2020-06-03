@@ -35,6 +35,7 @@ import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.type.Type;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -50,8 +51,8 @@ public final class ScriptParserTest {
 
     static CompilerEnvironment environment;
 
-    @BeforeAll
-    static void setupEnvironment() {
+    @BeforeEach
+    void setupEnvironment() {
         environment = new CompilerEnvironment();
         for (TestTriggerType triggerType : TestTriggerType.values()) {
             environment.registerTrigger(triggerType);
@@ -77,7 +78,7 @@ public final class ScriptParserTest {
             assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int $one").script());
         }, () -> {
             // script with return type
-            assertEquals(fromString("[trigger,name](bool) return;").script().getType(), PrimitiveType.BOOLEAN);
+            assertEquals(fromString("[trigger,name](boolean) return;").script().getType(), PrimitiveType.BOOLEAN);
         }, () -> {
             // script with parameters and return type
             var script = fromString("[trigger,name](int $myint, long $mylong)(int) return;").script();
@@ -148,7 +149,7 @@ public final class ScriptParserTest {
             // long
             assertTrue(fromString("123456L").simpleExpression() instanceof AstLiteralLong);
         }, () -> {
-            // bool.
+            // boolean.
             assertTrue(fromString("true").simpleExpression() instanceof AstLiteralBool);
         }, () -> {
             // local variable.
@@ -167,7 +168,7 @@ public final class ScriptParserTest {
             assertTrue(fromString("(^constant)").simpleExpression() instanceof AstConstant);
         }, () -> {
             // not expression
-            assertThrows(SyntaxError.class, () -> fromString("if(123);").simpleExpression());
+            assertThrows(SyntaxError.class, () -> fromString("if({});").simpleExpression());
         });
     }
 
@@ -213,10 +214,10 @@ public final class ScriptParserTest {
             assertEquals(3, fromString("~gosub(1234, \"test\", 5 > 4 > 3 > 2 > 1);").call().getArguments().length);
         }, () -> {
             // invalid gosub name
-            assertThrows(SyntaxError.class, () -> fromString("~1234(1234);").call());
+            assertThrows(SyntaxError.class, () -> fromString("~~();").call());
         }, () -> {
             // invalid gosub arguments
-            assertThrows(SyntaxError.class, () -> fromString("~gosub(if);").call());
+            assertThrows(SyntaxError.class, () -> fromString("~gosub(~~);").call());
         });
     }
 
@@ -229,7 +230,7 @@ public final class ScriptParserTest {
             assertEquals("mydynamic", expr.getName().getText());
         }, () -> {
             // invalid dynamic name
-            assertThrows(SyntaxError.class, () -> fromString("0000").dynamic());
+            assertThrows(SyntaxError.class, () -> fromString("{}").dynamic());
         });
 
     }
@@ -296,7 +297,7 @@ public final class ScriptParserTest {
             assertTrue(fromString("return test;").statement() instanceof AstReturnStatement);
         }, () -> {
             // valid variable define statement
-            assertTrue(fromString("def_bool $mybool = true;").statement() instanceof AstVariableDeclaration);
+            assertTrue(fromString("def_boolean $mybool = true;").statement() instanceof AstVariableDeclaration);
         }, () -> {
             // valid variable initialise statement
             assertTrue(fromString("$varinit = 5;").statement() instanceof AstVariableInitializer);
@@ -411,14 +412,14 @@ public final class ScriptParserTest {
     void testVariableDeclaration() {
         assertAll("variable define statement", () -> {
             // valid variable declaration.
-            var variableDefine = fromString("def_bool $test = true;").variableDeclaration();
+            var variableDefine = fromString("def_boolean $test = true;").variableDeclaration();
             assertNotNull(variableDefine);
             assertEquals(variableDefine.getType(), PrimitiveType.BOOLEAN);
             assertEquals(variableDefine.getName().getText(), "test");
             assertTrue(variableDefine.getExpression() instanceof AstLiteralBool);
         }, () -> {
             // invalid variable scope.
-            assertThrows(SyntaxError.class, () -> fromString("def_bool %test = true;").variableDeclaration());
+            assertThrows(SyntaxError.class, () -> fromString("def_boolean %test = true;").variableDeclaration());
         }, () -> {
             // missing variable scope.
             assertThrows(SyntaxError.class, () -> fromString("def_int noscope = 5;").variableDeclaration());
@@ -592,7 +593,7 @@ public final class ScriptParserTest {
 
     @Test
     void testBool() {
-        assertAll("bool", () -> {
+        assertAll("boolean", () -> {
             // valid boolean
             assertTrue(fromString("true").bool().getValue());
             assertFalse(fromString("false").bool().getValue());
