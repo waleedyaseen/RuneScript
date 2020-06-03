@@ -289,19 +289,19 @@ public final class ScriptParser extends ParserBase<Kind> {
                 return globalVariable();
             case CARET:
                 return constant();
-            case IDENTIFIER:
-                if (peekKind(1) == LPAREN) {
-                    return command();
-                } else if (isComponent()) {
-                    return component();
-                }
-                return dynamic();
             case DOT:
                 return command();
             case CALC:
                 return calc();
             default:
-                if (isCall()) {
+                if (isAdvancedIdentifier()) {
+                    if (peekKind(1) == LPAREN) {
+                        return command();
+                    } else if (isComponent()) {
+                        return component();
+                    }
+                    return dynamic();
+                } else if (isCall()) {
                     return call();
                 } else {
                     throw createError(consume(), "Expecting an expression");
@@ -325,7 +325,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * @return <code>true</code> if it does otherwise <code>false</code.>
      */
     public boolean isComponent() {
-        return peekKind() == IDENTIFIER && peekKind(1) == COLON && (peekKind(2) == IDENTIFIER || peekKind(2) == INTEGER);
+        return isAdvancedIdentifier() && peekKind(1) == COLON && (peekKind(2) == IDENTIFIER || peekKind(2) == INTEGER);
     }
 
     /**
@@ -746,7 +746,8 @@ public final class ScriptParser extends ParserBase<Kind> {
     private AstIdentifier advancedIdentifier() {
         pushRange();
         String text;
-        switch (peekKind()) {
+        var kind = peekKind();
+        switch (kind) {
             case IF:
             case ELSE:
             case WHILE:
@@ -759,12 +760,23 @@ public final class ScriptParser extends ParserBase<Kind> {
             case BOOL:
             case INTEGER:
             case LONG:
+            case TYPE:
                 text = consume().getLexeme();
                 break;
             default:
-                throw createError(popRange(), "Expected an identifier");
+                throw createError(popRange(), "Expected an identifier but got: " + kind());
         }
         return new AstIdentifier(popRange(), text);
+    }
+
+    /**
+     * Checks whether or not the current token can be parsed as an advanced identifier expression.
+     *
+     * @return <copde>true</copde> if it does otherwise <code>false</code>.
+     */
+    private boolean isAdvancedIdentifier() {
+        var kind = peekKind();
+        return kind == IF || kind == ELSE || kind == WHILE || kind == RETURN || kind == SWITCH || kind == CASE || kind == DEFAULT || kind == CALC || kind == IDENTIFIER || kind == BOOL || kind == INTEGER || kind == LONG || kind == TYPE;
     }
 
     /**
@@ -832,7 +844,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         if (triggerType == null) {
             throw createError(consume(), "Expecting an script call operator");
         }
-        var name = identifier();
+        var name = advancedIdentifier();
         var arguments = new ArrayList<AstExpression>();
         if (consumeIf(LPAREN)) {
             do {
@@ -850,7 +862,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public AstDynamic dynamic() {
         pushRange();
-        var name = identifier();
+        var name = advancedIdentifier();
         return new AstDynamic(popRange(), name);
     }
 
@@ -862,7 +874,7 @@ public final class ScriptParser extends ParserBase<Kind> {
     public AstCommand command() {
         pushRange();
         var alternative = consumeIf(DOT);
-        var name = identifier();
+        var name = advancedIdentifier();
         var arguments = new ArrayList<AstExpression>();
         if (consumeIf(LPAREN)) {
             CommandInfo commandInfo = symbolTable.lookupCommand(name.getText());
