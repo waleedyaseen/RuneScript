@@ -81,13 +81,11 @@ public final class BytecodeScript {
     /**
      * Writes the byte code data to the specified {@link OutputStream stream}.
      *
-     * @param stream
-     *         the stream to write the byte code data to.
-     *
-     * @throws IOException
-     *         if anything occurs while writing the data.
+     * @param stream                    the stream to write the byte code data to.
+     * @param supportsLongPrimitiveType whether or not the writer supports long primitive type.
+     * @throws IOException if anything occurs while writing the data.
      */
-    public void write(OutputStream stream) throws IOException {
+    public void write(OutputStream stream, boolean supportsLongPrimitiveType) throws IOException {
         try (var data = new DataOutputStream(stream)) {
             // write the name of the script.
             writeString(data, name);
@@ -111,11 +109,15 @@ public final class BytecodeScript {
             // write the locals count of the script.
             data.writeShort(numIntLocals);
             data.writeShort(numStringLocals);
-            data.writeShort(numLongLocals);
+            if (supportsLongPrimitiveType) {
+                data.writeShort(numLongLocals);
+            }
             // write the parameters count of the script.
             data.writeShort(numIntParameters);
             data.writeShort(numStringParameters);
-            data.writeShort(numLongParameters);
+            if (supportsLongPrimitiveType) {
+                data.writeShort(numLongParameters);
+            }
             // write the switch tables of the script.
             var size = 1;
             data.writeByte(switchTables.size());
@@ -134,11 +136,8 @@ public final class BytecodeScript {
     /**
      * Writes a C-Style string (null terminated string) to the specified {@link DataOutputStream stream}.
      *
-     * @param stream
-     *         the stream to write to.
-     * @param value
-     *         the string to write.
-     *
+     * @param stream the stream to write to.
+     * @param value  the string to write.
      * @throws IOException if anything occurs while writing the string to the stream.
      */
     private void writeString(DataOutputStream stream, String value) throws IOException {

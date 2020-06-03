@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
@@ -25,12 +26,18 @@ import java.util.*;
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
 
     /**
      * An empty list to save some lines of code that compares if the variable stack is present or not.
      */
     private static final List<Local> EMPTY = Collections.emptyList();
+
+    /**
+     * Whether or not the bytecode writer supports the long primitive type.
+     */
+    private final boolean supportsLongPrimitiveType;
 
     /**
      * {@inheritDoc}

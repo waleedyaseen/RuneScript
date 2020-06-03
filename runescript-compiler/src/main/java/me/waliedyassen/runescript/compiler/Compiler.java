@@ -14,6 +14,7 @@ import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
+import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.DeadBlockOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.DeadBranchOptimization;
@@ -55,7 +56,7 @@ public final class Compiler {
     /**
      * The code writer of the compiler.
      */
-    private final BytecodeCodeWriter codeWriter = new BytecodeCodeWriter();
+    private final BytecodeCodeWriter codeWriter;
 
     /**
      * The lexical table for our lexical analysis, it contains vario
@@ -80,6 +81,11 @@ public final class Compiler {
     private final Optimizer optimizer;
 
     /**
+     * Whether or not the compiler supports long primitive type.
+     */
+    private final boolean supportsLongPrimitiveType;
+
+    /**
      * Constructs a new {@link Compiler} type object instance.
      *
      * @param environment    the environment of the compiler.
@@ -96,6 +102,8 @@ public final class Compiler {
         optimizer.register(new NaturalFlowOptimization());
         optimizer.register(new DeadBranchOptimization());
         optimizer.register(new DeadBlockOptimization());
+        supportsLongPrimitiveType = instructionMap.lookup(CoreOpcode.PUSH_LONG_CONSTANT).getCode() != -1;
+        codeWriter = new BytecodeCodeWriter(supportsLongPrimitiveType);
     }
 
     /**
@@ -175,7 +183,7 @@ public final class Compiler {
             // Write the generated script to a bytecode format.
             var bytecode = codeWriter.write(generated);
             try (var stream = new ByteArrayOutputStream()) {
-                bytecode.write(stream);
+                bytecode.write(stream, supportsLongPrimitiveType);
                 compiledScripts.add(Pair.of(pair.getKey(), new CompiledScript(generated.getName(), stream.toByteArray(), info)));
             }
         }
