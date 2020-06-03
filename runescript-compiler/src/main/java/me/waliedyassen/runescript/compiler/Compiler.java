@@ -85,24 +85,27 @@ public final class Compiler {
      */
     private final boolean supportsLongPrimitiveType;
 
+    // TODO: support supportsLongPrimitiveType in type checking.
+
     /**
      * Constructs a new {@link Compiler} type object instance.
      *
-     * @param environment    the environment of the compiler.
-     * @param instructionMap the instruction map to use for this compiler.
+     * @param environment               the environment of the compiler.
+     * @param instructionMap            the instruction map to use for this compiler.
+     * @param supportsLongPrimitiveType whether or not the the compiler supports long primitive types.
      */
-    public Compiler(CompilerEnvironment environment, InstructionMap instructionMap) {
+    private Compiler(CompilerEnvironment environment, InstructionMap instructionMap, boolean supportsLongPrimitiveType) {
         if (!instructionMap.isReady()) {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }
         this.environment = environment;
         this.instructionMap = instructionMap;
+        this.supportsLongPrimitiveType = supportsLongPrimitiveType;
         lexicalTable = createLexicalTable();
         optimizer = new Optimizer(instructionMap);
         optimizer.register(new NaturalFlowOptimization());
         optimizer.register(new DeadBranchOptimization());
         optimizer.register(new DeadBlockOptimization());
-        supportsLongPrimitiveType = instructionMap.lookup(CoreOpcode.PUSH_LONG_CONSTANT).getCode() != -1;
         codeWriter = new BytecodeCodeWriter(supportsLongPrimitiveType);
     }
 
@@ -244,5 +247,87 @@ public final class Compiler {
             table.registerOperator(operator.getRepresentation(), operator.getKind());
         }
         return table;
+    }
+    
+    /**
+     * Returns a new {@link CompilerBuilder} object.
+     *
+     * @return the created {@link CompilerBuilder} object.
+     */
+    public static CompilerBuilder builder() {
+        return new CompilerBuilder();
+    }
+
+    /**
+     * A builder class for the {@link Compiler} type.
+     *
+     * @author Walied k. Yassen
+     */
+    public static final class CompilerBuilder {
+
+        /**
+         * The environment of the compiler.
+         */
+        private CompilerEnvironment environment;
+
+        /**
+         * The instruction map of the compiler.
+         */
+        private InstructionMap instructionMap;
+
+        /**
+         * Whether or not the compiler supports the long primitive type.
+         */
+        private boolean supportsLongPrimitiveType;
+
+        /**
+         * Sets the environment object we are going to use for the compiler.
+         *
+         * @param environment the environment object to set.
+         * @return this {@link CompilerBuilder} object instance.
+         */
+        public CompilerBuilder withEnvironment(CompilerEnvironment environment) {
+            this.environment = environment;
+            return this;
+        }
+
+        /**
+         * Sets the instruction map object we are going to use for the compiler.
+         *
+         * @param instructionMap the instruction map object to set.
+         * @return this {@link CompilerBuilder} object instance.
+         */
+        public CompilerBuilder withInstructionMap(InstructionMap instructionMap) {
+            this.instructionMap = instructionMap;
+            return this;
+        }
+
+        /**
+         * Sets whether or not the compiler that we are going to build should support the long primitive type.
+         *
+         * @param supportsLongPrimitiveType <code>true</code> if it supports the long primitive type otherwise
+         *                                  <code>false</code>.
+         * @return this {@link CompilerBuilder} object instance.
+         */
+        public CompilerBuilder withSupportsLongPrimitiveType(boolean supportsLongPrimitiveType) {
+            this.supportsLongPrimitiveType = supportsLongPrimitiveType;
+            return this;
+        }
+
+        /**
+         * Builds the {@link Compiler} object with the details configured in the builder.
+         *
+         * @return the built {@link Compiler} object.
+         * @throws IllegalStateException if one or more of the configuration is invalid or missing.
+         */
+        public Compiler build() {
+            if (instructionMap == null) {
+                throw new IllegalStateException("You must provide an InstructionMap before performing build() operation");
+            }
+            if (environment == null) {
+                environment = new CompilerEnvironment();
+            }
+            return new Compiler(environment, instructionMap, supportsLongPrimitiveType);
+        }
     }
 }
