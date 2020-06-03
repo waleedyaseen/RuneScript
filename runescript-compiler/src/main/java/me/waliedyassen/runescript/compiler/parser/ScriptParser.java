@@ -670,7 +670,6 @@ public final class ScriptParser extends ParserBase<Kind> {
             throw createError(token, "Expected the tile-y component value to be between [0-63] inclusively");
         }
         var packed = parsed[0] << 28 | parsed[1] << 20 | parsed[2] << 14 | parsed[3] << 6 | parsed[4];
-        System.out.println(packed);
         return new AstLiteralCoordgrid(popRange(), packed);
     }
 

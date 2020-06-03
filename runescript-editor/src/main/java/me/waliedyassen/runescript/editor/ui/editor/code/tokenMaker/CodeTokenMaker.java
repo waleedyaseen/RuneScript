@@ -140,7 +140,10 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
                     }
                     break;
                 case NUMBER_LITERAL:
-                    if (!Character.isDigit(ch)) {
+                case COORDGRID_LITERAL:
+                    if (tokenType == NUMBER_LITERAL && ch == '_') {
+                        changeTokenType(COORDGRID_LITERAL);
+                    } else if (!Character.isDigit(ch) && (tokenType != COORDGRID_LITERAL || ch != '_')) {
                         if (ch != 'L' && ch != 'l') {
                             pos--;
                         }

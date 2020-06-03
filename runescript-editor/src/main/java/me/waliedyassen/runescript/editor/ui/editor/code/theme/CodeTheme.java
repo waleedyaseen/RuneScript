@@ -96,6 +96,7 @@ public final class CodeTheme extends Theme {
                 styles[DECLARATION] = new Style(new Color(0x82aaff));
                 styles[LOCAL_VARIABLE] = new Style(new Color(0xf78c6c));
                 styles[NUMBER_LITERAL] = new Style(new Color(0xf78c6c));
+                styles[COORDGRID_LITERAL] = new Style(new Color(0xE73737));
                 styles[GLOBAL_VARIABLE] = styles[NULL];
                 styles[CONSTANT] = styles[NULL];
                 styles[STRING_LITERAL] = new Style(new Color(0xc3e88d));
@@ -111,6 +112,7 @@ public final class CodeTheme extends Theme {
                 styles[DECLARATION] = new Style(new Color(255, 0, 0));
                 styles[LOCAL_VARIABLE] = new Style(new Color(255, 127, 0));
                 styles[NUMBER_LITERAL] = new Style(new Color(255, 0, 71));
+                styles[COORDGRID_LITERAL] = new Style(new Color(255, 0, 71));
                 styles[GLOBAL_VARIABLE] = new Style(new Color(255, 127, 0));
                 styles[CONSTANT] = new Style(new Color(255, 127, 0));
                 styles[STRING_LITERAL] = new Style(new Color(128, 128, 128));

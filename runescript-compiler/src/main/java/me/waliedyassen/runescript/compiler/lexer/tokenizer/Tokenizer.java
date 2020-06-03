@@ -208,14 +208,13 @@ public final class Tokenizer extends TokenizerBase {
                     if (state.mode == Mode.NUMBER_LITERAL && current == '_') {
                         state.mode = Mode.COORDGRID_LITERAL;
                     }
-                    if (Character.isDigit(current) || (current == '_' && Character.isDigit(next) && state.mode == Mode.COORDGRID_LITERAL)) {
+                    var coordgrid = state.mode == Mode.COORDGRID_LITERAL;
+                    if (Character.isDigit(current) || current == '_' && Character.isDigit(next) && coordgrid) {
                         builder.append(current);
                         stream.mark();
                     } else {
-                        var kind = INTEGER;
-                        if (state.mode == Mode.COORDGRID_LITERAL) {
-                            kind = COORDGRID;
-                        } else if (current == 'L' || current == 'l') {
+                        var kind = coordgrid ? COORDGRID : INTEGER;
+                        if (!coordgrid && (current == 'L' || current == 'l')) {
                             kind = LONG;
                         } else if (current != NULL) {
                             stream.reset();
