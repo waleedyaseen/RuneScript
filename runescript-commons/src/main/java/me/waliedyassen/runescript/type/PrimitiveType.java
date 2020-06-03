@@ -204,4 +204,12 @@ public enum PrimitiveType implements Type {
         return stackType == StackType.INT;
     }
 
+    /**
+     * Checks whether or not the primitive type belongs to config type.
+     *
+     * @return <code>true</code> if it does otherwise <code>false</code>.
+     */
+    public boolean isConfigType() {
+        return isDeclarable() && this != INT && this != BOOLEAN && this != LONG && this != STRING;
+    }
 }

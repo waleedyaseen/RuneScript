@@ -39,7 +39,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A very basic project system that provides basic information such as the name and the build path directories.
@@ -109,6 +112,13 @@ public final class Project {
     private Cache cache;
 
     /**
+     * Whether or not the project supports long primitive type compilation.
+     */
+    @Getter
+    @Setter
+    private boolean supportsLongPrimitiveType;
+
+    /**
      * The commands configuration path.
      */
     @Getter
@@ -130,11 +140,10 @@ public final class Project {
     private String instructionsPath;
 
     /**
-     * Whether or not the project supports long primitive type compilation.
+     * A map which contains all of the predefined configuration paths.
      */
     @Getter
-    @Setter
-    private boolean supportsLongPrimitiveType;
+    private final Map<PrimitiveType, String> configsPath;
 
     /**
      * Constructs a new {@link Project} type object instance.
@@ -143,6 +152,7 @@ public final class Project {
      */
     Project(Path directory) {
         this.directory = directory;
+        configsPath = new HashMap<>();
     }
 
     /**
@@ -186,8 +196,20 @@ public final class Project {
     void loadCompiler(JsonNode root) {
         var object = JsonUtil.getObjectOrThrow(root, "compiler", "The compiler object cannot be null");
         instructionsPath = JsonUtil.getTextOrThrow(object, "instructions", "The instructions map cannot be null");
-        triggersPath = JsonUtil.getTextOrThrow(object, "commands", "The instructions map cannot be null");
-        commandsPath = JsonUtil.getTextOrThrow(object, "triggers", "The instructions map cannot be null");
+        triggersPath = JsonUtil.getTextOrThrow(object, "triggers", "The instructions map cannot be null");
+        commandsPath = JsonUtil.getTextOrThrow(object, "commands", "The instructions map cannot be null");
+        configsPath.clear();
+        for (var type : PrimitiveType.values()) {
+            if (!type.isConfigType()) {
+                continue;
+            }
+            var node = object.get("config_" + type.getRepresentation());
+            if (node == null) {
+                continue;
+            }
+            System.out.println(node);
+            configsPath.put(type, node.textValue());
+        }
         reloadCompiler();
     }
 
@@ -197,24 +219,24 @@ public final class Project {
     public void reloadCompiler() {
         compilerEnvironment = new CompilerEnvironment();
         instructionMap = new InstructionMap();
-        loadInstructions(instructionsPath);
-        loadTriggers(triggersPath);
+        loadInstructions();
+        loadTriggers();
         compiler = Compiler.builder()
                 .withEnvironment(compilerEnvironment)
                 .withInstructionMap(instructionMap)
                 .withSupportsLongPrimitiveType(false)
                 .build();
-        loadCommands(commandsPath);
+        loadCommands();
+        loadConfigs();
     }
 
     /**
      * Loads the instructions configuration of the project.
-     *
-     * @param path the path which leads to the instructions configuration.
      */
     @SneakyThrows
-    void loadInstructions(String path) {
+    void loadInstructions() {
         var file = (File) null;
+        var path = instructionsPath;
         if (path.startsWith("*")) {
             path = path.substring(1);
             if ("osrs_default".equals(path)) {
@@ -244,12 +266,11 @@ public final class Project {
 
     /**
      * Loads the triggers configuration of the project.
-     *
-     * @param path the path which leads to the triggers configuration.
      */
     @SneakyThrows
-    void loadTriggers(String path) {
+    void loadTriggers() {
         var file = (File) null;
+        var path = triggersPath;
         if (path.startsWith("*")) {
             path = path.substring(1);
             if ("osrs_default".equals(path)) {
@@ -282,12 +303,11 @@ public final class Project {
 
     /**
      * Loads the commands configuration of the project.
-     *
-     * @param path the path which leads to the commands configuration.
      */
     @SneakyThrows
-    void loadCommands(String path) {
+    void loadCommands() {
         var file = (File) null;
+        var path = commandsPath;
         if (path.startsWith("*")) {
             path = path.substring(1);
             if ("osrs_default".equals(path)) {
@@ -314,6 +334,38 @@ public final class Project {
                 compiler.getSymbolTable().defineCommand(new BasicOpcode(opcode, false), name, type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0], arguments, hook, alternative);
             }
         }
+    }
+
+    /**
+     * Loads the config types configuration of the project.
+     */
+    void loadConfigs() {
+        configsPath.forEach((type, pathRaw) -> {
+            var path = Paths.get(pathRaw);
+            if (!path.isAbsolute()) {
+                path = directory.resolve(pathRaw);
+            }
+            if (!Files.exists(path)) {
+                log.info("The specified configuration file does not exist for type {} and path: {}", type, pathRaw);
+                return;
+            }
+            try {
+                try (var config = CommentedFileConfig.of(path.toFile())) {
+                    config.load();
+                    for (var entry : config.entrySet()) {
+                        var name = entry.getKey();
+                        var value = (CommentedConfig) entry.getValue();
+                        var id = value.getInt("id");
+                        compiler.getSymbolTable().defineConfig(id, name, type);
+                        if (type == PrimitiveType.INTERFACE) {
+                            compiler.getSymbolTable().defineInterface(name, id);
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                log.error("An error occurred while loading the configuration file for type: {} and path: {}", type, pathRaw, e);
+            }
+        });
     }
 
     /**
@@ -443,6 +495,16 @@ public final class Project {
         compiler.put("instructions", instructionsPath);
         compiler.put("triggers", triggersPath);
         compiler.put("commands", commandsPath);
+        for (var type : PrimitiveType.values()) {
+            if (!type.isConfigType()) {
+                continue;
+            }
+            var path = configsPath.get(type);
+            if (path == null) {
+                continue;
+            }
+            compiler.put("config_" + type.getRepresentation(), path);
+        }
         root.put("supportsLongPrimitiveType", supportsLongPrimitiveType);
         // Write the serialised data into the project file.
         JsonUtil.getMapper().writerWithDefaultPrettyPrinter().writeValue(findProjectFile().toFile(), root);
