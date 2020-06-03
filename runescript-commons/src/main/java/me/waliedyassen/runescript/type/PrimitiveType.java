@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.type;
 
-import jdk.jfr.StackTrace;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -29,14 +28,14 @@ public enum PrimitiveType implements Type {
     UNDEFINED('\ufff0', null, null, null),
 
     /**
-     * The script call primitive type.
+     * The hook primitive type.
      */
-    SCRIPT('\ufff1', null, null, null),
+    HOOK('\ufff1', null, null, null),
 
     /**
      * The void primitive type.
      */
-    VOID('\0', "void", null, null),
+    VOID('\ufff2', "void", null, null),
 
     /**
      * The integer primitive type.
@@ -47,6 +46,56 @@ public enum PrimitiveType implements Type {
      * The string primitive type.
      */
     STRING('s', "string", StackType.STRING, ""),
+
+    /**
+     * The seq primitive type.
+     */
+    SEQ('A', "seq", StackType.INT, -1),
+
+    /**
+     * The stat primitive type.
+     */
+    STAT('S', "stat", StackType.INT, -1),
+
+    /**
+     * The synth primitive type.
+     */
+    SYNTH('P', "synth", StackType.INT, -1),
+
+    /**
+     * The coordgrid primitive type.
+     */
+    COORDGRID('c', "coordgrid", StackType.INT, -1),
+
+    /**
+     * The char primitive type.
+     */
+    CHAR('z', "char", StackType.INT, -1),
+
+    /**
+     * The fontmetrics primitive type.
+     */
+    FONTMETRICS('f', "fontmetrics", StackType.INT, -1),
+
+    /**
+     * The maparea primitive type.
+     */
+    MAPAREA('`', "maparea", StackType.INT, -1),
+
+    /**
+     * The enum primitive type.
+     */
+    ENUM('g', "enum", StackType.INT, -1),
+
+    /**
+     * The npc primitive type.
+     */
+    NPC('n', "npc", StackType.INT, -1),
+
+    /**
+     * The model primitive type.
+     */
+    MODEL('m', "model", StackType.INT, -1),
 
     /**
      * The interface primitive type.
@@ -66,7 +115,33 @@ public enum PrimitiveType implements Type {
     /**
      * The boolean primitive type.
      */
-    BOOL('1', "bool", StackType.INT, false);
+    BOOLEAN('1', "boolean", StackType.INT, false),
+
+    /**
+     * The category primitive type.
+     */
+    CATEGORY('y', "category", StackType.INT, -1),
+
+    /**
+     * The object primitive type.
+     */
+    OBJ('o', "obj", StackType.INT, -1),
+
+    /**
+     * The inv primitive type.
+     */
+    INV('v', "inv", StackType.INT, -1),
+
+    /**
+     * The mapelement primitive type.
+     */
+    MAPELEMENT('µ', "mapelement", StackType.INT, -1),
+
+    /**
+     * The graphic primitive type.
+     */
+    GRAPHIC('d', "graphic", StackType.INT, -1);
+
 
     /**
      * The {@link PrimitiveType} by {@link #representation} look-up map.
@@ -123,7 +198,7 @@ public enum PrimitiveType implements Type {
      * @return <code>true</code> if it does otherwise <code>false</code>.
      */
     public boolean isArrayable() {
-        if (this == PrimitiveType.BOOL) {
+        if (this == PrimitiveType.BOOLEAN) {
             return false;
         }
         return stackType == StackType.INT;

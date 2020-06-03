@@ -42,6 +42,11 @@ public enum Kind {
      */
     BOOL,
 
+    /**
+     * The coordgrid literal token kind.
+     */
+    COORDGRID,
+
     // the string interpolation chunk.
 
     /**

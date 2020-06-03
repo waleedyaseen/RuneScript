@@ -69,7 +69,7 @@ class CodeGeneratorTest {
         var script = fromResource("local_01.rs2")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertEquals(4, script.getParameters().values().stream().mapToInt(Collection::size).sum());
-        assertEquals(new Local("bool_param", PrimitiveType.BOOL), script.getParameters().get(StackType.INT).get(0));
+        assertEquals(new Local("bool_param", PrimitiveType.BOOLEAN), script.getParameters().get(StackType.INT).get(0));
         assertEquals(new Local("int_param", PrimitiveType.INT), script.getParameters().get(StackType.INT).get(1));
         assertEquals(new Local("string_param", PrimitiveType.STRING), script.getParameters().get(StackType.STRING).get(0));
         assertEquals(new Local("long_param", PrimitiveType.LONG), script.getParameters().get(StackType.LONG).get(0));
@@ -79,11 +79,11 @@ class CodeGeneratorTest {
         assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.PUSH_STRING_CONSTANT, "test");
         assertInstructionEquals(block.getInstructions().get(3), CoreOpcode.POP_STRING_LOCAL, new Local("my_string", PrimitiveType.STRING));
         assertInstructionEquals(block.getInstructions().get(4), CoreOpcode.PUSH_INT_CONSTANT, 1);
-        assertInstructionEquals(block.getInstructions().get(5), CoreOpcode.POP_INT_LOCAL, new Local("my_true_bool", PrimitiveType.BOOL));
+        assertInstructionEquals(block.getInstructions().get(5), CoreOpcode.POP_INT_LOCAL, new Local("my_true_bool", PrimitiveType.BOOLEAN));
         assertInstructionEquals(block.getInstructions().get(6), CoreOpcode.PUSH_LONG_CONSTANT, 1234L);
         assertInstructionEquals(block.getInstructions().get(7), CoreOpcode.POP_LONG_LOCAL, new Local("my_long", PrimitiveType.LONG));
         assertInstructionEquals(block.getInstructions().get(8), CoreOpcode.PUSH_INT_CONSTANT, 0);
-        assertInstructionEquals(block.getInstructions().get(9), CoreOpcode.POP_INT_LOCAL, new Local("my_false_bool", PrimitiveType.BOOL));
+        assertInstructionEquals(block.getInstructions().get(9), CoreOpcode.POP_INT_LOCAL, new Local("my_false_bool", PrimitiveType.BOOLEAN));
         assertInstructionEquals(block.getInstructions().get(10), CoreOpcode.RETURN, 0);
     }
 

@@ -1,7 +1,7 @@
 [clientscript,main]
 ~main(true);
 
-[proc,main](bool $call_sub_01)
+[proc,main](boolean $call_sub_01)
 if ($call_sub_01 = true) {
     @sub_01(0);
 }

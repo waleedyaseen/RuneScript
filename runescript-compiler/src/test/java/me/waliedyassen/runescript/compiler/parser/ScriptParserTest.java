@@ -77,7 +77,7 @@ public final class ScriptParserTest {
             assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int $one").script());
         }, () -> {
             // script with return type
-            assertEquals(fromString("[trigger,name](bool) return;").script().getType(), PrimitiveType.BOOL);
+            assertEquals(fromString("[trigger,name](bool) return;").script().getType(), PrimitiveType.BOOLEAN);
         }, () -> {
             // script with parameters and return type
             var script = fromString("[trigger,name](int $myint, long $mylong)(int) return;").script();
@@ -413,7 +413,7 @@ public final class ScriptParserTest {
             // valid variable declaration.
             var variableDefine = fromString("def_bool $test = true;").variableDeclaration();
             assertNotNull(variableDefine);
-            assertEquals(variableDefine.getType(), PrimitiveType.BOOL);
+            assertEquals(variableDefine.getType(), PrimitiveType.BOOLEAN);
             assertEquals(variableDefine.getName().getText(), "test");
             assertTrue(variableDefine.getExpression() instanceof AstLiteralBool);
         }, () -> {

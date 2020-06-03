@@ -89,11 +89,7 @@ public final class JsonUtil {
         if (textNode == null) {
             throw new IllegalStateException(message);
         }
-        var text = textNode.textValue();
-        if (text == null || text.isEmpty()) {
-            throw new IllegalStateException(message);
-        }
-        return text.contentEquals("yes") || text.contentEquals("true");
+        return textNode.booleanValue();
     }
 
     private JsonUtil() {

@@ -40,6 +40,11 @@ public enum Mode {
     NUMBER_LITERAL,
 
     /**
+     * Indicates that the parser is currently parsing a coord literal.
+     */
+    COORDGRID_LITERAL,
+
+    /**
      * Indicates that the parser is currently parsing a line comment.
      */
     LINE_COMMENT,

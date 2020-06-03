@@ -197,6 +197,14 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
+    public Instruction visit(AstLiteralCoordgrid coordgrid) {
+        return instruction(PUSH_INT_CONSTANT, coordgrid.getValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Instruction visit(AstConcatenation concatenation) {
         for (var expression : concatenation.getExpressions()) {
             expression.accept(this);

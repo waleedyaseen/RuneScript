@@ -84,12 +84,28 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
             }
         });
         newMenu.addSeparator();
-        newMenu.addAction("Script", (source) -> {
+        newMenu.addAction("Server Script", (source) -> {
             var scriptName = DialogManager.askForName("Enter the name of the script you wish to create:");
             if (scriptName == null) {
                 return;
             }
             var path = getValue().resolve(scriptName + ".rs2");
+            if (Files.exists(path)) {
+                DialogManager.showErrorDialog("Error", "The specified script file already exists");
+                return;
+            }
+            try {
+                Files.createFile(path);
+            } catch (IOException e) {
+                DialogManager.showErrorDialog("Error", "An I/O error occurred while creating the file.");
+            }
+        });
+        newMenu.addAction("Client Script", (source) -> {
+            var scriptName = DialogManager.askForName("Enter the name of the script you wish to create:");
+            if (scriptName == null) {
+                return;
+            }
+            var path = getValue().resolve(scriptName + ".cs2");
             if (Files.exists(path)) {
                 DialogManager.showErrorDialog("Error", "The specified script file already exists");
                 return;

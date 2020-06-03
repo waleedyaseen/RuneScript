@@ -204,12 +204,18 @@ public final class Tokenizer extends TokenizerBase {
                     }
                     break;
                 case NUMBER_LITERAL:
-                    if (Character.isDigit(current)) {
+                case COORDGRID_LITERAL:
+                    if (state.mode == Mode.NUMBER_LITERAL && current == '_') {
+                        state.mode = Mode.COORDGRID_LITERAL;
+                    }
+                    if (Character.isDigit(current) || (current == '_' && Character.isDigit(next) && state.mode == Mode.COORDGRID_LITERAL)) {
                         builder.append(current);
                         stream.mark();
                     } else {
                         var kind = INTEGER;
-                        if (current == 'L' || current == 'l') {
+                        if (state.mode == Mode.COORDGRID_LITERAL) {
+                            kind = COORDGRID;
+                        } else if (current == 'L' || current == 'l') {
                             kind = LONG;
                         } else if (current != NULL) {
                             stream.reset();
@@ -248,6 +254,7 @@ public final class Tokenizer extends TokenizerBase {
                     break;
             }
         }
+
     }
 
     /**
@@ -271,9 +278,9 @@ public final class Tokenizer extends TokenizerBase {
      * @param lexeme the lexeme of the token.
      * @return the created {@link Token} object instance.
      */
-    private Token createToken(Kind kind, String lexeme) {
+    private Token<Kind> createToken(Kind kind, String lexeme) {
         state.mode = Mode.NONE;
-        return new Token(kind, range(), lexeme);
+        return new Token<>(kind, range(), lexeme);
     }
 
     /**
@@ -281,7 +288,7 @@ public final class Tokenizer extends TokenizerBase {
      *
      * @param token the {@link Token token} object to add.
      */
-    private void feed(Token token) {
+    private void feed(Token<Kind> token) {
         state.fallback.addLast(token);
     }
 

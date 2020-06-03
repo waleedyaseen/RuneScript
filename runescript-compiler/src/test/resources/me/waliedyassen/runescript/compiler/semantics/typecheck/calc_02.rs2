@@ -1,7 +1,7 @@
-[clientscript,calc_02](bool $param)
-// calc bool + bool should produce an error
+[clientscript,calc_02](boolean $param)
+// calc boolean + boolean should produce an error
 def_int $first = calc($param + true);
-// calc bool + int should produce an error
+// calc boolean + int should produce an error
 def_int $second = calc($param + 2);
 // this calc should produce no error
 def_int $third = calc(2 / 2 + 1);

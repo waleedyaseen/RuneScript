@@ -113,6 +113,18 @@ public interface AstVisitor<E, S> {
     }
 
     /**
+     * Gets called when we have just visited an {@link AstLiteralCoordgrid} node.
+     *
+     * @param coordgrid
+     *         the {@link AstLiteralCoordgrid} node we have just visited.
+     *
+     * @return the implementation output object.
+     */
+    default E visit(AstLiteralCoordgrid coordgrid) {
+        return null;
+    }
+
+    /**
      * Gets called when we have just visited an {@link AstComponent} node.
      *
      * @param string

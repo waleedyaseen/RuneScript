@@ -35,6 +35,9 @@ public final class SQLitePackProvider implements PackProvider {
         if (extension.contentEquals("rs2")) {
             return new SQLitePack(path.resolve("serverscripts.db").toAbsolutePath().toString());
         }
+        if (extension.contentEquals("cs2")) {
+            return new SQLitePack(path.resolve("clientscripts.db").toAbsolutePath().toString());
+        }
         return null;
     }
 }

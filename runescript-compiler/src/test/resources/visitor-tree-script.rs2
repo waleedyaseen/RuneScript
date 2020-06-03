@@ -1,4 +1,4 @@
-[clientscript,visitor_tree_test](int $int0, string $string1, int $int1, long $long0)(bool)
+[clientscript,visitor_tree_test](int $int0, string $string1, int $int1, long $long0)(boolean)
 def_int $local0 = 0;
 def_long $local1; $local1 = ll;
 def_string $string1 = "string literal";

@@ -51,7 +51,7 @@ public final class ScriptFileType implements FileType {
      */
     @Override
     public String[] getExtensions() {
-        return new String[]{"rs2"};
+        return new String[]{"rs2", "cs2"};
     }
 
     /**

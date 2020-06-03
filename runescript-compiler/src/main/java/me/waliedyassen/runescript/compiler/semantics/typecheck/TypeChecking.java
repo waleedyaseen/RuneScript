@@ -12,10 +12,7 @@ import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -78,7 +75,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstLiteralBool bool) {
-        return bool.setType(PrimitiveType.BOOL);
+        return bool.setType(PrimitiveType.BOOLEAN);
     }
 
     /**
@@ -105,6 +102,13 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         return string.setType(PrimitiveType.STRING);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(AstLiteralCoordgrid coordgrid) {
+        return coordgrid.setType(PrimitiveType.COORDGRID);
+    }
 
     /**
      * {@inheritDoc}
@@ -380,7 +384,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     @Override
     public Type visit(AstIfStatement ifStatement) {
         var condition = ifStatement.getCondition().accept(this);
-        checkType(ifStatement.getCondition(), PrimitiveType.BOOL, condition);
+        checkType(ifStatement.getCondition(), PrimitiveType.BOOLEAN, condition);
         ifStatement.getTrueStatement().accept(this);
         if (ifStatement.getFalseStatement() != null) {
             ifStatement.getFalseStatement().accept(this);
@@ -394,7 +398,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     @Override
     public Type visit(AstWhileStatement whileStatement) {
         var condition = whileStatement.getCondition().accept(this);
-        checkType(whileStatement.getCondition(), PrimitiveType.BOOL, condition);
+        checkType(whileStatement.getCondition(), PrimitiveType.BOOLEAN, condition);
         whileStatement.getCode().accept(this);
         return PrimitiveType.VOID;
     }
@@ -457,7 +461,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     private Type checkOperator(AstNode node, Type left, Type right, Operator operator) {
         var applicable = false;
         if (operator.isEquality()) {
-            if (left == PrimitiveType.BOOL || left == PrimitiveType.INT || left == PrimitiveType.LONG) {
+            if (left == PrimitiveType.BOOLEAN || left == PrimitiveType.INT || left == PrimitiveType.LONG) {
                 applicable = left.equals(right);
             }
         } else if (operator.isRelational()) {
@@ -465,7 +469,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
                 applicable = left.equals(right);
             }
         } else if (operator.isLogical()) {
-            applicable = left == PrimitiveType.BOOL && right == PrimitiveType.BOOL;
+            applicable = left == PrimitiveType.BOOLEAN && right == PrimitiveType.BOOLEAN;
         } else if (operator.isArithmetic()) {
             if (node.selectParent(parent -> parent instanceof AstCalc) == null) {
                 checker.reportError(new SemanticError(node, "Arithmetic expressions are only allowed within a 'calc' expression"));
@@ -475,7 +479,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         if (!applicable) {
             checker.reportError(new SemanticError(node, "The operator '" + operator.getRepresentation() + "' is undefined for the argument type(s) " + left.getRepresentation() + ", " + right.getRepresentation()));
         }
-        return operator.isArithmetic() ? PrimitiveType.INT : PrimitiveType.BOOL;
+        return operator.isArithmetic() ? PrimitiveType.INT : PrimitiveType.BOOLEAN;
     }
 
     /**

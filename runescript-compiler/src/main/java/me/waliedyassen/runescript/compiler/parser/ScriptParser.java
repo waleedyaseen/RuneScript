@@ -11,10 +11,7 @@ import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
+import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
@@ -55,7 +52,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * The environment of the owner compiler.
      */
     private final CompilerEnvironment environment;
-    
+
     /**
      * Constructs a new {@link ScriptParser} type object instance.
      *
@@ -273,6 +270,8 @@ public final class ScriptParser extends ParserBase<Kind> {
                 return parExpression();
             case INTEGER:
                 return integerNumber();
+            case COORDGRID:
+                return coordgrid();
             case LONG:
                 return longNumber();
             case STRING:
@@ -636,6 +635,46 @@ public final class ScriptParser extends ParserBase<Kind> {
     }
 
     /**
+     * Attempts to match the next token to an {@link AstLiteralCoordgrid} object instance.
+     *
+     * @return the parsed {@link AstLiteralCoordgrid} object.
+     */
+    public AstLiteralCoordgrid coordgrid() {
+        pushRange();
+        var token = consume(COORDGRID);
+        var parts = token.getLexeme().split("_");
+        if (parts.length != 5) {
+            throw createError(popRange(), "Expected 5 components for literal of type coordgrid");
+        }
+        var parsed = new int[parts.length];
+        for (var index = 0; index < parts.length; index++) {
+            try {
+                parsed[index] = Integer.parseInt(parts[index]);
+            } catch (NumberFormatException e) {
+                throw createError(token, "The literal " + token.getLexeme() + " of type coordgrid is out of range");
+            }
+        }
+        if (parsed[0] < 0 || parsed[0] > 3) {
+            throw createError(token, "Expected the level component value to be between [0-3] inclusively");
+        }
+        if (parsed[1] < 0 || parsed[1] > 127) {
+            throw createError(token, "Expected the square-x component value to be between [0-127] inclusively");
+        }
+        if (parsed[2] < 0 || parsed[2] > 255) {
+            throw createError(token, "Expected the square-y component value to be between [0-255] inclusively");
+        }
+        if (parsed[3] < 0 || parsed[3] > 63) {
+            throw createError(token, "Expected the tile-x component value to be between [0-63] inclusively");
+        }
+        if (parsed[4] < 0 || parsed[4] > 63) {
+            throw createError(token, "Expected the tile-y component value to be between [0-63] inclusively");
+        }
+        var packed = parsed[0] << 28 | parsed[1] << 20 | parsed[2] << 14 | parsed[3] << 6 | parsed[4];
+        System.out.println(packed);
+        return new AstLiteralCoordgrid(popRange(), packed);
+    }
+
+    /**
      * Attempts to match the next token to an {@link AstLiteralLong} object instance.
      *
      * @return the parsed {@link AstLiteralLong} object.
@@ -831,7 +870,7 @@ public final class ScriptParser extends ParserBase<Kind> {
             if (isExpression()) {
                 int index = 0;
                 do {
-                    if (commandInfo != null && commandInfo.getArguments() != null && index < commandInfo.getArguments().length && commandInfo.getArguments()[index] == PrimitiveType.SCRIPT && peekKind() == STRING) {
+                    if (commandInfo != null && commandInfo.getArguments() != null && index < commandInfo.getArguments().length && commandInfo.getArguments()[index] == PrimitiveType.HOOK && peekKind() == STRING) {
                         arguments.add(hook());
                     } else {
                         arguments.add(expression());

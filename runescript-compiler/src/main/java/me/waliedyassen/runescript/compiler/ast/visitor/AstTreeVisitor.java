@@ -223,6 +223,33 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
      */
     public void exit(AstLiteralString string) {
     }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(AstLiteralCoordgrid coordgrid) {
+        enter(coordgrid);
+        exit(coordgrid);
+        return null;
+    }
+
+    /**
+     * Gets called when we have just entered an {@link AstLiteralCoordgrid} node.
+     *
+     * @param coordgrid
+     *         the node we have just entered.
+     */
+    public void enter(AstLiteralCoordgrid coordgrid) {
+    }
+
+    /**
+     * Gets called when we have just left an {@link AstLiteralCoordgrid} node.
+     *
+     * @param coordgrid
+     *         the node we have just entered.
+     */
+    public void exit(AstLiteralCoordgrid coordgrid) {
+    }
 
     /**
      * {@inheritDoc}

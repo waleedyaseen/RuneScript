@@ -143,6 +143,13 @@ class TokenizerTest {
         assertEquals(tokenizer.parse().getKind(), Kind.SEMICOLON);
     }
 
+
+    @Test
+    void testCoordLiteral() {
+        var tokenzier = fromString("0_5_5_5_5");
+        assertEquals(tokenzier.parse().getKind(), COORDGRID);
+    }
+
     private Tokenizer fromString(String text) {
         try (var stream = new StringBufferInputStream(text)) {
             return new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));

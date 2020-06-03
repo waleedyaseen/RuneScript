@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TupleTypeTest {
 
-    private static final TupleType TUPLE = new TupleType(new TupleType(PrimitiveType.INT, PrimitiveType.STRING), PrimitiveType.INT, new TupleType(PrimitiveType.STRING, PrimitiveType.BOOL));
-    private static final PrimitiveType[] TYPES = new PrimitiveType[]{PrimitiveType.INT, PrimitiveType.STRING, PrimitiveType.INT, PrimitiveType.STRING, PrimitiveType.BOOL};
+    private static final TupleType TUPLE = new TupleType(new TupleType(PrimitiveType.INT, PrimitiveType.STRING), PrimitiveType.INT, new TupleType(PrimitiveType.STRING, PrimitiveType.BOOLEAN));
+    private static final PrimitiveType[] TYPES = new PrimitiveType[]{PrimitiveType.INT, PrimitiveType.STRING, PrimitiveType.INT, PrimitiveType.STRING, PrimitiveType.BOOLEAN};
 
     @Test
     void testFlattening() {
