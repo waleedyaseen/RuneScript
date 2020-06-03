@@ -38,16 +38,11 @@ public final class JsonUtil {
      * Attempts to match the field with the specified {@code name} in the specified {@link JsonNode node} to an {@link
      * ObjectNode}.
      *
-     * @param node
-     *         the node which contains the field of the object.
-     * @param name
-     *         the name of the field of the object.
-     * @param message
-     *         the error message if the field was not present or is invalid.
-     *
+     * @param node    the node which contains the field of the object.
+     * @param name    the name of the field of the object.
+     * @param message the error message if the field was not present or is invalid.
      * @return the matched {@link ObjectNode} object.
-     * @throws IllegalStateException
-     *         if the field did not match an object node or is invalid.
+     * @throws IllegalStateException if the field did not match an object node or is invalid.
      */
     public static ObjectNode getObjectOrThrow(JsonNode node, String name, String message) {
         var object = node.get(name);
@@ -58,19 +53,14 @@ public final class JsonUtil {
     }
 
     /**
-     * Attempts to match the field with the specified {@code name} in the specified {@link JsonNode node} to n {@link
+     * Attempts to match the field with the specified {@code name} in the specified {@link JsonNode node} to a {@link
      * String}.
      *
-     * @param node
-     *         the node which contains the field of the {@link String} object.
-     * @param name
-     *         the name of the field of the {@link String} object.
-     * @param message
-     *         the error message if the field was not present or is invalid.
-     *
+     * @param node    the node which contains the field of the {@link String} object.
+     * @param name    the name of the field of the {@link String} object.
+     * @param message the error message if the field was not present or is invalid.
      * @return the matched {@link String} object.
-     * @throws IllegalStateException
-     *         if the field did not match a {@link String} object or is invalid.
+     * @throws IllegalStateException if the field did not match a {@link String} object or is invalid.
      */
     public static String getTextOrThrow(JsonNode node, String name, String message) {
         var textNode = node.get(name);
@@ -82,6 +72,28 @@ public final class JsonUtil {
             throw new IllegalStateException(message);
         }
         return text;
+    }
+
+    /**
+     * Attempts to match the field with the specified {@code name} in the specified {@link JsonNode node} to a {@code
+     * boolean}.
+     *
+     * @param node    the node which contains the field of the {@code boolean} value.
+     * @param name    the name of the field of the {@code boolean} value.
+     * @param message the error message if the field was not present or is invalid.
+     * @return the matched {@code boolean} value.
+     * @throws IllegalStateException if the field did not match a {@code boolean} value or is invalid.
+     */
+    public static boolean getBooleanOrThrow(JsonNode node, String name, String message) {
+        var textNode = node.get(name);
+        if (textNode == null) {
+            throw new IllegalStateException(message);
+        }
+        var text = textNode.textValue();
+        if (text == null || text.isEmpty()) {
+            throw new IllegalStateException(message);
+        }
+        return text.contentEquals("yes") || text.contentEquals("true");
     }
 
     private JsonUtil() {

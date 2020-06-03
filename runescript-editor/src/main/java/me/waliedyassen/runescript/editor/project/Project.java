@@ -130,6 +130,13 @@ public final class Project {
     private String instructionsPath;
 
     /**
+     * Whether or not the project supports long primitive type compilation.
+     */
+    @Getter
+    @Setter
+    private boolean supportsLongPrimitiveType;
+
+    /**
      * Constructs a new {@link Project} type object instance.
      *
      * @param directory the root directory path of the project.
@@ -153,6 +160,7 @@ public final class Project {
         name = JsonUtil.getTextOrThrow(root, "name", "The project name cannot be null or empty");
         loadBuildPath(root);
         loadCompiler(root);
+        supportsLongPrimitiveType = JsonUtil.getBooleanOrThrow(root, "supportsLongPrimitiveType", "The project supportsLongPrimitiveType cannot be null or empty");
         postLoad();
     }
 
@@ -191,7 +199,11 @@ public final class Project {
         instructionMap = new InstructionMap();
         loadInstructions(instructionsPath);
         loadTriggers(triggersPath);
-        compiler = new Compiler(compilerEnvironment, instructionMap);
+        compiler = Compiler.builder()
+                .withEnvironment(compilerEnvironment)
+                .withInstructionMap(instructionMap)
+                .withSupportsLongPrimitiveType(false)
+                .build();
         loadCommands(commandsPath);
     }
 
@@ -431,6 +443,7 @@ public final class Project {
         compiler.put("instructions", instructionsPath);
         compiler.put("triggers", triggersPath);
         compiler.put("commands", commandsPath);
+        root.put("supportsLongPrimitiveType", supportsLongPrimitiveType);
         // Write the serialised data into the project file.
         JsonUtil.getMapper().writerWithDefaultPrettyPrinter().writeValue(findProjectFile().toFile(), root);
         // Save the cache of the project to the local disk.

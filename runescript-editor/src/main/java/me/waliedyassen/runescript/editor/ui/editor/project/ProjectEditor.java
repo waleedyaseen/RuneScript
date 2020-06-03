@@ -43,6 +43,7 @@ public final class ProjectEditor extends Editor<Project> {
         viewComponent.instructionsField.setText(project.getInstructionsPath());
         viewComponent.commandsField.setText(project.getCommandsPath());
         viewComponent.triggersField.setText(project.getTriggersPath());
+        viewComponent.supportsLongTypeCheckBox.setSelected(project.isSupportsLongPrimitiveType());
     }
 
     /**
@@ -53,6 +54,7 @@ public final class ProjectEditor extends Editor<Project> {
         project.setInstructionsPath(viewComponent.instructionsField.getText());
         project.setCommandsPath(viewComponent.commandsField.getText());
         project.setTriggersPath(viewComponent.triggersField.getText());
+        project.setSupportsLongPrimitiveType(viewComponent.supportsLongTypeCheckBox.isSelected());
         project.reloadCompiler();
     }
 
@@ -97,6 +99,7 @@ public final class ProjectEditor extends Editor<Project> {
         modified |= !project.getInstructionsPath().contentEquals(viewComponent.instructionsField.getText());
         modified |= !project.getCommandsPath().contentEquals(viewComponent.commandsField.getText());
         modified |= !project.getTriggersPath().contentEquals(viewComponent.triggersField.getText());
+        modified |= project.isSupportsLongPrimitiveType() != viewComponent.supportsLongTypeCheckBox.isSelected();
         return modified;
     }
 
@@ -131,6 +134,11 @@ public final class ProjectEditor extends Editor<Project> {
         private final JTextField instructionsField = new JTextField();
 
         /**
+         * The supports long primitive type check box.
+         */
+        private final JCheckBox supportsLongTypeCheckBox = new JCheckBox();
+
+        /**
          * Constructs a new {@link ProjectEditorUI} type object instance.
          */
         public ProjectEditorUI() {
@@ -140,6 +148,10 @@ public final class ProjectEditor extends Editor<Project> {
             createBrowseSymbolRow(symbolPanel, "Instructions", instructionsField);
             createBrowseSymbolRow(symbolPanel, "Commands", commandsField);
             createBrowseSymbolRow(symbolPanel, "Triggers", triggersField);
+            {
+                symbolPanel.add(new JLabel("Supports long type:"));
+                symbolPanel.add(supportsLongTypeCheckBox, "grow");
+            }
             add(symbolPanel, "grow");
         }
 
