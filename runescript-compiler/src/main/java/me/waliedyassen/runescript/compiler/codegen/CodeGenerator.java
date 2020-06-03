@@ -219,7 +219,8 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     public Instruction visit(AstComponent component) {
         var interfaceInfo = symbolTable.lookupInterface(component.getParentInterface().getText());
         var parentId = interfaceInfo.getId();
-        var componentId = interfaceInfo.lookupComponent(String.valueOf(component.getComponentName()));
+        var componentId = component.getComponent() instanceof AstLiteralInteger ? ((AstLiteralInteger) component.getComponent())
+                .getValue() : interfaceInfo.lookupComponent(String.valueOf(component.getComponentName()));
         return instruction(PUSH_INT_CONSTANT, parentId << 16 | componentId);
     }
 

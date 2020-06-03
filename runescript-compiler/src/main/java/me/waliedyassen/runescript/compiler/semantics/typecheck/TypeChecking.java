@@ -131,7 +131,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
             checker.reportError(new SemanticError(component.getParentInterface(), String.format("Could not resolve interface with the name '%s'", component.getParentInterface().getText())));
         } else {
             component.getParentInterface().setType(PrimitiveType.INTERFACE);
-            if (interfaceInfo.lookupComponent(String.valueOf(component.getComponentName())) == null) {
+            if (!(component.getComponent() instanceof AstLiteralString) && interfaceInfo.lookupComponent(String.valueOf(component.getComponentName())) == null) {
                 checker.reportError(new SemanticError(component.getParentInterface(), String.format("Could not resolve component with the name '%s' in '%s'", component.getComponentName(), component.getParentInterface().getText())));
             }
         }
