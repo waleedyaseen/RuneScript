@@ -24,17 +24,17 @@ public final class SQLitePack implements Pack {
     /**
      * THE SQL syntax for creating the table.
      */
-    private static final String SQL_SYNTAX_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS `content` (`ID`, `NAME` TEXT NOT NULL UNIQUE, `DATA` BLOB, PRIMARY KEY(`name`))";
+    private static final String SQL_SYNTAX_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS `content` (`ID` INTEGER NOT NULL UNIQUE, `NAME` TEXT NOT NULL UNIQUE, `DATA` BLOB, PRIMARY KEY(`name`))";
 
     /**
      * The SQL syntax for creating the index.
      */
-    private static final String SQL_SYNTAX_CREATE_INDEX = "CREATE UNIQUE INDEX IF NOT EXISTS `name_index` ON `content` (`name`)";
+    private static final String SQL_SYNTAX_CREATE_INDEX = "CREATE UNIQUE INDEX IF NOT EXISTS `name_index` ON `content` (`NAME`)";
 
     /**
      * The SQL syntax for packing a file.
      */
-    private static final String SQL_SYNTAX_PACK = "INSERT OR REPLACE INTO `content` (`name`, `data`) VALUES(?,?)";
+    private static final String SQL_SYNTAX_PACK = "INSERT OR REPLACE INTO `content` (`ID`, `NAME`, `DATA`) VALUES(?,?,?)";
 
     /**
      * The path which leads to the SQLite database.
@@ -68,8 +68,9 @@ public final class SQLitePack implements Pack {
     public void pack(PackFile file) {
         ensureConnectionAlive();
         try (var statement = connection.prepareStatement(SQL_SYNTAX_PACK)) {
-            statement.setString(1, file.getName());
-            statement.setBytes(2, file.getData());
+            statement.setInt(1, file.getId());
+            statement.setString(2, file.getName());
+            statement.setBytes(3, file.getData());
             statement.executeUpdate();
         }
     }

@@ -19,6 +19,7 @@ import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.project.dependency.DependencyTree;
 import me.waliedyassen.runescript.editor.util.ChecksumUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
+import me.waliedyassen.runescript.index.table.IndexTable;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -325,11 +326,34 @@ public final class Cache {
         for (var script : cachedFile.getScripts()) {
             project.getCompiler().getSymbolTable().undefineScript(script.getTrigger(), script.getName());
             dependencyTree.remove(script.getFullName());
-            var indexName = cachedFile.getName().endsWith(".rs2") ? "servescript" : "clientscript";
-            var index = project.getIndex().get(indexName);
+            var index = getIndexForFile(cachedFile.getName());
             index.remove(script.getFullName());
         }
     }
+
+    /**
+     * Returns the {@link IndexTable} that is responsible for indexing the file with the specified
+     * {@code pth}.
+     *
+     * @param path the path of the file that we want the index table for.
+     * @return the {@link IndexTable} object or {@code null} if not found.
+     */
+    public IndexTable getIndexForFile(Path path) {
+        return getIndexForFile(path.getFileName().toString());
+    }
+
+    /**
+     * Returns the {@link IndexTable} that is responsible for indexing the file with the specified
+     * {@code name}.
+     *
+     * @param name the name of hte file that we want the index table for.
+     * @return the {@link IndexTable} object or {@code null} if not found.
+     */
+    public IndexTable getIndexForFile(String name) {
+        var indexName = name.endsWith(".rs2") ? "servescript" : "clientscript";
+        return project.getIndex().get(indexName);
+    }
+
 
     /**
      * Adds the specified {@link ScriptInfo} to the specified {@link CachedFile}.
@@ -396,8 +420,7 @@ public final class Cache {
         @Override
         public void onParserDone(Object key, AstScript script) {
             var cachedFile = (CachedFile) key;
-            var indexName = cachedFile.getName().endsWith(".rs2") ? "servescript" : "clientscript";
-            var index = project.getIndex().get(indexName);
+            var index = getIndexForFile(cachedFile.getName());
             index.findOrCreate(script.getFullName());
         }
     }

@@ -39,10 +39,11 @@ public final class PackManager {
      * Attempts to pack the specified {@code data} for the file with the specified {@link Path path}.
      *
      * @param relativePath the path which the data was produced from.
+     * @param id           the id of the entity we are packing.
      * @param name         the name of the entity we are packing.
      * @param data         the encoded data of the file to pack.
      */
-    public void pack(Path relativePath, String name, byte[] data) {
+    public void pack(Path relativePath, int id, String name, byte[] data) {
         var formattedPath = (String) null;
         var fullName = (String) null;
         for (var index = 0; index < relativePath.getNameCount(); index++) {
@@ -71,7 +72,7 @@ public final class PackManager {
         if (pack == null) {
             throw new IllegalArgumentException("Could not find a suitable packer for the specified file path extension");
         }
-        pack.pack(new PackFile(formattedPath, name, extension, data));
+        pack.pack(new PackFile(formattedPath, id, name, extension, data));
     }
 
     /**

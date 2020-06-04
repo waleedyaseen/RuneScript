@@ -23,6 +23,11 @@ public final class PackFile {
     private final String path;
 
     /**
+     * The id that was assigned to the file.
+     */
+    private final int id;
+
+    /**
      * The name of the file.
      */
     private final String name;

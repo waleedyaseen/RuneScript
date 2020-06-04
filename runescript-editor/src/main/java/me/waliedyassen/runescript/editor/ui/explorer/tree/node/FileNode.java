@@ -94,9 +94,11 @@ public final class FileNode extends ExplorerNode<Path> {
                 return;
             }
             for (var script : result.getScripts()) {
-                project.getPackManager().pack(getValue(), script.getValue().getName(), script.getValue().getData());
+                var id = project.getCache().getIndexForFile(getValue()).find(script.getValue().getName());
+                project.getPackManager().pack(getValue(), id, script.getValue().getName(), script.getValue().getData());
             }
         } catch (Throwable e) {
+            e.printStackTrace();
             DialogManager.showErrorDialog("Pack Error", "An I/O error occurred while trying to read the file from the disk.");
         }
     }
