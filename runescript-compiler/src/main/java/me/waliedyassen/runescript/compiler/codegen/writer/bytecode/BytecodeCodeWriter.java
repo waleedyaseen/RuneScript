@@ -15,6 +15,7 @@ import me.waliedyassen.runescript.compiler.codegen.script.Script;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
+import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.type.StackType;
 
@@ -35,9 +36,9 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
     private static final List<Local> EMPTY = Collections.emptyList();
 
     /**
-     * Whether or not the bytecode writer supports the long primitive type.
+     * The ID provider which is used to translate names into ids.
      */
-    private final boolean supportsLongPrimitiveType;
+    private final IdProvider idProvider;
 
     /**
      * {@inheritDoc}
@@ -76,7 +77,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
                     operand = switchTables.size();
                     switchTables.add(jumps);
                 } else if (operand instanceof ScriptInfo) {
-                    operand = String.format("[%s,%s]", ((ScriptInfo) operand).getTrigger().getRepresentation(), ((ScriptInfo) operand).getName());
+                    operand = idProvider.findScript(((ScriptInfo) operand).getFullName());
                 } else if (operand instanceof Local) {
                     operand = localTable.get(operand);
                 } else if (operand instanceof Integer) {

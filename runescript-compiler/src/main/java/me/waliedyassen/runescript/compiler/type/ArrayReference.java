@@ -69,4 +69,12 @@ public final class ArrayReference implements Type {
     public Object getDefaultValue() {
         return 0;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char getCode() {
+        throw new UnsupportedOperationException();
+    }
 }

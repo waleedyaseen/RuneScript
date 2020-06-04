@@ -20,6 +20,7 @@ import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
 import me.waliedyassen.runescript.editor.Api;
@@ -30,6 +31,7 @@ import me.waliedyassen.runescript.editor.project.cache.Cache;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.editor.vfs.VFS;
+import me.waliedyassen.runescript.index.table.IndexTable;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
 
@@ -110,6 +112,12 @@ public final class Project {
      */
     @Getter
     private Cache cache;
+
+    /**
+     * The index table for the script files.
+     */
+    @Getter
+    private IndexTable scriptsIndexTable;
 
     /**
      * Whether or not the project supports long primitive type compilation.
@@ -224,6 +232,7 @@ public final class Project {
                 .withEnvironment(compilerEnvironment)
                 .withInstructionMap(instructionMap)
                 .withSupportsLongPrimitiveType(false)
+                .withIdProvider(new ProjectIdProvider())
                 .build();
         loadCommands();
         loadConfigs();
@@ -383,6 +392,7 @@ public final class Project {
     private void postLoad() {
         packManager = new PackManager(new SQLitePackProvider(buildPath.getPackDirectory().toAbsolutePath()));
         vfs = new VFS(directory);
+        loadIndex();
         loadCache();
     }
 
@@ -406,6 +416,22 @@ public final class Project {
             throw new ProjectException("Failed to generate the cache diff for the project cache", e);
         }
         updateErrors();
+    }
+
+    /**
+     * Loads the index tables of the project.
+     */
+    private void loadIndex() {
+        var rootPath = resolveRsPath();
+        var indexFile = rootPath.resolve("scripts.index");
+        scriptsIndexTable = new IndexTable();
+        if (Files.exists(indexFile)) {
+            try (var stream = new DataInputStream(Files.newInputStream(indexFile))) {
+                scriptsIndexTable.read(stream);
+            } catch (IOException e) {
+                log.error("An error occurred while loading the project cache", e);
+            }
+        }
     }
 
     /**
@@ -463,6 +489,19 @@ public final class Project {
         var cacheFile = rootPath.resolve("cache.bin");
         try (var stream = new DataOutputStream(Files.newOutputStream(cacheFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))) {
             cache.write(stream);
+        } catch (IOException e) {
+            log.error("An error occurred while writing the project cache", e);
+        }
+    }
+
+    /**
+     * Save the index tables of the project.
+     */
+    public void saveIndex() {
+        var rootPath = resolveRsPath();
+        var cacheFile = rootPath.resolve("scripts.index");
+        try (var stream = new DataOutputStream(Files.newOutputStream(cacheFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))) {
+            scriptsIndexTable.write(stream);
         } catch (IOException e) {
             log.error("An error occurred while writing the project cache", e);
         }
@@ -539,5 +578,25 @@ public final class Project {
      */
     private Path findProjectFile() {
         return directory.resolve(FILE_NAME);
+    }
+
+    /**
+     * Represents {@link IdProvider} implementation for projects.
+     *
+     * @author Walied K. Yassen
+     */
+    private final class ProjectIdProvider implements IdProvider {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int findScript(String name) throws IllegalArgumentException {
+            var id = scriptsIndexTable.find(name);
+            if (id == null) {
+                throw new IllegalArgumentException("Failed to find an id for script with name: " + name);
+            }
+            return id;
+        }
     }
 }

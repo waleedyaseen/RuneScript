@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.compiler.CompileInput;
 import me.waliedyassen.runescript.compiler.CompileResult;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.ast.expr.AstCall;
+import me.waliedyassen.runescript.compiler.ast.expr.AstHook;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
@@ -76,7 +78,6 @@ public final class Cache {
     private volatile boolean dirty;
 
     // TODO: Verify the commands, instructions, and triggers are the same.
-    // TODO: Build a dependency tree for all of the scripts.
 
     /**
      * Constructs a new {@link Cache} type object instance.
@@ -95,6 +96,7 @@ public final class Cache {
         if (!dirty) {
             return;
         }
+        project.saveIndex();
         project.saveCache();
         dirty = false;
     }
@@ -169,31 +171,33 @@ public final class Cache {
             if (cachedFile.getCrc() == diskCrc) {
                 continue;
             }
-            clearCachedFile(cachedFile);
             undeclareSymbols(cachedFile);
+            clearCachedFile(cachedFile);
             input.addSourceCode(cachedFile, diskData);
             cachedFile.setCrc(diskCrc);
             modified = true;
         }
         input.addVisitor(new DependencyTreeBuilder(dependencyTree));
+        input.addVisitor(new IdAssignerVisitor());
         var result = project.getCompiler().compile(input);
         for (var pair : result.getErrors()) {
             var cachedFile = (CachedFile) pair.getKey();
             cachedFile.getErrors().add(new CachedError(pair.getValue().getRange(), pair.getValue().getMessage()));
         }
-        for (var pair : result.getScripts()) {
-            var cachedFile = (CachedFile) pair.getKey();
-            addScript(cachedFile, pair.getValue().getInfo());
-        }
         var deletedFiles = filesByPath.keySet().stream().filter(file -> !visited.contains(file)).collect(Collectors.toSet());
-        modified |= deletedFiles.size() > 0;
         for (var deletedFile : deletedFiles) {
             var cachedFile = filesByPath.get(deletedFile);
             removeCachedFile(cachedFile);
             undeclareSymbols(cachedFile);
         }
+        for (var pair : result.getScripts()) {
+            var cachedFile = (CachedFile) pair.getKey();
+            addScript(cachedFile, pair.getValue().getInfo());
+        }
         filesByPath.values().forEach(this::declareSymbols);
+        modified |= deletedFiles.size() > 0;
         if (modified) {
+            project.saveIndex();
             project.saveCache();
         }
     }
@@ -219,6 +223,7 @@ public final class Cache {
         clearCachedFile(cachedFile);
         var input = CompileInput.of(null, data);
         input.addVisitor(new DependencyTreeBuilder(dependencyTree));
+        input.addVisitor(new IdAssignerVisitor());
         CompileResult result;
         try {
             result = project.getCompiler().compile(input);
@@ -288,7 +293,7 @@ public final class Cache {
             }
         }
         try {
-            return project.getCompiler().compile(CompileInput.of(null, data));
+            return project.getCompiler().compile(CompileInput.of(null, data), false);
         } catch (IOException e) {
             log.error("An I/O error occurred while compiling a script non persistently", e);
             return null;
@@ -321,6 +326,7 @@ public final class Cache {
         for (var script : cachedFile.getScripts()) {
             project.getCompiler().getSymbolTable().undefineScript(script.getTrigger(), script.getName());
             dependencyTree.remove(script.getFullName());
+            project.getScriptsIndexTable().remove(script.getFullName());
         }
     }
 
@@ -351,11 +357,13 @@ public final class Cache {
         filesByDeclaration.put(info.getFullName(), cachedFile);
     }
 
-    private static final class CompilationUnitCollector extends AstTreeVisitor {
+
+    private final class IdAssignerVisitor extends AstTreeVisitor {
+
 
         @Override
         public Void visit(AstScript script) {
-            var name = script.getFullName();
+            project.getScriptsIndexTable().findOrCreate(script.getFullName());
             return super.visit(script);
         }
     }

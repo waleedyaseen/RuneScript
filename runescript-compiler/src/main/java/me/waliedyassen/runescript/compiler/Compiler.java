@@ -14,13 +14,13 @@ import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
-import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.DeadBlockOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.DeadBranchOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.NaturalFlowOptimization;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
@@ -81,6 +81,11 @@ public final class Compiler {
     private final Optimizer optimizer;
 
     /**
+     * The id provider of the compiler.
+     */
+    private final IdProvider idProvider;
+
+    /**
      * Whether or not the compiler supports long primitive type.
      */
     private final boolean supportsLongPrimitiveType;
@@ -92,21 +97,23 @@ public final class Compiler {
      *
      * @param environment               the environment of the compiler.
      * @param instructionMap            the instruction map to use for this compiler.
+     * @param idProvider                the id provider of the compiler.
      * @param supportsLongPrimitiveType whether or not the the compiler supports long primitive types.
      */
-    private Compiler(CompilerEnvironment environment, InstructionMap instructionMap, boolean supportsLongPrimitiveType) {
+    private Compiler(CompilerEnvironment environment, InstructionMap instructionMap, IdProvider idProvider, boolean supportsLongPrimitiveType) {
         if (!instructionMap.isReady()) {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }
         this.environment = environment;
         this.instructionMap = instructionMap;
+        this.idProvider = idProvider;
         this.supportsLongPrimitiveType = supportsLongPrimitiveType;
         lexicalTable = createLexicalTable();
         optimizer = new Optimizer(instructionMap);
         optimizer.register(new NaturalFlowOptimization());
         optimizer.register(new DeadBranchOptimization());
         optimizer.register(new DeadBlockOptimization());
-        codeWriter = new BytecodeCodeWriter(supportsLongPrimitiveType);
+        codeWriter = new BytecodeCodeWriter(idProvider);
     }
 
     /**
@@ -138,6 +145,21 @@ public final class Compiler {
      * @throws IOException if somehow a problem occurred while writing or reading from the temporary streams.
      */
     public CompileResult compile(CompileInput input) throws IOException {
+        return compile(input, false);
+    }
+
+    /**
+     * Attempts to compile all of the source code specified in the {@link CompileInput input} object
+     * and produce a {@link CompileResult} object which contains the compiled form of the object
+     * and the associated errors produced during that compilation process.
+     *
+     * @param input    the input object which contains the all of the source code that we want to compile.
+     * @param generate whether or not to run the code generation phase, this is useful for when we just want
+     *                 to compile for errors only and we are not interested in the output.
+     * @return the {@link CompileResult} object instance.
+     * @throws IOException if somehow a problem occurred while writing or reading from the temporary streams.
+     */
+    public CompileResult compile(CompileInput input, boolean generate) throws IOException {
         var compilingScripts = new ArrayList<Pair<Object, AstScript>>();
         var errors = new ArrayList<Pair<Object, CompilerError>>();
         for (var source : input.getSourceData()) {
@@ -175,19 +197,21 @@ public final class Compiler {
         var codeGenerator = new CodeGenerator(symbolTable, instructionMap);
         // Compile all of the parsed and checked scripts into a bytecode format.
         var compiledScripts = new ArrayList<Pair<Object, CompiledScript>>();
-        for (var pair : compilingScripts) {
-            var script = pair.getValue();
-            var trigger = environment.lookupTrigger(script.getTrigger().getText());
-            var info = symbolTable.lookupScript(trigger, AstExpression.extractNameText(script.getName()));
-            // Run the code generator on each script.,
-            var generated = codeGenerator.visit(script);
-            // Optimize the generated script.
-            optimizer.run(generated);
-            // Write the generated script to a bytecode format.
-            var bytecode = codeWriter.write(generated);
-            try (var stream = new ByteArrayOutputStream()) {
-                bytecode.write(stream, supportsLongPrimitiveType);
-                compiledScripts.add(Pair.of(pair.getKey(), new CompiledScript(generated.getName(), stream.toByteArray(), info)));
+        if (generate) {
+            for (var pair : compilingScripts) {
+                var script = pair.getValue();
+                var trigger = environment.lookupTrigger(script.getTrigger().getText());
+                var info = symbolTable.lookupScript(trigger, AstExpression.extractNameText(script.getName()));
+                // Run the code generator on each script.,
+                var generated = codeGenerator.visit(script);
+                // Optimize the generated script.
+                optimizer.run(generated);
+                // Write the generated script to a bytecode format.
+                var bytecode = codeWriter.write(generated);
+                try (var stream = new ByteArrayOutputStream()) {
+                    bytecode.write(stream, supportsLongPrimitiveType);
+                    compiledScripts.add(Pair.of(pair.getKey(), new CompiledScript(generated.getName(), stream.toByteArray(), info)));
+                }
             }
         }
         return CompileResult.of(compiledScripts, errors);
@@ -248,7 +272,7 @@ public final class Compiler {
         }
         return table;
     }
-    
+
     /**
      * Returns a new {@link CompilerBuilder} object.
      *
@@ -279,6 +303,11 @@ public final class Compiler {
          * Whether or not the compiler supports the long primitive type.
          */
         private boolean supportsLongPrimitiveType;
+
+        /**
+         * The {@link IdProvider} of the compiler.
+         */
+        private IdProvider idProvider;
 
         /**
          * Sets the environment object we are going to use for the compiler.
@@ -315,6 +344,17 @@ public final class Compiler {
         }
 
         /**
+         * Sets the id provider that we are going to use for the compiler.
+         *
+         * @param idProvider the id provider of the compiler.
+         * @return this {@link CompilerBuilder} object instance.
+         */
+        public CompilerBuilder withIdProvider(IdProvider idProvider) {
+            this.idProvider = idProvider;
+            return this;
+        }
+
+        /**
          * Builds the {@link Compiler} object with the details configured in the builder.
          *
          * @return the built {@link Compiler} object.
@@ -324,10 +364,13 @@ public final class Compiler {
             if (instructionMap == null) {
                 throw new IllegalStateException("You must provide an InstructionMap before performing build() operation");
             }
+            if (idProvider == null) {
+                throw new IllegalStateException("You must provide an IdProvider before performing build() operation");
+            }
             if (environment == null) {
                 environment = new CompilerEnvironment();
             }
-            return new Compiler(environment, instructionMap, supportsLongPrimitiveType);
+            return new Compiler(environment, instructionMap, idProvider, supportsLongPrimitiveType);
         }
     }
 }

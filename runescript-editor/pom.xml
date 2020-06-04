@@ -90,5 +90,11 @@
             <artifactId>jna-platform</artifactId>
             <version>5.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>me.waliedyassen.runescript</groupId>
+            <artifactId>runescript-index</artifactId>
+            <version>0.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

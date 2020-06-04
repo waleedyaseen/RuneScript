@@ -16,9 +16,13 @@
         <version>0.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>runescript-index</artifactId>
     <version>0.2-SNAPSHOT</version>
-
-
+    <dependencies>
+        <dependency>
+            <groupId>it.unimi.dsi</groupId>
+            <artifactId>fastutil</artifactId>
+            <version>8.3.1</version>
+        </dependency>
+    </dependencies>
 </project>
