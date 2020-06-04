@@ -95,6 +95,9 @@ public final class BytecodeScript {
                 if (operand instanceof String) {
                     writeString(data, (String) operand);
                 } else if (operand instanceof Long) {
+                    if (!supportsLongPrimitiveType) {
+                        throw new IllegalArgumentException("Long operands are not allowed");
+                    }
                     data.writeLong((long) operand);
                 } else {
                     if (instruction.isLarge()) {
