@@ -31,7 +31,7 @@ import me.waliedyassen.runescript.editor.project.cache.Cache;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.editor.vfs.VFS;
-import me.waliedyassen.runescript.index.table.IndexTable;
+import me.waliedyassen.runescript.index.Index;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
 
@@ -117,7 +117,7 @@ public final class Project {
      * The index table for the script files.
      */
     @Getter
-    private IndexTable scriptsIndexTable;
+    private Index<String> index;
 
     /**
      * Whether or not the project supports long primitive type compilation.
@@ -401,7 +401,7 @@ public final class Project {
      */
     private void loadCache() {
         var rootPath = resolveRsPath();
-        var cacheFile = rootPath.resolve("cache.bin");
+        var cacheFile = rootPath.resolve("cache");
         cache = new Cache(this);
         if (Files.exists(cacheFile)) {
             try (var stream = new DataInputStream(Files.newInputStream(cacheFile))) {
@@ -423,14 +423,20 @@ public final class Project {
      */
     private void loadIndex() {
         var rootPath = resolveRsPath();
-        var indexFile = rootPath.resolve("scripts.index");
-        scriptsIndexTable = new IndexTable();
+        var indexFile = rootPath.resolve("index.bin");
+        index = new Index<>();
         if (Files.exists(indexFile)) {
             try (var stream = new DataInputStream(Files.newInputStream(indexFile))) {
-                scriptsIndexTable.read(stream);
+                var key = stream.readUTF();
+                var table = index.create(key);
+                table.read(stream);
             } catch (IOException e) {
                 log.error("An error occurred while loading the project cache", e);
             }
+        } else {
+            index.create("serverscript");
+            index.create("clientscript").setCursor(10000);
+            saveIndex();
         }
     }
 
@@ -499,9 +505,12 @@ public final class Project {
      */
     public void saveIndex() {
         var rootPath = resolveRsPath();
-        var cacheFile = rootPath.resolve("scripts.index");
+        var cacheFile = rootPath.resolve("index.bin");
         try (var stream = new DataOutputStream(Files.newOutputStream(cacheFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))) {
-            scriptsIndexTable.write(stream);
+            for (var entry : index.getTables().entrySet()) {
+                stream.writeUTF(entry.getKey());
+                entry.getValue().write(stream);
+            }
         } catch (IOException e) {
             log.error("An error occurred while writing the project cache", e);
         }
@@ -592,7 +601,7 @@ public final class Project {
          */
         @Override
         public int findScript(String name) throws IllegalArgumentException {
-            var id = scriptsIndexTable.find(name);
+            var id = index.get("clientscript").find(name);
             if (id == null) {
                 throw new IllegalArgumentException("Failed to find an id for script with name: " + name);
             }

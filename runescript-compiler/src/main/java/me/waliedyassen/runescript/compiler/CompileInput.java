@@ -35,6 +35,12 @@ public final class CompileInput {
     private final List<AstVisitor<?, ?>> visitors = new ArrayList<>();
 
     /**
+     * A list of all the compiler feedbacks to call through the process.
+     */
+    @Getter
+    private final List<CompilerFeedback> feedbacks = new ArrayList<>();
+
+    /**
      * Adds a new source code to compile to the input object.
      *
      * @param key    the key of the source code.
@@ -52,6 +58,15 @@ public final class CompileInput {
      */
     public void addVisitor(AstVisitor<?, ?> visitor) {
         visitors.add(visitor);
+    }
+
+    /**
+     * Adds the specified {@link CompilerFeedback} to the feedbacks list.
+     *
+     * @param feedback the feedback object to add to the list.
+     */
+    public void addFeedback(CompilerFeedback feedback) {
+        feedbacks.add(feedback);
     }
 
     /**

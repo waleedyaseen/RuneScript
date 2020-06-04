@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.index.table;
 
 import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
+import lombok.Setter;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -35,6 +36,7 @@ public final class IndexTable {
     /**
      * The ID cursor the index table is currently at.
      */
+    @Setter
     private int cursor;
 
     /**

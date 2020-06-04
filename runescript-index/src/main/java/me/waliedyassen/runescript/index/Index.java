@@ -17,9 +17,7 @@ import java.util.Map;
 /**
  * Represents an index table container.
  *
- * @param <K>
- *         the key type of the index.
- *
+ * @param <K> the key type of the index.
  * @author Walied K. Yassen
  */
 public final class Index<K> {
@@ -28,19 +26,16 @@ public final class Index<K> {
      * A map of all the tables that are in this index.
      */
     @Getter
-    private final Map<IndexKey<K>, IndexTable> tables = new HashMap<>();
+    private final Map<K, IndexTable> tables = new HashMap<>();
 
     /**
-     * Attempts to create a new {@link IndexTable} with the specified {@link IndexKey key}.
+     * Attempts to create a new {@link IndexTable} with the specified {@link K key}.
      *
-     * @param key
-     *         the key of the index table to create.
-     *
+     * @param key the key of the index table to create.
      * @return the created {@link IndexTable} object.
-     * @throws IllegalArgumentException
-     *         if the specified key is already taken by another index table.
+     * @throws IllegalArgumentException if the specified key is already taken by another index table.
      */
-    public IndexTable create(@NonNull IndexKey<K> key) {
+    public IndexTable create(@NonNull K key) {
         if (tables.containsKey(key)) {
             throw new IllegalArgumentException("The specified key is already taken by another table in the index");
         }
@@ -50,14 +45,12 @@ public final class Index<K> {
     }
 
     /**
-     * Attempts to get the {@link IndexTable} with the specified {@link IndexKey key}.
+     * Attempts to get the {@link IndexTable} with the specified {@link K key}.
      *
-     * @param key
-     *         the key of the index table to get.
-     *
+     * @param key the key of the index table to get.
      * @return the {@link IndexTable} object if it was present otherwise {@code null}.
      */
-    public IndexTable get(@NonNull IndexKey<K> key) {
+    public IndexTable get(@NonNull K key) {
         return tables.get(key);
     }
 }

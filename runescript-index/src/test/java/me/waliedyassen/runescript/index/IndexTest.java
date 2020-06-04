@@ -18,8 +18,8 @@ class IndexTest {
     @Test
     void testCreation() {
         Index<String> index = new Index<>();
-        var table = index.create(IndexKey.of("test"));
-        assertEquals(table, index.get(IndexKey.of("test")));
-        assertThrows(IllegalArgumentException.class, () -> index.create(IndexKey.of("test")));
+        var table = index.create("test");
+        assertEquals(table, index.get("test"));
+        assertThrows(IllegalArgumentException.class, () -> index.create("test"));
     }
 }

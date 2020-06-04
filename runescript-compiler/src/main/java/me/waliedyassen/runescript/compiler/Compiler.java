@@ -180,6 +180,11 @@ public final class Compiler {
                 script.getValue().accept(visitor);
             }
         });
+        input.getFeedbacks().forEach(feedback -> {
+            for (var script : compilingScripts) {
+                feedback.onParserDone(script.getKey(), script.getValue());
+            }
+        });
         var symbolTable = this.symbolTable.createSubTable();
         // Perform semantic analysis checking on the parsed AST.
         var checker = new SemanticChecker(environment, symbolTable);
