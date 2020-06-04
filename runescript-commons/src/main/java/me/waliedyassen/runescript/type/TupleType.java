@@ -34,8 +34,7 @@ public final class TupleType implements Type {
     /**
      * Constructs a new {@link TupleType} type object instance.
      *
-     * @param childs
-     *         the tuple child types.
+     * @param childs the tuple child types.
      */
     public TupleType(Type... childs) {
         this.childs = childs;
@@ -75,5 +74,13 @@ public final class TupleType implements Type {
     @Override
     public Object getDefaultValue() {
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public char getCode() {
+        throw new UnsupportedOperationException();
     }
 }

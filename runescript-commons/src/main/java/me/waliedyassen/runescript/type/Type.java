@@ -15,23 +15,30 @@ package me.waliedyassen.runescript.type;
 public interface Type {
 
     /**
-     * Gets the type textual representation.
+     * Returns the representation of the type.
      *
      * @return the type textual representation.
      */
     String getRepresentation();
 
     /**
-     * Gets the stack type.
+     * Returns the stack type of the type.
      *
      * @return the stack type.
      */
     StackType getStackType();
 
     /**
-     * Gets the default value of this type.
+     * Returns the default value of the type.
      *
      * @return the default value of this type.
      */
     Object getDefaultValue();
+
+    /**
+     * Returns the signature char code of the type.
+     *
+     * @return the signature char code of the type.
+     */
+    char getCode();
 }

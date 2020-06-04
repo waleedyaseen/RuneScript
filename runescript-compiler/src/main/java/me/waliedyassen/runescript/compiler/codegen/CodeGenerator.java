@@ -251,6 +251,35 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
+    public Instruction visit(AstHook hook) {
+        var signature = new StringBuilder();
+        if (hook.getArguments() != null) {
+            for (var index = 0; index < hook.getArguments().length; index++) {
+                signature.append(hook.getArguments()[index].getType().getCode());
+            }
+        }
+        if (hook.getTransmits() != null) {
+            signature.append('Y');
+        }
+        instruction(PUSH_STRING_CONSTANT, hook);
+        if (hook.getArguments() != null) {
+            for (var argument : hook.getArguments()) {
+                argument.accept(this);
+            }
+        }
+        if (hook.getTransmits() != null) {
+            for (var transmit : hook.getTransmits()) {
+                transmit.accept(this);
+            }
+            instruction(PUSH_INT_CONSTANT, hook.getTransmits().length);
+        }
+        return instruction(PUSH_STRING_CONSTANT, signature);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Instruction visit(AstCall call) {
         for (var argument : call.getArguments()) {
             argument.accept(this);
