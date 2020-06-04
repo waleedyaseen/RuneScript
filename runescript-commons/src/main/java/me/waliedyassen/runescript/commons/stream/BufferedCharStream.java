@@ -43,12 +43,12 @@ public final class BufferedCharStream implements CharStream {
     /**
      * The current line witOOFhin the document.
      */
-    private int line = 1;
+    private int line;
 
     /**
      * The current column within the document.
      */
-    private int column = 1;
+    private int column;
 
     /**
      * The marked position.
@@ -58,27 +58,34 @@ public final class BufferedCharStream implements CharStream {
     /**
      * Constructs a new {@link BufferedCharStream} type object instance.
      *
-     * @param stream
-     *         the source code input stream.
-     *
-     * @throws IOException
-     *         if anything occurs while reading the data from the specified {@link InputStream}.
+     * @param stream the source code input stream.
+     * @throws IOException if anything occurs while reading the data from the specified {@link InputStream}.
      */
     public BufferedCharStream(InputStream stream) throws IOException {
-        this(stream, DEFAULT_TABSIZE);
+        this(stream, 1, 1);
     }
 
     /**
      * Constructs a new {@link BufferedCharStream} type object instance.
      *
-     * @param stream
-     *         the source code input stream.
-     * @param tabSize
-     *         the tab size, reprsents how many spaces should we increase the column pointer by after the tab special
-     *         character.
+     * @param stream the source code input stream.
+     * @param line   the initial line to start counting from.
+     * @param column the initial column to start counting from.
+     * @throws IOException if anything occurs while reading the data from the specified {@link InputStream}.
+     */
+    public BufferedCharStream(InputStream stream, int line, int column) throws IOException {
+        this(stream, DEFAULT_TABSIZE);
+        this.line = line;
+        this.column = column;
+    }
+
+    /**
+     * Constructs a new {@link BufferedCharStream} type object instance.
      *
-     * @throws IOException
-     *         if anything occurs while reading the data from the specified {@link InputStream}.
+     * @param stream  the source code input stream.
+     * @param tabSize the tab size, reprsents how many spaces should we increase the column pointer by after the tab special
+     *                character.
+     * @throws IOException if anything occurs while reading the data from the specified {@link InputStream}.
      */
     private BufferedCharStream(InputStream stream, int tabSize) throws IOException {
         this.tabSize = tabSize;
@@ -154,7 +161,7 @@ public final class BufferedCharStream implements CharStream {
      */
     @Override
     public void rollback(int count) {
-        while (count--> 0) {
+        while (count-- > 0) {
             if (!hasRemaining()) {
                 pos--;
             } else {

@@ -34,7 +34,7 @@ public final class AstHook extends AstExpression {
      * The transmits of the hook.
      */
     @Getter
-    private final AstIdentifier[] transmits;
+    private final AstExpression[] transmits;
 
     /**
      * Constructs a new {@link AstHook} type object instance.
@@ -48,7 +48,7 @@ public final class AstHook extends AstExpression {
      * @param transmits
      *         the transmits of the hook.
      */
-    public AstHook(Range range, AstIdentifier name, AstExpression[] arguments, AstIdentifier[] transmits) {
+    public AstHook(Range range, AstIdentifier name, AstExpression[] arguments, AstExpression[] transmits) {
         super(range);
         this.name = addChild(name);
         this.arguments = arguments != null ? addChild(arguments) : null;
@@ -60,6 +60,6 @@ public final class AstHook extends AstExpression {
      */
     @Override
     public <E, S> E accept(AstVisitor<E, S> visitor) {
-        return null;
+        return visitor.visit(this);
     }
 }

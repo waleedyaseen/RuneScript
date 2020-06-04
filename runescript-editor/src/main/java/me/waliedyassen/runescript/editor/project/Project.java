@@ -207,7 +207,6 @@ public final class Project {
             if (node == null) {
                 continue;
             }
-            System.out.println(node);
             configsPath.put(type, node.textValue());
         }
         reloadCompiler();
@@ -295,7 +294,16 @@ public final class Project {
                 var supportReturn = value.getOrElse("support_returns", false);
                 var argumentTypes = value.contains("arguments") ? ProjectConfig.parseTypes(config, "arguments") : null;
                 var returnTypes = value.contains("returns") ? ProjectConfig.parseTypes(config, "returns") : null;
-                compilerEnvironment.registerTrigger(new BasicTriggerType(name, operator, opcode, supportArgument, argumentTypes, supportReturn, returnTypes));
+                var hook = value.getOrElse("hook", false);
+                var triggerType = new BasicTriggerType(name, operator, opcode, supportArgument, argumentTypes, supportReturn, returnTypes);
+                if (hook) {
+                    if (compilerEnvironment.getHookTriggerType() == null) {
+                        compilerEnvironment.setHookTriggerType(triggerType);
+                    } else {
+                        log.warn("Multiple definition of hook triggers found: {} and {}", triggerType.getRepresentation(), compilerEnvironment.getHookTriggerType().getRepresentation());
+                    }
+                }
+                compilerEnvironment.registerTrigger(triggerType);
             }
         }
     }
@@ -331,7 +339,8 @@ public final class Project {
                 var arguments = ProjectConfig.parseTypes(value, "arguments");
                 var alternative = value.getOrElse("alternative", false);
                 var hook = value.getOrElse("hook", false);
-                compiler.getSymbolTable().defineCommand(new BasicOpcode(opcode, false), name, type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0], arguments, hook, alternative);
+                var hookType = value.contains("hooktype") ? PrimitiveType.valueOf(value.get("hooktype")) : null;
+                compiler.getSymbolTable().defineCommand(new BasicOpcode(opcode, false), name, type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0], arguments, hook, hookType, alternative);
             }
         }
     }

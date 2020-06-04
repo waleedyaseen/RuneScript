@@ -25,6 +25,7 @@ public final class Lexer extends LexerBase<Kind> {
      *         the tokenizer which we will take all the {@link Token} objects from.
      */
     public Lexer(Tokenizer tokenizer) {
+        super(tokenizer.range());
         tokens:
         do {
             var token = tokenizer.parse();

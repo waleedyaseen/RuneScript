@@ -50,7 +50,7 @@ public final class VFS {
     @SneakyThrows
     public VFS(Path rootPath) {
         this.rootPath = rootPath.toAbsolutePath();
-        System.err.println("Root path is set to: " + rootPath);
+        log.info("Root path is set to: {}", rootPath);
         watcher = new VFSWatcher(this);
         filesByRelativePath.put(normalizeToKey(rootPath), new VFSFile(this, rootPath));
     }

@@ -175,6 +175,18 @@ public interface AstVisitor<E, S> {
     /**
      * Gets called when we have just visited an {@link AstCall} node.
      *
+     * @param hook
+     *         the {@link AstHook} node we have just visited.
+     *
+     * @return the implementation output object.
+     */
+    default E visit(AstHook hook) {
+        return null;
+    }
+
+    /**
+     * Gets called when we have just visited an {@link AstCall} node.
+     *
      * @param call
      *         the {@link AstCall} node we have just visited.
      *

@@ -25,12 +25,12 @@ public enum PrimitiveType implements Type {
     /**
      * The undefined primitive type.
      */
-    UNDEFINED('\ufff0', null, null, null),
+    UNDEFINED('\ufff0', "undefined", null, null),
 
     /**
      * The hook primitive type.
      */
-    HOOK('\ufff1', null, null, null),
+    HOOK('\ufff1', "hook", null, null),
 
     /**
      * The void primitive type.
@@ -140,13 +140,20 @@ public enum PrimitiveType implements Type {
     /**
      * The graphic primitive type.
      */
-    GRAPHIC('d', "graphic", StackType.INT, -1);
+    GRAPHIC('d', "graphic", StackType.INT, -1),
+
+    /**
+     * The var primitive type.
+     */
+    // TODO: Verify the char code is correct
+    VAR('2', "var", StackType.INT, -1);
+
 
 
     /**
      * The {@link PrimitiveType} by {@link #representation} look-up map.
      */
-    private static final Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).filter(type -> type.getRepresentation() != null).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
+    private static final Map<String, PrimitiveType> lookupMap = Arrays.stream(values()).filter(PrimitiveType::isReferencable).collect(Collectors.toMap(PrimitiveType::getRepresentation, type -> type));
 
     /**
      * The code of this primitive type.
@@ -171,6 +178,15 @@ public enum PrimitiveType implements Type {
      */
     @Getter
     private final Object defaultValue;
+
+    /**
+     * Checks whether er or not the primitive type is a referencable type.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isReferencable() {
+        return representation != null && this != HOOK && this != UNDEFINED;
+    }
 
     /**
      * Checks whether or not this {@link PrimitiveType type} is a declarable type. Which means that it can be used as

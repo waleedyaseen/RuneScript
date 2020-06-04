@@ -213,7 +213,7 @@ public final class Compiler {
         table.registerKeyword("default", Kind.DEFAULT);
         table.registerKeyword("calc", Kind.CALC);
         for (var type : PrimitiveType.values()) {
-            if (type.getRepresentation() != null) {
+            if (type.isReferencable()) {
                 table.registerKeyword(type.getRepresentation(), Kind.TYPE);
             }
             if (type.isDeclarable()) {

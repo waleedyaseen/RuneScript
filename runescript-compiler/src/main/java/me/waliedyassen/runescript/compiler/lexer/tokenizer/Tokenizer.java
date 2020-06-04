@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
@@ -27,7 +27,6 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
  *
  * @author Walied K. Yassen
  */
-@RequiredArgsConstructor
 public final class Tokenizer extends TokenizerBase {
 
     // TODO: Interpolated strings proper range creation.
@@ -40,6 +39,7 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * The lexical symbol table.
      */
+    @Getter
     private final LexicalTable<Kind> table;
 
     /**
@@ -50,7 +50,19 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * The current state of the tokenizer.
      */
-    private State state = State.emptyState(State.StateKind.REGULAR);
+    private State state;
+
+    /**
+     * Constructs a new {@link Tokenizer} type object instance.
+     *
+     * @param table  the lexical table to use for the tokenizer.
+     * @param stream the source code stream of the tokenizer.
+     */
+    public Tokenizer(LexicalTable<Kind> table, CharStream stream) {
+        this.table = table;
+        this.stream = stream;
+        state = State.emptyState(State.StateKind.REGULAR, stream.position());
+    }
 
     /**
      * Tokenizes the next sequence of characters into some meaningful {@link Token} object.
@@ -263,7 +275,7 @@ public final class Tokenizer extends TokenizerBase {
      * @return the created {@link Token} object instance.
      * @see #createToken(Kind, String)
      */
-    private Token createToken(Kind kind) {
+    private Token<Kind> createToken(Kind kind) {
         return createToken(kind, "");
     }
 
@@ -313,7 +325,7 @@ public final class Tokenizer extends TokenizerBase {
      * @return the created {@link Range} object.
      * @see #mark()
      */
-    private Range range() {
+    public Range range() {
         return new Range(state.position, stream.position());
     }
 
@@ -325,8 +337,7 @@ public final class Tokenizer extends TokenizerBase {
     private void pushState(State.StateKind kind) {
         var previous = state;
         stack.push(previous);
-        state = State.emptyState(kind);
-        state.position = previous.position;
+        state = State.emptyState(kind, previous.position);
     }
 
     /**

@@ -71,7 +71,7 @@ public final class SemanticChecker implements ErrorReporter {
      * @param scripts the scripts to perform the semantic checking on.
      */
     public void execute(Iterable<Pair<Object, AstScript>> scripts) {
-        var checker = new TypeChecking(this, symbolTable);
+        var checker = new TypeChecking(this, symbolTable, environment.getHookTriggerType());
         for (var pair : scripts) {
             currentKey = pair.getKey();
             pair.getValue().accept(checker);

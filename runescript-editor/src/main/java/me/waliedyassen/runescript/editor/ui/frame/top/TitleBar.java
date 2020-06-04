@@ -145,7 +145,6 @@ public final class TitleBar extends JPanel implements ComponentListener {
      */
     @Override
     public void componentMoved(ComponentEvent e) {
-        System.out.println("Movewd");
         updateHitTestBounds();
     }
 

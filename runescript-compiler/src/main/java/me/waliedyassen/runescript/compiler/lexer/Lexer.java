@@ -7,9 +7,11 @@
  */
 package me.waliedyassen.runescript.compiler.lexer;
 
+import lombok.Getter;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.lexer.LexerBase;
+import me.waliedyassen.runescript.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.lexer.token.Token;
 
 /**
@@ -20,12 +22,19 @@ import me.waliedyassen.runescript.lexer.token.Token;
 public final class Lexer extends LexerBase<Kind> {
 
     /**
+     * The lexical table which the lexer is using.
+     */
+    @Getter
+    private final LexicalTable<Kind> lexicalTable;
+
+    /**
      * Constructs a new {@link Lexer} type object instance.
      *
-     * @param tokenizer
-     *         the tokenizer which we will take all the {@link Token} objects from.
+     * @param tokenizer the tokenizer which we will take all the {@link Token} objects from.
      */
     public Lexer(Tokenizer tokenizer) {
+        super(tokenizer.range());
+        this.lexicalTable = tokenizer.getTable();
         tokens:
         do {
             var token = tokenizer.parse();

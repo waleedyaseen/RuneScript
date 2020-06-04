@@ -613,7 +613,7 @@ public final class ScriptParserTest {
         assertAll("primitive type", () -> {
             // all valid primitive types.
             for (var type : PrimitiveType.values()) {
-                if (type.getRepresentation() != null) {
+                if (type.isReferencable()) {
                     assertEquals(fromString(type.getRepresentation()).primitiveType(), type);
                 }
             }

@@ -417,6 +417,7 @@ opcode=1407
 type=[]
 arguments=["HOOK"]
 hook=true
+hooktype="VAR"
 alternative=true
 
 [cc_setontimer]
@@ -459,6 +460,7 @@ opcode=1414
 type=[]
 arguments=["HOOK"]
 hook=true
+hooktype="INV"
 alternative=true
 
 [cc_setonstattransmit]
@@ -466,6 +468,7 @@ opcode=1415
 type=[]
 arguments=["HOOK"]
 hook=true
+hooktype="STAT"
 alternative=true
 
 [cc_setontargetenter]
@@ -1035,6 +1038,7 @@ hook=true
 opcode=2407
 type=[]
 arguments=["HOOK", "COMPONENT"]
+hooktype="VAR"
 hook=true
 
 [if_setontimer]
@@ -1071,12 +1075,14 @@ hook=true
 opcode=2414
 type=[]
 arguments=["HOOK", "COMPONENT"]
+hooktype="INV"
 hook=true
 
 [if_setonstattransmit]
 opcode=2415
 type=[]
 arguments=["HOOK", "COMPONENT"]
+hooktype="STAT"
 hook=true
 
 [if_setontargetenter]

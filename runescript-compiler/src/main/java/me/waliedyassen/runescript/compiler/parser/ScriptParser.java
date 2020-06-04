@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
+import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
@@ -18,17 +19,23 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
+import me.waliedyassen.runescript.lexer.LexerBase;
+import me.waliedyassen.runescript.lexer.LexicalError;
 import me.waliedyassen.runescript.lexer.token.Token;
 import me.waliedyassen.runescript.parser.ParserBase;
+import me.waliedyassen.runescript.parser.SyntaxError;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.type.Type;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -188,7 +195,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         var array = peekKind() == ARRAY_TYPE;
         var type = array ? arrayType() : primitiveType();
         if (!type.isDeclarable()) {
-            throwError(lexer.previous(), "Illegal type: " + type.getRepresentation());
+            throwError(lexer().previous(), "Illegal type: " + type.getRepresentation());
         }
         consume(DOLLAR);
         var name = identifier();
@@ -744,6 +751,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * @return the parsed {@link AstIdentifier} object.
      */
     private AstIdentifier advancedIdentifier() {
+        // TODO: Maybe checked advanced identifier based on symbol table names.
         pushRange();
         String text;
         var kind = peekKind();
@@ -877,11 +885,10 @@ public final class ScriptParser extends ParserBase<Kind> {
         var name = advancedIdentifier();
         var arguments = new ArrayList<AstExpression>();
         if (consumeIf(LPAREN)) {
-            CommandInfo commandInfo = symbolTable.lookupCommand(name.getText());
             if (isExpression()) {
                 int index = 0;
                 do {
-                    if (commandInfo != null && commandInfo.getArguments() != null && index < commandInfo.getArguments().length && commandInfo.getArguments()[index] == PrimitiveType.HOOK && peekKind() == STRING) {
+                    if (isHookParameter(name.getText(), index)) {
                         arguments.add(hook());
                     } else {
                         arguments.add(expression());
@@ -892,6 +899,25 @@ public final class ScriptParser extends ParserBase<Kind> {
             consume(RPAREN);
         }
         return new AstCommand(popRange(), name, arguments.toArray(AstExpression[]::new), alternative);
+    }
+
+    /**
+     * Checks whether or not a hook should be parsed as an argument of the command with the specified
+     * {@code name} and at the specified  {@code index}.
+     *
+     * @param name  the name of the command which the argument is in.
+     * @param index the index which the argument is located at in thecommand.
+     * @return <code>true</code> if a hook should be parsed otherwise <code>false</code>.
+     */
+    private boolean isHookParameter(String name, int index) {
+        var type = symbolTable.lookupCommand(name);
+        if (type == null) {
+            return false;
+        }
+        if (!type.isHook()) {
+            return false;
+        }
+        return type.getArguments()[index] == PrimitiveType.HOOK && peekKind() == STRING;
     }
 
     /**
@@ -918,12 +944,22 @@ public final class ScriptParser extends ParserBase<Kind> {
         return new AstComponent(popRange(), parent, component);
     }
 
+    /**
+     * Attempts to match the next set of token(s) to an {@link AstHook}.
+     *
+     * @return the parsed {@link AstHook} object.
+     */
     private AstHook hook() {
-        var rawString = string();
         pushRange();
+        var rawString = consume(STRING);
+        try {
+            pushLexer(createLexerFromString(rawString));
+        } catch (SyntaxError | LexicalError e) {
+            throwError(rawString, e.getMessage());
+        }
         var name = identifier();
         var arguments = new ArrayList<AstExpression>();
-        var transmits = new ArrayList<AstIdentifier>();
+        var transmits = new ArrayList<AstExpression>();
         if (consumeIf(LPAREN)) {
             if (isExpression()) {
                 do {
@@ -932,12 +968,31 @@ public final class ScriptParser extends ParserBase<Kind> {
             }
             consume(RPAREN);
             if (consumeIf(LBRACE)) {
-                transmits.add(identifier());
+                transmits.add(expression());
                 consume(RBRACE);
             }
         }
-        popRange();
-        return new AstHook(popRange(), name, arguments.toArray(AstExpression[]::new), transmits.toArray(AstIdentifier[]::new));
+        popLexer();
+        return new AstHook(popRange(), name, arguments.toArray(AstExpression[]::new), transmits.toArray(AstExpression[]::new));
+    }
+
+    /**
+     * Attempts to create a sub-lexer from the content of the specified {@link Token}.
+     *
+     * @param token the token which the content will be taken from.
+     * @return the created {@link LexerBase} object.
+     */
+    private LexerBase<Kind> createLexerFromString(Token<Kind> token) {
+        try {
+            var lexeme = token.getLexeme().getBytes();
+            var line = token.getRange().getStart().getLine();
+            var column = token.getRange().getStart().getColumn();
+            var stream = new BufferedCharStream(new ByteArrayInputStream(lexeme), line, column);
+            var tokenizer = new Tokenizer(((Lexer) lexer()).getLexicalTable(), stream);
+            return new Lexer(tokenizer);
+        } catch (IOException e) {
+            throw new IllegalStateException("Should not happen");
+        }
     }
 
     /**

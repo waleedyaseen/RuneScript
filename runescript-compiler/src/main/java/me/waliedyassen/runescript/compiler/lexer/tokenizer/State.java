@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
@@ -41,6 +42,7 @@ final class State {
     /**
      * The current character position within the document
      */
+    @NonNull
     LineColumn position;
 
     /**
@@ -56,13 +58,12 @@ final class State {
     /**
      * Creates an empty {@link State} object instance.
      *
-     * @param kind
-     *         the kind of this state.
-     *
+     * @param kind     the kind of this state.
+     * @param position the inital position of the state.
      * @return the created {@link State} object instance.
      */
-    static State emptyState(StateKind kind) {
-        return new State(kind);
+    static State emptyState(StateKind kind, LineColumn position) {
+        return new State(kind, position);
     }
 
     /**

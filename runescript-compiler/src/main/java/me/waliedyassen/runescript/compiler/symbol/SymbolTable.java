@@ -117,13 +117,14 @@ public final class SymbolTable {
      * @param type        the type of the command.
      * @param arguments   the arguments of hte command.
      * @param hook        whether or not this command is a hook command.
+     * @param hookType    the type of transmits the hook must have if the hook is present.
      * @param alternative whether or not this command supports alternative calls.
      */
-    public void defineCommand(Opcode opcode, String name, Type type, Type[] arguments, boolean hook, boolean alternative) {
+    public void defineCommand(Opcode opcode, String name, Type type, Type[] arguments, boolean hook, Type hookType, boolean alternative) {
         if (lookupCommand(name) != null) {
             throw new IllegalArgumentException("The command '" + name + "' is already defined.");
         }
-        commands.put(name, new CommandInfo(opcode, name, type, arguments, hook, alternative));
+        commands.put(name, new CommandInfo(opcode, name, type, arguments, hook, hookType, alternative));
     }
 
     /**

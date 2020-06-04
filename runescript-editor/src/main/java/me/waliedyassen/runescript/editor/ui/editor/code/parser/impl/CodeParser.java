@@ -58,13 +58,14 @@ public final class CodeParser extends AbstractParser {
         errorsView.removeErrorForPath(errorsPath);
         for (var pair : result.getErrors()) {
             var error = pair.getValue();
-            errorsView.addError(errorsPath, error.getRange().getStart().getLine(), error.getRange().getStart().getColumn(), error.getMessage());
             try {
+                errorsView.addError(errorsPath, error.getRange().getStart().getLine(), error.getRange().getStart().getColumn(), error.getMessage());
                 var startOffset = getOffset(error.getRange().getStart());
                 var endOffset = getOffset(error.getRange().getEnd());
                 var line = textArea.getLineOfOffset(startOffset);
                 parseResult.addNotice(new ErrorNotice(this, error.getMessage(), line, startOffset, endOffset));
             } catch (Throwable e) {
+                error.printStackTrace();
                 log.warn("An error occurred while adding the compiling errors to the result", e);
             }
         }

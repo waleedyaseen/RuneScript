@@ -259,10 +259,9 @@ public final class Tokenizer extends TokenizerBase {
      * @return the created {@link Range} object.
      * @see #mark()
      */
-    private Range range() {
+    public Range range() {
         return new Range(position, stream.position());
     }
-
 
     /**
      * Creates and throws a parser error ranging from the marked position to the current position.

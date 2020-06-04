@@ -1,6 +1,7 @@
 [clientscript]
 support_returns=false
 support_arguments=true
+hook=true
 
 [proc]
 operator="tilde"

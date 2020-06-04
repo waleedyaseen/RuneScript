@@ -52,6 +52,12 @@ public final class CommandInfo extends Symbol {
     private final boolean hook;
 
     /**
+     * The type of transmits the hook must have if present.
+     */
+    @Getter
+    private final Type hookType;
+
+    /**
      * Whether or not this command can be alternative.
      */
     @Getter

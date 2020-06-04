@@ -20,7 +20,9 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.util.Operator;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.*;
 
 import java.util.Arrays;
@@ -43,9 +45,14 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     private final SemanticChecker checker;
 
     /**
-     * The symbol table.
+     * The symbol table that we will be using for getting symbol information.
      */
     private final SymbolTable symbolTable;
+
+    /**
+     * The trigger type of the hooks.
+     */
+    private final TriggerType hookTriggerType;
 
     /**
      * The script which we are currently type checking.
@@ -143,6 +150,9 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstVariableExpression variableExpression) {
+        if (variableExpression.getVariable() == null) {
+            return PrimitiveType.UNDEFINED;
+        }
         return variableExpression.setType(variableExpression.getVariable().getType());
     }
 
@@ -161,25 +171,80 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstCall call) {
-        var name = call.getName();
-        var script = symbolTable.lookupScript(call.getTriggerType(), name.getText());
-        if (script == null) {
-            checker.reportError(new SemanticError(call, String.format("Could not resolve " + call.getTriggerType().getRepresentation() + " script with the name '%s'", name.getText())));
-            return PrimitiveType.UNDEFINED;
+    public Type visit(AstHook hook) {
+        if (hookTriggerType == null) {
+            checker.reportError(new SemanticError(hook, "Hooks are not allowed"));
         } else {
-            var arguments = call.getArguments();
-            var types = new Type[call.getArguments().length];
-            for (int index = 0; index < arguments.length; index++) {
-                types[index] = arguments[index].accept(this);
+            var parentInfo = symbolTable.lookupCommand(((AstCommand) hook.getParent()).getName().getText());
+            var scriptInfo = symbolTable.lookupScript(hookTriggerType, hook.getName().getText());
+            if (scriptInfo == null) {
+                checker.reportError(new SemanticError(hook.getName(), String.format("Could not resolve %s script with the name '%s'", hookTriggerType.getRepresentation(), hook.getName().getText())));
+            } else {
+                checkCallApplicable(hook, scriptInfo, hook.getArguments());
             }
-            var expected = TypeUtil.flatten(types);
-            var actual = script.getArguments();
-            if (expected.length != actual.length || !Arrays.equals(expected, actual)) {
-                checker.reportError(new SemanticError(call, String.format("The script %s(%s) is not applicable for the arguments (%s)", name.getText(), TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(expected))));
+            if (parentInfo != null) {
+                var expected = parentInfo.getHookType();
+                var transmits = hook.getTransmits();
+                if (expected != null) {
+                    if (transmits.length == 0) {
+                        checker.reportError(new SemanticError(hook, String.format("Expected a transmit list of type '%s'", expected.getRepresentation())));
+                    } else {
+                        for (var transmit : transmits) {
+                            checkType(transmit, expected, transmit.accept(this));
+                        }
+                    }
+                } else if (transmits.length != 0) {
+                    checker.reportError(new SemanticError(hook, "Unexpected transmit list"));
+                }
             }
         }
-        return call.setType(script.getType());
+        return hook.setType(PrimitiveType.HOOK);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(AstCall call) {
+        var name = call.getName();
+        var info = symbolTable.lookupScript(call.getTriggerType(), name.getText());
+        if (info == null) {
+            checker.reportError(new SemanticError(call, String.format("Could not resolve %s script with the name '%s'", call.getTriggerType().getRepresentation(), name.getText())));
+            return PrimitiveType.UNDEFINED;
+        } else {
+            checkCallApplicable(call, info, call.getArguments());
+        }
+        return call.setType(info.getType());
+    }
+
+    /**
+     * Checks whether or ont a script call is applicable.
+     *
+     * @param call      the AST node object of the call.
+     * @param info      the information of the script we are calling.
+     * @param arguments the arguments that are used in the call.
+     */
+    private void checkCallApplicable(AstNode call, ScriptInfo info, AstExpression[] arguments) {
+        var types = new Type[arguments.length];
+        for (int index = 0; index < arguments.length; index++) {
+            types[index] = arguments[index].accept(this);
+        }
+        var actual = TypeUtil.flatten(types);
+        var expected = info.getArguments();
+        if (!isCallApplicable(expected, actual)) {
+            checker.reportError(new SemanticError(call, String.format("The script %s(%s) is not applicable for the arguments (%s)", info.getName(), TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(expected))));
+        }
+    }
+
+    /**
+     * Checks whether or not a script call is applicable.
+     *
+     * @param expected the expected arguments of the call.
+     * @param actual   the actual arguments of the call.
+     * @return <code>true</code> if it is applicable otherwise <code>false</code>.
+     */
+    private boolean isCallApplicable(Type[] expected, Type[] actual) {
+        return actual.length == expected.length && Arrays.equals(actual, expected);
     }
 
     /**

@@ -7,6 +7,9 @@
  */
 package me.waliedyassen.runescript.lexer;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.lexer.token.Token;
 
 import java.util.ArrayList;
@@ -15,17 +18,22 @@ import java.util.List;
 /**
  * Represents the base class for all of our lexical parsers.
  *
- * @param <K>
- *         the tokenizer token type.
- *
+ * @param <K> the tokenizer token type.
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public abstract class LexerBase<K> {
 
     /**
      * The list of the {@linkplain Token}s that are availabe to this lexer.
      */
     protected final List<Token<K>> tokens = new ArrayList<>();
+
+    /**
+     * The start range of the lexer.
+     */
+    @Getter
+    protected final Range startRange;
 
     /**
      * The current pointer index value.
@@ -68,9 +76,7 @@ public abstract class LexerBase<K> {
     /**
      * Gets the token at is located at {@code n} steps from the current index.
      *
-     * @param n
-     *         the distance which the token is located at from the current index.
-     *
+     * @param n the distance which the token is located at from the current index.
      * @return the {@link Token} if it was present otherwise {@code null}.
      */
     public Token<K> lookahead(int n) {
@@ -99,5 +105,17 @@ public abstract class LexerBase<K> {
      */
     public int remaining() {
         return tokens.size() - index;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Range previousRange() {
+        var previous = previous();
+        if (previous != null) {
+            return previous.getRange();
+        }
+        return startRange;
     }
 }

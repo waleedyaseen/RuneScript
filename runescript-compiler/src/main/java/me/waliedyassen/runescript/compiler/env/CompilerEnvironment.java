@@ -7,6 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.env;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
@@ -32,10 +35,16 @@ public final class CompilerEnvironment {
     private final Map<Kind, TriggerType> triggerByOperator = new HashMap<>();
 
     /**
+     * The trigger type that we will use for hooks.
+     */
+    @Getter
+    @Setter
+    private TriggerType hookTriggerType;
+
+    /**
      * Registers a new trigger type into the environment.
      *
-     * @param triggerType
-     *         the trigger type to register.
+     * @param triggerType the trigger type to register.
      */
     public void registerTrigger(TriggerType triggerType) {
         if (triggerByRepresentation.containsKey(triggerType.getRepresentation())) {
@@ -53,9 +62,7 @@ public final class CompilerEnvironment {
     /**
      * Looks-up for the {@link TriggerType} with the specified {@code representation}.
      *
-     * @param representation
-     *         the representation of the trigger type.
-     *
+     * @param representation the representation of the trigger type.
      * @return the {@link TriggerType} if it was found otherwise {@code null}.
      */
     public TriggerType lookupTrigger(String representation) {
@@ -65,9 +72,7 @@ public final class CompilerEnvironment {
     /**
      * Looks-up for the {@link TriggerType} with the specified operator {@link Kind kind}.
      *
-     * @param kind
-     *         the kind of the operator of the trigger type.
-     *
+     * @param kind the kind of the operator of the trigger type.
      * @return the {@link TriggerType} if it was found otherwise {@code null}.
      */
     public TriggerType lookupTrigger(Kind kind) {
