@@ -241,6 +241,7 @@ public final class Compiler {
         table.registerKeyword("case", Kind.CASE);
         table.registerKeyword("default", Kind.DEFAULT);
         table.registerKeyword("calc", Kind.CALC);
+        table.registerKeyword("null", Kind.NULL);
         for (var type : PrimitiveType.values()) {
             if (type.isReferencable()) {
                 table.registerKeyword(type.getRepresentation(), Kind.TYPE);

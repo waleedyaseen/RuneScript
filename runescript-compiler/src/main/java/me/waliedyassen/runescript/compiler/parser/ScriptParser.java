@@ -323,7 +323,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public boolean isExpression() {
         var kind = peekKind();
-        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == LPAREN || kind == DOT || kind == CALC || isCall() || isComponent();
+        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == LPAREN || kind == DOT || kind == CALC || kind == NULL || isCall() || isComponent();
     }
 
     /**
@@ -506,7 +506,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         var name = identifier();
         AstExpression expression;
         if (consumeIf(EQUALS)) {
-            expression = expression();
+            expression = consumeIf(NULL) ? null : expression();
         } else {
             expression = null;
         }
@@ -917,7 +917,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         if (!type.isHook()) {
             return false;
         }
-        return type.getArguments()[index] == PrimitiveType.HOOK && peekKind() == STRING;
+        return type.getArguments()[index] == PrimitiveType.HOOK && (peekKind() == STRING || peekKind() == NULL);
     }
 
     /**
@@ -951,29 +951,33 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     private AstHook hook() {
         pushRange();
-        var rawString = consume(STRING);
-        try {
-            pushLexer(createLexerFromString(rawString));
-        } catch (SyntaxError | LexicalError e) {
-            throwError(rawString, e.getMessage());
-        }
-        var name = identifier();
-        var arguments = new ArrayList<AstExpression>();
-        var transmits = new ArrayList<AstExpression>();
-        if (consumeIf(LPAREN)) {
-            if (isExpression()) {
-                do {
-                    arguments.add(expression());
-                } while (consumeIf(COMMA));
+        if (consumeIf(NULL)) {
+            return new AstHook(popRange(), null, null, null);
+        } else {
+            var rawString = consume(STRING);
+            try {
+                pushLexer(createLexerFromString(rawString));
+            } catch (SyntaxError | LexicalError e) {
+                throwError(rawString, e.getMessage());
             }
-            consume(RPAREN);
-            if (consumeIf(LBRACE)) {
-                transmits.add(expression());
-                consume(RBRACE);
+            var name = identifier();
+            var arguments = new ArrayList<AstExpression>();
+            var transmits = new ArrayList<AstExpression>();
+            if (consumeIf(LPAREN)) {
+                if (isExpression()) {
+                    do {
+                        arguments.add(expression());
+                    } while (consumeIf(COMMA));
+                }
+                consume(RPAREN);
+                if (consumeIf(LBRACE)) {
+                    transmits.add(expression());
+                    consume(RBRACE);
+                }
             }
+            popLexer();
+            return new AstHook(popRange(), name, arguments.toArray(AstExpression[]::new), transmits.toArray(AstExpression[]::new));
         }
-        popLexer();
-        return new AstHook(popRange(), name, arguments.toArray(AstExpression[]::new), transmits.toArray(AstExpression[]::new));
     }
 
     /**

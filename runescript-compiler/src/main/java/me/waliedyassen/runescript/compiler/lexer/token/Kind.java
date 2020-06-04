@@ -116,6 +116,12 @@ public enum Kind {
      */
     CALC,
 
+    /**
+     * The null keyword token kind.
+     */
+    NULL,
+
+
     // the separators chunk.
 
     /**

@@ -50,7 +50,7 @@ public final class AstHook extends AstExpression {
      */
     public AstHook(Range range, AstIdentifier name, AstExpression[] arguments, AstExpression[] transmits) {
         super(range);
-        this.name = addChild(name);
+        this.name = name != null ? addChild(name) : null;
         this.arguments = arguments != null ? addChild(arguments) : null;
         this.transmits = transmits != null ? addChild(transmits) : null;
     }

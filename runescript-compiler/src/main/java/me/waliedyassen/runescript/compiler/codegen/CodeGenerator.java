@@ -267,7 +267,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         if (hook.getTransmits() != null) {
             signature.append('Y');
         }
-        instruction(PUSH_INT_CONSTANT, symbolTable.lookupScript(hookTriggerType, hook.getName().getText()));
+        instruction(PUSH_INT_CONSTANT, hook.getName() == null ? -1 : symbolTable.lookupScript(hookTriggerType, hook.getName().getText()));
         if (hook.getArguments() != null) {
             for (var argument : hook.getArguments()) {
                 argument.accept(this);

@@ -174,7 +174,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     public Type visit(AstHook hook) {
         if (hookTriggerType == null) {
             checker.reportError(new SemanticError(hook, "Hooks are not allowed"));
-        } else {
+        } else if (hook.getName() != null) {
             var parentInfo = symbolTable.lookupCommand(((AstCommand) hook.getParent()).getName().getText());
             var scriptInfo = symbolTable.lookupScript(hookTriggerType, hook.getName().getText());
             if (scriptInfo == null) {
