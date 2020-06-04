@@ -24,7 +24,7 @@ public final class SQLitePack implements Pack {
     /**
      * THE SQL syntax for creating the table.
      */
-    private static final String SQL_SYNTAX_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS `content` (`name` TEXT NOT NULL UNIQUE, `data` BLOB, PRIMARY KEY(`name`))";
+    private static final String SQL_SYNTAX_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS `content` (`ID`, `NAME` TEXT NOT NULL UNIQUE, `DATA` BLOB, PRIMARY KEY(`name`))";
 
     /**
      * The SQL syntax for creating the index.

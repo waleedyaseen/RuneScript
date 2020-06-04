@@ -53,7 +53,7 @@ public final class CodeParser extends AbstractParser {
         parseResult.clearNotices();
         parseResult.setParsedLines(0, textArea.getLineCount() - 1);
         var start = System.currentTimeMillis();
-        var result = project.getCache().recompileNonPersistent(codeEditor.getKey(), textArea.getText().getBytes());
+        var result = project.getCache().recompileNonPersistent(codeEditor.getKey(), textArea.getText().getBytes(), false);
         parseResult.setParseTime(System.currentTimeMillis() - start);
         errorsView.removeErrorForPath(errorsPath);
         for (var pair : result.getErrors()) {

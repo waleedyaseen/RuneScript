@@ -145,7 +145,7 @@ public final class Compiler {
      * @throws IOException if somehow a problem occurred while writing or reading from the temporary streams.
      */
     public CompileResult compile(CompileInput input) throws IOException {
-        return compile(input, false);
+        return compile(input, true);
     }
 
     /**
@@ -199,7 +199,7 @@ public final class Compiler {
                 compilingScripts.removeIf(pairInList -> pairInList.getValue() == value.getScript());
             }
         }
-        var codeGenerator = new CodeGenerator(symbolTable, instructionMap);
+        var codeGenerator = new CodeGenerator(symbolTable, instructionMap, environment.getHookTriggerType());
         // Compile all of the parsed and checked scripts into a bytecode format.
         var compiledScripts = new ArrayList<Pair<Object, CompiledScript>>();
         if (generate) {

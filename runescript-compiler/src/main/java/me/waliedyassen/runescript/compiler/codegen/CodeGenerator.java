@@ -33,6 +33,7 @@ import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
+import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.type.TupleType;
@@ -87,6 +88,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * The instructions map which contains the primary instruction opcodes.
      */
     private final InstructionMap instructionMap;
+
+    /**
+     * The trigger type which the hooks will try to look up using.
+     */
+    private final TriggerType hookTriggerType;
 
     /**
      * Initialises the code generator and reset its state.
@@ -261,7 +267,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         if (hook.getTransmits() != null) {
             signature.append('Y');
         }
-        instruction(PUSH_STRING_CONSTANT, hook);
+        instruction(PUSH_STRING_CONSTANT, symbolTable.lookupScript(hookTriggerType, hook.getName().getText()));
         if (hook.getArguments() != null) {
             for (var argument : hook.getArguments()) {
                 argument.accept(this);
@@ -273,7 +279,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
             }
             instruction(PUSH_INT_CONSTANT, hook.getTransmits().length);
         }
-        return instruction(PUSH_STRING_CONSTANT, signature);
+        return instruction(PUSH_STRING_CONSTANT, signature.toString());
     }
 
     /**
