@@ -7,19 +7,22 @@
  */
 package me.waliedyassen.runescript.compiler.symbol.impl;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.symbol.Symbol;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * R
+ * Represents the symbol information for an interface type.
  *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class InterfaceInfo {
+@EqualsAndHashCode(callSuper = true)
+public final class InterfaceInfo extends Symbol {
 
     /**
      * The components of the interface.

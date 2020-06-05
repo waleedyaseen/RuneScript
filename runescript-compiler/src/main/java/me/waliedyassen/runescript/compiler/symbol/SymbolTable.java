@@ -16,6 +16,7 @@ import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
+import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 
 import java.util.HashMap;
@@ -77,10 +78,16 @@ public final class SymbolTable {
     private final Map<String, InterfaceInfo> interfaces = new HashMap<>();
 
     /**
-     * The defined  graphics map.
+     * The defined graphics map.
      */
     @Getter
     private final Map<String, GraphicInfo> graphics = new HashMap<>();
+
+    /**
+     * The defined runtime constants.
+     */
+    @Getter
+    private final Map<String, RuntimeConstantInfo> runtimeConstants = new HashMap<>();
 
     /**
      * Constructs a new {@link SymbolTable} type object instance.
@@ -320,6 +327,34 @@ public final class SymbolTable {
         var info = graphics.get(name);
         if (info == null && parent != null) {
             info = parent.lookupGraphic(name);
+        }
+        return info;
+    }
+
+    /**
+     * Defines a new runtime constant symbol in this table.
+     *
+     * @param name  the name of the runtime constant.
+     * @param type  the type of the runtime constant.
+     * @param value the value of the runtime constant.
+     */
+    public void defineRuntimeConstant(String name, PrimitiveType type, Object value) {
+        if (lookupRuntimeConstant(name) != null) {
+            throw new IllegalArgumentException("The runtime constant '" + name + "' is already defined.");
+        }
+        runtimeConstants.put(name, new RuntimeConstantInfo(name, type, value));
+    }
+
+    /**
+     * Looks-up for the {@link RuntimeConstantInfo} with the specified {@code name}.
+     *
+     * @param name the name of the runtime constant.
+     * @return the {@link RuntimeConstantInfo} if it was present otherwise {@code null}.
+     */
+    public RuntimeConstantInfo lookupRuntimeConstant(String name) {
+        var info = runtimeConstants.get(name);
+        if (info == null && parent != null) {
+            info = parent.lookupRuntimeConstant(name);
         }
         return info;
     }

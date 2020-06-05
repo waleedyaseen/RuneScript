@@ -157,6 +157,13 @@ public final class Project {
     private String predefinedScriptsPath;
 
     /**
+     * The runtime constants configuration path.
+     */
+    @Getter
+    @Setter
+    private String runtimeConstantsPath;
+
+    /**
      * A map which contains all of the predefined configuration paths.
      */
     @Getter
@@ -216,6 +223,7 @@ public final class Project {
         triggersPath = JsonUtil.getTextOrThrow(object, "triggers", "The triggers cannot be null");
         commandsPath = JsonUtil.getTextOrThrow(object, "commands", "The commands cannot be null");
         predefinedScriptsPath = object.has("scripts") ? object.get("scripts").textValue() : "";
+        runtimeConstantsPath = object.has("runtimeConstants") ? object.get("runtimeConstants").textValue() : "";
         configsPath.clear();
         for (var type : PrimitiveType.values()) {
             if (!type.isConfigType()) {
@@ -247,6 +255,7 @@ public final class Project {
         loadCommands();
         loadConfigs();
         loadScripts();
+        loadRuntimeConstants();
     }
 
     /**
@@ -410,7 +419,7 @@ public final class Project {
             path = directory.resolve(predefinedScriptsPath);
         }
         if (!Files.exists(path)) {
-            log.info("The specified predfined scripts file does not exist: {}", predefinedScriptsPath);
+            log.info("The specified predefined scripts file does not exist: {}", predefinedScriptsPath);
             return;
         }
         try {
@@ -424,6 +433,47 @@ public final class Project {
                     var type = ProjectConfig.parseTypes(value, "type");
                     var arguments = ProjectConfig.parseTypes(value, "arguments");
                     compiler.getSymbolTable().defineScript(Collections.emptyMap(), trigger, name, type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type), arguments, id);
+                }
+            }
+        } catch (Throwable e) {
+            log.error("An error occurred while loading the predefined scripts file for path: {}", predefinedScriptsPath, e);
+        }
+    }
+
+    private void loadRuntimeConstants() {
+        if (runtimeConstantsPath == null || runtimeConstantsPath.isBlank()) {
+            return;
+        }
+        var path = Paths.get(runtimeConstantsPath);
+        if (!path.isAbsolute()) {
+            path = directory.resolve(runtimeConstantsPath);
+        }
+        if (!Files.exists(path)) {
+            log.info("The specified runtime constants file does not exist: {}", runtimeConstantsPath);
+            return;
+        }
+        try {
+            try (var fileConfig = CommentedFileConfig.of(path.toFile())) {
+                fileConfig.load();
+                for (var entry : fileConfig.entrySet()) {
+                    var config = (CommentedConfig) entry.getValue();
+                    var name = entry.getKey();
+                    var type = PrimitiveType.valueOf(config.get("type"));
+                    Object value;
+                    switch (type.getStackType()) {
+                        case INT:
+                            value = config.getInt("value");
+                            break;
+                        case STRING:
+                            value = config.<String>get("value");
+                            break;
+                        case LONG:
+                            value = config.getLong("value");
+                            break;
+                        default:
+                            throw new UnsupportedOperationException();
+                    }
+                    compiler.getSymbolTable().defineRuntimeConstant(name, type, value);
                 }
             }
         } catch (Throwable e) {
@@ -598,6 +648,7 @@ public final class Project {
         compiler.put("triggers", triggersPath);
         compiler.put("commands", commandsPath);
         compiler.put("scripts", predefinedScriptsPath);
+        compiler.put("runtimeConstants", runtimeConstantsPath);
         for (var type : PrimitiveType.values()) {
             if (!type.isConfigType()) {
                 continue;

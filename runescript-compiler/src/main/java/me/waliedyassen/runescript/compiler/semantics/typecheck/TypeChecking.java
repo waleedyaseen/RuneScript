@@ -272,6 +272,10 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         if (configInfo != null) {
             return dynamic.setType(configInfo.getType());
         }
+        var runtimeConstantInfo = symbolTable.lookupRuntimeConstant(name.getText());
+        if (runtimeConstantInfo != null) {
+            return dynamic.setType(runtimeConstantInfo.getType());
+        }
         checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a symbol", name.getText())));
         return PrimitiveType.UNDEFINED;
     }
@@ -431,7 +435,8 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
             var symbol = symbolTable.lookupConstant(((AstConstant) expression).getName().getText());
             return (int) symbol.getValue();
         } else if (expression instanceof AstDynamic) {
-            return symbolTable.lookupConfig(((AstDynamic) expression).getName().getText()).getId();
+            var name = ((AstDynamic) expression).getName().getText();
+            return symbolTable.lookupConfig(name).getId();
         } else {
             checker.reportError(new SemanticError(expression, "Case keys must be known at compile-time."));
         }

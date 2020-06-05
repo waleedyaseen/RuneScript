@@ -1,6 +1,7 @@
 package me.waliedyassen.runescript.compiler.symbol.impl;
 
 import lombok.Data;
+import me.waliedyassen.runescript.compiler.symbol.Symbol;
 
 /**
  * A graphic symbol information in the symbol table.
@@ -8,7 +9,7 @@ import lombok.Data;
  * @author Walied K. Yassen
  */
 @Data
-public final class GraphicInfo {
+public final class GraphicInfo extends Symbol {
 
     /**
      * The name of the graphic.

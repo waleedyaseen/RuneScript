@@ -351,7 +351,12 @@ public final class Cache {
      */
     public IndexTable getIndexForFile(String name) {
         var indexName = name.endsWith(".rs2") ? "servescript" : "clientscript";
-        return project.getIndex().get(indexName);
+        var index = project.getIndex().get(indexName);
+        if (index == null) {
+            index = project.getIndex().create(indexName);
+            dirty = true;
+        }
+        return index;
     }
 
 

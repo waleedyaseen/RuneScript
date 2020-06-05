@@ -302,6 +302,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("RedundantCast")
     public Instruction visit(AstDynamic dynamic) {
         if (dynamic.getType() instanceof ArrayReference) {
             return instruction(PUSH_INT_CONSTANT, ((ArrayReference) dynamic.getType()).getIndex());
@@ -309,11 +310,24 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
             var name = dynamic.getName().getText();
             var commandInfo = symbolTable.lookupCommand(name);
             if (commandInfo != null) {
-                return generateCommand(commandInfo);
-            } else {
-                var configInfo = symbolTable.lookupConfig(name);
+                return generateCommand(commandInfo, false);
+            }
+            var configInfo = symbolTable.lookupConfig(name);
+            if (configInfo != null) {
                 return instruction(PUSH_INT_CONSTANT, configInfo.getId());
             }
+            var runtimeConstantInfo = symbolTable.lookupRuntimeConstant(name);
+            if (runtimeConstantInfo != null) {
+                switch (dynamic.getType().getStackType()) {
+                    case INT:
+                        return instruction(PUSH_INT_CONSTANT, ((Integer) runtimeConstantInfo.getValue()));
+                    case STRING:
+                        return instruction(PUSH_STRING_CONSTANT, ((String) runtimeConstantInfo.getValue()));
+                    case LONG:
+                        return instruction(PUSH_LONG_CONSTANT, ((Long) runtimeConstantInfo.getValue()));
+                }
+            }
+            throw new UnsupportedOperationException(name);
         }
     }
 
@@ -346,7 +360,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         for (var argument : command.getArguments()) {
             argument.accept(this);
         }
-        return generateCommand(symbolTable.lookupCommand(command.getName().getText()));
+        return generateCommand(symbolTable.lookupCommand(command.getName().getText()), command.isAlternative());
     }
 
     /**
@@ -359,11 +373,12 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Generates the instruction(s) set for the specified {@link CommandInfo command}.
      *
-     * @param info the command info to generate the instruction(s) set for.
+     * @param info        the command info to generate the instruction(s) set for.
+     * @param alternative whether or not the command is alternative command.
      * @return the last generated {@link Instruction} object.
      */
-    private Instruction generateCommand(CommandInfo info) {
-        return instruction(info.getOpcode(), info.isAlternative() ? 1 : 0);
+    private Instruction generateCommand(CommandInfo info, boolean alternative) {
+        return instruction(info.getOpcode(), alternative ? 1 : 0);
     }
 
     /**
