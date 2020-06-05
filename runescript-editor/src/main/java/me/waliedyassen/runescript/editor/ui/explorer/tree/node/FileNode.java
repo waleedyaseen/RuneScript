@@ -86,6 +86,10 @@ public final class FileNode extends ExplorerNode<Path> {
      * Packs the file.
      */
     private void packFile() {
+        var editorTab = Api.getApi().getEditorView().getTab(getValue());
+        if (editorTab != null) {
+            editorTab.save();
+        }
         var project = Api.getApi().getProjectManager().getCurrentProject().get();
         try {
             var result = project.getCache().recompileNonPersistent(getValue(), Files.readAllBytes(getValue()), true);

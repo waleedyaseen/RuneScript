@@ -241,6 +241,16 @@ public final class EditorView extends JPanel implements ActionSource {
     }
 
     /**
+     * Returns the {@link EditorTab} with the specified {@code key}.
+     *
+     * @param key the key of the editor tab that we want.
+     * @return the the  {@link EditorTab} if it was present otherwise {@code null}.
+     */
+    public EditorTab getTab(Object key) {
+        return tabsByKey.get(key);
+    }
+
+    /**
      * Represents the handler of the editor tab mouse listener.
      *
      * @author Walied K. Yasen
