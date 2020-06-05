@@ -21,6 +21,14 @@ public abstract class ScriptCache {
     /**
      * Returns the {@link Script} object with the specified {@code name}.
      *
+     * @param id the id of the script to get.
+     * @return the {@link Script} object if found otherwise {@code null}.
+     */
+    public abstract Script get(int id);
+
+    /**
+     * Returns the {@link Script} object with the specified {@code name}.
+     *
      * @param name the name of the script to get.
      * @return the {@link Script} object if found otherwise {@code null}.
      */

@@ -190,13 +190,12 @@ public interface CoreOps {
      * Jumps to the specific script and returns to the original when the execution is over.
      */
     InstructionExecutor<? extends ScriptRuntime> GOSUB_WITH_PARAMS = runtime -> {
-        var name = runtime.stringOperand();
-        var script = runtime.getPool().getCache().get(name);
+        var script = runtime.getPool().getCache().get(runtime.intOperand());
         if (script == null) {
-            throw new ExecutionException("Failed to resolve script for name: " + name);
+            throw new ExecutionException("Failed to resolve script for id: " + runtime.intOperand());
         }
         if (runtime.getFrames().size() >= 100) {
-            throw new ExecutionException("Script used more than 100 script frame, possible stuck in an infinite recursion, script: " + name);
+            throw new ExecutionException("Script used more than 100 script frame, possible stuck in an infinite recursion, script: " + script.getName());
         }
         var frame = ScriptFramePool.pop();
         frame.set(runtime);
@@ -205,15 +204,15 @@ public interface CoreOps {
         runtime.setAddress(-1);
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumIntArguments();
-            runtime.getIntLocals()[argument ? script.getNumStringArguments() - index - 1: index] = argument ? runtime.popInt() : 0;
+            runtime.getIntLocals()[argument ? script.getNumStringArguments() - index - 1 : index] = argument ? runtime.popInt() : 0;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumStringArguments();
-            runtime.getStringLocals()[argument ? script.getNumStringArguments() - index - 1: index] = argument ? runtime.popString() : null;
+            runtime.getStringLocals()[argument ? script.getNumStringArguments() - index - 1 : index] = argument ? runtime.popString() : null;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumLongArguments();
-            runtime.getLongLocals()[argument ? script.getNumLongArguments() - index - 1: index] = argument ? runtime.popLong() : 0;
+            runtime.getLongLocals()[argument ? script.getNumLongArguments() - index - 1 : index] = argument ? runtime.popLong() : 0;
         }
     };
 
@@ -222,24 +221,23 @@ public interface CoreOps {
      * Jumps to the specific script without returning to the original when the execution is over.
      */
     InstructionExecutor<? extends ScriptRuntime> JUMP_WITH_PARAMS = runtime -> {
-        var name = runtime.stringOperand();
-        var script = runtime.getPool().getCache().get(name);
+        var script = runtime.getPool().getCache().get(runtime.intOperand());
         if (script == null) {
-            throw new ExecutionException("Failed to resolve script for name: " + name);
+            throw new ExecutionException("Failed to resolve script for name: " + runtime.intOperand());
         }
         runtime.setScript(script);
         runtime.setAddress(-1);
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumIntArguments();
-            runtime.getIntLocals()[argument ? script.getNumStringArguments() - index - 1: index] = argument ? runtime.popInt() : 0;
+            runtime.getIntLocals()[argument ? script.getNumStringArguments() - index - 1 : index] = argument ? runtime.popInt() : 0;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumStringArguments();
-            runtime.getStringLocals()[argument ? script.getNumStringArguments() - index - 1: index] = argument ? runtime.popString() : null;
+            runtime.getStringLocals()[argument ? script.getNumStringArguments() - index - 1 : index] = argument ? runtime.popString() : null;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumLongArguments();
-            runtime.getLongLocals()[argument ? script.getNumLongArguments() - index - 1: index] = argument ? runtime.popLong() : 0;
+            runtime.getLongLocals()[argument ? script.getNumLongArguments() - index - 1 : index] = argument ? runtime.popLong() : 0;
         }
         runtime.getIntStack().clear();
         runtime.getStringStack().clear();
