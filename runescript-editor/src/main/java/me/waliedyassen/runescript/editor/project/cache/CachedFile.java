@@ -97,7 +97,7 @@ public final class CachedFile {
             for (var returnIndex = 0; returnIndex < returnsCount; returnIndex++) {
                 returns[returnIndex] = PrimitiveType.forRepresentation(stream.readUTF());
             }
-            scripts.add(new ScriptInfo(Collections.emptyMap(), name, trigger, returnsCount == 0 ? PrimitiveType.VOID : returnsCount > 1 ? new TupleType(returns) : returns[0], arguments));
+            scripts.add(new ScriptInfo(Collections.emptyMap(), name, trigger, returnsCount == 0 ? PrimitiveType.VOID : returnsCount > 1 ? new TupleType(returns) : returns[0], arguments, null));
         }
     }
 

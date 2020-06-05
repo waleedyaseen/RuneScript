@@ -196,10 +196,24 @@ public final class SymbolTable {
      * @param arguments   the arguments type which the script takes.
      */
     public void defineScript(Map<String, Annotation> annotations, TriggerType trigger, String name, Type type, Type[] arguments) {
+        defineScript(annotations, trigger, name, type, arguments, null);
+    }
+
+    /**
+     * Defines a new script symbol information in this table.
+     *
+     * @param annotations  the annotations of the script.
+     * @param trigger      the trigger of the script.
+     * @param name         the name of the script.
+     * @param type         the type of the script.
+     * @param arguments    the arguments type which the script takes.
+     * @param predefinedId the predefined id of the script.
+     */
+    public void defineScript(Map<String, Annotation> annotations, TriggerType trigger, String name, Type type, Type[] arguments, Integer predefinedId) {
         if (lookupScript(trigger, name) != null) {
             throw new IllegalArgumentException("The script '" + name + "' is already defined.");
         }
-        scripts.put(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name), new ScriptInfo(annotations, name, trigger, type, arguments));
+        scripts.put(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name), new ScriptInfo(annotations, name, trigger, type, arguments, predefinedId));
     }
 
     /**

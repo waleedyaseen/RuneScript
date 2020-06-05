@@ -123,11 +123,11 @@ class CodeGeneratorTest {
         var first = scripts[0];
         var first_block = first.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(first_block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 0);
-        assertInstructionEquals(first_block.getInstructions().get(1), CoreOpcode.JUMP_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_label", ScriptParserTest.TestTriggerType.LABEL, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}));
+        assertInstructionEquals(first_block.getInstructions().get(1), CoreOpcode.JUMP_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_label", ScriptParserTest.TestTriggerType.LABEL, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}, null));
         var second = scripts[1];
         var second_block = second.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(second_block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 0);
-        assertInstructionEquals(second_block.getInstructions().get(1), CoreOpcode.GOSUB_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_proc", ScriptParserTest.TestTriggerType.PROC, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}));
+        assertInstructionEquals(second_block.getInstructions().get(1), CoreOpcode.GOSUB_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_proc", ScriptParserTest.TestTriggerType.PROC, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}, null));
     }
 
     void assertInstructionEquals(Instruction instruction, CoreOpcode opcode, Object operand) {

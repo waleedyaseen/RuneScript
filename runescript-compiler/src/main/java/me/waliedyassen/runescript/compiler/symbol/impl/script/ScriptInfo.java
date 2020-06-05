@@ -61,6 +61,12 @@ public final class ScriptInfo {
     private final Type[] arguments;
 
     /**
+     * The predefined id of the script.
+     */
+    @Getter
+    private final Integer predefinedId;
+
+    /**
      * Returns the full name of the script with the trigger.
      *
      * @return the full name of the script with the trigger.
