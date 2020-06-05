@@ -146,8 +146,17 @@ public enum PrimitiveType implements Type {
      * The var primitive type.
      */
     // TODO: Verify the char code is correct
-    VAR('2', "var", StackType.INT, -1);
+    VAR('2', "var", StackType.INT, -1),
 
+    /**
+     * The struct primitive type.
+     */
+    STRUCT('J', "struct", StackType.INT, -1),
+
+    /**
+     * The loc primitive type.
+     */
+    LOC('l', "loc", StackType.INT, -1);
 
 
     /**

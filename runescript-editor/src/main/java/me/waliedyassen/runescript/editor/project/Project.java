@@ -34,6 +34,7 @@ import me.waliedyassen.runescript.editor.vfs.VFS;
 import me.waliedyassen.runescript.index.Index;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.Type;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -43,6 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -148,6 +150,13 @@ public final class Project {
     private String instructionsPath;
 
     /**
+     * The instructions configuration path.
+     */
+    @Getter
+    @Setter
+    private String predefinedScriptsPath;
+
+    /**
      * A map which contains all of the predefined configuration paths.
      */
     @Getter
@@ -204,8 +213,9 @@ public final class Project {
     void loadCompiler(JsonNode root) {
         var object = JsonUtil.getObjectOrThrow(root, "compiler", "The compiler object cannot be null");
         instructionsPath = JsonUtil.getTextOrThrow(object, "instructions", "The instructions map cannot be null");
-        triggersPath = JsonUtil.getTextOrThrow(object, "triggers", "The instructions map cannot be null");
-        commandsPath = JsonUtil.getTextOrThrow(object, "commands", "The instructions map cannot be null");
+        triggersPath = JsonUtil.getTextOrThrow(object, "triggers", "The triggers cannot be null");
+        commandsPath = JsonUtil.getTextOrThrow(object, "commands", "The commands cannot be null");
+        predefinedScriptsPath = object.has("scripts") ? object.get("scripts").textValue() : "";
         configsPath.clear();
         for (var type : PrimitiveType.values()) {
             if (!type.isConfigType()) {
@@ -236,6 +246,7 @@ public final class Project {
                 .build();
         loadCommands();
         loadConfigs();
+        loadScripts();
     }
 
     /**
@@ -388,6 +399,36 @@ public final class Project {
                 log.error("An error occurred while loading the configuration file for type: {} and path: {}", type, pathRaw, e);
             }
         });
+    }
+
+    private void loadScripts() {
+        if (predefinedScriptsPath == null || predefinedScriptsPath.isBlank()) {
+            return;
+        }
+        var path = Paths.get(predefinedScriptsPath);
+        if (!path.isAbsolute()) {
+            path = directory.resolve(predefinedScriptsPath);
+        }
+        if (!Files.exists(path)) {
+            log.info("The specified predfined scripts file does not exist: {}", predefinedScriptsPath);
+            return;
+        }
+        try {
+            try (var config = CommentedFileConfig.of(path.toFile())) {
+                config.load();
+                for (var entry : config.entrySet()) {
+                    var value = (CommentedConfig) entry.getValue();
+                    var id = value.getInt("id");
+                    var name = value.<String>get("name");
+                    var trigger = compilerEnvironment.lookupTrigger(value.<String>get("trigger"));
+                    var type = ProjectConfig.parseTypes(value, "type");
+                    var arguments = ProjectConfig.parseTypes(value, "arguments");
+                    compiler.getSymbolTable().defineScript(Collections.emptyMap(), trigger, name, type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type), arguments, id);
+                }
+            }
+        } catch (Throwable e) {
+            log.error("An error occurred while loading the predefined scripts file for path: {}", predefinedScriptsPath, e);
+        }
     }
 
     /**
@@ -556,6 +597,7 @@ public final class Project {
         compiler.put("instructions", instructionsPath);
         compiler.put("triggers", triggersPath);
         compiler.put("commands", commandsPath);
+        compiler.put("scripts", predefinedScriptsPath);
         for (var type : PrimitiveType.values()) {
             if (!type.isConfigType()) {
                 continue;

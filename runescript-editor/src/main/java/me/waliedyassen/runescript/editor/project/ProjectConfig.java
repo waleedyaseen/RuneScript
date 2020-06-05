@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.project;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
+import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 
@@ -34,7 +35,12 @@ public final class ProjectConfig {
         }
         var mapped = new Type[types.size()];
         for (var index = 0; index < types.size(); index++) {
-            mapped[index] = PrimitiveType.valueOf(types.get(index));
+            var typeName = types.get(index);
+            if (typeName.endsWith("ARRAY")) {
+                mapped[index] = new ArrayReference(PrimitiveType.valueOf(typeName.substring(0, typeName.length() - 5)), index);
+            } else {
+                mapped[index] = PrimitiveType.valueOf(typeName);
+            }
         }
         return mapped;
     }
