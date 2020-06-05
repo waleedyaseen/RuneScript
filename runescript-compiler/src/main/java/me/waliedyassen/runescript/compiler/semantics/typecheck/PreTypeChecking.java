@@ -136,6 +136,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      */
     @Override
     public Void visit(AstVariableDeclaration declaration) {
+        var result = super.visit(declaration);
         var name = declaration.getName();
         var variable = resolveVariable(VariableScope.LOCAL, name.getText());
         if (variable != null) {
@@ -144,7 +145,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
             variable = scopes.lastElement().declareLocalVariable(name.getText(), declaration.getType());
             declaration.setVariable(variable);
         }
-        return super.visit(declaration);
+        return result;
     }
 
     /**
