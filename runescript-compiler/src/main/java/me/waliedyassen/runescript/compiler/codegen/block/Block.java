@@ -37,11 +37,8 @@ public final class Block {
     /**
      * Adds the specified {@link Instruction instruction} to this block.
      *
-     * @param instruction
-     *         the instruction to add to this block.
-     *
-     * @throws IllegalArgumentException
-     *         if the instruction is a a child of another block.
+     * @param instruction the instruction to add to this block.
+     * @throws IllegalArgumentException if the instruction is a a child of another block.
      */
     public void add(Instruction instruction) {
         if (instruction.getOwner() != null) {
@@ -54,11 +51,8 @@ public final class Block {
     /**
      * Removes the specified {@link Instruction} from the block.
      *
-     * @param instruction
-     *         the instruction to remove.
-     *
-     * @throws IllegalArgumentException
-     *         if the instruction is not a child of this block.
+     * @param instruction the instruction to remove.
+     * @throws IllegalArgumentException if the instruction is not a child of this block.
      */
     public void remove(Instruction instruction) {
         if (instruction.getOwner() != this) {
@@ -74,15 +68,16 @@ public final class Block {
      * @return the last {@link Instruction} object.
      */
     public Instruction last() {
+        if (instructions.isEmpty()) {
+            return null;
+        }
         return instructions.get(instructions.size() - 1);
     }
 
     /**
      * Gets the previous instruction to the specified {@link Instruction}.
      *
-     * @param instruction
-     *         the instruction to get the previous instruction to.
-     *
+     * @param instruction the instruction to get the previous instruction to.
      * @return the {@link Instruction} previous to the specified one if it as present otherwise {@code null}.
      */
     public Instruction previous(Instruction instruction) {

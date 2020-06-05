@@ -26,7 +26,7 @@ public final class DeadBranchOptimization extends BlockOptimization {
     @Override
     public int run(Optimizer optimizer, Script script, Block block) {
         var instruction = block.last();
-        if (optimizer.is(instruction, CoreOpcode.BRANCH)) {
+        if (instruction != null && optimizer.is(instruction, CoreOpcode.BRANCH)) {
             // We currently define dead branch if it's after a return
             // in the distant future, we may want to change that.
             var previous = block.previous(instruction);

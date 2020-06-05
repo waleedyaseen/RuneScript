@@ -27,7 +27,7 @@ public final class NaturalFlowOptimization extends BlockOptimization {
     @Override
     public int run(Optimizer optimizer, Script script, Block block) {
         var instruction = block.last();
-        if (optimizer.is(instruction, CoreOpcode.BRANCH)) {
+        if (instruction != null && optimizer.is(instruction, CoreOpcode.BRANCH)) {
             var label = (Label) instruction.getOperand();
             if (script.isNextTo(block.getLabel(), label)) {
                 block.remove(instruction);
