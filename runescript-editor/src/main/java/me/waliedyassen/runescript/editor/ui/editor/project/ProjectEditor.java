@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.editor.project;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.file.impl.ProjectFileType;
 import me.waliedyassen.runescript.editor.project.Project;
@@ -17,6 +18,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
  *
  * @author Walied K. Yassen
  */
+@Slf4j
 @RequiredArgsConstructor
 public final class ProjectEditor extends Editor<Project> {
 
@@ -70,7 +73,13 @@ public final class ProjectEditor extends Editor<Project> {
         project.getConfigsPath().clear();
         project.getConfigsPath().putAll(getConfigPathMap());
         project.reloadCompiler();
+        try {
+            project.saveData();
+        } catch (IOException e) {
+            log.error("Failed to save the project file", e);
+        }
     }
+
 
     /**
      * {@inheritDoc}

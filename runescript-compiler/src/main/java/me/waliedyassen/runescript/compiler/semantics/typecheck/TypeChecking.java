@@ -106,7 +106,11 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstLiteralString string) {
-        return string.setType(PrimitiveType.STRING);
+        if (symbolTable.lookupGraphic(string.getValue()) != null) {
+            return string.setType(PrimitiveType.GRAPHIC);
+        } else {
+            return string.setType(PrimitiveType.STRING);
+        }
     }
 
     /**

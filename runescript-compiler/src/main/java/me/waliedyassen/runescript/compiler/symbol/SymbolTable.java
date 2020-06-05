@@ -10,10 +10,7 @@ package me.waliedyassen.runescript.compiler.symbol;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
-import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.InterfaceInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.*;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
@@ -46,16 +43,19 @@ public final class SymbolTable {
     /**
      * The defined constants map.
      */
+    @Getter
     private final Map<String, ConstantInfo> constants = new HashMap<>();
 
     /**
      * The defined commands map.
      */
+    @Getter
     private final Map<String, CommandInfo> commands = new HashMap<>();
 
     /**
      * The defined configurations map.
      */
+    @Getter
     private final Map<String, ConfigInfo> configs = new HashMap<>();
 
     /**
@@ -67,12 +67,20 @@ public final class SymbolTable {
     /**
      * The defined variables map.
      */
+    @Getter
     private final Map<String, VariableInfo> variables = new HashMap<>();
 
     /**
-     * A defined components map.
+     * The defined components map.
      */
+    @Getter
     private final Map<String, InterfaceInfo> interfaces = new HashMap<>();
+
+    /**
+     * The defined  graphics map.
+     */
+    @Getter
+    private final Map<String, GraphicInfo> graphics = new HashMap<>();
 
     /**
      * Constructs a new {@link SymbolTable} type object instance.
@@ -262,7 +270,7 @@ public final class SymbolTable {
     }
 
     /**
-     * Looks-up for the {@link InterfaceInfo constant information} with the specified {@code name}.
+     * Looks-up for the {@link InterfaceInfo} with the specified {@code name}.
      *
      * @param name the name of the interface.
      * @return the {@link InterfaceInfo} if it was present otherwise {@code null}.
@@ -271,6 +279,33 @@ public final class SymbolTable {
         var info = interfaces.get(name);
         if (info == null && parent != null) {
             info = parent.lookupInterface(name);
+        }
+        return info;
+    }
+
+    /**
+     * Defines a new graphic symbol in this table.
+     *
+     * @param name the name of the graphic.
+     * @param id   the id of the graphic.
+     */
+    public void defineGraphic(String name, int id) {
+        if (lookupGraphic(name) != null) {
+            throw new IllegalArgumentException("The graphic '" + name + "' is already defined.");
+        }
+        graphics.put(name, new GraphicInfo(name, id));
+    }
+
+    /**
+     * Looks-up for the {@link GraphicInfo} with the specified {@code name}.
+     *
+     * @param name the name of the graphic.
+     * @return the {@link GraphicInfo} if it was present otherwise {@code null}.
+     */
+    public GraphicInfo lookupGraphic(String name) {
+        var info = graphics.get(name);
+        if (info == null && parent != null) {
+            info = parent.lookupGraphic(name);
         }
         return info;
     }

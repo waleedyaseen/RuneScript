@@ -196,7 +196,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      */
     @Override
     public Instruction visit(AstLiteralString string) {
-        return instruction(CoreOpcode.PUSH_STRING_CONSTANT, string.getValue());
+        if (string.getType() == PrimitiveType.GRAPHIC) {
+            return instruction(PUSH_INT_CONSTANT, symbolTable.lookupGraphic(string.getValue()).getId());
+        } else {
+            return instruction(PUSH_STRING_CONSTANT, string.getValue());
+        }
     }
 
     /**

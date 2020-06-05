@@ -371,12 +371,16 @@ public final class Project {
                 try (var config = CommentedFileConfig.of(path.toFile())) {
                     config.load();
                     for (var entry : config.entrySet()) {
-                        var name = entry.getKey();
                         var value = (CommentedConfig) entry.getValue();
                         var id = value.getInt("id");
-                        compiler.getSymbolTable().defineConfig(id, name, type);
-                        if (type == PrimitiveType.INTERFACE) {
-                            compiler.getSymbolTable().defineInterface(name, id);
+                        var name = value.contains("name") ? value.<String>get("name") : entry.getKey();
+                        if (type == PrimitiveType.GRAPHIC) {
+                            compiler.getSymbolTable().defineGraphic(name, id);
+                        } else {
+                            compiler.getSymbolTable().defineConfig(id, name, type);
+                            if (type == PrimitiveType.INTERFACE) {
+                                compiler.getSymbolTable().defineInterface(name, id);
+                            }
                         }
                     }
                 }
@@ -539,7 +543,7 @@ public final class Project {
      *
      * @throws IOException if anything occurs during the saving procedure.
      */
-    void saveData() throws IOException {
+    public void saveData() throws IOException {
         // Create the project root node.
         var root = JsonUtil.getMapper().createObjectNode();
         // Serialise the general information.
