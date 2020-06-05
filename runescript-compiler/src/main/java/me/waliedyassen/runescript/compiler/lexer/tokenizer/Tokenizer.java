@@ -103,7 +103,14 @@ public final class Tokenizer extends TokenizerBase {
                             state.mode = Mode.IDENTIFIER;
                         } else if (current == '\"') {
                             state.mode = Mode.STRING_LITERAL;
+                        } else if (current == '0' && next == 'x') {
+                            builder.append(current);
+                            builder.append(next);
+                            stream.take();
+                            stream.mark();
+                            state.mode = Mode.HEX_LITERAL;
                         } else if (Character.isDigit(current) || (current == '-' || current == '+') && Character.isDigit(next)) {
+                            // TODO: Move the + and - to be prefix operators instead of handling it at lexer.
                             builder.append(current);
                             stream.mark();
                             state.mode = Mode.NUMBER_LITERAL;
@@ -213,6 +220,20 @@ public final class Tokenizer extends TokenizerBase {
                         }
                     } else {
                         builder.append(current);
+                    }
+                    break;
+                case HEX_LITERAL:
+                    if (Character.isDigit(current) || (current >= 'a' && current <= 'f') || (current >= 'A' && current <= 'F')) {
+                        builder.append(current);
+                        stream.mark();
+                    } else {
+                        var kind = INTEGER;
+                        if (current == 'L' || current == 'l') {
+                            kind = LONG;
+                        } else if (current != NULL) {
+                            stream.reset();
+                        }
+                        return createToken(kind, builder.toString());
                     }
                     break;
                 case NUMBER_LITERAL:

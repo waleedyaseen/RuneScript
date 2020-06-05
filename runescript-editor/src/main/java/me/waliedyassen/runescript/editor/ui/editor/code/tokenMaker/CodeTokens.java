@@ -21,6 +21,7 @@ public interface CodeTokens {
     int LINE_COMMENT = TokenTypes.COMMENT_EOL;
     int MULTILINE_COMMENT = TokenTypes.COMMENT_MULTILINE;
     int NUMBER_LITERAL = TokenTypes.LITERAL_NUMBER_DECIMAL_INT;
+    int HEX_LITERAL = TokenTypes.LITERAL_NUMBER_HEXADECIMAL;
     int LOCAL_VARIABLE = TokenTypes.VARIABLE;
     int IDENTIFIER = TokenTypes.IDENTIFIER;
     int KEYWORD = TokenTypes.RESERVED_WORD;

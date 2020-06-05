@@ -82,6 +82,8 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
                         pushToken(DECLARATION, pos);
                     } else if (ch == '\"') {
                         pushToken(STRING_LITERAL, pos);
+                    } else if (ch == '0' && next == 'x') {
+                        pushToken(HEX_LITERAL, pos++);
                     } else if (Character.isDigit(ch) || (ch == '-' || ch == '+') && Character.isDigit(next)) {
                         pushToken(NUMBER_LITERAL, pos);
                     } else if (ch == '$' && TokenizerBase.isIdentifierStart(next)) {
@@ -137,6 +139,14 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
                         addToken(text, pos - 1);
                         pushToken(STRING_INTERPOLATE, pos);
                         addToken(text, pos);
+                    }
+                    break;
+                case HEX_LITERAL:
+                    if (!Character.isDigit(ch) && (ch < 'a' || ch > 'f') && (ch < 'A' || ch > 'F')) {
+                        if (ch != 'L' && ch != 'l') {
+                            pos--;
+                        }
+                        popAddToken(text, pos);
                     }
                     break;
                 case NUMBER_LITERAL:
