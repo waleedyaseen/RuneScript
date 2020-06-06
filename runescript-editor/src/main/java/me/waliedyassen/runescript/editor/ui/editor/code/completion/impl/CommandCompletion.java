@@ -2,13 +2,16 @@ package me.waliedyassen.runescript.editor.ui.editor.code.completion.impl;
 
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.autocomplete.FunctionCompletion;
+
+import java.util.ArrayList;
 
 /**
  * Represents a {@link CodeCompletion} implementation for a command.
  *
  * @author Walied K. Yassen
  */
-public final class CommandCompletion extends CodeCompletion {
+public final class CommandCompletion extends FunctionCompletion implements CodeCompletion {
 
     /**
      * The command that we are auto completing.
@@ -22,28 +25,18 @@ public final class CommandCompletion extends CodeCompletion {
      * @param commandInfo the command that we are auto completing.
      */
     public CommandCompletion(CompletionProvider provider, CommandInfo commandInfo) {
-        super(provider, commandInfo.getName(), "", "");
+        super(provider, commandInfo.getName(), commandInfo.getType().getRepresentation());
         this.commandInfo = commandInfo;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        var builder = new StringBuilder();
-        builder.append(commandInfo.getName());
-        builder.append("(");
+        setRelevance(2);
+        var parameters = new ArrayList<Parameter>(commandInfo.getArguments().length);
         for (var index = 0; index < commandInfo.getArguments().length; index++) {
             var argument = commandInfo.getArguments()[index];
-            if (index != 0) {
-                builder.append(", ");
-            }
-            builder.append(argument.getRepresentation());
+            var parameter = new Parameter(argument.getRepresentation(), "$arg" + (index + 1));
+            parameter.setDescription("");
+            parameters.add(parameter);
         }
-        builder.append(") : ");
-        builder.append(commandInfo.getType().getRepresentation());
-        return builder.toString();
+        setParams(parameters);
+        setReturnValueDescription(commandInfo.getType().getRepresentation());
     }
 
     /**

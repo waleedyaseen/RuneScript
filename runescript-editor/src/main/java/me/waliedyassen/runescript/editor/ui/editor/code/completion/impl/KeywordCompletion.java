@@ -1,5 +1,6 @@
 package me.waliedyassen.runescript.editor.ui.editor.code.completion.impl;
 
+import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 
 /**
@@ -7,7 +8,7 @@ import org.fife.ui.autocomplete.CompletionProvider;
  *
  * @author Walied K. Yassen
  */
-public final class KeywordCompletion extends CodeCompletion {
+public final class KeywordCompletion extends BasicCompletion implements CodeCompletion {
 
     /**
      * The keyword that we are auto completing.
@@ -23,6 +24,7 @@ public final class KeywordCompletion extends CodeCompletion {
     public KeywordCompletion(CompletionProvider provider, String keyword) {
         super(provider, keyword, "Insert " + keyword + " keyword.", "Inserts a '" + keyword + "' at keyword at the current position.");
         this.keyword = keyword;
+        setRelevance(5);
     }
 
     /**

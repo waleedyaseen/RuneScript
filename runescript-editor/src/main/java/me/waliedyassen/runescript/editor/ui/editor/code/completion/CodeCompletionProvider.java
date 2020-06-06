@@ -97,7 +97,7 @@ public final class CodeCompletionProvider extends DefaultCompletionProvider {
      * @param text the text that we have already entered.
      * @return a {@link List} of all the completions that should be presented.
      */
-    private List<Completion> makePresentCompletions(Set<CodeCompletion> all, String text) {
+    private List<Completion> makePresentCompletions(Set<Completion> all, String text) {
         completions = new ArrayList<>(all);
         Collections.sort(completions);
         int start = Collections.binarySearch(completions, text, comparator);

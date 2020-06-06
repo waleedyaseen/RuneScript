@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.CodeCompletion;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.KeywordCompletion;
+import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.CompletionProvider;
 
@@ -23,7 +24,7 @@ public final class AutoCompleteCache {
      * A list of all the cached {@link CodeCompletion} objects.
      */
     @Getter
-    private final List<CodeCompletion> completions = new ArrayList<>();
+    private final List<Completion> completions = new ArrayList<>();
 
     /**
      * The provider which instantiated this completion cache.
@@ -32,11 +33,11 @@ public final class AutoCompleteCache {
     private final CompletionProvider provider;
 
     /**
-     * Adds a new {@link CodeCompletion} to the completions list in the appropriate place.
+     * Adds a new {@link Completion} to the completions list in the appropriate place.
      *
      * @param completion the completion that we want to add to the completions list.
      */
-    public void addSorted(CodeCompletion completion) {
+    public void addSorted(Completion completion) {
         var index = Collections.binarySearch(completions, completion);
         if (index < 0) {
             index = -(index + 1);
