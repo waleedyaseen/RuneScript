@@ -96,5 +96,10 @@
             <version>0.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>autocomplete</artifactId>
+            <version>3.1.0</version>
+        </dependency>
     </dependencies>
 </project>

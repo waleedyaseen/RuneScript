@@ -10,14 +10,15 @@ package me.waliedyassen.runescript.editor.ui.editor.code;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.file.FileType;
+import me.waliedyassen.runescript.editor.ui.editor.code.completion.CodeCompletionProvider;
 import me.waliedyassen.runescript.editor.ui.editor.code.folder.CodeFolder;
 import me.waliedyassen.runescript.editor.ui.editor.code.parser.ParserManager;
 import me.waliedyassen.runescript.editor.ui.editor.code.theme.CodeTheme;
 import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokenMaker;
 import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.factory.TokenMakerFactoryImpl;
+import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.rsyntaxtextarea.folding.FoldParserManager;
 
-import java.awt.*;
 import java.nio.file.Path;
 
 /**
@@ -52,6 +53,15 @@ public final class CodeEditor extends FileEditor {
         new CodeTheme(textArea).apply(textArea);
         ParserManager.installCodeParser(this);
         textArea.setPopupMenu(null);
+        installAutoComplete();
+    }
+
+    /**
+     * Installs the auto complete system on code editor.
+     */
+    private void installAutoComplete() {
+        var autoCompletion = new AutoCompletion(new CodeCompletionProvider());
+        autoCompletion.install(textArea);
     }
 
     /**

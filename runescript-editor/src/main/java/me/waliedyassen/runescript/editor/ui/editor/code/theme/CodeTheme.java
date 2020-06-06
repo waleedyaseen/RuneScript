@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.editor.code.theme;
 
 import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
 import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokens;
+import me.waliedyassen.runescript.editor.util.FontManager;
 import org.fife.ui.rsyntaxtextarea.*;
 
 import java.awt.*;
@@ -36,6 +37,10 @@ public final class CodeTheme extends Theme {
      */
     public CodeTheme(RSyntaxTextArea textArea) {
         super(textArea);
+        var font = FontManager.getFont("JetBrainsMono-Regular");
+        if (font != null) {
+            baseFont = font.deriveFont(14.0f);
+        }
         if (DARK_MODE) {
             bgColor = new Color(43, 43, 43);
             gutterBackgroundColor = new Color(49, 51, 53);
@@ -90,7 +95,7 @@ public final class CodeTheme extends Theme {
                 styles[UNDEFINED] = styles[NULL];
                 styles[WHITESPACE] = styles[NULL];
                 styles[IDENTIFIER] = styles[NULL];
-                styles[SEPARATOR] =new Style(new Color(0x89ddff));
+                styles[SEPARATOR] = new Style(new Color(0x89ddff));
                 styles[OPERATOR] = new Style(new Color(0x89ddff));
                 styles[COMMAND] = new Style(new Color(0xf07178));
                 styles[DECLARATION] = new Style(new Color(0x82aaff));
