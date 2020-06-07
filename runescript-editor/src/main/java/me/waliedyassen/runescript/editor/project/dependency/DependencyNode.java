@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.project.dependency;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 
 import java.util.HashMap;
 import java.util.Map;

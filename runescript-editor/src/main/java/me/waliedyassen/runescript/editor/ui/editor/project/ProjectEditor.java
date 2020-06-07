@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.editor.project;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.file.impl.ProjectFileType;
 import me.waliedyassen.runescript.editor.project.Project;
@@ -142,8 +143,8 @@ public final class ProjectEditor extends Editor<Project> {
     private Map<PrimitiveType, String> getConfigPathMap() {
         return viewComponent.predefinedConfigs.entrySet()
                 .stream()
-                .filter(entry -> entry.getValue().getText().strip().length() > 0)
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getText().strip()));
+                .filter(entry -> entry.getValue().getText().trim().length() > 0)
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getText().trim()));
     }
 
     /**

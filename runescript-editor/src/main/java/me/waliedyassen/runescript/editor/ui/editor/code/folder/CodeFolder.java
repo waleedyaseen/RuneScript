@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.editor.code.folder;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokens;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.folding.Fold;

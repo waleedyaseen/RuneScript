@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.codegen.optimizer;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.Instruction;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;

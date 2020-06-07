@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.lexer;
 
+import lombok.var;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
 import me.waliedyassen.runescript.lexer.LexerBase;
 import me.waliedyassen.runescript.lexer.token.Token;

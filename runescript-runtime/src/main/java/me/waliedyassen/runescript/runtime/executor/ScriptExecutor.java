@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.runtime.executor;
 
 import lombok.Getter;
+import lombok.var;
 import me.waliedyassen.runescript.runtime.ScriptRuntime;
 import me.waliedyassen.runescript.runtime.ScriptRuntimePool;
 import me.waliedyassen.runescript.runtime.ScriptRuntimeSetup;

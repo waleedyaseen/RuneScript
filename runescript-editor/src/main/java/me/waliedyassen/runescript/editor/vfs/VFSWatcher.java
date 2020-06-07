@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.vfs;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 
 import java.io.IOException;

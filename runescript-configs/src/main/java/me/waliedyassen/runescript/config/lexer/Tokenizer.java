@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.config.lexer;
 
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;

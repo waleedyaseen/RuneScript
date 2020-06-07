@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.parser;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
@@ -54,7 +55,7 @@ public final class ScriptParserTest {
     @BeforeEach
     void setupEnvironment() {
         environment = new CompilerEnvironment();
-        for (TestTriggerType triggerType : TestTriggerType.values()) {
+        for (var triggerType : TestTriggerType.values()) {
             environment.registerTrigger(triggerType);
         }
     }
@@ -486,7 +487,7 @@ public final class ScriptParserTest {
             for (var index = 0; index < values.length; index++) {
                 var expr = _case.getKeys()[index];
                 assertTrue(expr instanceof AstLiteralInteger);
-                assertEquals(values[index], ((AstLiteralInteger) expr).getValue());
+                assertEquals(values[index], ((AstLiteralInteger) expr).getValue().intValue());
             }
             assertEquals(1, _case.getCode().getStatements().length);
             assertTrue(_case.getCode().getStatements()[0] instanceof AstReturnStatement);
@@ -519,13 +520,13 @@ public final class ScriptParserTest {
     void testInt() {
         assertAll("int", () -> {
             // non-signed integer.
-            assertEquals(fromString("881251628").integerNumber().getValue(), 881251628);
+            assertEquals(fromString("881251628").integerNumber().getValue().intValue(), 881251628);
         }, () -> {
             // negative signed integer.
-            assertEquals(fromString("-1040462968").integerNumber().getValue(), -1040462968);
+            assertEquals(fromString("-1040462968").integerNumber().getValue().intValue(), -1040462968);
         }, () -> {
             // positive signed integer.
-            assertEquals(fromString("1035471165").integerNumber().getValue(), 1035471165);
+            assertEquals(fromString("1035471165").integerNumber().getValue().intValue(), 1035471165);
         });
     }
 
@@ -539,7 +540,7 @@ public final class ScriptParserTest {
             assertThrows(SyntaxError.class, () -> fromString("2147483648").integerNumber());
         }, () -> {
             // within range
-            assertEquals(fromString("1785498889").integerNumber().getValue(), 1785498889);
+            assertEquals(fromString("1785498889").integerNumber().getValue().intValue(), 1785498889);
         });
     }
 
@@ -547,19 +548,19 @@ public final class ScriptParserTest {
     void testLong() {
         assertAll("long", () -> {
             // lower case long identifier
-            assertEquals(fromString("4327430278518173700l").longNumber().getValue(), 4327430278518173700l);
+            assertEquals(fromString("4327430278518173700l").longNumber().getValue().longValue(), 4327430278518173700l);
         }, () -> {
             // upper case long identifier
-            assertEquals(fromString("5837188049693458000L").longNumber().getValue(), 5837188049693458000L);
+            assertEquals(fromString("5837188049693458000L").longNumber().getValue().longValue(), 5837188049693458000L);
         }, () -> {
             // non-signed long.
-            assertEquals(fromString("6883184492006257000L").longNumber().getValue(), 6883184492006257000L);
+            assertEquals(fromString("6883184492006257000L").longNumber().getValue().longValue(), 6883184492006257000L);
         }, () -> {
             // negative signed long.
-            assertEquals(fromString("-7226522914666815000L").longNumber().getValue(), -7226522914666815000L);
+            assertEquals(fromString("-7226522914666815000L").longNumber().getValue().longValue(), -7226522914666815000L);
         }, () -> {
             // positive signed long.
-            assertEquals(fromString("+4809541778570648000L").longNumber().getValue(), +4809541778570648000L);
+            assertEquals(fromString("+4809541778570648000L").longNumber().getValue().longValue(), +4809541778570648000L);
         });
     }
 
@@ -573,7 +574,7 @@ public final class ScriptParserTest {
             assertThrows(SyntaxError.class, () -> fromString("9223372036854775808L").longNumber());
         }, () -> {
             // within range
-            assertEquals(fromString("8490600559331033000L").longNumber().getValue(), 8490600559331033000L);
+            assertEquals(fromString("8490600559331033000L").longNumber().getValue().longValue(), 8490600559331033000L);
         });
     }
 
@@ -658,8 +659,7 @@ public final class ScriptParserTest {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
             Tokenizer tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            ScriptParser scriptParser = new ScriptParser(environment, new SymbolTable(), lexer);
-            return scriptParser;
+            return new ScriptParser(environment, new SymbolTable(), lexer);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

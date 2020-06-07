@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.frame.nativeSupport.win;
 
 import com.sun.jna.Native;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.editor.ui.frame.TitledFrame;
 import me.waliedyassen.runescript.editor.ui.frame.nativeSupport.NativeWindowSupport;
 

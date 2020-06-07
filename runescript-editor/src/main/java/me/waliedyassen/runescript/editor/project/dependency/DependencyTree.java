@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.editor.project.dependency;
 
+import lombok.var;
+
 import java.util.*;
 
 /**

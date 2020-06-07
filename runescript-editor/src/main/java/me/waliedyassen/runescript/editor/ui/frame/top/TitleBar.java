@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.frame.top;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.editor.property.impl.StringProperty;
 import me.waliedyassen.runescript.editor.ui.frame.top.control.ControlButton;
 import me.waliedyassen.runescript.editor.ui.frame.top.control.ControlButtonType;

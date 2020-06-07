@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import lombok.Getter;
+import lombok.var;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;

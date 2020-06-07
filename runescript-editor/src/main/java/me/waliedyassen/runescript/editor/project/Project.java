@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
@@ -411,7 +412,7 @@ public final class Project {
     }
 
     private void loadScripts() {
-        if (predefinedScriptsPath == null || predefinedScriptsPath.isBlank()) {
+        if (predefinedScriptsPath == null || predefinedScriptsPath.trim().isEmpty()) {
             return;
         }
         var path = Paths.get(predefinedScriptsPath);
@@ -441,7 +442,7 @@ public final class Project {
     }
 
     private void loadRuntimeConstants() {
-        if (runtimeConstantsPath == null || runtimeConstantsPath.isBlank()) {
+        if (runtimeConstantsPath == null || runtimeConstantsPath.trim().isEmpty()) {
             return;
         }
         var path = Paths.get(runtimeConstantsPath);

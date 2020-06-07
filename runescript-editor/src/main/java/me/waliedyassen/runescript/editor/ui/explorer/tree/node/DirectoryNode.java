@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.var;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
@@ -19,6 +20,7 @@ import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.vfs.VFSFileListener;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 import javax.swing.*;
 import javax.swing.tree.MutableTreeNode;
@@ -116,6 +118,14 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
                 DialogManager.showErrorDialog("Error", "An I/O error occurred while creating the file.");
             }
         });
+        newMenu.addSeparator();
+        for (var type : PrimitiveType.values()) {
+            if (type.isConfigType()) {
+                newMenu.addAction(type.getRepresentation(), (source) -> {
+
+                });
+            }
+        }
         actionList.addSeparator();
         actionList.addAction("Delete", CommonGroups.EXPLORER.lookup(CommonShortcuts.EXPLORER_DELETE));
     }

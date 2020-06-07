@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.semantics;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;

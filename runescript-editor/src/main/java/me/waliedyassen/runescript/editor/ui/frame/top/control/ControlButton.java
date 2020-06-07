@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.frame.top.control;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.editor.ui.frame.top.menu.MenuBar;
 
 import javax.accessibility.AccessibleContext;

@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 
 import javax.swing.*;
 import java.util.ArrayList;

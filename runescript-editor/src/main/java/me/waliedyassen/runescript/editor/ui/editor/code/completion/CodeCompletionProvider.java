@@ -1,5 +1,6 @@
 package me.waliedyassen.runescript.editor.ui.editor.code.completion;
 
+import lombok.var;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.cache.AutoCompleteCache;

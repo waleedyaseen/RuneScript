@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.semantics.scope;
 
+import lombok.var;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import org.junit.jupiter.api.Test;
 

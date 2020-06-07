@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.type;
 
+import lombok.var;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -51,7 +53,7 @@ public final class TypeUtil {
                 flattened.add(type);
             }
         }
-        return flattened.toArray(Type[]::new);
+        return flattened.toArray(new Type[0]);
     }
 
     private TypeUtil() {

@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.ui.explorer.tree;
 
 import lombok.Getter;
+import lombok.var;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.DirectoryNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.render.ExplorerRenderer;

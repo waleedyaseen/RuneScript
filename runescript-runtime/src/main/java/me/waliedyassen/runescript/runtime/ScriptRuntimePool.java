@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.runtime;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.runtime.cache.ScriptCache;
 import me.waliedyassen.runescript.runtime.script.Script;
 

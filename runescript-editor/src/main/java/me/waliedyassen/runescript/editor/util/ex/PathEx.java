@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.editor.util.ex;
 
+import lombok.var;
+
 import java.nio.file.Path;
 
 /**

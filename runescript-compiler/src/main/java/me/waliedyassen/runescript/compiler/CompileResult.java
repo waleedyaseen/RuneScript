@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.compiler.util.Pair;
 
@@ -75,6 +76,6 @@ public final class CompileResult {
      */
     @SuppressWarnings("unchecked")
     public static CompileResult of(List<Pair<Object, CompiledScript>> scripts, List<Pair<Object, CompilerError>> errors) {
-        return new CompileResult(scripts.toArray(Pair[]::new), errors.toArray(Pair[]::new), errors.isEmpty());
+        return new CompileResult(scripts.toArray(new Pair[0]), errors.toArray(new Pair[0]), errors.isEmpty());
     }
 }

@@ -9,6 +9,7 @@
 package me.waliedyassen.runescript.config.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;

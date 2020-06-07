@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.pack.impl;
 
 import lombok.SneakyThrows;
+import lombok.var;
 import me.waliedyassen.runescript.editor.pack.Pack;
 import me.waliedyassen.runescript.editor.pack.PackFile;
 

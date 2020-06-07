@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import me.waliedyassen.runescript.editor.project.ProjectManager;
 import me.waliedyassen.runescript.editor.settings.Settings;
 import me.waliedyassen.runescript.editor.ui.EditorUI;

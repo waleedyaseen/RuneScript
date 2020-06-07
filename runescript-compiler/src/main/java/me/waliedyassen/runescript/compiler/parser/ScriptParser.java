@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
+import lombok.NonNull;
+import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstAnnotation;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
@@ -67,7 +69,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * @param symbolTable the symbol table to use for checking hooks.
      * @param lexer       the lexical parser to use for tokens.
      */
-    public ScriptParser(CompilerEnvironment environment, SymbolTable symbolTable, Lexer lexer) {
+    public ScriptParser(@NonNull CompilerEnvironment environment, @NonNull SymbolTable symbolTable, @NonNull Lexer lexer) {
         super(lexer, Kind.EOF);
         this.environment = environment;
         this.symbolTable = symbolTable;
@@ -120,7 +122,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         // we will allow empty scripts for now.
         var code = unbracedBlockStatement();
         // return the parsed script.
-        return new AstScript(popRange(), annotations, trigger, name, parameters.toArray(AstParameter[]::new), type, code);
+        return new AstScript(popRange(), annotations, trigger, name, parameters.toArray(new AstParameter[0]), type, code);
     }
 
     /**
@@ -488,7 +490,7 @@ public final class ScriptParser extends ParserBase<Kind> {
             } while (consumeIf(COMMA));
         }
         consume(SEMICOLON);
-        return new AstReturnStatement(popRange(), exprs.toArray(AstExpression[]::new));
+        return new AstReturnStatement(popRange(), exprs.toArray(new AstExpression[0]));
     }
 
     /**
@@ -591,7 +593,7 @@ public final class ScriptParser extends ParserBase<Kind> {
                 cases.add(_case);
             }
         }
-        return new AstSwitchStatement(popRange(), type, condition, cases.toArray(AstSwitchCase[]::new), defaultCase);
+        return new AstSwitchStatement(popRange(), type, condition, cases.toArray(new AstSwitchCase[0]), defaultCase);
     }
 
     /**
@@ -610,7 +612,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         }
         consume(COLON);
         var block = unbracedBlockStatement();
-        return new AstSwitchCase(popRange(), keys.toArray(AstExpression[]::new), block);
+        return new AstSwitchCase(popRange(), keys.toArray(new AstExpression[0]), block);
     }
 
 
@@ -872,7 +874,7 @@ public final class ScriptParser extends ParserBase<Kind> {
             } while (consumeIf(COMMA));
             consume(RPAREN);
         }
-        return new AstCall(popRange(), triggerType, name, arguments.toArray(AstExpression[]::new));
+        return new AstCall(popRange(), triggerType, name, arguments.toArray(new AstExpression[0]));
     }
 
     /**
@@ -910,7 +912,7 @@ public final class ScriptParser extends ParserBase<Kind> {
             }
             consume(RPAREN);
         }
-        return new AstCommand(popRange(), name, arguments.toArray(AstExpression[]::new), alternative);
+        return new AstCommand(popRange(), name, arguments.toArray(new AstExpression[0]), alternative);
     }
 
     /**
@@ -988,7 +990,7 @@ public final class ScriptParser extends ParserBase<Kind> {
                 }
             }
             popLexer();
-            return new AstHook(popRange(), name, arguments.toArray(AstExpression[]::new), transmits.toArray(AstExpression[]::new));
+            return new AstHook(popRange(), name, arguments.toArray(new AstExpression[0]), transmits.toArray(new AstExpression[0]));
         }
     }
 
@@ -1037,7 +1039,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         if (types.size() == 1) {
             return types.get(0);
         } else {
-            return new TupleType(types.toArray(PrimitiveType[]::new));
+            return new TupleType(types.toArray(new PrimitiveType[0]));
         }
     }
 

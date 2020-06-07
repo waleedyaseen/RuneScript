@@ -7,6 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.ast.visitor;
 
+import lombok.var;
+import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -14,16 +17,33 @@ import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.lexer.Lexer;
+import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.StringBufferInputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AstTreeVisitorTest {
 
 
+    private static final CompilerEnvironment environment = new CompilerEnvironment();
     private final CountingVisitor visitor = new CountingVisitor();
+
+    @BeforeAll
+    static void setupEnvironment() {
+        for (ScriptParserTest.TestTriggerType triggerType : ScriptParserTest.TestTriggerType.values()) {
+            environment.registerTrigger(triggerType);
+        }
+    }
 
     @BeforeEach
     void resetCounters() {
@@ -32,7 +52,7 @@ class AstTreeVisitorTest {
 
     @Test
     void testAll() {
-        var script = ScriptParserTest.fromResource("visitor-tree-script.rs2").script();
+        var script = fromResource("visitor-tree-script.rs2").script();
         script.accept(visitor);
         assertEquals(1, visitor.scripts.count());
         assertEquals(4, visitor.parameters.count());
@@ -414,6 +434,28 @@ class AstTreeVisitorTest {
                 throw new IllegalStateException("The amount of enters does not match the amount of exits");
             }
             return numEnters;
+        }
+    }
+
+    public static ScriptParser fromString(String text) {
+        try (var stream = new StringBufferInputStream(text)) {
+            var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            var lexer = new Lexer(tokenizer);
+            return new ScriptParser(environment, new SymbolTable(), lexer);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static ScriptParser fromResource(String name) {
+        try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
+            Tokenizer tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            Lexer lexer = new Lexer(tokenizer);
+            return new ScriptParser(environment, new SymbolTable(), lexer);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

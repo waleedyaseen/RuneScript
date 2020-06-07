@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.opcode;
 
+import lombok.var;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.codegen;
 
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -447,7 +448,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     public Instruction visit(AstVariableInitializer variableInitializer) {
         variableInitializer.getExpression().accept(this);
         var variable = variableInitializer.getVariable();
-        var local = variable.getDomain() == VariableDomain.LOCAL ? localMap.lookup(variable.getName()) : variable;
+        Object local = variable.getDomain() == VariableDomain.LOCAL ? localMap.lookup(variable.getName()) : variable;
         return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
     }
 

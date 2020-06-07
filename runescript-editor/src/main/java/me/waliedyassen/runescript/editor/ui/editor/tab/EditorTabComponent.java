@@ -8,6 +8,7 @@
 
 package me.waliedyassen.runescript.editor.ui.editor.tab;
 
+import lombok.var;
 import me.waliedyassen.runescript.editor.ui.tabbedpane.TabComponent;
 
 import javax.swing.*;

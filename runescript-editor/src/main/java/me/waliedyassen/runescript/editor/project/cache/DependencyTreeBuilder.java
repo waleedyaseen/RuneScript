@@ -9,6 +9,7 @@
 package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstCall;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;

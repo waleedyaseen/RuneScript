@@ -1,5 +1,6 @@
 package me.waliedyassen.runescript.editor.ui.editor.code.completion.impl;
 
+import lombok.var;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.FunctionCompletion;

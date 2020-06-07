@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.codegen.sw;
 
 import lombok.Getter;
+import lombok.var;
 
 import java.util.HashMap;
 import java.util.Map;

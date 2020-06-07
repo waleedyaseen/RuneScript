@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.editor.vfs;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 
 import java.nio.file.Files;

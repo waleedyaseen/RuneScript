@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.editor.ui.frame.top.menu;
 
+import lombok.var;
+
 import javax.swing.*;
 import java.awt.*;
 

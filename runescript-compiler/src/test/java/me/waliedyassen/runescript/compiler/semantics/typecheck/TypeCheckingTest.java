@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.Data;
+import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstScript;

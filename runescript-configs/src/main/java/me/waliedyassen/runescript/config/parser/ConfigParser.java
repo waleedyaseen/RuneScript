@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.parser;
 
+import lombok.var;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
@@ -49,7 +50,7 @@ public final class ConfigParser extends ParserBase<Kind> {
         while (peekKind() == LBRACKET) {
             configs.add(config());
         }
-        return configs.toArray(AstConfig[]::new);
+        return configs.toArray(new AstConfig[0]);
     }
 
     /**
@@ -90,7 +91,7 @@ public final class ConfigParser extends ParserBase<Kind> {
         while (peekKind() == IDENTIFIER) {
             properties.add(property());
         }
-        return properties.toArray(AstProperty[]::new);
+        return properties.toArray(new AstProperty[0]);
     }
 
     /**
@@ -103,7 +104,7 @@ public final class ConfigParser extends ParserBase<Kind> {
         do {
             values.add(value());
         } while (consumeIf(COMMA));
-        return values.toArray(AstValue[]::new);
+        return values.toArray(new AstValue[0]);
     }
 
     /**

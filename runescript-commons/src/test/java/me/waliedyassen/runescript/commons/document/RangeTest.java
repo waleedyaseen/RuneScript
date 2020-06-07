@@ -8,6 +8,7 @@
 
 package me.waliedyassen.runescript.commons.document;
 
+import lombok.var;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

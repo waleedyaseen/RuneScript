@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.binding;
 
+import lombok.var;
 import me.waliedyassen.runescript.config.annotation.ConfigArray;
 import me.waliedyassen.runescript.config.annotation.ConfigProps;
 import me.waliedyassen.runescript.config.var.ConfigVar;

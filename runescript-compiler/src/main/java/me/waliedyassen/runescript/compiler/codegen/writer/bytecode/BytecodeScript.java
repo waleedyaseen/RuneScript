@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

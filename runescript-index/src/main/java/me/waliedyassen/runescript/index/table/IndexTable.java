@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.index.table;
 
 import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import lombok.Setter;
+import lombok.var;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

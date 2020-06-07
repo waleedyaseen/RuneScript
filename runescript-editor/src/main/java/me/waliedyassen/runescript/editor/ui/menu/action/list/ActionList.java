@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.menu.action.list;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.editor.shortcut.Shortcut;
 import me.waliedyassen.runescript.editor.shortcut.UiAction;
 import me.waliedyassen.runescript.editor.ui.menu.action.Action;

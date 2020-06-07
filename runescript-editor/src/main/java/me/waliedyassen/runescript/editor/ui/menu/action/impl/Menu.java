@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.ui.menu.action.impl;
 
+import lombok.var;
 import me.waliedyassen.runescript.editor.ui.menu.action.Action;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 

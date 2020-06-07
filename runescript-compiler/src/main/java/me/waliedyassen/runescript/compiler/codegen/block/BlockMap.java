@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.codegen.block;
 
 import lombok.Getter;
+import lombok.var;
 
 import java.util.ArrayList;
 import java.util.List;

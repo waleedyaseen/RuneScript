@@ -8,6 +8,7 @@
 
 package me.waliedyassen.runescript.config.lexer;
 
+import lombok.var;
 import me.waliedyassen.runescript.lexer.LexicalError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;

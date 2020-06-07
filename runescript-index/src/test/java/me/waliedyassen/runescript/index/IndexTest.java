@@ -8,6 +8,7 @@
 
 package me.waliedyassen.runescript.index;
 
+import lombok.var;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

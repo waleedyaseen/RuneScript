@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.runtime.executor.impl;
 
+import lombok.var;
 import me.waliedyassen.runescript.runtime.ScriptFrame;
 import me.waliedyassen.runescript.runtime.ScriptRuntime;
 import me.waliedyassen.runescript.runtime.executor.ExecutionException;

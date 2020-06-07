@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
@@ -97,7 +98,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
             }
         }
         // Create the container object and return it.
-        return new BytecodeScript(script.getName(), numIntParameters, numStringParameters, numLongParameters, numIntLocals, numStringLocals, numLongLocals, instructions.toArray(BytecodeInstruction[]::new), switchTables);
+        return new BytecodeScript(script.getName(), numIntParameters, numStringParameters, numLongParameters, numIntLocals, numStringLocals, numLongLocals, instructions.toArray(new BytecodeInstruction[0]), switchTables);
     }
 
     /**

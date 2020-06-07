@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor.code.parser;
 
+import lombok.var;
 import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
 import me.waliedyassen.runescript.editor.ui.editor.code.parser.impl.CodeParser;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;

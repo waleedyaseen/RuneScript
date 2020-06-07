@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.var;
 import me.waliedyassen.runescript.compiler.CompileInput;
 import me.waliedyassen.runescript.compiler.CompileResult;
 import me.waliedyassen.runescript.compiler.CompilerFeedback;

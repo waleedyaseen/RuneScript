@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.ast.visitor;
 
+import lombok.var;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;

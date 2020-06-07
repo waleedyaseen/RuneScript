@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.config.binding;
 
 import lombok.Getter;
+import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.annotation.ConfigArray;
 import me.waliedyassen.runescript.config.annotation.ConfigProps;
@@ -74,7 +75,7 @@ public final class ConfigBinding<T> {
             if (field.getType().isArray() ^ array != null) {
                 throw new IllegalStateException("ConfigArray must be always used with array type fields: " + field);
             }
-            var type = field.getType().isArray() ? field.getType().getComponentType() : field.getType();
+            Class<?> type = field.getType().isArray() ? field.getType().getComponentType() : field.getType();
             if (type.isPrimitive()) {
                 if (type == byte.class) {
                     type = Byte.class;

@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.lexer.TokenizerBase;

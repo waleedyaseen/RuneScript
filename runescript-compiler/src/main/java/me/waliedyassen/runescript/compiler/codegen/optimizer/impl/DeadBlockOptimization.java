@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.optimizer.impl;
 
+import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.BlockOptimization;

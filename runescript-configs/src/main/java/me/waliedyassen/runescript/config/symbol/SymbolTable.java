@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.symbol;
 
+import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
 
 import java.util.HashMap;
