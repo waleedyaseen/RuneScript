@@ -217,7 +217,7 @@ public final class Compiler {
                 compilingScripts.removeIf(pairInList -> pairInList.getValue() == value.getScript());
             }
         }
-        var codeGenerator = new CodeGenerator(symbolTable, instructionMap, environment.getHookTriggerType());
+        var codeGenerator = new CodeGenerator(environment, symbolTable, instructionMap, environment.getHookTriggerType());
         // Compile all of the parsed and checked scripts into a bytecode format.
         var compiledScripts = new ArrayList<Pair<Object, CompiledScript>>();
         if (generate) {

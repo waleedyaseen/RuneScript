@@ -30,6 +30,7 @@ import me.waliedyassen.runescript.compiler.codegen.script.Script;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchMap;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
@@ -79,6 +80,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * The current block we are working on.
      */
     private final Stack<Context> contexts = new Stack<>();
+
+    /**
+     * The environment we are going to use to lookup triggers.
+     */
+    private final CompilerEnvironment environment;
 
     /**
      * The symbol table which has all the information for the current generation.
@@ -138,7 +144,8 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         // clean-up the junk after code generation is done.
         initialise();
         // return the generated script object.
-        return new Script(name, blocks, parameters, variables, tables);
+        var info = symbolTable.lookupScript(environment.lookupTrigger(script.getTrigger().getText()), AstExpression.extractNameText(script.getName()));
+        return new Script(name, blocks, parameters, variables, tables, info);
     }
 
     /**

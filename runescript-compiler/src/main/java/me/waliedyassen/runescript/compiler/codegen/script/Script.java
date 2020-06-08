@@ -14,6 +14,7 @@ import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.type.StackType;
 
 import java.util.*;
@@ -56,6 +57,13 @@ public final class Script {
     @Getter
     private final List<SwitchTable> switchTables;
 
+    /**
+     * The symbol information of this script.
+     */
+    @Getter
+    private final ScriptInfo scriptInfo;
+
+    // TODO: toString so we can get rid of stuff like AstExpression.extractNameText
     /**
      * Checks whether or not the specified labels are next to each other.
      *
