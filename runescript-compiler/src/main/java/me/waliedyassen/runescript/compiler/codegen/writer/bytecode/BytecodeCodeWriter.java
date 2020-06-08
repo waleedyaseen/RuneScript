@@ -20,7 +20,13 @@ import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.type.StackType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a {@link CodeWriter} implementation that writes to asm bytecode format and outputs an {@link
@@ -40,6 +46,11 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
      * The ID provider which is used to translate names into ids.
      */
     private final IdProvider idProvider;
+
+    /**
+     * Whether or not the code writer supports long primitive type.
+     */
+    private final boolean supportsLongPrimitiveType;
 
     /**
      * {@inheritDoc}
@@ -98,7 +109,10 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
             }
         }
         // Create the container object and return it.
-        return new BytecodeScript(script.getName(), numIntParameters, numStringParameters, numLongParameters, numIntLocals, numStringLocals, numLongLocals, instructions.toArray(new BytecodeInstruction[0]), switchTables);
+        return new BytecodeScript(
+          script.getName(), numIntParameters, numStringParameters, numLongParameters, numIntLocals,
+          numStringLocals, numLongLocals, instructions.toArray(new BytecodeInstruction[0]), switchTables,
+          supportsLongPrimitiveType);
     }
 
     /**

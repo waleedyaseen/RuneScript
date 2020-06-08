@@ -19,6 +19,7 @@ import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.DeadBlockOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.DeadBranchOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.NaturalFlowOptimization;
+import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
@@ -57,7 +58,7 @@ public final class Compiler {
     /**
      * The code writer of the compiler.
      */
-    private final BytecodeCodeWriter codeWriter;
+    private final CodeWriter<?> codeWriter;
 
     /**
      * The lexical table for our lexical analysis, it contains vario
@@ -99,22 +100,23 @@ public final class Compiler {
      * @param environment               the environment of the compiler.
      * @param instructionMap            the instruction map to use for this compiler.
      * @param idProvider                the id provider of the compiler.
+     * @param codeWriter the code writer to use for the compiler.
      * @param supportsLongPrimitiveType whether or not the the compiler supports long primitive types.
      */
-    private Compiler(CompilerEnvironment environment, InstructionMap instructionMap, IdProvider idProvider, boolean supportsLongPrimitiveType) {
+    private Compiler(CompilerEnvironment environment, InstructionMap instructionMap, IdProvider idProvider, CodeWriter<?> codeWriter, boolean supportsLongPrimitiveType) {
         if (!instructionMap.isReady()) {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }
         this.environment = environment;
         this.instructionMap = instructionMap;
         this.idProvider = idProvider;
+        this.codeWriter = codeWriter;
         this.supportsLongPrimitiveType = supportsLongPrimitiveType;
         lexicalTable = createLexicalTable();
         optimizer = new Optimizer(instructionMap);
         optimizer.register(new NaturalFlowOptimization());
         optimizer.register(new DeadBranchOptimization());
         optimizer.register(new DeadBlockOptimization());
-        codeWriter = new BytecodeCodeWriter(idProvider);
     }
 
     /**
@@ -208,16 +210,10 @@ public final class Compiler {
                 var script = pair.getValue();
                 var trigger = environment.lookupTrigger(script.getTrigger().getText());
                 var info = symbolTable.lookupScript(trigger, AstExpression.extractNameText(script.getName()));
-                // Run the code generator on each script.,
                 var generated = codeGenerator.visit(script);
-                // Optimize the generated script.
                 optimizer.run(generated);
-                // Write the generated script to a bytecode format.
-                var bytecode = codeWriter.write(generated);
-                try (var stream = new ByteArrayOutputStream()) {
-                    bytecode.write(stream, supportsLongPrimitiveType);
-                    compiledScripts.add(Pair.of(pair.getKey(), new CompiledScript(generated.getName(), stream.toByteArray(), info)));
-                }
+                var output = codeWriter.write(generated);
+								compiledScripts.add(Pair.of(pair.getKey(), new CompiledScript(generated.getName(), output, info)));
             }
         }
         return CompileResult.of(compiledScripts, errors);
@@ -307,6 +303,11 @@ public final class Compiler {
         private InstructionMap instructionMap;
 
         /**
+         * The code writer of the compiler.
+         */
+        private CodeWriter<?> codeWriter;
+
+        /**
          * Whether or not the compiler supports the long primitive type.
          */
         private boolean supportsLongPrimitiveType;
@@ -362,6 +363,18 @@ public final class Compiler {
         }
 
         /**
+         * Sets the code writer that we are going to use for the compiler.
+         *
+         * @param codeWriter the code writer of the compiler.
+         * @return this {@link CompilerBuilder} object instance.
+         */
+        public CompilerBuilder withCodeWriter(CodeWriter<?> codeWriter) {
+            this.codeWriter = codeWriter;
+            return this;
+        }
+
+
+        /**
          * Builds the {@link Compiler} object with the details configured in the builder.
          *
          * @return the built {@link Compiler} object.
@@ -377,7 +390,10 @@ public final class Compiler {
             if (environment == null) {
                 environment = new CompilerEnvironment();
             }
-            return new Compiler(environment, instructionMap, idProvider, supportsLongPrimitiveType);
+            if (codeWriter == null) {
+            		codeWriter = new BytecodeCodeWriter(idProvider, supportsLongPrimitiveType);
+						}
+            return new Compiler(environment, instructionMap, idProvider, codeWriter, supportsLongPrimitiveType);
         }
     }
 }

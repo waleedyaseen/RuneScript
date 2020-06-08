@@ -10,6 +10,8 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree.node;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
+import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeScript;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.file.FileTypeManager;
@@ -20,6 +22,7 @@ import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -100,7 +103,8 @@ public final class FileNode extends ExplorerNode<Path> {
             }
             for (var script : result.getScripts()) {
                 var id = project.getCache().getIndexForFile(getValue()).find(script.getValue().getName());
-                project.getPackManager().pack(getValue(), id, script.getValue().getName(), script.getValue().getData());
+                var data = ((BytecodeScript) script.getValue().getOutput()).encode();
+                project.getPackManager().pack(getValue(), id, script.getValue().getName(), data);
             }
         } catch (Throwable e) {
             e.printStackTrace();

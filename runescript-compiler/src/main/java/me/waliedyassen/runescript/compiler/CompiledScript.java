@@ -25,11 +25,13 @@ public final class CompiledScript {
     @Getter
     private final String name;
 
+    // TODO: Add typing to the output.
+
     /**
      * The compiled bytecode data of the script.
      */
     @Getter
-    private final byte[] data;
+    private final Object output;
 
     /**
      * The info of the script that was compiled.

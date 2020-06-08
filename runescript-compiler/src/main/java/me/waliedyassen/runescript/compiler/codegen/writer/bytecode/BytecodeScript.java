@@ -9,11 +9,12 @@ package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.var;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
@@ -80,14 +81,17 @@ public final class BytecodeScript {
     private final LinkedList<Hashtable<Integer, Integer>> switchTables;
 
     /**
-     * Writes the byte code data to the specified {@link OutputStream stream}.
-     *
-     * @param stream                    the stream to write the byte code data to.
-     * @param supportsLongPrimitiveType whether or not the writer supports long primitive type.
-     * @throws IOException if anything occurs while writing the data.
+     * Whether or not the script supports long primitive type.
      */
-    public void write(OutputStream stream, boolean supportsLongPrimitiveType) throws IOException {
-        try (var data = new DataOutputStream(stream)) {
+    @Getter
+    private final boolean supportsLongPrimitiveType;
+
+    /**
+     * Encodes the bytecode script to bytecode data.
+     */
+    @SneakyThrows
+    public byte[] encode() {
+        try (var bos = new ByteArrayOutputStream(); var data = new DataOutputStream(bos)) {
             // write the name of the script.
             writeString(data, name);
             for (var instruction : instructions) {
@@ -134,6 +138,7 @@ public final class BytecodeScript {
                 size += 2 + table.size() * 8;
             }
             data.writeShort(size);
+            return bos.toByteArray();
         }
     }
 
