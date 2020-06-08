@@ -60,7 +60,7 @@ class CodeGeneratorTest {
         for (var opcode : CoreOpcode.values()) {
             map.registerCore(opcode, opcode.ordinal(), opcode.isLargeOperand());
         }
-        checker = new SemanticChecker(environment, table);
+        checker = new SemanticChecker(environment, table, false);
         generator = new CodeGenerator(table, map, null);
         generator.initialise();
     }

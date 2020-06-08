@@ -48,6 +48,12 @@ public final class SemanticChecker implements ErrorReporter {
     private final SymbolTable symbolTable;
 
     /**
+     * Whether or not we allow overriding in symbols.
+     */
+    @Getter
+    private final boolean allowOverriding;
+
+    /**
      * The current key that we are going to register the errors under.
      */
     // TODO(Walied): A temporary workaround, a proper solution would be finding a way to specify the key when reporting.

@@ -29,7 +29,7 @@ public final class TypeUtil {
      *
      * @return the textual representation of the specified types.
      */
-    public static String createRepresentation(Type[] types) {
+    public static String createRepresentation(Type... types) {
         return Arrays.stream(types).map(Type::getRepresentation).collect(Collectors.joining(","));
     }
 

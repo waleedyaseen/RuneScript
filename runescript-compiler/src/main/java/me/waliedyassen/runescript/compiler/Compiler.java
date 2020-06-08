@@ -36,7 +36,6 @@ import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,7 +91,16 @@ public final class Compiler {
      */
     private final boolean supportsLongPrimitiveType;
 
+    /**
+     * Whether or not the compiler should override the symbols.
+     */
+    private final boolean overrideSymbols;
+
+
     // TODO: support supportsLongPrimitiveType in type checking.
+
+    // TODO: Add context object so we don't have to manage
+    // parameters constantly and update calls.
 
     /**
      * Constructs a new {@link Compiler} type object instance.
@@ -100,10 +108,16 @@ public final class Compiler {
      * @param environment               the environment of the compiler.
      * @param instructionMap            the instruction map to use for this compiler.
      * @param idProvider                the id provider of the compiler.
-     * @param codeWriter the code writer to use for the compiler.
+     * @param codeWriter                the code writer to use for the compiler.
      * @param supportsLongPrimitiveType whether or not the the compiler supports long primitive types.
+     * @param overrideSymbols           whether or not the compiler should override the symbols.
      */
-    private Compiler(CompilerEnvironment environment, InstructionMap instructionMap, IdProvider idProvider, CodeWriter<?> codeWriter, boolean supportsLongPrimitiveType) {
+    private Compiler(CompilerEnvironment environment,
+                     InstructionMap instructionMap,
+                     IdProvider idProvider,
+                     CodeWriter<?> codeWriter,
+                     boolean supportsLongPrimitiveType,
+                     boolean overrideSymbols) {
         if (!instructionMap.isReady()) {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }
@@ -112,6 +126,7 @@ public final class Compiler {
         this.idProvider = idProvider;
         this.codeWriter = codeWriter;
         this.supportsLongPrimitiveType = supportsLongPrimitiveType;
+        this.overrideSymbols = overrideSymbols;
         lexicalTable = createLexicalTable();
         optimizer = new Optimizer(instructionMap);
         optimizer.register(new NaturalFlowOptimization());
@@ -190,7 +205,7 @@ public final class Compiler {
         });
         var symbolTable = this.symbolTable.createSubTable();
         // Perform semantic analysis checking on the parsed AST.
-        var checker = new SemanticChecker(environment, symbolTable);
+        var checker = new SemanticChecker(environment, symbolTable, overrideSymbols);
         checker.executePre(compilingScripts);
         checker.execute(compilingScripts);
         // Check if there is any compilation errors and throw them if there is any.
@@ -213,7 +228,7 @@ public final class Compiler {
                 var generated = codeGenerator.visit(script);
                 optimizer.run(generated);
                 var output = codeWriter.write(generated);
-								compiledScripts.add(Pair.of(pair.getKey(), new CompiledScript(generated.getName(), output, info)));
+                compiledScripts.add(Pair.of(pair.getKey(), new CompiledScript(generated.getName(), output, info)));
             }
         }
         return CompileResult.of(compiledScripts, errors);
@@ -313,6 +328,11 @@ public final class Compiler {
         private boolean supportsLongPrimitiveType;
 
         /**
+         * Whether or not the compiler should override the symbols.
+         */
+        private boolean overrideSymbols;
+
+        /**
          * The {@link IdProvider} of the compiler.
          */
         private IdProvider idProvider;
@@ -363,6 +383,18 @@ public final class Compiler {
         }
 
         /**
+         * Sets whether or not the compiler that we are going to build should override the symbols in the symbol
+         * tabl.
+         *
+         * @param overrideSymbols whether or not we should override symbols.
+         * @return this {@link CompilerBuilder} object instance.
+         */
+        public CompilerBuilder withOverrideSymbols(boolean overrideSymbols) {
+            this.overrideSymbols = overrideSymbols;
+            return this;
+        }
+
+        /**
          * Sets the code writer that we are going to use for the compiler.
          *
          * @param codeWriter the code writer of the compiler.
@@ -372,7 +404,6 @@ public final class Compiler {
             this.codeWriter = codeWriter;
             return this;
         }
-
 
         /**
          * Builds the {@link Compiler} object with the details configured in the builder.
@@ -391,9 +422,9 @@ public final class Compiler {
                 environment = new CompilerEnvironment();
             }
             if (codeWriter == null) {
-            		codeWriter = new BytecodeCodeWriter(idProvider, supportsLongPrimitiveType);
-						}
-            return new Compiler(environment, instructionMap, idProvider, codeWriter, supportsLongPrimitiveType);
+                codeWriter = new BytecodeCodeWriter(idProvider, supportsLongPrimitiveType);
+            }
+            return new Compiler(environment, instructionMap, idProvider, codeWriter, supportsLongPrimitiveType, overrideSymbols);
         }
     }
 }

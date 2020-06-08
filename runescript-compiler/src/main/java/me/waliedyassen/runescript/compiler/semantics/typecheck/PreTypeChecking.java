@@ -103,8 +103,19 @@ public final class PreTypeChecking extends AstTreeVisitor {
             }
             // check if the script is already defined in the symbol table, and define it if it was not, or produce an error if it was a duplicate.
             var name = AstExpression.extractNameText(script.getName());
-            if (symbolTable.lookupScript(trigger, name) != null) {
-                reportError(new SemanticError(script.getName(), String.format("The script '%s' is already defined", name)));
+            var existing = symbolTable.lookupScript(trigger, name);
+            if (existing != null) {
+                if (checker.isAllowOverriding()) {
+                    var existingArguments = TypeUtil.flatten(existing.getArguments());
+                    if (!Arrays.equals(actual, existingArguments)) {
+                        reportError(new SemanticError(script.getName(), String.format("Mismatch overriding scripts arguments: (%s) and (%s)", TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(existingArguments))));
+                    }
+                    if (!existing.getType().equals(script.getType())) {
+                        reportError(new SemanticError(script.getName(), String.format("Mismatch overriding scripts return type: (%s) and (%s)", TypeUtil.createRepresentation(script.getType()), TypeUtil.createRepresentation(existing.getType()))));
+                    }
+                } else {
+                    reportError(new SemanticError(script.getName(), String.format("The script '%s' is already defined", name)));
+                }
             } else {
                 symbolTable.defineScript(annotations, trigger, name, script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
             }
