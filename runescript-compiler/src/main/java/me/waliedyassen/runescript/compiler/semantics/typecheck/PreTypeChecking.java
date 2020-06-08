@@ -105,6 +105,9 @@ public final class PreTypeChecking extends AstTreeVisitor {
             var name = AstExpression.extractNameText(script.getName());
             var existing = symbolTable.lookupScript(trigger, name);
             if (existing != null) {
+                if (annotations.containsKey("id")) {
+                    reportError(new SemanticError(script.getName(), "You cannot use the 'id' annotation on overriding scripts"));
+                }
                 if (checker.isAllowOverriding()) {
                     var existingArguments = TypeUtil.flatten(existing.getArguments());
                     if (!Arrays.equals(actual, existingArguments)) {
@@ -117,7 +120,11 @@ public final class PreTypeChecking extends AstTreeVisitor {
                     reportError(new SemanticError(script.getName(), String.format("The script '%s' is already defined", name)));
                 }
             } else {
-                symbolTable.defineScript(annotations, trigger, name, script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new));
+                Integer predefinedId = null;
+                if (annotations.containsKey("id")) {
+                    predefinedId = annotations.get("id").getValue();
+                }
+                symbolTable.defineScript(annotations, trigger, name, script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new), predefinedId);
             }
         }
         return super.visit(script);

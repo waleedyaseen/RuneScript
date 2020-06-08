@@ -66,20 +66,13 @@ public final class AstScript extends AstNode {
     /**
      * Construct a new {@link AstScript} type object instance.
      *
-     * @param annotations
-     *         the annotations of the script.
-     * @param range
-     *         the script source range.
-     * @param trigger
-     *         the script trigger type.
-     * @param name
-     *         the script name.
-     * @param parameters
-     *         the script parameters.
-     * @param type
-     *         the script type.
-     * @param code
-     *         the script code statement.
+     * @param annotations the annotations of the script.
+     * @param range       the script source range.
+     * @param trigger     the script trigger type.
+     * @param name        the script name.
+     * @param parameters  the script parameters.
+     * @param type        the script type.
+     * @param code        the script code statement.
      */
     public AstScript(Range range, List<AstAnnotation> annotations, AstIdentifier trigger, AstExpression name, AstParameter[] parameters, Type type, AstBlockStatement code) {
         super(range);
@@ -96,6 +89,21 @@ public final class AstScript extends AstNode {
      */
     public <E, S> S accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
+    }
+
+    /**
+     * Attempts to find the {@link AstAnnotation} with the specified {@code name}.
+     *
+     * @param name the name of the annotation we trying to find.
+     * @return the  {@link AstAnnotation} object if found othrwise {@code null}.
+     */
+    public AstAnnotation findAnnotation(String name) {
+        for (AstAnnotation annotation : annotations) {
+            if (annotation.getName().getText().equals(name)) {
+                return annotation;
+            }
+        }
+        return null;
     }
 
     /**
