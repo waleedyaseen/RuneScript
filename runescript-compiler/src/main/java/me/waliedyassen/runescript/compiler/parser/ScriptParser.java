@@ -985,7 +985,9 @@ public final class ScriptParser extends ParserBase<Kind> {
                 }
                 consume(RPAREN);
                 if (consumeIf(LBRACE)) {
-                    transmits.add(expression());
+                    do {
+                        transmits.add(expression());
+                    } while (consumeIf(COMMA));
                     consume(RBRACE);
                 }
             }
