@@ -146,11 +146,9 @@ public final class ScriptParser extends ParserBase<Kind> {
     private AstAnnotation annotation() {
         pushRange();
         consume(HASH);
-        consume(LBRACKET);
         var name = identifier();
         consume(COLON);
         var value = integerNumber();
-        consume(RBRACKET);
         return new AstAnnotation(popRange(), name, value);
     }
 
