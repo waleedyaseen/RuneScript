@@ -12,8 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.CompileInput;
 import me.waliedyassen.runescript.compiler.CompileResult;
-import me.waliedyassen.runescript.compiler.CompilerFeedback;
+import me.waliedyassen.runescript.compiler.message.CompilerMessage;
+import me.waliedyassen.runescript.compiler.message.CompilerMessenger;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.message.impl.SyntaxDoneMessage;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
@@ -70,6 +72,7 @@ public final class Cache {
      * The save task future of the cache.
      */
     @SuppressWarnings("unused")
+    @Getter
     private final ScheduledFuture<?> saveTaskFuture;
 
     /**
@@ -179,7 +182,7 @@ public final class Cache {
             modified = true;
         }
         input.addVisitor(new DependencyTreeBuilder(dependencyTree));
-        input.addFeedback(new IdAssignerFeedback());
+        input.setMessenger(new IdAssignerMessenger());
         var result = project.getCompiler().compile(input);
         for (var pair : result.getErrors()) {
             var cachedFile = (CachedFile) pair.getKey();
@@ -224,7 +227,7 @@ public final class Cache {
         clearCachedFile(cachedFile);
         var input = CompileInput.of(cachedFile, data);
         input.addVisitor(new DependencyTreeBuilder(dependencyTree));
-        input.addFeedback(new IdAssignerFeedback());
+        input.setMessenger(new IdAssignerMessenger());
         CompileResult result;
         try {
             result = project.getCompiler().compile(input);
@@ -413,21 +416,24 @@ public final class Cache {
     }
 
     /**
-     * A {@link CompilerFeedback} implementation that is responsible for assigning unique ids
+     * A {@link CompilerMessenger} implementation that is responsible for assigning unique ids
      * to the new scripts.
      *
      * @author Walied K. Yassen
      */
-    private final class IdAssignerFeedback implements CompilerFeedback {
+    private final class IdAssignerMessenger implements CompilerMessenger {
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public void onParserDone(Object key, AstScript script) {
-            var cachedFile = (CachedFile) key;
-            var index = getIndexForFile(cachedFile.getName());
-            index.findOrCreate(script.getFullName());
+        public void handleCompilerMessage(CompilerMessage message) {
+            if (message instanceof SyntaxDoneMessage) {
+                var sdm = (SyntaxDoneMessage) message;
+                var cachedFile = (CachedFile) sdm.getIdentifier();
+                var index = getIndexForFile(cachedFile.getName());
+                index.findOrCreate(sdm.getScript().getFullName());
+            }
         }
     }
 }

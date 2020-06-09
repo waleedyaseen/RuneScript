@@ -13,6 +13,7 @@ import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
@@ -26,6 +27,9 @@ import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.message.CompilerMessage;
+import me.waliedyassen.runescript.compiler.message.CompilerMessenger;
+import me.waliedyassen.runescript.compiler.message.impl.SyntaxDoneMessage;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
@@ -82,19 +86,9 @@ public final class Compiler {
     private final Optimizer optimizer;
 
     /**
-     * The id provider of the compiler.
-     */
-    private final IdProvider idProvider;
-
-    /**
-     * Whether or not the compiler supports long primitive type.
-     */
-    private final boolean supportsLongPrimitiveType;
-
-    /**
      * Whether or not the compiler should override the symbols.
      */
-    private final boolean overrideSymbols;
+    private final boolean allowOverride;
 
 
     // TODO: support supportsLongPrimitiveType in type checking.
@@ -105,28 +99,22 @@ public final class Compiler {
     /**
      * Constructs a new {@link Compiler} type object instance.
      *
-     * @param environment               the environment of the compiler.
-     * @param instructionMap            the instruction map to use for this compiler.
-     * @param idProvider                the id provider of the compiler.
-     * @param codeWriter                the code writer to use for the compiler.
-     * @param supportsLongPrimitiveType whether or not the the compiler supports long primitive types.
-     * @param overrideSymbols           whether or not the compiler should override the symbols.
+     * @param environment    the environment of the compiler.
+     * @param instructionMap the instruction map to use for this compiler.
+     * @param codeWriter     the code writer to use for the compiler.
+     * @param allowOverride  whether or not the compiler should override the symbols.
      */
     private Compiler(CompilerEnvironment environment,
                      InstructionMap instructionMap,
-                     IdProvider idProvider,
                      CodeWriter<?> codeWriter,
-                     boolean supportsLongPrimitiveType,
-                     boolean overrideSymbols) {
+                     boolean allowOverride) {
         if (!instructionMap.isReady()) {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }
         this.environment = environment;
         this.instructionMap = instructionMap;
-        this.idProvider = idProvider;
         this.codeWriter = codeWriter;
-        this.supportsLongPrimitiveType = supportsLongPrimitiveType;
-        this.overrideSymbols = overrideSymbols;
+        this.allowOverride = allowOverride;
         lexicalTable = createLexicalTable();
         optimizer = new Optimizer(instructionMap);
         optimizer.register(new NaturalFlowOptimization());
@@ -171,13 +159,13 @@ public final class Compiler {
      * and produce a {@link CompileResult} object which contains the compiled form of the object
      * and the associated errors produced during that compilation process.
      *
-     * @param input    the input object which contains the all of the source code that we want to compile.
-     * @param generate whether or not to run the code generation phase, this is useful for when we just want
-     *                 to compile for errors only and we are not interested in the output.
+     * @param input      the input object which contains the all of the source code that we want to compile.
+     * @param runCodeGen whether or not to run the code generation phase, this is useful for when we just want
+     *                   to compile for errors only and we are not interested in the output.
      * @return the {@link CompileResult} object instance.
      * @throws IOException if somehow a problem occurred while writing or reading from the temporary streams.
      */
-    public CompileResult compile(CompileInput input, boolean generate) throws IOException {
+    public CompileResult compile(CompileInput input, boolean runCodeGen) throws IOException {
         var compilingScripts = new ArrayList<Pair<Object, AstScript>>();
         var errors = new ArrayList<Pair<Object, CompilerError>>();
         for (var source : input.getSourceData()) {
@@ -193,19 +181,13 @@ public final class Compiler {
         if (compilingScripts.isEmpty()) {
             return CompileResult.of(Collections.emptyList(), errors);
         }
-        input.getVisitors().forEach(visitor -> {
-            for (var script : compilingScripts) {
-                script.getValue().accept(visitor);
-            }
-        });
-        input.getFeedbacks().forEach(feedback -> {
-            for (var script : compilingScripts) {
-                feedback.onParserDone(script.getKey(), script.getValue());
-            }
-        });
+        for (var script : compilingScripts) {
+            input.getVisitors().forEach(script.getValue()::accept);
+            input.postMessage(new SyntaxDoneMessage(script.getKey(), script.getValue()));
+        }
         var symbolTable = this.symbolTable.createSubTable();
         // Perform semantic analysis checking on the parsed AST.
-        var checker = new SemanticChecker(environment, symbolTable, overrideSymbols);
+        var checker = new SemanticChecker(environment, symbolTable, allowOverride);
         checker.executePre(compilingScripts);
         checker.execute(compilingScripts);
         // Check if there is any compilation errors and throw them if there is any.
@@ -220,7 +202,7 @@ public final class Compiler {
         var codeGenerator = new CodeGenerator(environment, symbolTable, instructionMap, environment.getHookTriggerType());
         // Compile all of the parsed and checked scripts into a bytecode format.
         var compiledScripts = new ArrayList<Pair<Object, CompiledScript>>();
-        if (generate) {
+        if (runCodeGen) {
             for (var pair : compilingScripts) {
                 var script = pair.getValue();
                 var trigger = environment.lookupTrigger(script.getTrigger().getText());
@@ -424,7 +406,7 @@ public final class Compiler {
             if (codeWriter == null) {
                 codeWriter = new BytecodeCodeWriter(idProvider, supportsLongPrimitiveType);
             }
-            return new Compiler(environment, instructionMap, idProvider, codeWriter, supportsLongPrimitiveType, overrideSymbols);
+            return new Compiler(environment, instructionMap, codeWriter, overrideSymbols);
         }
     }
 }

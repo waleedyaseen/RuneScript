@@ -8,9 +8,12 @@
 package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
+import me.waliedyassen.runescript.compiler.message.CompilerMessage;
+import me.waliedyassen.runescript.compiler.message.CompilerMessenger;
+import me.waliedyassen.runescript.compiler.message.impl.SyntaxDoneMessage;
 import me.waliedyassen.runescript.compiler.util.Pair;
 
 import java.util.ArrayList;
@@ -36,10 +39,11 @@ public final class CompileInput {
     private final List<AstVisitor<?, ?>> visitors = new ArrayList<>();
 
     /**
-     * A list of all the compiler feedbacks to call through the process.
+     * The messenger of the compiler.
      */
     @Getter
-    private final List<CompilerFeedback> feedbacks = new ArrayList<>();
+    @Setter
+    private CompilerMessenger messenger;
 
     /**
      * Adds a new source code to compile to the input object.
@@ -62,12 +66,16 @@ public final class CompileInput {
     }
 
     /**
-     * Adds the specified {@link CompilerFeedback} to the feedbacks list.
+     * Posts the specified {@link CompilerMessage message} to the {@link CompilerMessenger messenger}. If the
+     * messenger if not present, nothing will happen.
      *
-     * @param feedback the feedback object to add to the list.
+     * @param message the message that we want to post.
      */
-    public void addFeedback(CompilerFeedback feedback) {
-        feedbacks.add(feedback);
+    public void postMessage(CompilerMessage message) {
+        if (messenger == null) {
+            return;
+        }
+        messenger.handleCompilerMessage(message);
     }
 
     /**
