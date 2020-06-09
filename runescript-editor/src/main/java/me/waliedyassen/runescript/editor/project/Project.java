@@ -693,7 +693,7 @@ public final class Project {
          * {@inheritDoc}
          */
         @Override
-        public int findScript(String name) throws IllegalArgumentException {
+        public int find(String name) throws IllegalArgumentException {
             var id = index.get("clientscript").find(name);
             if (id == null) {
                 throw new IllegalArgumentException("Failed to find an id for script with name: " + name);

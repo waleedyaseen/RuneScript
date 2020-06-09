@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.symbol.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.symbol.Symbol;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
 /**
@@ -17,7 +18,7 @@ import me.waliedyassen.runescript.type.PrimitiveType;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class ArrayInfo {
+public final class ArrayInfo extends Symbol {
 
     /**
      * The index of the array.

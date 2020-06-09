@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.compiler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.compiler.util.Pair;
 
 import java.util.List;

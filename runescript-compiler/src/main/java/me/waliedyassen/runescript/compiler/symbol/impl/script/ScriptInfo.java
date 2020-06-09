@@ -10,11 +10,9 @@ package me.waliedyassen.runescript.compiler.symbol.impl.script;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import me.waliedyassen.runescript.compiler.CompiledScript;
-import me.waliedyassen.runescript.compiler.util.Pair;
-import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.compiler.symbol.Symbol;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
+import me.waliedyassen.runescript.type.Type;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -26,9 +24,8 @@ import java.util.Objects;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-@EqualsAndHashCode
-@ToString
-public final class ScriptInfo {
+@EqualsAndHashCode(callSuper = true)
+public final class ScriptInfo extends Symbol {
 
     /**
      * The list of annotation of the script.

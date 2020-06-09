@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.symbol.impl;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
@@ -18,6 +19,7 @@ import me.waliedyassen.runescript.type.Type;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public final class ConstantInfo extends Symbol {
 
     /**

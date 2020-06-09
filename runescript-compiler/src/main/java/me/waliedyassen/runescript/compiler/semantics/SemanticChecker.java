@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.semantics;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.ast.AstNode;
+import me.waliedyassen.runescript.compiler.ast.AstNodeBase;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
@@ -73,7 +73,7 @@ public final class SemanticChecker implements ErrorReporter {
     }
 
     /**
-     * Executes the semantic checking for the specified {@link AstNode node}.
+     * Executes the semantic checking for the specified {@link AstNodeBase node}.
      *
      * @param scripts the scripts to perform the semantic checking on.
      */

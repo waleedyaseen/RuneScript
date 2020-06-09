@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.ast.AstNode;
+import me.waliedyassen.runescript.compiler.ast.AstNodeBase;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -229,7 +229,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * @param info      the information of the script we are calling.
      * @param arguments the arguments that are used in the call.
      */
-    private void checkCallApplicable(AstNode call, ScriptInfo info, AstExpression[] arguments) {
+    private void checkCallApplicable(AstNodeBase call, ScriptInfo info, AstExpression[] arguments) {
         var types = new Type[arguments.length];
         for (int index = 0; index < arguments.length; index++) {
             types[index] = arguments[index].accept(this);
@@ -533,7 +533,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * @param operator the operator to check.
      * @return the output value type of the operator.
      */
-    private Type checkOperator(AstNode node, Type left, Type right, Operator operator) {
+    private Type checkOperator(AstNodeBase node, Type left, Type right, Operator operator) {
         var applicable = false;
         if (operator.isEquality()) {
             if (left == PrimitiveType.BOOLEAN || left == PrimitiveType.INT || left == PrimitiveType.LONG) {
@@ -566,7 +566,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * @param actual   the actual type to match.
      * @return <code>true</code> if the type matches the expected otherwise <code>false</code>.
      */
-    private boolean checkType(AstNode node, Type expected, Type actual) {
+    private boolean checkType(AstNodeBase node, Type expected, Type actual) {
         if (!expected.equals(actual)) {
             checker.reportError(new SemanticError(node, "Type mismatch: cannot convert from " + actual.getRepresentation() + " to " + expected.getRepresentation()));
             return false;

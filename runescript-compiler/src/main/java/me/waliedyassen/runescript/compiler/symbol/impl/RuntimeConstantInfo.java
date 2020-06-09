@@ -1,7 +1,7 @@
 package me.waliedyassen.runescript.compiler.symbol.impl;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
@@ -10,7 +10,7 @@ import me.waliedyassen.runescript.type.PrimitiveType;
  *
  * @author Walied K. Yassen
  */
-@Data
+@RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public final class RuntimeConstantInfo extends Symbol {
 

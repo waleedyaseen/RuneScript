@@ -9,11 +9,9 @@ package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
 import lombok.var;
-import me.waliedyassen.runescript.CompilerError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
-import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
@@ -25,17 +23,15 @@ import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeW
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
+import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.message.CompilerMessage;
-import me.waliedyassen.runescript.compiler.message.CompilerMessenger;
 import me.waliedyassen.runescript.compiler.message.impl.SyntaxDoneMessage;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.Pair;
-import me.waliedyassen.runescript.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 
@@ -50,7 +46,7 @@ import java.util.List;
  *
  * @author Walied K. Yassen
  */
-public final class Compiler {
+public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
 
     /**
      * The symbol table of the compiler.
@@ -61,6 +57,7 @@ public final class Compiler {
     /**
      * The code writer of the compiler.
      */
+    @Getter
     private final CodeWriter<?> codeWriter;
 
     /**
@@ -78,16 +75,19 @@ public final class Compiler {
     /**
      * The instruction map to use for the
      */
+    @Getter
     private final InstructionMap instructionMap;
 
     /**
      * The generated scripts optimizer.
      */
+    @Getter
     private final Optimizer optimizer;
 
     /**
      * Whether or not the compiler should override the symbols.
      */
+    @Getter
     private final boolean allowOverride;
 
 
@@ -142,30 +142,10 @@ public final class Compiler {
     }
 
     /**
-     * Attempts to compile all of the source code specified in the {@link CompileInput input} object
-     * and produce a {@link CompileResult} object which contains the compiled form of the object
-     * and the associated errors produced during that compilation process.
-     *
-     * @param input the input object which contains the all of the source code that we want to compile.
-     * @return the {@link CompileResult} object instance.
-     * @throws IOException if somehow a problem occurred while writing or reading from the temporary streams.
+     * {@inheritDoc}
      */
+    @Override
     public CompileResult compile(CompileInput input) throws IOException {
-        return compile(input, true);
-    }
-
-    /**
-     * Attempts to compile all of the source code specified in the {@link CompileInput input} object
-     * and produce a {@link CompileResult} object which contains the compiled form of the object
-     * and the associated errors produced during that compilation process.
-     *
-     * @param input      the input object which contains the all of the source code that we want to compile.
-     * @param runCodeGen whether or not to run the code generation phase, this is useful for when we just want
-     *                   to compile for errors only and we are not interested in the output.
-     * @return the {@link CompileResult} object instance.
-     * @throws IOException if somehow a problem occurred while writing or reading from the temporary streams.
-     */
-    public CompileResult compile(CompileInput input, boolean runCodeGen) throws IOException {
         var compilingScripts = new ArrayList<Pair<Object, AstScript>>();
         var errors = new ArrayList<Pair<Object, CompilerError>>();
         for (var source : input.getSourceData()) {
@@ -199,10 +179,10 @@ public final class Compiler {
                 compilingScripts.removeIf(pairInList -> pairInList.getValue() == value.getScript());
             }
         }
-        var codeGenerator = new CodeGenerator(environment, symbolTable, instructionMap, environment.getHookTriggerType());
         // Compile all of the parsed and checked scripts into a bytecode format.
         var compiledScripts = new ArrayList<Pair<Object, CompiledScript>>();
-        if (runCodeGen) {
+        if (input.isRunCodeGen()) {
+            var codeGenerator = new CodeGenerator(environment, symbolTable, instructionMap, environment.getHookTriggerType());
             for (var pair : compilingScripts) {
                 var script = pair.getValue();
                 var trigger = environment.lookupTrigger(script.getTrigger().getText());

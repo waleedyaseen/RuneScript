@@ -14,7 +14,6 @@ import me.waliedyassen.runescript.compiler.CompileInput;
 import me.waliedyassen.runescript.compiler.CompileResult;
 import me.waliedyassen.runescript.compiler.message.CompilerMessage;
 import me.waliedyassen.runescript.compiler.message.CompilerMessenger;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.message.impl.SyntaxDoneMessage;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
@@ -177,12 +176,12 @@ public final class Cache {
             }
             undeclareSymbols(cachedFile);
             clearCachedFile(cachedFile);
-            input.addSourceCode(cachedFile, diskData);
+            input.withSourceCode(cachedFile, diskData);
             cachedFile.setCrc(diskCrc);
             modified = true;
         }
-        input.addVisitor(new DependencyTreeBuilder(dependencyTree));
-        input.setMessenger(new IdAssignerMessenger());
+        input.withAstVisitor(new DependencyTreeBuilder(dependencyTree));
+        input.withMessenger(new IdAssignerMessenger());
         var result = project.getCompiler().compile(input);
         for (var pair : result.getErrors()) {
             var cachedFile = (CachedFile) pair.getKey();
@@ -226,8 +225,8 @@ public final class Cache {
         var changedDecls = cachedFile.getScripts().stream().collect(Collectors.toMap(ScriptInfo::getFullName, Function.identity()));
         clearCachedFile(cachedFile);
         var input = CompileInput.of(cachedFile, data);
-        input.addVisitor(new DependencyTreeBuilder(dependencyTree));
-        input.setMessenger(new IdAssignerMessenger());
+        input.withAstVisitor(new DependencyTreeBuilder(dependencyTree));
+        input.withMessenger(new IdAssignerMessenger());
         CompileResult result;
         try {
             result = project.getCompiler().compile(input);
@@ -283,12 +282,12 @@ public final class Cache {
      * Attempts to recompile the file at the specified {@link Path} and has the specified {@code data}. This is same
      * as {@link #recompile(Path, byte[])} except that this does not save or alter the state of the cache.
      *
-     * @param path         the path which leads to the file that we want to recompile.
-     * @param data         the source code data of the file that we want to recompile.
-     * @param generateCode whether or not to generate the bytecode of the compiled scripts.
+     * @param path       the path which leads to the file that we want to recompile.
+     * @param data       the source code data of the file that we want to recompile.
+     * @param runCodeGen whether or not to generate the bytecode of the compiled scripts.
      * @return the result of the re-compilation process.
      */
-    public CompileResult recompileNonPersistent(Path path, byte[] data, boolean generateCode) {
+    public CompileResult recompileNonPersistent(Path path, byte[] data, boolean runCodeGen) {
         var key = PathEx.normaliseToString(project.getBuildPath().getSourceDirectory(), path);
         var cachedFile = filesByPath.get(key);
         if (cachedFile != null) {
@@ -297,7 +296,7 @@ public final class Cache {
             }
         }
         try {
-            return project.getCompiler().compile(CompileInput.of(cachedFile, data), generateCode);
+            return project.getCompiler().compile(CompileInput.of(cachedFile, data).withRunCodeGen(runCodeGen));
         } catch (IOException e) {
             log.error("An I/O error occurred while compiling a script non persistently", e);
             return null;

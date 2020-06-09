@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.symbol;
 
 /**
- * Represents the base class for any symbol in our {@link SymbolTable}.
+ * Represents the base class for any symbol registered in the symbol table.
  *
  * @author Walied K. Yassen
  */

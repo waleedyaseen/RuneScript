@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.ast.AstNode;
+import me.waliedyassen.runescript.compiler.ast.AstNodeBase;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.type.Type;
 
@@ -18,7 +18,7 @@ import me.waliedyassen.runescript.type.Type;
  *
  * @author Walied K. Yassen
  */
-public abstract class AstExpression extends AstNode {
+public abstract class AstExpression extends AstNodeBase {
 
     /**
      * The type of the expression.

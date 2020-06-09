@@ -11,7 +11,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

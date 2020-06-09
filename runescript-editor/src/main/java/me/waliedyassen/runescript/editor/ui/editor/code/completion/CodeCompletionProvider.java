@@ -7,7 +7,7 @@ import me.waliedyassen.runescript.editor.ui.editor.code.completion.cache.AutoCom
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.CodeCompletion;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.CommandCompletion;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.KeywordCompletion;
-import me.waliedyassen.runescript.lexer.table.LexicalTable;
+import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 

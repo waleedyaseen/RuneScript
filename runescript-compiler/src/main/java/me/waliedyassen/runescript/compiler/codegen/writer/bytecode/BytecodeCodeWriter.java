@@ -90,7 +90,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
                     switchTables.add(jumps);
                 } else if (operand instanceof ScriptInfo) {
                     var info = (ScriptInfo) operand;
-                    operand = info.getPredefinedId() != null ? info.getPredefinedId() : idProvider.findScript(info.getFullName());
+                    operand = info.getPredefinedId() != null ? info.getPredefinedId() : idProvider.find(info.getFullName());
                 } else if (operand instanceof Local) {
                     operand = localTable.get(operand);
                 } else if (operand instanceof Integer) {

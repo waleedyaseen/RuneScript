@@ -1,6 +1,8 @@
 package me.waliedyassen.runescript.compiler.symbol.impl;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
 
 /**
@@ -8,7 +10,8 @@ import me.waliedyassen.runescript.compiler.symbol.Symbol;
  *
  * @author Walied K. Yassen
  */
-@Data
+@RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public final class GraphicInfo extends Symbol {
 
     /**

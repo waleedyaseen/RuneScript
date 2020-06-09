@@ -25,7 +25,7 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 @EqualsAndHashCode(callSuper = true)
-public final class AstScript extends AstNode {
+public final class AstScript extends AstNodeBase {
 
     /**
      * The annotations of the script.
