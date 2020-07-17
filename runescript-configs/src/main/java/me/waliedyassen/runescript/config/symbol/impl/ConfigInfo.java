@@ -5,9 +5,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.config.symbol;
+package me.waliedyassen.runescript.config.symbol.impl;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import me.waliedyassen.runescript.compiler.symbol.Symbol;
 import me.waliedyassen.runescript.config.ConfigGroup;
 
 /**
@@ -16,7 +18,8 @@ import me.waliedyassen.runescript.config.ConfigGroup;
  * @author Walied K. Yassen
  */
 @Data
-public final class ConfigInfo {
+@EqualsAndHashCode(callSuper = true)
+public final class ConfigInfo extends Symbol {
 
     /**
      * The name of the configuration.

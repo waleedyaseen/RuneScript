@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.config.semantics;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.CompilerError;
+import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.typecheck.PreTypeChecking;
@@ -43,7 +43,7 @@ public final class SemanticChecker {
     /**
      * The configuration binding we are checking for.
      */
-    private final ConfigBinding<?> binding;
+    private final ConfigBinding binding;
 
     /**
      * Executes the pre semantic checking for the specified {@link AstConfig configs}.
@@ -54,7 +54,7 @@ public final class SemanticChecker {
     public void executePre(AstConfig... configs) {
         var checker = new PreTypeChecking(this, symbolTable, binding);
         for (var config : configs) {
-            config.visit(checker);
+            config.accept(checker);
         }
     }
 
@@ -67,7 +67,7 @@ public final class SemanticChecker {
     public void execute(AstConfig... configs) {
         var checker = new TypeChecking(this, symbolTable, binding);
         for (var config : configs) {
-            config.visit(checker);
+            config.accept(checker);
         }
     }
 

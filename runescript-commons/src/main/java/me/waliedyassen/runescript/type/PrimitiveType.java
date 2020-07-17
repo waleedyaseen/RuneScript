@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.type.serializer.TypeSerializer;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -25,138 +26,138 @@ public enum PrimitiveType implements Type {
     /**
      * The undefined primitive type.
      */
-    UNDEFINED('\ufff0', "undefined", null, null),
+    UNDEFINED('\ufff0', "undefined", null, null, null),
 
     /**
      * The hook primitive type.
      */
-    HOOK('\ufff1', "hook", null, null),
+    HOOK('\ufff1', "hook", null, null, null),
 
     /**
      * The void primitive type.
      */
-    VOID('\ufff2', "void", null, null),
+    VOID('\ufff2', "void", null, null, null),
 
     /**
      * The integer primitive type.
      */
-    INT('i', "int", StackType.INT, 0),
+    INT('i', "int", StackType.INT, 0, TypeSerializer.INT),
 
     /**
      * The string primitive type.
      */
-    STRING('s', "string", StackType.STRING, ""),
+    STRING('s', "string", StackType.STRING, "", TypeSerializer.STRING),
 
     /**
      * The seq primitive type.
      */
-    SEQ('A', "seq", StackType.INT, -1),
+    SEQ('A', "seq", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The stat primitive type.
      */
-    STAT('S', "stat", StackType.INT, -1),
+    STAT('S', "stat", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The synth primitive type.
      */
-    SYNTH('P', "synth", StackType.INT, -1),
+    SYNTH('P', "synth", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The coordgrid primitive type.
      */
-    COORDGRID('c', "coordgrid", StackType.INT, -1),
+    COORDGRID('c', "coordgrid", StackType.INT, -1, TypeSerializer.INT),
 
     /**
      * The char primitive type.
      */
-    CHAR('z', "char", StackType.INT, -1),
+    CHAR('z', "char", StackType.INT, -1, TypeSerializer.BYTE),
 
     /**
      * The fontmetrics primitive type.
      */
-    FONTMETRICS('f', "fontmetrics", StackType.INT, -1),
+    FONTMETRICS('f', "fontmetrics", StackType.INT, -1, TypeSerializer.INT),
 
     /**
      * The maparea primitive type.
      */
-    MAPAREA('`', "maparea", StackType.INT, -1),
+    MAPAREA('`', "maparea", StackType.INT, -1, TypeSerializer.INT),
 
     /**
      * The enum primitive type.
      */
-    ENUM('g', "enum", StackType.INT, -1),
+    ENUM('g', "enum", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The npc primitive type.
      */
-    NPC('n', "npc", StackType.INT, -1),
+    NPC('n', "npc", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The model primitive type.
      */
-    MODEL('m', "model", StackType.INT, -1),
+    MODEL('m', "model", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The interface primitive type.
      */
-    INTERFACE('a', "interface", StackType.INT, -1),
+    INTERFACE('a', "interface", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The component primitive type.
      */
-    COMPONENT('I', "component", StackType.INT, -1),
+    COMPONENT('I', "component", StackType.INT, -1, TypeSerializer.INT),
 
     /**
      * The long primitive type.
      */
-    LONG('\u00cf', "long", StackType.LONG, 0L),
+    LONG('\u00cf', "long", StackType.LONG, 0L, TypeSerializer.LONG),
 
     /**
      * The boolean primitive type.
      */
-    BOOLEAN('1', "boolean", StackType.INT, false),
+    BOOLEAN('1', "boolean", StackType.INT, false, TypeSerializer.BYTE),
 
     /**
      * The category primitive type.
      */
-    CATEGORY('y', "category", StackType.INT, -1),
+    CATEGORY('y', "category", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The object primitive type.
      */
-    OBJ('o', "obj", StackType.INT, -1),
+    OBJ('o', "obj", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The inv primitive type.
      */
-    INV('v', "inv", StackType.INT, -1),
+    INV('v', "inv", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The mapelement primitive type.
      */
-    MAPELEMENT('µ', "mapelement", StackType.INT, -1),
+    MAPELEMENT('µ', "mapelement", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The graphic primitive type.
      */
-    GRAPHIC('d', "graphic", StackType.INT, -1),
+    GRAPHIC('d', "graphic", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The var primitive type.
      */
     // TODO: Verify the char code is correct
-    VAR('2', "var", StackType.INT, -1),
+    VAR('2', "var", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The struct primitive type.
      */
-    STRUCT('J', "struct", StackType.INT, -1),
+    STRUCT('J', "struct", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The loc primitive type.
      */
-    LOC('l', "loc", StackType.INT, -1);
+    LOC('l', "loc", StackType.INT, -1, TypeSerializer.SHORT);
 
 
     /**
@@ -183,10 +184,17 @@ public enum PrimitiveType implements Type {
     private final StackType stackType;
 
     /**
-     * The default vlaue of this type.
+     * The default value of this type.
      */
     @Getter
     private final Object defaultValue;
+
+    /**
+     * The serializer the values of this type will use.
+     */
+    @Getter
+    @SuppressWarnings("rawtypes")
+    private final TypeSerializer serializer;
 
     /**
      * Checks whether er or not the primitive type is a referencable type.

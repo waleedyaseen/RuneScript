@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.config.ast;
 
 import lombok.Getter;
+import lombok.var;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 
@@ -33,24 +34,36 @@ public final class AstConfig extends AstNode {
     /**
      * Constructs a new {@link AstConfig} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param name
-     *         the configuration name.
-     * @param properties
-     *         the configuration properties.
+     * @param range      the node source code range.
+     * @param name       the configuration name.
+     * @param properties the configuration properties.
      */
     public AstConfig(Range range, AstIdentifier name, AstProperty[] properties) {
         super(range);
-        this.name = name;
-        this.properties = properties;
+        this.name = addChild(name);
+        this.properties = addChild(properties);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <R> R visit(AstVisitor<R> visitor) {
+    public <R> R accept(AstVisitor<R> visitor) {
         return visitor.visit(this);
+    }
+
+    /**
+     * Attempts to find the {@link AstProperty} object with the specified {@code name} in this config.
+     *
+     * @param name the name of the property that we want to find.
+     * @return the {@link AstProperty} object if found otherwise {@code null}.
+     */
+    public AstProperty findProperty(String name) {
+        for (var property : properties) {
+            if (property.getKey().getText().equals(name)) {
+                return property;
+            }
+        }
+        return null;
     }
 }

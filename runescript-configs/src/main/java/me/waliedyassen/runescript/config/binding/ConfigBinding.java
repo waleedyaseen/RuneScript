@@ -8,10 +8,13 @@
 package me.waliedyassen.runescript.config.binding;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.annotation.ConfigArray;
 import me.waliedyassen.runescript.config.annotation.ConfigProps;
+import me.waliedyassen.runescript.config.type.ConfigVarType;
+import me.waliedyassen.runescript.config.type.TypeRegistry;
 import me.waliedyassen.runescript.config.var.ConfigVar;
 import me.waliedyassen.runescript.config.var.ConfigVarArray;
 
@@ -24,19 +27,14 @@ import java.util.Map;
  *
  * @author Walied K. Yassen
  */
-public final class ConfigBinding<T> {
+@RequiredArgsConstructor
+public final class ConfigBinding {
 
     /**
-     * The variables of the config
+     * A map of all the variables that are in this binding.
      */
     @Getter
     private final Map<String, ConfigVar> variables = new HashMap<>();
-
-    /**
-     * The type which this binding is for.
-     */
-    @Getter
-    private final Class<T> type;
 
     /**
      * The configuration group this binding is for.
@@ -45,25 +43,16 @@ public final class ConfigBinding<T> {
     private final ConfigGroup group;
 
     /**
-     * Constructs a new {@link ConfigBinding} type object instance.
+     * Tries to find all of the bindings that are declared inside the specified {@link Class class type}
+     * through annotations on fields.
      *
-     * @param type
-     *         the type of the class to populate the bindings from.
-     * @param group
-     *         the configuration group this binding is for.
+     * @param typeRegistry
+     *         the type registry that we will use for translating types.
+     * @param classType
+     *         the class type to populate the binding from it's field annotations.
      */
-    public ConfigBinding(Class<T> type, ConfigGroup group) {
-        this.type = type;
-        this.group = group;
-        populateVars();
-    }
-
-    /**
-     * Populates the binding variables.
-     */
-    private void populateVars() {
-        for (var field : type.getDeclaredFields()) {
-            // Skip the field if it is static
+    public void populateFromAnnotations(TypeRegistry typeRegistry, Class<?> classType) {
+        for (var field : classType.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
@@ -75,31 +64,93 @@ public final class ConfigBinding<T> {
             if (field.getType().isArray() ^ array != null) {
                 throw new IllegalStateException("ConfigArray must be always used with array type fields: " + field);
             }
-            Class<?> type = field.getType().isArray() ? field.getType().getComponentType() : field.getType();
-            if (type.isPrimitive()) {
-                if (type == byte.class) {
-                    type = Byte.class;
-                } else if (type == short.class) {
-                    type = Short.class;
-                } else if (type == int.class) {
-                    type = Integer.class;
-                } else if (type == boolean.class) {
-                    type = Boolean.class;
+            Class<?> nativeType = field.getType().isArray() ? field.getType().getComponentType() : field.getType();
+            if (nativeType.isPrimitive()) {
+                if (nativeType == byte.class) {
+                    nativeType = Byte.class;
+                } else if (nativeType == short.class) {
+                    nativeType = Short.class;
+                } else if (nativeType == int.class) {
+                    nativeType = Integer.class;
+                } else if (nativeType == long.class) {
+                    nativeType = Long.class;
+                } else if (nativeType == boolean.class) {
+                    nativeType = Boolean.class;
+                } else if (nativeType == char.class) {
+                    nativeType = Character.class;
                 } else {
-                    throw new IllegalStateException("The specified primitive configuration type is not allowed: " + type.getSimpleName());
+                    throw new IllegalStateException("The specified primitive configuration type is not allowed: " + nativeType.getSimpleName());
                 }
             }
-            if (!type.equals(props.type().getClassType())) {
-                throw new IllegalStateException("The configuration type is not compatible with the field type: " + type.getSimpleName() + " and " + props.type().getClassType().getSimpleName());
+            var varType = typeRegistry.lookup(nativeType);
+            if (varType == null) {
+                throw new IllegalStateException("Failed to find a matching type for native type: " + nativeType);
             }
             if (array != null) {
-                for (var index = 1; index <= array.size(); index++) {
-                    var name = String.format(array.format(), props.name(), index);
-                    variables.put(name, new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), new ConfigVarArray(index - 1, array.size())));
-                }
+                addVariableArray(props.name(), props.opcode(), props.required(), varType, array.format(), array.size());
             } else {
-                variables.put(props.name(), new ConfigVar(field, props.name(), props.opcode(), props.required(), props.type(), null));
+                addVariable(props.name(), props.opcode(), props.required(), varType);
             }
+        }
+    }
+
+    /**
+     * Adds a new variable to the configuration binding.
+     *
+     * @param name
+     *         the name of the variable that we want to add.
+     * @param opcode
+     *         the opcode of the variable that we want to add.
+     * @param required
+     *         whether or not the variable that we want to add is required.
+     * @param type
+     *         the type of the variable that we want to add.
+     */
+    public void addVariable(String name, int opcode, boolean required, ConfigVarType type) {
+        addVariable(name, opcode, required, type, null);
+    }
+
+    /**
+     * Adds a new variable to the configuration binding.
+     *
+     * @param name
+     *         the name of the variable that we want to add.
+     * @param opcode
+     *         the opcode of the variable that we want to add.
+     * @param required
+     *         whether or not the variable that we want to add is required.
+     * @param type
+     *         the type of the variable that we want to add.
+     * @param array
+     *         the array properties of the variable.
+     */
+    private void addVariable(String name, int opcode, boolean required, ConfigVarType type, ConfigVarArray array) {
+        if (variables.containsKey(name)) {
+            throw new IllegalArgumentException("Another variable with the same name is already defined in the binding");
+        }
+        variables.put(name, new ConfigVar(name, opcode, required, type, array));
+    }
+
+    /**
+     * Adds a new array variable to the configuration binding.
+     *
+     * @param name
+     *         the name of the variable that we want to add.
+     * @param opcode
+     *         the opcode of the variable that we want to add.
+     * @param required
+     *         whether or not the variable that we want to add is required.
+     * @param type
+     *         the type of the variable that we want to add.
+     * @param arrayFormat
+     *         the format of the array component names.
+     * @param arraySize
+     *         the size of the array (the amount of components).
+     */
+    public void addVariableArray(String name, int opcode, boolean required, ConfigVarType type, String arrayFormat, int arraySize) {
+        for (var index = 1; index <= arraySize; index++) {
+            var componentName = String.format(arrayFormat, name, index);
+            addVariable(componentName, opcode, required, type, new ConfigVarArray(index - 1, arraySize));
         }
     }
 }

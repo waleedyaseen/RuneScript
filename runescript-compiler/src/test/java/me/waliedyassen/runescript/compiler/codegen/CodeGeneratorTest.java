@@ -23,7 +23,7 @@ import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
-import me.waliedyassen.runescript.compiler.util.Pair;
+import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.type.Type;

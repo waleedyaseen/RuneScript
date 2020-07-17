@@ -41,7 +41,7 @@ public final class AstValueString extends AstValue {
      * {@inheritDoc}
      */
     @Override
-    public <R> R visit(AstVisitor<R> visitor) {
+    public <R> R accept(AstVisitor<R> visitor) {
         return visitor.visit(this);
     }
 }

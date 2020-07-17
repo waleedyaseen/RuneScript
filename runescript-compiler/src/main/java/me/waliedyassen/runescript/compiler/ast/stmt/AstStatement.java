@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.ast.stmt;
 
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.ast.AstNodeBase;
+import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
@@ -21,13 +21,12 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
  *
  * @author Walied K. Yassen
  */
-public abstract class AstStatement extends AstNodeBase {
+public abstract class AstStatement extends AstNode {
 
     /**
      * Construct a new {@link AstStatement} type object instance.
      *
-     * @param range
-     *         the node source code range.
+     * @param range the node source code range.
      */
     public AstStatement(Range range) {
         super(range);

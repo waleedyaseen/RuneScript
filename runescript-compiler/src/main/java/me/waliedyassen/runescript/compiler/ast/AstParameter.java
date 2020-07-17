@@ -18,7 +18,7 @@ import me.waliedyassen.runescript.type.Type;
  *
  * @author Walied K. Yassen
  */
-public final class AstParameter extends AstNodeBase {
+public final class AstParameter extends AstNode {
 
     /**
      * The type of the parameter.

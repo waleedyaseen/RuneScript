@@ -32,5 +32,5 @@ public abstract class AstValue extends AstNode {
      * {@inheritDoc}
      */
     @Override
-    public abstract <R> R visit(AstVisitor<R> visitor);
+    public abstract <R> R accept(AstVisitor<R> visitor);
 }

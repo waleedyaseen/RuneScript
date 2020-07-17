@@ -7,8 +7,6 @@
  */
 package me.waliedyassen.runescript.config.annotation;
 
-import me.waliedyassen.runescript.config.var.ConfigVarType;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -44,11 +42,4 @@ public @interface ConfigProps {
      * @return <code>true</code> if it is otherwise <code>false</code>.
      */
     boolean required() default false;
-
-    /**
-     * The configuration variable type.
-     *
-     * @return the configuration variable type.
-     */
-    ConfigVarType type();
 }

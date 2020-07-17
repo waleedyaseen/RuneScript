@@ -8,9 +8,9 @@
 package me.waliedyassen.runescript.config.lexer;
 
 import lombok.var;
+import me.waliedyassen.runescript.compiler.lexer.LexerBase;
+import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
-import me.waliedyassen.runescript.lexer.LexerBase;
-import me.waliedyassen.runescript.lexer.token.Token;
 
 /**
  * Represents the configuration parser {@link LexerBase} implementation.

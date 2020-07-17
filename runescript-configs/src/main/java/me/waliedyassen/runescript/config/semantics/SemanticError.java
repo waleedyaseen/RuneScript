@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.config.semantics;
 
-import me.waliedyassen.runescript.CompilerError;
+import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.config.ast.AstNode;
 
 /**

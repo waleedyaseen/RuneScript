@@ -10,6 +10,8 @@ package me.waliedyassen.runescript.config.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.config.ast.AstConfig;
+import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
 import me.waliedyassen.runescript.config.ast.value.AstValueLong;
@@ -42,7 +44,26 @@ public final class TypeChecking extends AstTreeVisitor {
     /**
      * The configuration group we are checking for.
      */
-    private final ConfigBinding<?> binding;
+    private final ConfigBinding binding;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(AstConfig config) {
+        for (var property : config.getProperties()) {
+            property.accept(this);
+        }
+        for (var entry : binding.getVariables().values()) {
+            if (!entry.isRequired()) {
+                continue;
+            }
+            if (config.findProperty(entry.getName()) == null) {
+                checker.reportError(new SemanticError(config.getName(), String.format("The '%s' config requires property '%s'", binding.getGroup().getType().getRepresentation(), entry.getName())));
+            }
+        }
+        return DEFAULT;
+    }
 
     /**
      * {@inheritDoc}
@@ -54,14 +75,14 @@ public final class TypeChecking extends AstTreeVisitor {
             checker.reportError(new SemanticError(property.getKey(), "Unknown property: " + property.getKey().getText()));
             return null;
         }
-        var types = variable.getType().getPrimitives();
+        var types = variable.getType().getComponents();
         var values = property.getValues();
         if (types.length != values.length) {
             checker.reportError(new SemanticError(property, "Argument mismatch: expected " + types.length + " argument(s) but got " + values.length + " argument(s)"));
             return null;
         }
         for (var index = 0; index < values.length; index++) {
-            var type = (PrimitiveType) values[index].visit(this);
+            var type = (PrimitiveType) values[index].accept(this);
             if (type != types[index]) {
                 checker.reportError(new SemanticError(property.getValues()[index], "Type mismatch: cannot convert from " + type.getRepresentation() + " to " + types[index].getRepresentation()));
             }
@@ -91,5 +112,11 @@ public final class TypeChecking extends AstTreeVisitor {
     @Override
     public PrimitiveType visit(AstValueString value) {
         return PrimitiveType.STRING;
+    }
+
+    @Override
+    public Object visit(AstIdentifier identifier) {
+        checker.reportError(new SemanticError(identifier, "Not supported yet!"));
+        return DEFAULT;
     }
 }

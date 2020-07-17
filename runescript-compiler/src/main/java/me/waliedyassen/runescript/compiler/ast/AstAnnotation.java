@@ -19,7 +19,7 @@ import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
  *
  * @author Walied K. Yassen
  */
-public final class AstAnnotation extends AstNodeBase {
+public final class AstAnnotation extends AstNode {
 
     /**
      * The name of the annotation.

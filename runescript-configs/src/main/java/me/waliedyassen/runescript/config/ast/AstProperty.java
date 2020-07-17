@@ -43,15 +43,15 @@ public final class AstProperty extends AstNode {
      */
     public AstProperty(Range range, AstIdentifier key, AstValue[] values) {
         super(range);
-        this.key = key;
-        this.values = values;
+        this.key = addChild(key);
+        this.values = addChild(values);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public <R> R visit(AstVisitor<R> visitor) {
+    public <R> R accept(AstVisitor<R> visitor) {
         return visitor.visit(this);
     }
 }

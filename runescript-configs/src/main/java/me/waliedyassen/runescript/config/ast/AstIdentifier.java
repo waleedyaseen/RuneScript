@@ -39,7 +39,7 @@ public final class AstIdentifier extends AstNode {
      * {@inheritDoc}
      */
     @Override
-    public <R> R visit(AstVisitor<R> visitor) {
+    public <R> R accept(AstVisitor<R> visitor) {
         return visitor.visit(this);
     }
 }

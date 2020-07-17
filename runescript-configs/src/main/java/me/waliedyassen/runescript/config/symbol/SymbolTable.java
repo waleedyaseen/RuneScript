@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.config.symbol;
 
 import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
+import me.waliedyassen.runescript.config.symbol.impl.ConfigInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,11 +29,8 @@ public final class SymbolTable {
     /**
      * Looks-up for the {@link ConfigInfo} with the specified {@link ConfigGroup group} and {@code name}.
      *
-     * @param group
-     *         the group of the configuration.
-     * @param name
-     *         the name of the configuration.
-     *
+     * @param group the group of the configuration.
+     * @param name  the name of the configuration.
      * @return the {@link ConfigInfo} object if it was present otherwise {@code null}.
      */
     public ConfigInfo lookupConfig(ConfigGroup group, String name) {
@@ -42,9 +40,7 @@ public final class SymbolTable {
     /**
      * Looks-up for the specified configurations map with the specified {@link ConfigGroup}.
      *
-     * @param group
-     *         the group of the configurations.
-     *
+     * @param group the group of the configurations.
      * @return the {@link Map} object of the specified group.
      */
     public Map<String, ConfigInfo> lookupConfigs(ConfigGroup group) {
@@ -58,10 +54,8 @@ public final class SymbolTable {
     /**
      * Defines a {@link ConfigInfo} in the symbol table.
      *
-     * @param group
-     *         the group of the configuration.
-     * @param name
-     *         the name of the configuration.
+     * @param group the group of the configuration.
+     * @param name  the name of the configuration.
      */
     public void defineConfig(ConfigGroup group, String name) {
         var map = lookupConfigs(group);

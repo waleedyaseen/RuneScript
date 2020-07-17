@@ -8,8 +8,7 @@
 package me.waliedyassen.runescript.config.var;
 
 import lombok.Data;
-
-import java.lang.reflect.Field;
+import me.waliedyassen.runescript.config.type.ConfigVarType;
 
 /**
  * Represents a configuration variable properties.
@@ -18,10 +17,6 @@ import java.lang.reflect.Field;
  */
 @Data
 public final class ConfigVar {
-    /**
-     * The reflection field of the configuration variable.
-     */
-    private final Field field;
 
     /**
      * The name of the configuration variable.

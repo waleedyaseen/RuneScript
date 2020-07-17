@@ -1,7 +1,7 @@
 package me.waliedyassen.runescript.compiler.symbol.impl;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
 
@@ -17,10 +17,12 @@ public final class GraphicInfo extends Symbol {
     /**
      * The name of the graphic.
      */
+    @Getter
     private final String name;
 
     /**
      * The id of the graphic.
      */
+    @Getter
     private final int id;
 }

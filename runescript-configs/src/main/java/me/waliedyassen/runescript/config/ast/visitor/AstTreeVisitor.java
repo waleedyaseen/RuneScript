@@ -32,9 +32,9 @@ public abstract class AstTreeVisitor implements AstVisitor<Object> {
      */
     @Override
     public Object visit(AstConfig config) {
-        config.getName().visit(this);
+        config.getName().accept(this);
         for (var property : config.getProperties()) {
-            property.visit(this);
+            property.accept(this);
         }
         return DEFAULT;
     }
@@ -44,9 +44,9 @@ public abstract class AstTreeVisitor implements AstVisitor<Object> {
      */
     @Override
     public Object visit(AstProperty property) {
-        property.getKey().visit(this);
+        property.getKey().accept(this);
         for (var value : property.getValues()) {
-            value.visit(this);
+            value.accept(this);
         }
         return DEFAULT;
     }

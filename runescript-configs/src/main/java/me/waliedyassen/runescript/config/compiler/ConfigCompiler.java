@@ -7,11 +7,26 @@
  */
 package me.waliedyassen.runescript.config.compiler;
 
+import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.CompilerBase;
+import me.waliedyassen.runescript.compiler.Input;
+import me.waliedyassen.runescript.compiler.Output;
+import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
+import me.waliedyassen.runescript.config.codegen.BinaryConfig;
+import me.waliedyassen.runescript.config.codegen.CodeGenerator;
+import me.waliedyassen.runescript.config.lexer.Lexer;
+import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
-import me.waliedyassen.runescript.lexer.table.LexicalTable;
+import me.waliedyassen.runescript.config.parser.ConfigParser;
+import me.waliedyassen.runescript.config.semantics.SemanticChecker;
+import me.waliedyassen.runescript.config.symbol.SymbolTable;
+import me.waliedyassen.runescript.config.type.TypeRegistry;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,12 +35,64 @@ import java.util.Map;
  *
  * @author Walied K. Yassen
  */
-public final class ConfigCompiler {
+@RequiredArgsConstructor
+public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfig>> {
 
     /**
-     * The registered bindings in this compiler.
+     * A map of all the bindings that can be used by this compiler mapped by their extension.
      */
-    private final Map<String, ConfigBinding<?>> bindings = new HashMap<>();
+    private final Map<String, ConfigBinding> bindings = new HashMap<>();
+
+    /**
+     * The lexical table of the configuration compiler.
+     */
+    private final LexicalTable<Kind> lexicalTable = createLexicalTable();
+
+    /**
+     * The symbol table of the configuration compiler.
+     */
+    private final SymbolTable symbolTable;
+
+    /**
+     * The type registry of the compiler.
+     */
+    private final TypeRegistry typeRegistry;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Output<BinaryConfig> compile(Input input) throws IOException {
+        var output = new Output<BinaryConfig>();
+        for (var sourceFile : input.getSourceFiles()) {
+            String extension = sourceFile.getExtension().toLowerCase();
+            var binding = bindings.get(extension);
+            if (binding == null) {
+                throw new IllegalStateException("Missing configuration binding for file extension: " + extension);
+            }
+            var stream = new BufferedCharStream(new ByteArrayInputStream(sourceFile.getContent()));
+            var tokenizer = new Tokenizer(lexicalTable, stream);
+            var lexer = new Lexer(tokenizer);
+            var parser = new ConfigParser(lexer);
+            var configs = parser.configs();
+            if (configs.length == 0) {
+                continue;
+            }
+            var checker = new SemanticChecker(symbolTable, binding);
+            checker.executePre(configs);
+            checker.execute(configs);
+            if (!checker.getErrors().isEmpty()) {
+                checker.getErrors().forEach(error -> output.addError(sourceFile, error));
+            } else {
+                var codeGen = new CodeGenerator(binding);
+                for (var config : configs) {
+                    var binaryConfig = codeGen.visit(config);
+                    output.addUnit(sourceFile, binaryConfig);
+                }
+            }
+        }
+        return output;
+    }
 
     /**
      * Registers a new configuration binding into this compiler.
@@ -35,7 +102,7 @@ public final class ConfigCompiler {
      * @param binding
      *         the configuration binding.
      */
-    public void registerBinding(String extension, ConfigBinding<?> binding) {
+    public void registerBinding(String extension, ConfigBinding binding) {
         extension = extension.toLowerCase();
         if (bindings.containsKey(extension)) {
             throw new IllegalArgumentException("The specified binding extension is already registered: " + extension);

@@ -10,13 +10,14 @@ package me.waliedyassen.runescript.config;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
 /**
- * Represents a configuration group.
+ * Contains basic information about a single configuration group.
  *
  * @author Walied K. Yassen
  */
 public interface ConfigGroup {
+
     /**
-     * Gets the configuration group {@link PrimitiveType type}.
+     * Returns the configuration group {@link PrimitiveType type}.
      *
      * @return the configuration group {@link PrimitiveType type}.
      */

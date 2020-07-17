@@ -16,7 +16,7 @@ import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecking;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.compiler.util.Pair;
+import me.waliedyassen.runescript.commons.Pair;
 
 import java.util.ArrayList;
 import java.util.List;

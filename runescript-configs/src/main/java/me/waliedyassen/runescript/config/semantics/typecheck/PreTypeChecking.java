@@ -38,7 +38,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
     /**
      * The configuration group we are checking for.
      */
-    private final ConfigBinding<?> binding;
+    private final ConfigBinding binding;
 
     /**
      * {@inheritDoc}

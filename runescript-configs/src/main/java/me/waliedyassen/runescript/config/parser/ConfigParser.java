@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.config.parser;
 
 import lombok.var;
+import me.waliedyassen.runescript.compiler.parser.ParserBase;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
@@ -17,7 +18,6 @@ import me.waliedyassen.runescript.config.ast.value.AstValueLong;
 import me.waliedyassen.runescript.config.ast.value.AstValueString;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
-import me.waliedyassen.runescript.parser.ParserBase;
 
 import java.util.ArrayList;
 

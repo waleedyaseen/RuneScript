@@ -12,7 +12,7 @@ import lombok.var;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.message.CompilerMessage;
 import me.waliedyassen.runescript.compiler.message.CompilerMessenger;
-import me.waliedyassen.runescript.compiler.util.Pair;
+import me.waliedyassen.runescript.commons.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
