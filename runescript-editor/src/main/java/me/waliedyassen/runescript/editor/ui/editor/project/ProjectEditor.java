@@ -217,13 +217,15 @@ public final class ProjectEditor extends Editor<Project> {
                 createBrowseSymbolRow(symbolPanel, "Runtime Constants", runtimeConstantsField);
                 createBrowseSymbolRow(symbolPanel, "Predefined script(s)", predefinedScriptsField);
                 for (var type : PrimitiveType.values()) {
+                    if (!isPredefinable(type)) {
+                        continue;
+                    }
                     var textField = new JTextField();
                     predefinedConfigs.put(type, textField);
-                    if (type.isConfigType()) {
-                        createBrowseSymbolRow(symbolPanel, "Predefined " + type.getRepresentation() + "(s)", textField);
-                    }
+                    createBrowseSymbolRow(symbolPanel, "Predefined " + type.getRepresentation() + "(s)", textField);
                 }
             }
+
             var scrolPane = new JScrollPane(symbolPanel);
             scrolPane.setBorder(BorderFactory.createTitledBorder("Symbol"));
             add(scrolPane, "grow, wrap");
@@ -233,9 +235,12 @@ public final class ProjectEditor extends Editor<Project> {
          * Creates a browse for a symbol row, contains a label, a text field for the symbol configuration file path, and a brwose
          * button for browsing for symbol configuration file.
          *
-         * @param panel     the panel which we will add the symbol row to.
-         * @param name      the name of the symbol we are browsing for.
-         * @param textField the text field to place the symbols in.
+         * @param panel
+         *         the panel which we will add the symbol row to.
+         * @param name
+         *         the name of the symbol we are browsing for.
+         * @param textField
+         *         the text field to place the symbols in.
          */
         private void createBrowseSymbolRow(JPanel panel, String name, JTextField textField) {
             panel.add(new JLabel(name + ":"));
@@ -251,6 +256,30 @@ public final class ProjectEditor extends Editor<Project> {
                 }
             });
             panel.add(browseButton, "wrap");
+        }
+    }
+
+    /**
+     * Checks whether or not the specified {@link PrimitiveType type} can be predefined.
+     *
+     * @param type
+     *         the type to check if it can.
+     *
+     * @return <code>true</code> if it can otherwise <code>false</code>.
+     */
+    public static boolean isPredefinable(PrimitiveType type) {
+        if (type.isConfigType()) {
+            return true;
+        }
+        switch (type) {
+            case GRAPHIC:
+            case SYNTH:
+            case INTERFACE:
+            case COMPONENT:
+            case FONTMETRICS:
+                return true;
+            default:
+                return false;
         }
     }
 }

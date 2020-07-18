@@ -25,6 +25,7 @@ import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
 import me.waliedyassen.runescript.editor.project.cache.Cache;
+import me.waliedyassen.runescript.editor.ui.editor.project.ProjectEditor;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.editor.vfs.VFS;
@@ -229,7 +230,7 @@ public final class Project {
         runtimeConstantsPath = object.has("runtimeConstants") ? object.get("runtimeConstants").textValue() : "";
         configsPath.clear();
         for (var type : PrimitiveType.values()) {
-            if (!type.isConfigType()) {
+            if (!ProjectEditor.isPredefinable(type)) {
                 continue;
             }
             var node = object.get("config_" + type.getRepresentation());
