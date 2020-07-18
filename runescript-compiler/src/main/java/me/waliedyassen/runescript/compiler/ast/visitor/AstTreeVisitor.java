@@ -681,36 +681,6 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstArrayInitializer arrayInitializer) {
-        enter(arrayInitializer);
-        arrayInitializer.getIndex().accept(this);
-        arrayInitializer.getValue().accept(this);
-        exit(arrayInitializer);
-        return null;
-    }
-
-    /**
-     * Gets called when we have just entered an {@link AstArrayInitializer} node.
-     *
-     * @param arrayInitializer
-     *         the node we have just entered.
-     */
-    public void enter(AstArrayInitializer arrayInitializer) {
-    }
-
-    /**
-     * Gets called when we have just left an {@link AstArrayInitializer} node.
-     *
-     * @param arrayInitializer
-     *         the node we have just entered.
-     */
-    public void exit(AstArrayInitializer arrayInitializer) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Void visit(AstSwitchStatement switchStatement) {
         enter(switchStatement);
         switchStatement.getCondition().accept(this);

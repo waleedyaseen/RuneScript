@@ -385,10 +385,6 @@ public final class ScriptParser extends ParserBase<Kind> {
                 }
                 return variableDeclaration();
             case DOLLAR:
-                if (peekKind(2) == LPAREN) {
-                    return arrayInitializer();
-                }
-                return variableInitializer();
             case MOD:
                 return variableInitializer();
             case SWITCH:
@@ -547,7 +543,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public AstVariableInitializer variableInitializer() {
         pushRange();
-        var variables = new ArrayList<AstVariable>();
+        var variables = new ArrayList<AstBaseVariable>();
         do {
             variables.add(variable());
         } while (consumeIf(COMMA));
@@ -557,15 +553,15 @@ public final class ScriptParser extends ParserBase<Kind> {
             expressions.add(expression());
         } while (consumeIf(COMMA));
         consume(SEMICOLON);
-        return new AstVariableInitializer(popRange(), variables.toArray(new AstVariable[0]), expressions.toArray(new AstExpression[0]));
+        return new AstVariableInitializer(popRange(), variables.toArray(new AstBaseVariable[0]), expressions.toArray(new AstExpression[0]));
     }
 
     /**
-     * Attempts to parse an {@link AstVariable} from the next set of {@link Token token}s.
+     * Attempts to parse an {@link AstBaseVariable} from the next set of {@link Token token}s.
      *
-     * @return the parsed {@link AstVariable} object.
+     * @return the parsed {@link AstBaseVariable} object.
      */
-    private AstVariable variable() {
+    private AstBaseVariable variable() {
         pushRange();
         var token = consume();
         var scope = VariableScope.forKind(token.getKind());
@@ -573,23 +569,16 @@ public final class ScriptParser extends ParserBase<Kind> {
             throw createError(token, "Expecting a variable");
         }
         var name = identifier();
-        return new AstVariable(popRange(), scope, name);
-    }
-
-    /**
-     * Attempts to parse an {@link AstArrayInitializer} from the next set of {@link Token token}s.
-     *
-     * @return the parsed {@link AstArrayInitializer} object.
-     */
-    public AstArrayInitializer arrayInitializer() {
-        pushRange();
-        consume(DOLLAR);
-        var name = identifier();
-        var index = parExpression();
-        consume(EQUALS);
-        var value = expression();
-        consume(SEMICOLON);
-        return new AstArrayInitializer(popRange(), name, index, value);
+        if (consumeIf(LPAREN)) {
+            if (scope != VariableScope.LOCAL) {
+                throw createError(token, "Unrecognised scope for array variable expression");
+            }
+            var expression = expression();
+            consume(RPAREN);
+            return new AstArrayVariable(popRange(), name, expression);
+        } else {
+            return new AstScopedVariable(popRange(), scope, name);
+        }
     }
 
     /**

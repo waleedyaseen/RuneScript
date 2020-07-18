@@ -1,0 +1,51 @@
+package me.waliedyassen.runescript.compiler.ast.expr;
+
+import lombok.Getter;
+import lombok.Setter;
+import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
+import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
+
+/**
+ * An array variable with an index AST expression node.
+ *
+ * @author Walied K. Yassen
+ */
+public final class AstArrayVariable extends AstBaseVariable {
+
+    /**
+     * The index expression of the array.
+     */
+    @Getter
+    private final AstExpression index;
+
+    /**
+     * The array info which is resolved at type checking phase.
+     */
+    @Getter
+    @Setter
+    private ArrayInfo arrayInfo;
+
+    /**
+     * Constructs a new {@link AstArrayVariable} type object instance.
+     *
+     * @param range
+     *         the node source code range.
+     * @param name
+     *         the name of the variable.
+     * @param index
+     *         the index of the array.
+     */
+    public AstArrayVariable(Range range, AstIdentifier name, AstExpression index) {
+        super(range, name);
+        this.index = index;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <E, S> E accept(AstVisitor<E, S> visitor) {
+        return visitor.visit(this);
+    }
+}

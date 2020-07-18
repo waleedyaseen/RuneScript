@@ -22,7 +22,6 @@ import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.*;
@@ -387,8 +386,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         }
         var variableTypes = new Type[variableInitializer.getVariables().length];
         for (var index = 0; index < variableTypes.length; index++) {
-            VariableInfo info = variableInitializer.getVariables()[index].getInfo();
-            variableTypes[index] = info == null ? PrimitiveType.UNDEFINED : info.getType();
+            variableTypes[index] = variableInitializer.getVariables()[index].accept(this);
         }
         var varTuple = new TupleType(variableTypes);
         var exprTuple = new TupleType(expressionTypes);
@@ -402,13 +400,16 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstArrayInitializer arrayInitializer) {
-        checkType(arrayInitializer.getIndex(), PrimitiveType.INT, arrayInitializer.getIndex().accept(this));
-        var array = arrayInitializer.getArray();
-        if (array != null) {
-            checkType(arrayInitializer.getValue(), array.getType(), arrayInitializer.getValue().accept(this));
-        }
-        return PrimitiveType.UNDEFINED;
+    public Type visit(AstScopedVariable scopedVariable) {
+        return scopedVariable.setType(scopedVariable.getVariableInfo() == null ? PrimitiveType.UNDEFINED : scopedVariable.getVariableInfo().getType());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(AstArrayVariable arrayVariable) {
+        return arrayVariable.setType(arrayVariable.getArrayInfo() == null ? PrimitiveType.UNDEFINED : arrayVariable.getArrayInfo().getType());
     }
 
     /**

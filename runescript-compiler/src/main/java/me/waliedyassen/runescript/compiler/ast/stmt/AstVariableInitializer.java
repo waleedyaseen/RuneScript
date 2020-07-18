@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.stmt;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.ast.expr.AstBaseVariable;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
@@ -23,7 +24,7 @@ public final class AstVariableInitializer extends AstStatement {
      * The scope of the variable.
      */
     @Getter
-    private final AstVariable[] variables;
+    private final AstBaseVariable[] variables;
 
     /**
      * The initialise expression of the variable.
@@ -32,16 +33,16 @@ public final class AstVariableInitializer extends AstStatement {
     private final AstExpression[] expressions;
 
     /**
-     * Constructs a new {@link AstVariable} type object instance.
+     * Constructs a new {@link AstVariableInitializer} type object instance.
      *
      * @param range
      *         the node source code range.
      * @param variables
-     *         the variables we are initializing.
+     *         the variables that are being initialized.
      * @param expressions
-     *         the expressions we are initializing.
+     *         the expressions the variables being initialized with.
      */
-    public AstVariableInitializer(Range range, AstVariable[] variables, AstExpression[] expressions) {
+    public AstVariableInitializer(Range range, AstBaseVariable[] variables, AstExpression[] expressions) {
         super(range);
         this.variables = addChild(variables);
         this.expressions = addChild(expressions);
@@ -54,5 +55,4 @@ public final class AstVariableInitializer extends AstStatement {
     public <E, S> S accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
     }
-
 }

@@ -293,26 +293,26 @@ public interface AstVisitor<E, S> {
     }
 
     /**
-     * Gets called when we have just visited an {@link AstVariable} node.
+     * Gets called when we have just visited an {@link AstScopedVariable} node.
      *
-     * @param variable
-     *         the {@link AstVariable} node we have just visited.
+     * @param scopedVariable
+     *         the {@link AstScopedVariable} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default E visit(AstVariable variable) {
+    default E visit(AstScopedVariable scopedVariable) {
         return null;
     }
 
     /**
-     * Gets called when we have just visited an {@link AstArrayInitializer} node.
+     * Gets called when we have just visited an {@link AstArrayVariable} node.
      *
-     * @param arrayInitializer
-     *         the {@link AstVariableInitializer} node we have just visited.
+     * @param arrayVariable
+     *         the {@link AstArrayVariable} node we have just visited.
      *
      * @return the implementation output object.
      */
-    default S visit(AstArrayInitializer arrayInitializer) {
+    default E visit(AstArrayVariable arrayVariable) {
         return null;
     }
 

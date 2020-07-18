@@ -440,14 +440,14 @@ public final class ScriptParserTest {
             // valid local variable initialise.
             var variableInitialise = fromString("$test = true;").variableInitializer();
             assertNotNull(variableInitialise);
-            assertEquals(variableInitialise.getVariables()[0].getScope(), VariableScope.LOCAL);
+            assertEquals(((AstScopedVariable) variableInitialise.getVariables()[0]).getScope(), VariableScope.LOCAL);
             assertEquals(variableInitialise.getVariables()[0].getName().getText(), "test");
             assertTrue(variableInitialise.getExpressions()[0] instanceof AstLiteralBool);
         }, () -> {
             // valid global variable initialise.
             var variableInitialise = fromString("%hello = 1234;").variableInitializer();
             assertNotNull(variableInitialise);
-            assertEquals(variableInitialise.getVariables()[0].getScope(), VariableScope.GLOBAL);
+            assertEquals(((AstScopedVariable) variableInitialise.getVariables()[0]).getScope(), VariableScope.GLOBAL);
             assertEquals(variableInitialise.getVariables()[0].getName().getText(), "hello");
             assertTrue(variableInitialise.getExpressions()[0] instanceof AstLiteralInteger);
         }, () -> {

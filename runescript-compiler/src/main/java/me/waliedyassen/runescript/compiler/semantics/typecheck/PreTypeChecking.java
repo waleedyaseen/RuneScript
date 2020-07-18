@@ -11,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.ast.expr.AstArrayExpression;
-import me.waliedyassen.runescript.compiler.ast.expr.AstDynamic;
-import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
-import me.waliedyassen.runescript.compiler.ast.expr.AstVariableExpression;
+import me.waliedyassen.runescript.compiler.ast.expr.*;
 import me.waliedyassen.runescript.compiler.ast.stmt.*;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
@@ -174,13 +171,24 @@ public final class PreTypeChecking extends AstTreeVisitor {
     public Void visit(AstVariableInitializer variableInitializer) {
         var count = variableInitializer.getVariables().length;
         for (var index = 0; index < count; index++) {
-            var variableNode = variableInitializer.getVariables()[index];
-            var name = variableNode.getName();
-            var info = resolveVariable(variableNode.getScope(), name.getText());
-            if (info == null) {
-                reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to a variable", name.getText())));
+            var variable = variableInitializer.getVariables()[index];
+            var name = variable.getName().getText();
+            if (variable instanceof AstArrayVariable) {
+                var arrayVariable = (AstArrayVariable) variable;
+                var arrayInfo = scopes.lastElement().getArray(name);
+                if (arrayInfo == null) {
+                    reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to an array", name)));
+                } else {
+                    arrayVariable.setArrayInfo(arrayInfo);
+                }
             } else {
-                variableNode.setInfo(info);
+                var scopedVariable = (AstScopedVariable) variable;
+                var variableInfo = resolveVariable(scopedVariable.getScope(), name);
+                if (variableInfo == null) {
+                    reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to a variable", name)));
+                } else {
+                    scopedVariable.setVariableInfo(variableInfo);
+                }
             }
         }
         return super.visit(variableInitializer);
@@ -215,21 +223,6 @@ public final class PreTypeChecking extends AstTreeVisitor {
             declaration.setArray(array);
         }
         return super.visit(declaration);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Void visit(AstArrayInitializer arrayInitializer) {
-        var name = arrayInitializer.getName();
-        var array = scopes.lastElement().getArray(name.getText());
-        if (array == null) {
-            reportError(new SemanticError(name, String.format("%s cannot be resolved to an array", name.getText())));
-        } else {
-            arrayInitializer.setArray(array);
-        }
-        return super.visit(arrayInitializer);
     }
 
     /**

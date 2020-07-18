@@ -1,20 +1,19 @@
-package me.waliedyassen.runescript.compiler.ast.stmt;
+package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
 import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.ast.AstNode;
-import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 
+
 /**
- * Represents an AST variable node.
+ * A scoped variable AST expression node.
  *
  * @author Walied K. Yassen
  */
-public final class AstVariable extends AstNode {
+public final class AstScopedVariable extends AstBaseVariable {
 
     /**
      * The scope of the variable.
@@ -23,32 +22,25 @@ public final class AstVariable extends AstNode {
     private final VariableScope scope;
 
     /**
-     * The name of the variable.
-     */
-    @Getter
-    private final AstIdentifier name;
-
-    /**
-     * The information of the variable.
+     * The variable info which is resolved at type checking phase.
      */
     @Getter
     @Setter
-    private VariableInfo info;
+    private VariableInfo variableInfo;
 
     /**
-     * Constructs a new {@link AstVariable} type object instance.
+     * Constructs a new {@link AstScopedVariable} type object instance.
      *
      * @param range
      *         the node source code range.
      * @param scope
-     *         the scope of the variable.
+     *         the scope of the varaible.
      * @param name
      *         the name of the variable.
      */
-    public AstVariable(Range range, VariableScope scope, AstIdentifier name) {
-        super(range);
+    public AstScopedVariable(Range range, VariableScope scope, AstIdentifier name) {
+        super(range, name);
         this.scope = scope;
-        this.name = name;
     }
 
     /**

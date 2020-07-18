@@ -459,12 +459,20 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     public Instruction visit(AstVariableInitializer variableInitializer) {
         var count = variableInitializer.getExpressions().length;
         for (var index = 0; index < count; index++) {
+            variableInitializer.getVariables()[index].accept(this);
             variableInitializer.getExpressions()[index].accept(this);
         }
         for (var index = count - 1; index >= 0; index--) {
-            var variable = variableInitializer.getVariables()[index].getInfo();
-            Object local = variable.getDomain() == VariableDomain.LOCAL ? localMap.lookup(variable.getName()) : variable;
-            instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
+            var variable = variableInitializer.getVariables()[index];
+            if (variable instanceof AstArrayVariable) {
+                var arrayVariable = (AstArrayVariable) variable;
+                instruction(POP_ARRAY_INT, arrayVariable.getArrayInfo().getIndex());
+            } else {
+                var scopedVariable = (AstScopedVariable) variable;
+                var info = scopedVariable.getVariableInfo();
+                Object local = info.getDomain() == VariableDomain.LOCAL ? localMap.lookup(info.getName()) : variable;
+                instruction(getPopVariableOpcode(info.getDomain(), info.getType()), local);
+            }
         }
         return null;
     }
@@ -473,10 +481,17 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstArrayInitializer arrayInitializer) {
-        arrayInitializer.getValue().accept(this);
-        arrayInitializer.getIndex().accept(this);
-        return instruction(POP_ARRAY_INT, arrayInitializer.getArray().getIndex());
+    public Instruction visit(AstArrayVariable arrayVariable) {
+        arrayVariable.getIndex().accept(this);
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Instruction visit(AstScopedVariable scopedVariable) {
+        return null;
     }
 
     /**
