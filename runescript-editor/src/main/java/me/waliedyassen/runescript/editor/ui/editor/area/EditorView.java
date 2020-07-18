@@ -67,6 +67,7 @@ public final class EditorView extends JPanel implements ActionSource {
      */
     public EditorView() {
         setLayout(new BorderLayout());
+        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         add(tabbedPane, BorderLayout.CENTER);
         // We replace the original mouse listener of the tabbed pane.
         var delegateListener = tabbedPane.getMouseListeners()[0];

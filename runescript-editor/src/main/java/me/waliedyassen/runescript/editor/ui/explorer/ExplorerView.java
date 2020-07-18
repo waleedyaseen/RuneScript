@@ -37,6 +37,6 @@ public final class ExplorerView extends JPanel {
      */
     public ExplorerView() {
         setLayout(new BorderLayout());
-        add(tree, BorderLayout.CENTER);
+        add(new JScrollPane(tree), BorderLayout.CENTER);
     }
 }

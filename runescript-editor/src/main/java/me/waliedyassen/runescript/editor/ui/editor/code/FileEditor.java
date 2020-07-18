@@ -86,7 +86,7 @@ public class FileEditor extends Editor<Path> {
             }
             diskChecksum = ChecksumUtil.calculateMd5(data);
         } catch (Throwable e) {
-            log.error("An error occured while trying to save code editor content to disk", e);
+            log.error("An error occurred while trying to save code editor content to disk", e);
         }
     }
 
@@ -100,7 +100,7 @@ public class FileEditor extends Editor<Path> {
             Files.write(path, content, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
             diskChecksum = ChecksumUtil.calculateMd5(content);
         } catch (Throwable e) {
-            log.error("An error occured while trying to save code editor content to disk", e);
+            log.error("An error occurred while trying to save code editor content to disk", e);
         }
     }
 

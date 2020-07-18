@@ -18,7 +18,9 @@ import java.util.Map;
  * A single dependency node in the dependency tree that holds information about all of the dependencies and about other
  * nodes that use this node a dependency.
  *
- * @param <K> the type of key value this node holds.
+ * @param <K>
+ *         the type of key value this node holds.
+ *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
@@ -51,14 +53,15 @@ public final class DependencyNode<K> {
     /**
      * Adds the dependency node with the specified {@link K key} as a dependency to this node.
      *
-     * @param key the key of the dependency that we want to add.
+     * @param key
+     *         the key of the dependency that we want to add.
      */
     public void addDependency(K key) {
         if (isChildFor(key)) {
             throw new CircularDependencyException("Circular dependency found in between " + this.key + " and " + key);
         }
         if (key.equals(this.key)) {
-            throw new CircularDependencyException("A dependency node cannot depend on itself");
+            return;
         }
         var dependency = tree.findOrCreate(key);
         dependsOn.put(key, dependency);
@@ -68,7 +71,9 @@ public final class DependencyNode<K> {
     /**
      * Checks whether or not this dependency node is a child node for the node with the specified {@code key}.
      *
-     * @param key the key of the dependency node that we want to check.
+     * @param key
+     *         the key of the dependency node that we want to check.
+     *
      * @return <code>true</code> if this dependency node is child of the dependency node with the specified {@link K key}.
      */
     private boolean isChildFor(K key) {
@@ -86,7 +91,9 @@ public final class DependencyNode<K> {
     /**
      * Returns the {@link DependencyNode} with the specified {@link K key}.
      *
-     * @param key the key which we want the associated dependency node from.
+     * @param key
+     *         the key which we want the associated dependency node from.
+     *
      * @return the {@link DependencyNode} if found otherwise {@code null}.
      */
     public DependencyNode<K> get(K key) {
