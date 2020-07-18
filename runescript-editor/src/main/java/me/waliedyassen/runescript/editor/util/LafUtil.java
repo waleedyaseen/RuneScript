@@ -9,6 +9,10 @@ package me.waliedyassen.runescript.editor.util;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.intellijthemes.FlatDarkFlatIJTheme;
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatAtomOneDarkIJTheme;
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatDraculaIJTheme;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
@@ -28,10 +32,10 @@ public final class LafUtil {
         if (!SwingUtilities.isEventDispatchThread()) {
             throw new IllegalStateException("You can only call setup() from the AWT events dispatch thread. Current thread is: " + Thread.currentThread().getName());
         }
-        JFrame.setDefaultLookAndFeelDecorated(false);
-        JDialog.setDefaultLookAndFeelDecorated(false);
+        JFrame.setDefaultLookAndFeelDecorated(true);
+        JDialog.setDefaultLookAndFeelDecorated(true);
         try {
-            UIManager.setLookAndFeel(FlatDarculaLaf.class.getName());
+            FlatDarculaLaf.install();
         } catch (Throwable e) {
             log.error("Failed to set the default Look and Feel", e);
         }

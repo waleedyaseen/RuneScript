@@ -18,10 +18,6 @@ import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.errors.ErrorsView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.ProjectNode;
-import me.waliedyassen.runescript.editor.ui.frame.TitledFrame;
-import me.waliedyassen.runescript.editor.ui.frame.top.TitleBar;
-import me.waliedyassen.runescript.editor.ui.frame.top.ToolBar;
-import me.waliedyassen.runescript.editor.ui.frame.top.TopUi;
 import me.waliedyassen.runescript.editor.ui.status.StatusBar;
 
 import javax.swing.*;
@@ -43,13 +39,7 @@ public final class EditorUI implements WindowListener {
      * The main frame of the user-interface.
      */
     @Getter
-    private final TitledFrame frame = new TitledFrame();
-
-    /**
-     * The title bar of the main frame.
-     */
-    @Getter
-    private final TopUi topUi = new TopUi(frame.getTitleBar(), new ToolBar());
+    private final JFrame frame = new JFrame();
 
     /**
      * The view component of the explorer.
@@ -115,7 +105,7 @@ public final class EditorUI implements WindowListener {
         frame.setPreferredSize(new Dimension(1270, 768));
         frame.setMinimumSize(new Dimension(600, 400));
         frame.addWindowListener(this);
-        frame.add(topUi, BorderLayout.NORTH);
+        //    frame.add(topUi, BorderLayout.NORTH);
     }
 
     /**
@@ -144,7 +134,8 @@ public final class EditorUI implements WindowListener {
      * Initialises the menu bar of the editor.
      */
     private void initialiseMenu() {
-        var bar = topUi.getTitleBar().getMenuBar();
+        var bar = new JMenuBar();
+        frame.setJMenuBar(bar);
         var fileMenu = new JMenu("File");
         {
             var menuItem = new JMenuItem("Open");
@@ -209,7 +200,7 @@ public final class EditorUI implements WindowListener {
      */
     private void refreshTitle() {
         var activeProject = editor.getProjectManager().getCurrentProject();
-        topUi.getTitleBar().getText().set("RuneScript Editor" + (activeProject.isEmpty() ? "" : " - " + activeProject.get().getName()));
+        frame.setTitle("RuneScript Editor" + (activeProject.isEmpty() ? "" : " - " + activeProject.get().getName()));
     }
 
     /**
