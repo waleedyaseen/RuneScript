@@ -40,7 +40,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstScript} node.
      *
-     * @param script the node we have just entered.
+     * @param script
+     *         the node we have just entered.
      */
     public void enter(AstScript script) {
     }
@@ -49,7 +50,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstScript} node.
      *
-     * @param script the node we have just entered.
+     * @param script
+     *         the node we have just entered.
      */
     public void exit(AstScript script) {
     }
@@ -67,7 +69,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstAnnotation} node.
      *
-     * @param annotation the node we have just entered.
+     * @param annotation
+     *         the node we have just entered.
      */
     public void enter(AstAnnotation annotation) {
     }
@@ -75,7 +78,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstScript} node.
      *
-     * @param annotation the node we have just entered.
+     * @param annotation
+     *         the node we have just entered.
      */
     public void exit(AstAnnotation annotation) {
     }
@@ -93,7 +97,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstParameter} node.
      *
-     * @param parameter the node we have just entered.
+     * @param parameter
+     *         the node we have just entered.
      */
     public void enter(AstParameter parameter) {
     }
@@ -102,7 +107,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstParameter} node.
      *
-     * @param parameter the node we have just entered.
+     * @param parameter
+     *         the node we have just entered.
      */
     public void exit(AstParameter parameter) {
     }
@@ -120,7 +126,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstLiteralBool} node.
      *
-     * @param bool the node we have just entered.
+     * @param bool
+     *         the node we have just entered.
      */
     public void enter(AstLiteralBool bool) {
     }
@@ -128,7 +135,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstLiteralBool} node.
      *
-     * @param bool the node we have just entered.
+     * @param bool
+     *         the node we have just entered.
      */
     public void exit(AstLiteralBool bool) {
     }
@@ -146,7 +154,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstLiteralInteger} node.
      *
-     * @param integer the node we have just entered.
+     * @param integer
+     *         the node we have just entered.
      */
     public void enter(AstLiteralInteger integer) {
     }
@@ -154,7 +163,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstLiteralInteger} node.
      *
-     * @param integer the node we have just entered.
+     * @param integer
+     *         the node we have just entered.
      */
     public void exit(AstLiteralInteger integer) {
     }
@@ -172,7 +182,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstLiteralLong} node.
      *
-     * @param longInteger the node we have just entered.
+     * @param longInteger
+     *         the node we have just entered.
      */
     public void enter(AstLiteralLong longInteger) {
     }
@@ -180,7 +191,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstLiteralLong} node.
      *
-     * @param longInteger the node we have just entered.
+     * @param longInteger
+     *         the node we have just entered.
      */
     public void exit(AstLiteralLong longInteger) {
     }
@@ -198,7 +210,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstLiteralString} node.
      *
-     * @param string the node we have just entered.
+     * @param string
+     *         the node we have just entered.
      */
     public void enter(AstLiteralString string) {
     }
@@ -206,7 +219,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstLiteralString} node.
      *
-     * @param string the node we have just entered.
+     * @param string
+     *         the node we have just entered.
      */
     public void exit(AstLiteralString string) {
     }
@@ -224,7 +238,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstLiteralCoordgrid} node.
      *
-     * @param coordgrid the node we have just entered.
+     * @param coordgrid
+     *         the node we have just entered.
      */
     public void enter(AstLiteralCoordgrid coordgrid) {
     }
@@ -232,7 +247,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstLiteralCoordgrid} node.
      *
-     * @param coordgrid the node we have just entered.
+     * @param coordgrid
+     *         the node we have just entered.
      */
     public void exit(AstLiteralCoordgrid coordgrid) {
     }
@@ -250,7 +266,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstLiteralString} node.
      *
-     * @param component the node we have just entered.
+     * @param component
+     *         the node we have just entered.
      */
     public void enter(AstComponent component) {
     }
@@ -258,7 +275,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstLiteralString} node.
      *
-     * @param component the node we have just entered.
+     * @param component
+     *         the node we have just entered.
      */
     public void exit(AstComponent component) {
     }
@@ -279,7 +297,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstConcatenation} node.
      *
-     * @param concatenation the node we have just entered.
+     * @param concatenation
+     *         the node we have just entered.
      */
     public void enter(AstConcatenation concatenation) {
     }
@@ -287,7 +306,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstConcatenation} node.
      *
-     * @param concatenation the node we have just entered.
+     * @param concatenation
+     *         the node we have just entered.
      */
     public void exit(AstConcatenation concatenation) {
     }
@@ -305,7 +325,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstVariableExpression} node.
      *
-     * @param variable the node we have just entered.
+     * @param variable
+     *         the node we have just entered.
      */
     public void enter(AstVariableExpression variable) {
     }
@@ -313,7 +334,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstVariableExpression} node.
      *
-     * @param variable the node we have just entered.
+     * @param variable
+     *         the node we have just entered.
      */
     public void exit(AstVariableExpression variable) {
     }
@@ -331,7 +353,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstArrayExpression} node.
      *
-     * @param array the node we have just entered.
+     * @param array
+     *         the node we have just entered.
      */
     public void enter(AstArrayExpression array) {
     }
@@ -339,7 +362,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstArrayExpression} node.
      *
-     * @param array the node we have just entered.
+     * @param array
+     *         the node we have just entered.
      */
     public void exit(AstArrayExpression array) {
     }
@@ -370,7 +394,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstHook} node.
      *
-     * @param hook the node we have just entered.
+     * @param hook
+     *         the node we have just entered.
      */
     public void enter(AstHook hook) {
     }
@@ -378,7 +403,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstHook} node.
      *
-     * @param hook the node we have just entered.
+     * @param hook
+     *         the node we have just entered.
      */
     public void exit(AstHook hook) {
     }
@@ -399,7 +425,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstCall} node.
      *
-     * @param call the node we have just entered.
+     * @param call
+     *         the node we have just entered.
      */
     public void enter(AstCall call) {
     }
@@ -407,7 +434,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstCall} node.
      *
-     * @param call the node we have just entered.
+     * @param call
+     *         the node we have just entered.
      */
     public void exit(AstCall call) {
     }
@@ -425,7 +453,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstDynamic} node.
      *
-     * @param dynamic the node we have just entered.
+     * @param dynamic
+     *         the node we have just entered.
      */
     public void enter(AstDynamic dynamic) {
     }
@@ -433,7 +462,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstDynamic} node.
      *
-     * @param dynamic the node we have just entered.
+     * @param dynamic
+     *         the node we have just entered.
      */
     public void exit(AstDynamic dynamic) {
     }
@@ -451,7 +481,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstConstant} node.
      *
-     * @param constant the node we have just entered.
+     * @param constant
+     *         the node we have just entered.
      */
     public void enter(AstConstant constant) {
     }
@@ -459,7 +490,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstConstant} node.
      *
-     * @param constant the node we have just entered.
+     * @param constant
+     *         the node we have just entered.
      */
     public void exit(AstConstant constant) {
     }
@@ -480,7 +512,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstCommand} node.
      *
-     * @param command the node we have just entered.
+     * @param command
+     *         the node we have just entered.
      */
     public void enter(AstCommand command) {
     }
@@ -488,7 +521,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstCommand} node.
      *
-     * @param command the node we have just entered.
+     * @param command
+     *         the node we have just entered.
      */
     public void exit(AstCommand command) {
     }
@@ -507,7 +541,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstCalc} node.
      *
-     * @param calc the node we have just entered.
+     * @param calc
+     *         the node we have just entered.
      */
     public void enter(AstCalc calc) {
     }
@@ -515,7 +550,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstCalc} node.
      *
-     * @param calc the node we have just entered.
+     * @param calc
+     *         the node we have just entered.
      */
     public void exit(AstCalc calc) {
     }
@@ -535,7 +571,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstBinaryOperation} node.
      *
-     * @param binaryOperation the node we have just entered.
+     * @param binaryOperation
+     *         the node we have just entered.
      */
     public void enter(AstBinaryOperation binaryOperation) {
     }
@@ -543,7 +580,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstBinaryOperation} node.
      *
-     * @param binaryOperation the node we have just entered.
+     * @param binaryOperation
+     *         the node we have just entered.
      */
     public void exit(AstBinaryOperation binaryOperation) {
     }
@@ -564,7 +602,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstVariableDeclaration} node.
      *
-     * @param variableDeclaration the node we have just entered.
+     * @param variableDeclaration
+     *         the node we have just entered.
      */
     public void enter(AstVariableDeclaration variableDeclaration) {
     }
@@ -572,7 +611,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstVariableDeclaration} node.
      *
-     * @param variableDeclaration the node we have just entered.
+     * @param variableDeclaration
+     *         the node we have just entered.
      */
     public void exit(AstVariableDeclaration variableDeclaration) {
     }
@@ -591,7 +631,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstArrayDeclaration} node.
      *
-     * @param arrayDeclaration the node we have just entered.
+     * @param arrayDeclaration
+     *         the node we have just entered.
      */
     public void enter(AstArrayDeclaration arrayDeclaration) {
     }
@@ -599,7 +640,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstArrayDeclaration} node.
      *
-     * @param arrayDeclaration the node we have just entered.
+     * @param arrayDeclaration
+     *         the node we have just entered.
      */
     public void exit(AstArrayDeclaration arrayDeclaration) {
     }
@@ -610,7 +652,9 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     @Override
     public Void visit(AstVariableInitializer variableInitializer) {
         enter(variableInitializer);
-        variableInitializer.getExpression().accept(this);
+        for (var expression : variableInitializer.getExpressions()) {
+            expression.accept(this);
+        }
         exit(variableInitializer);
         return null;
     }
@@ -618,7 +662,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstVariableInitializer} node.
      *
-     * @param variableInitializer the node we have just entered.
+     * @param variableInitializer
+     *         the node we have just entered.
      */
     public void enter(AstVariableInitializer variableInitializer) {
     }
@@ -626,7 +671,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstVariableInitializer} node.
      *
-     * @param variableInitializer the node we have just entered.
+     * @param variableInitializer
+     *         the node we have just entered.
      */
     public void exit(AstVariableInitializer variableInitializer) {
     }
@@ -646,7 +692,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstArrayInitializer} node.
      *
-     * @param arrayInitializer the node we have just entered.
+     * @param arrayInitializer
+     *         the node we have just entered.
      */
     public void enter(AstArrayInitializer arrayInitializer) {
     }
@@ -654,7 +701,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstArrayInitializer} node.
      *
-     * @param arrayInitializer the node we have just entered.
+     * @param arrayInitializer
+     *         the node we have just entered.
      */
     public void exit(AstArrayInitializer arrayInitializer) {
     }
@@ -679,7 +727,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstSwitchStatement} node.
      *
-     * @param switchStatement the node we have just entered.
+     * @param switchStatement
+     *         the node we have just entered.
      */
     public void enter(AstSwitchStatement switchStatement) {
     }
@@ -687,7 +736,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstSwitchStatement} node.
      *
-     * @param switchStatement the node we have just entered.
+     * @param switchStatement
+     *         the node we have just entered.
      */
     public void exit(AstSwitchStatement switchStatement) {
     }
@@ -709,7 +759,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstSwitchCase} node.
      *
-     * @param switchCase the node we have just entered.
+     * @param switchCase
+     *         the node we have just entered.
      */
     public void enter(AstSwitchCase switchCase) {
     }
@@ -717,7 +768,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstSwitchCase} node.
      *
-     * @param switchCase the node we have just entered.
+     * @param switchCase
+     *         the node we have just entered.
      */
     public void exit(AstSwitchCase switchCase) {
     }
@@ -740,7 +792,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstIfStatement} node.
      *
-     * @param ifStatement the node we have just entered.
+     * @param ifStatement
+     *         the node we have just entered.
      */
     public void enter(AstIfStatement ifStatement) {
     }
@@ -748,7 +801,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstIfStatement} node.
      *
-     * @param ifStatement the node we have just entered.
+     * @param ifStatement
+     *         the node we have just entered.
      */
     public void exit(AstIfStatement ifStatement) {
     }
@@ -768,7 +822,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstWhileStatement} node.
      *
-     * @param whileStatement the node we have just entered.
+     * @param whileStatement
+     *         the node we have just entered.
      */
     public void enter(AstWhileStatement whileStatement) {
     }
@@ -776,7 +831,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstWhileStatement} node.
      *
-     * @param whileStatement the node we have just entered.
+     * @param whileStatement
+     *         the node we have just entered.
      */
     public void exit(AstWhileStatement whileStatement) {
     }
@@ -795,7 +851,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstExpressionStatement} node.
      *
-     * @param expressionStatement the node we have just entered.
+     * @param expressionStatement
+     *         the node we have just entered.
      */
     public void enter(AstExpressionStatement expressionStatement) {
     }
@@ -803,7 +860,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstExpressionStatement} node.
      *
-     * @param expressionStatement the node we have just entered.
+     * @param expressionStatement
+     *         the node we have just entered.
      */
     public void exit(AstExpressionStatement expressionStatement) {
     }
@@ -824,7 +882,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstReturnStatement} node.
      *
-     * @param returnStatement the node we have just entered.
+     * @param returnStatement
+     *         the node we have just entered.
      */
     public void enter(AstReturnStatement returnStatement) {
     }
@@ -832,7 +891,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstReturnStatement} node.
      *
-     * @param returnStatement the node we have just entered.
+     * @param returnStatement
+     *         the node we have just entered.
      */
     public void exit(AstReturnStatement returnStatement) {
     }
@@ -853,7 +913,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just entered an {@link AstBlockStatement} node.
      *
-     * @param blockStatement the node we have just entered.
+     * @param blockStatement
+     *         the node we have just entered.
      */
     public void enter(AstBlockStatement blockStatement) {
     }
@@ -861,7 +922,8 @@ public abstract class AstTreeVisitor implements AstVisitor<Void, Void> {
     /**
      * Gets called when we have just left an {@link AstBlockStatement} node.
      *
-     * @param blockStatement the node we have just entered.
+     * @param blockStatement
+     *         the node we have just entered.
      */
     public void exit(AstBlockStatement blockStatement) {
     }

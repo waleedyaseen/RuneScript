@@ -20,15 +20,15 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
+import me.waliedyassen.runescript.compiler.lexer.LexerBase;
+import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
-import me.waliedyassen.runescript.compiler.lexer.LexerBase;
-import me.waliedyassen.runescript.compiler.lexer.LexicalError;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.type.Type;
@@ -62,9 +62,12 @@ public final class ScriptParser extends ParserBase<Kind> {
     /**
      * Constructs a new {@link ScriptParser} type object instance.
      *
-     * @param environment the environment of the compiler.
-     * @param symbolTable the symbol table to use for checking hooks.
-     * @param lexer       the lexical parser to use for tokens.
+     * @param environment
+     *         the environment of the compiler.
+     * @param symbolTable
+     *         the symbol table to use for checking hooks.
+     * @param lexer
+     *         the lexical parser to use for tokens.
      */
     public ScriptParser(@NonNull CompilerEnvironment environment, @NonNull SymbolTable symbolTable, @NonNull Lexer lexer) {
         super(lexer, Kind.EOF);
@@ -175,6 +178,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * Attempts to parse an {@link AstParameter} object node.
      *
      * @return the parsed {@link AstParameter} object.
+     *
      * @see #parameter(int)
      */
     public AstParameter parameter() {
@@ -184,7 +188,9 @@ public final class ScriptParser extends ParserBase<Kind> {
     /**
      * Attempts to parse an {@link AstParameter} object node.
      *
-     * @param index the current index of the parameter used for array references.
+     * @param index
+     *         the current index of the parameter used for array references.
+     *
      * @return the parsed {@link AstParameter} object.
      */
     public AstParameter parameter(int index) {
@@ -233,7 +239,9 @@ public final class ScriptParser extends ParserBase<Kind> {
     /**
      * Attemps to parse a {@link AstExpression} tree with given lowest precedence allowed.
      *
-     * @param precedence the lowest precedence that to be allowed in this tree.
+     * @param precedence
+     *         the lowest precedence that to be allowed in this tree.
+     *
      * @return the parsed tree as a {@link AstExpression} object.
      */
     private AstExpression expression(int precedence) {
@@ -479,10 +487,14 @@ public final class ScriptParser extends ParserBase<Kind> {
         pushRange();
         consume(RETURN);
         var exprs = new ArrayList<AstExpression>();
+        boolean paren = consumeIf(LPAREN);
         if (isExpression()) {
             do {
                 exprs.add(expression());
             } while (consumeIf(COMMA));
+        }
+        if (paren) {
+            consumeIf(RPAREN);
         }
         consume(SEMICOLON);
         return new AstReturnStatement(popRange(), exprs.toArray(new AstExpression[0]));
@@ -536,16 +548,33 @@ public final class ScriptParser extends ParserBase<Kind> {
      */
     public AstVariableInitializer variableInitializer() {
         pushRange();
+        var variables = new ArrayList<AstVariable>();
+        do {
+            variables.add(variable());
+        } while (consumeIf(COMMA));
+        consume(EQUALS);
+        var expressions = new ArrayList<AstExpression>();
+        do {
+            expressions.add(expression());
+        } while (consumeIf(COMMA));
+        consume(SEMICOLON);
+        return new AstVariableInitializer(popRange(),variables.toArray(new AstVariable[0]), expressions.toArray(new AstExpression[0]));
+    }
+
+    /**
+     * Attempts to parse an {@link AstVariable} from the next set of {@link Token token}s.
+     *
+     * @return the parsed {@link AstVariable} object.
+     */
+    private AstVariable variable() {
+        pushRange();
         var token = consume();
         var scope = VariableScope.forKind(token.getKind());
         if (scope == null) {
             throw createError(token, "Expecting a variable");
         }
-        var variable = identifier();
-        consume(EQUALS);
-        var expression = expression();
-        consume(SEMICOLON);
-        return new AstVariableInitializer(popRange(), scope, variable, expression);
+        var name = identifier();
+        return new AstVariable(popRange(), scope, name);
     }
 
     /**
@@ -914,8 +943,11 @@ public final class ScriptParser extends ParserBase<Kind> {
      * Checks whether or not a hook should be parsed as an argument of the command with the specified
      * {@code name} and at the specified  {@code index}.
      *
-     * @param name  the name of the command which the argument is in.
-     * @param index the index which the argument is located at in thecommand.
+     * @param name
+     *         the name of the command which the argument is in.
+     * @param index
+     *         the index which the argument is located at in thecommand.
+     *
      * @return <code>true</code> if a hook should be parsed otherwise <code>false</code>.
      */
     private boolean isHookParameter(String name, int index) {
@@ -994,7 +1026,9 @@ public final class ScriptParser extends ParserBase<Kind> {
     /**
      * Attempts to create a sub-lexer from the content of the specified {@link Token}.
      *
-     * @param token the token which the content will be taken from.
+     * @param token
+     *         the token which the content will be taken from.
+     *
      * @return the created {@link LexerBase} object.
      */
     private LexerBase<Kind> createLexerFromString(Token<Kind> token) {

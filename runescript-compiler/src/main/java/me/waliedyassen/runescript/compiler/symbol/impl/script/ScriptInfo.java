@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.symbol.impl.script;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.Type;
@@ -24,7 +25,7 @@ import java.util.Objects;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public final class ScriptInfo extends Symbol {
 
     /**

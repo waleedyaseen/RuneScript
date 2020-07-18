@@ -151,7 +151,8 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Generates the default return instruction of the specified return {@link Type type}.
      *
-     * @param returnType the return type of the script.
+     * @param returnType
+     *         the return type of the script.
      */
     private void generateDefaultReturn(Type returnType) {
         if (returnType == PrimitiveType.VOID) {
@@ -322,7 +323,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
             }
             var configInfo = symbolTable.lookupConfig(name);
             if (configInfo != null) {
-                return instruction(PUSH_INT_CONSTANT, configInfo.getId());
+                return instruction(PUSH_INT_CONSTANT, configInfo);
             }
             var runtimeConstantInfo = symbolTable.lookupRuntimeConstant(name);
             if (runtimeConstantInfo != null) {
@@ -381,8 +382,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Generates the instruction(s) set for the specified {@link CommandInfo command}.
      *
-     * @param info        the command info to generate the instruction(s) set for.
-     * @param alternative whether or not the command is alternative command.
+     * @param info
+     *         the command info to generate the instruction(s) set for.
+     * @param alternative
+     *         whether or not the command is alternative command.
+     *
      * @return the last generated {@link Instruction} object.
      */
     private Instruction generateCommand(CommandInfo info, boolean alternative) {
@@ -453,10 +457,16 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      */
     @Override
     public Instruction visit(AstVariableInitializer variableInitializer) {
-        variableInitializer.getExpression().accept(this);
-        var variable = variableInitializer.getVariable();
-        Object local = variable.getDomain() == VariableDomain.LOCAL ? localMap.lookup(variable.getName()) : variable;
-        return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
+        var count = variableInitializer.getExpressions().length;
+        for (var index = 0; index < count; index++) {
+            variableInitializer.getExpressions()[index].accept(this);
+        }
+        for (var index = count - 1; index >= 0; index--) {
+            var variable = variableInitializer.getVariables()[index].getInfo();
+            Object local = variable.getDomain() == VariableDomain.LOCAL ? localMap.lookup(variable.getName()) : variable;
+            instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
+        }
+        return null;
     }
 
     /**
@@ -568,10 +578,15 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * Performs code generation on the specified {@code condition} expression and returns it's associated {@link
      * CoreOpcode opcode}.
      *
-     * @param condition    the condition expression to perform the code generation on.
-     * @param source_block the source block of the condition.
-     * @param branch_true  the if-true block label.
-     * @param branch_false the if-false block label.
+     * @param condition
+     *         the condition expression to perform the code generation on.
+     * @param source_block
+     *         the source block of the condition.
+     * @param branch_true
+     *         the if-true block label.
+     * @param branch_false
+     *         the if-false block label.
+     *
      * @return the {@link CoreOpcode} of the generated condition code.
      */
     private void generateCondition(AstExpression condition, Block source_block, Label branch_true, Label branch_false) {
@@ -674,9 +689,12 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Generate a specific amount of discard instructions for each of the stack types.
      *
-     * @param numInts    the amount of integer discard instructions.
-     * @param numStrings the amount of string discard instructions.
-     * @param numLongs   the amount of long discard instructions.
+     * @param numInts
+     *         the amount of integer discard instructions.
+     * @param numStrings
+     *         the amount of string discard instructions.
+     * @param numLongs
+     *         the amount of long discard instructions.
      */
     private void generateDiscard(int numInts, int numStrings, int numLongs) {
         if (numInts > 0) {
@@ -699,7 +717,9 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Resolves how many pushes of each stack type does the specified element {@link Type type} do.
      *
-     * @param type the type to resolve for.
+     * @param type
+     *         the type to resolve for.
+     *
      * @return the amount of pushes in one array in a specific order (int, string, long).
      */
     private int[] resolvePushCount(Type type) {
@@ -737,8 +757,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * then passed to {@link #makeInstruction(Opcode, Object)} and then it gets added to the current active block in the
      * {@link #blockMap block map}.
      *
-     * @param opcode  the opcode of the instruction.
-     * @param operand the operand of the instruction.
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(CoreOpcode opcode, Object operand) {
@@ -751,9 +774,13 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * then passed to {@link #makeInstruction(Opcode, Object)} and then it gets added to the current active block in the
      * {@link #blockMap block map}.
      *
-     * @param block   the block to add the instruction to.
-     * @param opcode  the opcode of the instruction.
-     * @param operand the operand of the instruction.
+     * @param block
+     *         the block to add the instruction to.
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(Block block, CoreOpcode opcode, Object operand) {
@@ -764,8 +791,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * Creates a new {@link Instruction instruction} using {@link #makeInstruction(Opcode, Object)} and then adds it as
      * a child instruction to the current active block in the {@link #blockMap block map}.
      *
-     * @param opcode  the opcode of the instruction.
-     * @param operand the operand of the instruction.
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(Opcode opcode, Object operand) {
@@ -776,9 +806,13 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * Creates a new {@link Instruction instruction} using {@link #makeInstruction(Opcode, Object)} and then adds it as
      * a child instruction to the current active block in the {@link #blockMap block map}.
      *
-     * @param block   the block to add the instruction to.
-     * @param opcode  the opcode of the instruction.
-     * @param operand the operand of the instruction.
+     * @param block
+     *         the block to add the instruction to.
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(Block block, Opcode opcode, Object operand) {
@@ -790,8 +824,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Creates a new {@link Instruction} object without linking it to any block.
      *
-     * @param opcode  the opcode of the instruction.
-     * @param operand the operand of the instruction.
+     * @param opcode
+     *         the opcode of the instruction.
+     * @param operand
+     *         the operand of the instruction.
+     *
      * @return the created {@link Instruction} object.
      */
     private Instruction makeInstruction(Opcode opcode, Object operand) {
@@ -801,7 +838,9 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Binds the specified {@link Block block} as the current working block.
      *
-     * @param block the block to bind as the working block.
+     * @param block
+     *         the block to bind as the working block.
+     *
      * @return the block that was passed to the method.
      */
     private Block bind(Block block) {
@@ -812,8 +851,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Generates a new {@link Block} object.
      *
-     * @param name the name of the block label.
+     * @param name
+     *         the name of the block label.
+     *
      * @return the generated {@link Block} object.
+     *
      * @see BlockMap#generate(Label)
      */
     private Block generateBlock(String name) {
@@ -823,8 +865,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Generates a new {@link Block} object.
      *
-     * @param label the label of the block.
+     * @param label
+     *         the label of the block.
+     *
      * @return the generated {@link Block} object.
+     *
      * @see BlockMap#generate(Label)
      */
     private Block generateBlock(Label label) {
@@ -834,8 +879,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Generates a new unique {@link Label} object.
      *
-     * @param name the name of the label.
+     * @param name
+     *         the name of the label.
+     *
      * @return the generated {@link Label} object.
+     *
      * @see LabelGenerator#generate(String)
      */
     private Label generateLabel(String name) {
@@ -854,7 +902,9 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Creates a new {@Link Context} object and pushes it into the stack.
      *
-     * @param type the type of the context.
+     * @param type
+     *         the type of the context.
+     *
      * @return the created {@link Context} object.
      */
     public Context pushContext(ContextType type) {
@@ -876,8 +926,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * Gets the push variable instruction {@link CoreOpcode opcode} of the specified {@link VariableDomain} and the
      * specified {@link Type}.
      *
-     * @param domain the variable domain.
-     * @param type   the variable type.
+     * @param domain
+     *         the variable domain.
+     * @param type
+     *         the variable type.
+     *
      * @return the instruction {@link CoreOpcode opcode} of that constant type.
      */
     private static CoreOpcode getPushVariableOpcode(VariableDomain domain, Type type) {
@@ -911,8 +964,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * Gets the pop variable instruction {@link CoreOpcode opcode} of the specified {@link VariableDomain} and the
      * specified {@link Type}.
      *
-     * @param domain the variable domain.
-     * @param type   the variable type.
+     * @param domain
+     *         the variable domain.
+     * @param type
+     *         the variable type.
+     *
      * @return the instruction {@link CoreOpcode opcode} of that constant type.
      */
     private static CoreOpcode getPopVariableOpcode(VariableDomain domain, Type type) {
@@ -944,7 +1000,9 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * Gets the instruction {@link CoreOpcode} of the specified constant {@link Type}.
      *
-     * @param type the type of the constant.
+     * @param type
+     *         the type of the constant.
+     *
      * @return the instruction {@link CoreOpcode opcode} of that constant type.
      */
     private static CoreOpcode getConstantOpcode(Type type) {

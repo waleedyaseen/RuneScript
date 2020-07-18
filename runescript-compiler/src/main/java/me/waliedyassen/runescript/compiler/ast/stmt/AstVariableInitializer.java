@@ -8,13 +8,9 @@
 package me.waliedyassen.runescript.compiler.ast.stmt;
 
 import lombok.Getter;
-import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
-import me.waliedyassen.runescript.compiler.ast.expr.AstIdentifier;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
-import me.waliedyassen.runescript.compiler.util.VariableScope;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents a variable initialize statement.
@@ -27,44 +23,28 @@ public final class AstVariableInitializer extends AstStatement {
      * The scope of the variable.
      */
     @Getter
-    private final VariableScope scope;
-
-    /**
-     * The name of the variable.
-     */
-    @Getter
-    private final AstIdentifier name;
+    private final AstVariable[] variables;
 
     /**
      * The initialise expression of the variable.
      */
     @Getter
-    private final AstExpression expression;
+    private final AstExpression[] expressions;
 
     /**
-     * The initialized variable information.
-     */
-    @Getter
-    @Setter
-    private VariableInfo variable;
-
-    /**
-     * Construct a new {@link AstVariableInitializer} type object instance.
+     * Constructs a new {@link AstVariable} type object instance.
      *
      * @param range
      *         the node source code range.
-     * @param scope
-     *         the variable scope.
-     * @param name
-     *         the variable name.
-     * @param expression
-     *         the variable initialise expression.
+     * @param variables
+     *         the variables we are initializing.
+     * @param expressions
+     *         the expressions we are initializing.
      */
-    public AstVariableInitializer(Range range, VariableScope scope, AstIdentifier name, AstExpression expression) {
+    public AstVariableInitializer(Range range, AstVariable[] variables, AstExpression[] expressions) {
         super(range);
-        this.scope = scope;
-        this.name = addChild(name);
-        this.expression = addChild(expression);
+        this.variables = addChild(variables);
+        this.expressions = addChild(expressions);
     }
 
     /**
@@ -74,4 +54,5 @@ public final class AstVariableInitializer extends AstStatement {
     public <E, S> S accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
     }
+
 }

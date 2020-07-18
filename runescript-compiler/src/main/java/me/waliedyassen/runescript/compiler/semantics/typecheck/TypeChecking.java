@@ -22,6 +22,7 @@ import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.*;
@@ -225,9 +226,12 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     /**
      * Checks whether or ont a script call is applicable.
      *
-     * @param call      the AST node object of the call.
-     * @param info      the information of the script we are calling.
-     * @param arguments the arguments that are used in the call.
+     * @param call
+     *         the AST node object of the call.
+     * @param info
+     *         the information of the script we are calling.
+     * @param arguments
+     *         the arguments that are used in the call.
      */
     private void checkCallApplicable(AstNodeBase call, ScriptInfo info, AstExpression[] arguments) {
         var types = new Type[arguments.length];
@@ -244,8 +248,11 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     /**
      * Checks whether or not a script call is applicable.
      *
-     * @param expected the expected arguments of the call.
-     * @param actual   the actual arguments of the call.
+     * @param expected
+     *         the expected arguments of the call.
+     * @param actual
+     *         the actual arguments of the call.
+     *
      * @return <code>true</code> if it is applicable otherwise <code>false</code>.
      */
     private boolean isCallApplicable(Type[] expected, Type[] actual) {
@@ -374,9 +381,19 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstVariableInitializer variableInitializer) {
-        var expression = variableInitializer.getExpression();
-        if (expression != null && variableInitializer.getVariable() != null) {
-            checkType(expression, variableInitializer.getVariable().getType(), expression.accept(this));
+        var expressionTypes = new Type[variableInitializer.getExpressions().length];
+        for (var index = 0; index < expressionTypes.length; index++) {
+            expressionTypes[index] = variableInitializer.getExpressions()[index].accept(this);
+        }
+        var variableTypes = new Type[variableInitializer.getVariables().length];
+        for (var index = 0; index < variableTypes.length; index++) {
+            VariableInfo info = variableInitializer.getVariables()[index].getInfo();
+            variableTypes[index] = info == null ? PrimitiveType.UNDEFINED : info.getType();
+        }
+        var varTuple = new TupleType(variableTypes);
+        var exprTuple = new TupleType(expressionTypes);
+        if (!exprTuple.equals(varTuple)) {
+            checker.reportError(new SemanticError(variableInitializer, String.format("Mismatch variable initializer expected: %s but got: %s", varTuple.getRepresentation(), exprTuple.getRepresentation())));
         }
         return PrimitiveType.UNDEFINED;
     }
@@ -424,7 +441,9 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     /**
      * Resolves the specified case key expression integer value.
      *
-     * @param expression the case key expression to resolve its value.
+     * @param expression
+     *         the case key expression to resolve its value.
+     *
      * @return the integer value of that expression.
      */
     private int resolveCaseKey(AstExpression expression) {
@@ -435,10 +454,11 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         } else if (expression instanceof AstConstant) {
             var symbol = symbolTable.lookupConstant(((AstConstant) expression).getName().getText());
             return (int) symbol.getValue();
-        } else if (expression instanceof AstDynamic) {
+        } /*else if (expression instanceof AstDynamic) {
+            TODO: Re-eanble this
             var name = ((AstDynamic) expression).getName().getText();
             return symbolTable.lookupConfig(name).getId();
-        } else {
+        } */ else {
             checker.reportError(new SemanticError(expression, "Case keys must be known at compile-time."));
         }
         return 0;
@@ -527,10 +547,15 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * Checks if the specified {@link Operator operator} is applicable to the given {@link Type left} and {@link Type
      * right} hand sides, and if it is not applicable, it will report an error back to the {@link #checker}.
      *
-     * @param node     the node which requested this check.
-     * @param left     the left hand side type.
-     * @param right    the right hand side type.
-     * @param operator the operator to check.
+     * @param node
+     *         the node which requested this check.
+     * @param left
+     *         the left hand side type.
+     * @param right
+     *         the right hand side type.
+     * @param operator
+     *         the operator to check.
+     *
      * @return the output value type of the operator.
      */
     private Type checkOperator(AstNodeBase node, Type left, Type right, Operator operator) {
@@ -561,9 +586,13 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * Checks if the specified {@link Type expected type} matches the specified {@link Type actual type}, and if it does
      * not match, it will report an error back to the {@link #checker}.
      *
-     * @param node     the node which requested this check.
-     * @param expected the expected type to match against.
-     * @param actual   the actual type to match.
+     * @param node
+     *         the node which requested this check.
+     * @param expected
+     *         the expected type to match against.
+     * @param actual
+     *         the actual type to match.
+     *
      * @return <code>true</code> if the type matches the expected otherwise <code>false</code>.
      */
     private boolean checkType(AstNodeBase node, Type expected, Type actual) {

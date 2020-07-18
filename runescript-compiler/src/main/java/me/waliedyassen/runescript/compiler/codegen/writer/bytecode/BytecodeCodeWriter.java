@@ -17,6 +17,7 @@ import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
 import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
+import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.type.StackType;
 
@@ -90,7 +91,10 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
                     switchTables.add(jumps);
                 } else if (operand instanceof ScriptInfo) {
                     var info = (ScriptInfo) operand;
-                    operand = info.getPredefinedId() != null ? info.getPredefinedId() : idProvider.find(info.getFullName());
+                    operand = info.getPredefinedId() != null ? info.getPredefinedId() : idProvider.findScript(info.getFullName());
+                } else if (operand instanceof ConfigInfo) {
+                    var info = (ConfigInfo) operand;
+                    operand = idProvider.findConfig(info.getType(), info.getName());
                 } else if (operand instanceof Local) {
                     operand = localTable.get(operand);
                 } else if (operand instanceof Integer) {
@@ -110,16 +114,19 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
         }
         // Create the container object and return it.
         return new BytecodeScript(
-          script.getName(), numIntParameters, numStringParameters, numLongParameters, numIntLocals,
-          numStringLocals, numLongLocals, instructions.toArray(new BytecodeInstruction[0]), switchTables,
-          supportsLongPrimitiveType);
+                script.getName(), numIntParameters, numStringParameters, numLongParameters, numIntLocals,
+                numStringLocals, numLongLocals, instructions.toArray(new BytecodeInstruction[0]), switchTables,
+                supportsLongPrimitiveType);
     }
 
     /**
      * Builds the index table of the specified local variables nad parameters.
      *
-     * @param parameters the parameters to  build the index table for.
-     * @param variables  the local variables to build the index table for.
+     * @param parameters
+     *         the parameters to  build the index table for.
+     * @param variables
+     *         the local variables to build the index table for.
+     *
      * @return the index table as a {@link Map} object.
      */
     private Map<Local, Integer> buildLocalTable(Map<StackType, List<Local>> parameters, Map<StackType, List<Local>> variables) {
@@ -151,7 +158,9 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
     /**
      * Builds the address table for the specified map of {@link Block blocks}.
      *
-     * @param blocks the map of blocks to build the address table for.
+     * @param blocks
+     *         the map of blocks to build the address table for.
+     *
      * @return the address table as a {@link Map} object.
      */
     private Map<Label, Integer> buildAddressTable(Map<Label, Block> blocks) {

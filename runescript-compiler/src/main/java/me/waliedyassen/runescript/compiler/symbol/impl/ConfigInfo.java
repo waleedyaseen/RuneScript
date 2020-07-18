@@ -23,12 +23,6 @@ import me.waliedyassen.runescript.type.Type;
 public final class ConfigInfo extends Symbol {
 
     /**
-     * The id of the configuration.
-     */
-    @Getter
-    private final int id;
-
-    /**
      * The name of the configuration.
      */
     @Getter

@@ -172,12 +172,16 @@ public final class PreTypeChecking extends AstTreeVisitor {
      */
     @Override
     public Void visit(AstVariableInitializer variableInitializer) {
-        var name = variableInitializer.getName();
-        var variable = resolveVariable(variableInitializer.getScope(), name.getText());
-        if (variable == null) {
-            reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to a variable", name.getText())));
-        } else {
-            variableInitializer.setVariable(variable);
+        var count = variableInitializer.getVariables().length;
+        for (var index = 0; index < count; index++) {
+            var variableNode = variableInitializer.getVariables()[index];
+            var name = variableNode.getName();
+            var info = resolveVariable(variableNode.getScope(), name.getText());
+            if (info == null) {
+                reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to a variable", name.getText())));
+            } else {
+                variableNode.setInfo(info);
+            }
         }
         return super.visit(variableInitializer);
     }
@@ -291,8 +295,11 @@ public final class PreTypeChecking extends AstTreeVisitor {
     /**
      * Attempts to resolve the variable with the given {@link VariableScope scope} and {@code name}.
      *
-     * @param scope the variable scope to resolve.
-     * @param name  the variable name to resolve.
+     * @param scope
+     *         the variable scope to resolve.
+     * @param name
+     *         the variable name to resolve.
+     *
      * @return the resolved {@link VariableInfo} if it was present otherwise {@code null}.
      */
     private VariableInfo resolveVariable(VariableScope scope, String name) {

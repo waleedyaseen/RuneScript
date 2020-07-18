@@ -61,7 +61,7 @@ class CodeGeneratorTest {
             map.registerCore(opcode, opcode.ordinal(), opcode.isLargeOperand());
         }
         checker = new SemanticChecker(environment, table, false);
-        generator = new CodeGenerator(null, table, map, null);
+        generator = new CodeGenerator(environment, table, map, ScriptParserTest.TestTriggerType.CLIENTSCRIPT);
         generator.initialise();
     }
 
