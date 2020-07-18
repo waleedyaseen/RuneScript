@@ -5,5 +5,5 @@ def_int $array2(1);
 ~test_01(array0, 0, array2);
 
 [proc,test_01](intarray $array0, int $index, intarray $array1)(int)
-return $array0(index);
+return($array0(index));
 

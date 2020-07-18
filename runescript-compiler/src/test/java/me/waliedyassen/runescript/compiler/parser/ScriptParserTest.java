@@ -293,7 +293,7 @@ public final class ScriptParserTest {
             assertTrue(fromString("{}").statement() instanceof AstBlockStatement);
         }, () -> {
             // valid return statement
-            assertTrue(fromString("return test;").statement() instanceof AstReturnStatement);
+            assertTrue(fromString("return(test);").statement() instanceof AstReturnStatement);
         }, () -> {
             // valid variable define statement
             assertTrue(fromString("def_boolean $mybool = true;").statement() instanceof AstVariableDeclaration);
@@ -386,13 +386,13 @@ public final class ScriptParserTest {
     void testReturnStatement() {
         assertAll("return statement", () -> {
             // valid return one expression
-            var returnStatement = fromString("return \"am valid\";").returnStatement();
+            var returnStatement = fromString("return(\"am valid\");").returnStatement();
             assertNotNull(returnStatement);
             assertEquals(1, returnStatement.getExpressions().length);
             assertTrue(returnStatement.getExpressions()[0] instanceof AstLiteralString);
         }, () -> {
             // valid return multiple expressions
-            var returnStatement = fromString("return 1,true,\"\";").returnStatement();
+            var returnStatement = fromString("return(1,true,\"\");").returnStatement();
         }, () -> {
             // valid return nothing
             var returnStatement = fromString("return;").returnStatement();
@@ -400,7 +400,7 @@ public final class ScriptParserTest {
             assertEquals(0, returnStatement.getExpressions().length);
         }, () -> {
             // invalid return multiple expressions
-            assertThrows(SyntaxError.class, () -> fromString("return 1,2,3,;").returnStatement());
+            assertThrows(SyntaxError.class, () -> fromString("return(1,2,3,);").returnStatement());
         }, () -> {
             // missing semi colon
             assertThrows(SyntaxError.class, () -> fromString("return if;").returnStatement());
@@ -466,7 +466,7 @@ public final class ScriptParserTest {
     void testSwitchStatement() {
         assertAll("switch statement", () -> {
             // valid switch statement with only one emptycase
-            var _switch = fromString("switch_int($test){case 1,2,3,4,5: return true; case default: return false;}").switchStatement();
+            var _switch = fromString("switch_int($test){case 1,2,3,4,5: return(true); case default: return(false);}").switchStatement();
             assertNotNull(_switch);
             assertNotNull(_switch.getDefaultCase());
             assertEquals(1, _switch.getCases().length);
@@ -478,7 +478,7 @@ public final class ScriptParserTest {
     void testSwitchCase() {
         assertAll("switch case", () -> {
             // valid multiple expressions case
-            var _case = fromString("case 0,1,2,3,4,5,6: return true;").switchCase();
+            var _case = fromString("case 0,1,2,3,4,5,6: return(true);").switchCase();
             var values = new int[]{0, 1, 2, 3, 4, 5, 6};
             assertNotNull(_case);
             assertEquals(7, _case.getKeys().length);
@@ -491,7 +491,7 @@ public final class ScriptParserTest {
             assertTrue(_case.getCode().getStatements()[0] instanceof AstReturnStatement);
         }, () -> {
             // valid case default
-            var _case = fromString("case default: return true;").switchCase();
+            var _case = fromString("case default: return(true);").switchCase();
             assertNotNull(_case);
             assertTrue(_case.isDefault());
             assertEquals(1, _case.getCode().getStatements().length);

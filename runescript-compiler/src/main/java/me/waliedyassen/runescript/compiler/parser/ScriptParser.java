@@ -486,18 +486,17 @@ public final class ScriptParser extends ParserBase<Kind> {
     public AstReturnStatement returnStatement() {
         pushRange();
         consume(RETURN);
-        var exprs = new ArrayList<AstExpression>();
-        boolean paren = consumeIf(LPAREN);
-        if (isExpression()) {
-            do {
-                exprs.add(expression());
-            } while (consumeIf(COMMA));
-        }
-        if (paren) {
-            consumeIf(RPAREN);
+        var expressions = new ArrayList<AstExpression>();
+        if (consumeIf(LPAREN)) {
+            if (isExpression()) {
+                do {
+                    expressions.add(expression());
+                } while (consumeIf(COMMA));
+            }
+            consume(RPAREN);
         }
         consume(SEMICOLON);
-        return new AstReturnStatement(popRange(), exprs.toArray(new AstExpression[0]));
+        return new AstReturnStatement(popRange(), expressions.toArray(new AstExpression[0]));
     }
 
     /**
@@ -558,7 +557,7 @@ public final class ScriptParser extends ParserBase<Kind> {
             expressions.add(expression());
         } while (consumeIf(COMMA));
         consume(SEMICOLON);
-        return new AstVariableInitializer(popRange(),variables.toArray(new AstVariable[0]), expressions.toArray(new AstExpression[0]));
+        return new AstVariableInitializer(popRange(), variables.toArray(new AstVariable[0]), expressions.toArray(new AstExpression[0]));
     }
 
     /**

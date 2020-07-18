@@ -300,7 +300,7 @@ public interface AstVisitor<E, S> {
      *
      * @return the implementation output object.
      */
-    default S visit(AstVariable variable) {
+    default E visit(AstVariable variable) {
         return null;
     }
 

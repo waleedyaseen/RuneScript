@@ -55,7 +55,7 @@ public final class AstVariable extends AstNode {
      * {@inheritDoc}
      */
     @Override
-    public <E, S> Object accept(AstVisitor<E, S> visitor) {
+    public <E, S> E accept(AstVisitor<E, S> visitor) {
         return visitor.visit(this);
     }
 }

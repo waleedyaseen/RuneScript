@@ -90,7 +90,7 @@ class CodeGeneratorTest {
 
     @Test
     void testCalcPrecedence() {
-        var script = fromString("[proc,test](int $param)(int) return calc(1 + $param * 5);")[0];
+        var script = fromString("[proc,test](int $param)(int) return(calc(1 + $param * 5));")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 1);
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
@@ -102,7 +102,7 @@ class CodeGeneratorTest {
 
     @Test
     void testCalcSimple() {
-        var script = fromString("[proc,test](int $param)(int) return calc($param);")[0];
+        var script = fromString("[proc,test](int $param)(int) return(calc($param));")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.RETURN, 0);

@@ -2,4 +2,4 @@
 def_int $first = calc($param * 2 + 1);
 def_int $second = calc($param % 2 + 1);
 def_int $third = calc($param / 2 + 1);
-return calc($first + $second - $third);
+return(calc($first + $second - $third));
