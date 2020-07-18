@@ -31,6 +31,7 @@ import me.waliedyassen.runescript.editor.vfs.VFS;
 import me.waliedyassen.runescript.index.Index;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.Type;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -693,12 +694,20 @@ public final class Project {
          * {@inheritDoc}
          */
         @Override
-        public int find(String name) throws IllegalArgumentException {
-            var id = index.get("clientscript").find(name);
+        public int findScript(String name) throws IllegalArgumentException {
+            var id = index.get("serverscript").find(name);
             if (id == null) {
                 throw new IllegalArgumentException("Failed to find an id for script with name: " + name);
             }
             return id;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int findConfig(Type type, String name) throws IllegalArgumentException {
+            throw new IllegalArgumentException("Failed to find an id for script with name: " + name);
         }
     }
 }

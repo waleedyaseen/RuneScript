@@ -28,6 +28,16 @@ public abstract class ScriptRuntime implements AutoCloseable {
     public static final int MAX_LOCALS = 256;
 
     /**
+     * The maximum amount of arrays we can have per runtime.
+     */
+    public static final int MAX_ARRAYS = 5;
+
+    /**
+     * The maximum amount of elements we can have per array per runtime.
+     */
+    public static final int MAX_ARRAY_ELEMENTS = 5000;
+
+    /**
      * The integer stack of the runtime.
      */
     @Getter
@@ -62,6 +72,18 @@ public abstract class ScriptRuntime implements AutoCloseable {
      */
     @Getter
     private final long[] longLocals = new long[MAX_LOCALS];
+
+    /**
+     * An array of all the array sizes in the runtime.
+     */
+    @Getter
+    private final int[] arraySize = new int[MAX_ARRAYS];
+
+    /**
+     * An array of all the array elements in the runtime.
+     */
+    @Getter
+    private final int[][] arrayElements = new int[MAX_ARRAYS][MAX_ARRAY_ELEMENTS];
 
     /**
      * The execution call frame of the runtime.
@@ -100,7 +122,8 @@ public abstract class ScriptRuntime implements AutoCloseable {
     /**
      * Sets the current execution frame of the runtime from the specified {@link ScriptFrame frame}.
      *
-     * @param frame the frame which we want to set the execution frame based on.
+     * @param frame
+     *         the frame which we want to set the execution frame based on.
      */
     public void set(ScriptFrame frame) {
         script = frame.getScript();
@@ -135,7 +158,8 @@ public abstract class ScriptRuntime implements AutoCloseable {
     /**
      * Pushes a {@code int} value to the top of the int stack.
      *
-     * @param value the int value to push to the int stack.
+     * @param value
+     *         the int value to push to the int stack.
      */
     public void pushInt(int value) {
         intStack.push(value);
@@ -153,7 +177,8 @@ public abstract class ScriptRuntime implements AutoCloseable {
     /**
      * Pushes a {@link String} value to the top of the string stack.
      *
-     * @param value the string value to push to the string stack.
+     * @param value
+     *         the string value to push to the string stack.
      */
     public void pushString(String value) {
         stringStack.push(value);
@@ -171,7 +196,8 @@ public abstract class ScriptRuntime implements AutoCloseable {
     /**
      * Pushes a {@code long} value to the top of the long stack.
      *
-     * @param value the long value to push to the long stack.
+     * @param value
+     *         the long value to push to the long stack.
      */
     public void pushLong(long value) {
         longStack.push(value);
