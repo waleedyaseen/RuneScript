@@ -26,7 +26,7 @@ import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
@@ -646,7 +646,7 @@ public final class ScriptParserTest {
         try (var stream = new StringBufferInputStream(text)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            return new ScriptParser(environment, new SymbolTable(), lexer);
+            return new ScriptParser(environment, new ScriptSymbolTable(), lexer);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -657,7 +657,7 @@ public final class ScriptParserTest {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
             Tokenizer tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            return new ScriptParser(environment, new SymbolTable(), lexer);
+            return new ScriptParser(environment, new ScriptSymbolTable(), lexer);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

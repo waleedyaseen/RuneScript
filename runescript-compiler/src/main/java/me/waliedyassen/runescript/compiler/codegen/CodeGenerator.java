@@ -31,7 +31,7 @@ import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchMap;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
@@ -89,7 +89,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * The symbol table which has all the information for the current generation.
      */
-    private final SymbolTable symbolTable;
+    private final ScriptSymbolTable symbolTable;
 
     /**
      * The instructions map which contains the primary instruction opcodes.
@@ -906,7 +906,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     }
 
     /**
-     * Gets the current active {@Link Context} object.
+     * Gets the current active {@link Context} object.
      *
      * @return the active {@link Context} object.
      */
@@ -915,7 +915,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     }
 
     /**
-     * Creates a new {@Link Context} object and pushes it into the stack.
+     * Creates a new {@link Context} object and pushes it into the stack.
      *
      * @param type
      *         the type of the context.

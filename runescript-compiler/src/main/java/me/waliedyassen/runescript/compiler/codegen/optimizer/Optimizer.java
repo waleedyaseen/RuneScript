@@ -28,7 +28,7 @@ import java.util.List;
 public final class Optimizer {
 
     /**
-     * A list {@Link Optimization} object that this optimizer will run.
+     * A list {@link Optimization} object that this optimizer will run.
      */
     private final List<Optimization> optimizations = new ArrayList<>();
 

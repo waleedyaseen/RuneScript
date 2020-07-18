@@ -108,6 +108,6 @@ public final class VFS {
      * @return the normalized string form of the path.
      */
     private String normalizeToKey(Path path) {
-        return PathEx.normaliseToString(rootPath, path);
+        return PathEx.normalizeRelative(rootPath, path);
     }
 }

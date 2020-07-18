@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.Data;
 import lombok.var;
+import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
@@ -20,8 +21,7 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.commons.Pair;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
@@ -45,7 +45,7 @@ class TypeCheckingTest {
         for (ScriptParserTest.TestTriggerType triggerType : ScriptParserTest.TestTriggerType.values()) {
             environment.registerTrigger(triggerType);
         }
-        var table = new SymbolTable();
+        var table = new ScriptSymbolTable();
         checker = new SemanticChecker(environment, table, false);
     }
 

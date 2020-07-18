@@ -21,7 +21,9 @@ public final class PathEx {
     /**
      * Returns the extension of the specified {@link Path}.
      *
-     * @param path the path to get it's extension.
+     * @param path
+     *         the path to get it's extension.
+     *
      * @return the extension of the path or an empty string if there was no extension.
      */
     public static String getExtension(Path path) {
@@ -36,16 +38,19 @@ public final class PathEx {
     /**
      * Normalizes the specified {@link Path path} to a key string.
      *
-     * @param root the root path, which when present the other {@code path} will be relativized against.
-     * @param path the path which we want to normalize to a key string.
+     * @param root
+     *         the root path, which when present the other {@code path} will be relativized against.
+     * @param path
+     *         the path which we want to normalize to a key string.
+     *
      * @return the normalized string form of the path.
      */
-    public static String normaliseToString(Path root, Path path) {
+    public static String normalizeRelative(Path root, Path path) {
         var relative = root != null ? root.relativize(path.toAbsolutePath()) : path;
         var builder = new StringBuilder();
         for (var index = 0; index < relative.getNameCount(); index++) {
             if (index != 0) {
-                builder.append("/");
+                builder.append('/');
             }
             builder.append(relative.getName(index).toString());
         }

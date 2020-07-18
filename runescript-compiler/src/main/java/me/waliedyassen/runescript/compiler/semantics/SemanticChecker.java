@@ -10,13 +10,13 @@ package me.waliedyassen.runescript.compiler.semantics;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.compiler.ast.AstNodeBase;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecking;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.commons.Pair;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public final class SemanticChecker implements ErrorReporter {
      * The symbol table to resolve and register symbol information in.
      */
     @Getter
-    private final SymbolTable symbolTable;
+    private final ScriptSymbolTable symbolTable;
 
     /**
      * Whether or not we allow overriding in symbols.
@@ -62,7 +62,8 @@ public final class SemanticChecker implements ErrorReporter {
     /**
      * Executes the pre semantic checking for the specified {@link AstScript scripts}.
      *
-     * @param scripts the scripts to perform the pre semantic checking on.
+     * @param scripts
+     *         the scripts to perform the pre semantic checking on.
      */
     public void executePre(Iterable<Pair<Object, AstScript>> scripts) {
         var pre = new PreTypeChecking(this, symbolTable);
@@ -75,7 +76,8 @@ public final class SemanticChecker implements ErrorReporter {
     /**
      * Executes the semantic checking for the specified {@link AstNodeBase node}.
      *
-     * @param scripts the scripts to perform the semantic checking on.
+     * @param scripts
+     *         the scripts to perform the semantic checking on.
      */
     public void execute(Iterable<Pair<Object, AstScript>> scripts) {
         var checker = new TypeChecking(this, symbolTable, environment.getHookTriggerType());

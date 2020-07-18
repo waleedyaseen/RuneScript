@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.file.FileType;
+import me.waliedyassen.runescript.editor.file.impl.ConfigFileType;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.CodeCompletionProvider;
 import me.waliedyassen.runescript.editor.ui.editor.code.folder.CodeFolder;
 import me.waliedyassen.runescript.editor.ui.editor.code.parser.ParserManager;
@@ -36,14 +37,27 @@ public final class CodeEditor extends FileEditor {
     private static final String SYNTAX_STYLE_RUNESCRIPT = "text/runescript";
 
     /**
+     * The syntax style of the code area.
+     */
+    private static final String SYNTAX_STYLE_RUNECONFIG = "text/runeconfig";
+
+    /**
+     * Whether or not this code area is for configs.
+     */
+    private final boolean config;
+
+    /**
      * Constructs a new {@link CodeEditor} type object instance.
      *
-     * @param fileType the type of the file we are editing.
-     * @param path     the path of the file we are editing.
+     * @param fileType
+     *         the type of the file we are editing.
+     * @param path
+     *         the path of the file we are editing.
      */
     public CodeEditor(FileType fileType, Path path) {
         super(fileType, path);
-        textArea.setSyntaxEditingStyle(SYNTAX_STYLE_RUNESCRIPT);
+        config = fileType instanceof ConfigFileType;
+        textArea.setSyntaxEditingStyle(config ? SYNTAX_STYLE_RUNECONFIG : SYNTAX_STYLE_RUNESCRIPT);
         textArea.setTabSize(2);
         textArea.setAutoIndentEnabled(true);
         textArea.setAntiAliasingEnabled(true);
@@ -52,9 +66,13 @@ public final class CodeEditor extends FileEditor {
         textArea.setAutoscrolls(true);
         textArea.setWrapStyleWord(false);
         new CodeTheme(textArea).apply(textArea);
-        ParserManager.installCodeParser(this);
-        textArea.setPopupMenu(null);
-        installAutoComplete();
+        if (config) {
+
+        } else {
+            ParserManager.installCodeParser(this);
+            textArea.setPopupMenu(null);
+            installAutoComplete();
+        }
     }
 
     /**

@@ -11,11 +11,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.CompilerError;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.config.semantics.typecheck.TypeChecking;
-import me.waliedyassen.runescript.config.symbol.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;

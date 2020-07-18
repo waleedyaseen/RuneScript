@@ -20,7 +20,7 @@ import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatemen
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
@@ -48,7 +48,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     /**
      * The symbol table that we will be using for getting symbol information.
      */
-    private final SymbolTable symbolTable;
+    private final ScriptSymbolTable symbolTable;
 
     /**
      * The trigger type of the hooks.

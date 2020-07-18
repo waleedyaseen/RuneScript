@@ -10,10 +10,10 @@ package me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.compiler.lexer.TokenizerBase;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMaker;
 import org.fife.ui.rsyntaxtextarea.Token;
 import org.fife.ui.rsyntaxtextarea.TokenMap;
@@ -46,7 +46,7 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
     /**
      * The symbol table to use for commands and potentially scripts.
      */
-    private final SymbolTable symbolTable;
+    private final ScriptSymbolTable symbolTable;
 
     /**
      * The tokens current offset.

@@ -5,11 +5,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package me.waliedyassen.runescript.config.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
@@ -20,7 +20,6 @@ import me.waliedyassen.runescript.config.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
-import me.waliedyassen.runescript.config.symbol.SymbolTable;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
 /**

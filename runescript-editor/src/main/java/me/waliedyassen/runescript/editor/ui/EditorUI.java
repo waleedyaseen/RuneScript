@@ -163,7 +163,7 @@ public final class EditorUI implements WindowListener {
             fileMenu.addSeparator();
 
             menuItem = new JMenuItem("Create");
-            menuItem.addActionListener((evt) -> editor.getProjectManager().close());
+            //menuItem.addActionListener((evt) -> editor.getProjectManager().close());
             fileMenu.add(menuItem);
             editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
 

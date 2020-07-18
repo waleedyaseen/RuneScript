@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.codegen;
 
 import lombok.var;
+import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.Compiler;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
@@ -21,9 +22,8 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
-import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.type.Type;
@@ -55,7 +55,7 @@ class CodeGeneratorTest {
 
     @BeforeEach
     void setupGenerator() {
-        var table = new SymbolTable();
+        var table = new ScriptSymbolTable();
         var map = new InstructionMap();
         for (var opcode : CoreOpcode.values()) {
             map.registerCore(opcode, opcode.ordinal(), opcode.isLargeOperand());
@@ -142,7 +142,7 @@ class CodeGeneratorTest {
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, new SymbolTable(), lexer);
+            var parser = new ScriptParser(environment, new ScriptSymbolTable(), lexer);
             var scripts = new ArrayList<Pair<Object, AstScript>>();
             do {
                 scripts.add(Pair.of(null, parser.script()));
@@ -164,7 +164,7 @@ class CodeGeneratorTest {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, new SymbolTable(), lexer);
+            var parser = new ScriptParser(environment, new ScriptSymbolTable(), lexer);
             var scripts = new ArrayList<Pair<Object, AstScript>>();
             do {
                 scripts.add(Pair.of(null, parser.script()));

@@ -34,44 +34,9 @@ public final class EditorIcons {
     public static final Icon FILETYPE_SCRIPT_ICON = ResourceManager.getInstance().loadIcon("/icons/tree/script.png");
 
     /**
-     * The window control close button icon.
+     * The icon of the config node in the explorer tree.
      */
-    public static final Icon CONTROL_CLOSE_BUTTON = ResourceManager.getInstance().loadIcon("/icons/controls/close.png");
-
-    /**
-     * The window control close button hovered icon.
-     */
-    public static final Icon CONTROL_CLOSE_BUTTON_HOVER = ResourceManager.getInstance().loadIcon("/icons/controls/closeHover.png");
-
-    /**
-     * The window control minimise button icon.
-     */
-    public static final Icon CONTROL_MINIMISE_BUTTON = ResourceManager.getInstance().loadIcon("/icons/controls/minimize.png");
-
-    /**
-     * The window control minimise button hovered icon.
-     */
-    public static final Icon CONTROL_MINIMISE_BUTTON_HOVER = CONTROL_MINIMISE_BUTTON;
-
-    /**
-     * The window control maximise button icon.
-     */
-    public static final Icon CONTROL_MAXIMISE_BUTTON = ResourceManager.getInstance().loadIcon("/icons/controls/maximise.png");
-
-    /**
-     * The window control maximise button hovered icon.
-     */
-    public static final Icon CONTROL_MAXIMISE_BUTTON_HOVER = CONTROL_MAXIMISE_BUTTON;
-
-    /**
-     * The window control restore button icon.
-     */
-    public static final Icon CONTROL_RESTORE_BUTTON = ResourceManager.getInstance().loadIcon("/icons/controls/restore.png");
-
-    /**
-     * The window control restore button hovered icon.
-     */
-    public static final Icon CONTROL_RESTORE_BUTTON_HOVER = CONTROL_RESTORE_BUTTON;
+    public static final Icon FILETYPE_CONFIG_ICON = ResourceManager.getInstance().loadIcon("/icons/tree/config.png");
 
     private EditorIcons() {
         // NOOP

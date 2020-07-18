@@ -22,7 +22,7 @@ import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AstTreeVisitorTest {
 
@@ -441,7 +441,7 @@ class AstTreeVisitorTest {
         try (var stream = new StringBufferInputStream(text)) {
             var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            return new ScriptParser(environment, new SymbolTable(), lexer);
+            return new ScriptParser(environment, new ScriptSymbolTable(), lexer);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -452,7 +452,7 @@ class AstTreeVisitorTest {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
             Tokenizer tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            return new ScriptParser(environment, new SymbolTable(), lexer);
+            return new ScriptParser(environment, new ScriptSymbolTable(), lexer);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

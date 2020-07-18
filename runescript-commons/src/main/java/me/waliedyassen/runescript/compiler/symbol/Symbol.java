@@ -7,11 +7,14 @@
  */
 package me.waliedyassen.runescript.compiler.symbol;
 
+import lombok.EqualsAndHashCode;
+
 /**
  * Represents the base class for any symbol registered in the symbol table.
  *
  * @author Walied K. Yassen
  */
+@EqualsAndHashCode
 public abstract class Symbol {
     // NOOP
 }

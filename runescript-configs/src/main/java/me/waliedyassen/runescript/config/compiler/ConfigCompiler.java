@@ -14,6 +14,7 @@ import me.waliedyassen.runescript.compiler.CompilerBase;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.Output;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.codegen.BinaryConfig;
 import me.waliedyassen.runescript.config.codegen.CodeGenerator;
@@ -22,8 +23,6 @@ import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
 import me.waliedyassen.runescript.config.parser.ConfigParser;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
-import me.waliedyassen.runescript.config.symbol.SymbolTable;
-import me.waliedyassen.runescript.config.type.TypeRegistry;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -54,11 +53,6 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
     private final SymbolTable symbolTable;
 
     /**
-     * The type registry of the compiler.
-     */
-    private final TypeRegistry typeRegistry;
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -81,14 +75,14 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
             var checker = new SemanticChecker(symbolTable, binding);
             checker.executePre(configs);
             checker.execute(configs);
-            if (!checker.getErrors().isEmpty()) {
-                checker.getErrors().forEach(error -> output.addError(sourceFile, error));
-            } else {
+            if (checker.getErrors().isEmpty()) {
                 var codeGen = new CodeGenerator(binding);
                 for (var config : configs) {
                     var binaryConfig = codeGen.visit(config);
                     output.addUnit(sourceFile, binaryConfig);
                 }
+            } else {
+                checker.getErrors().forEach(error -> output.addError(sourceFile, error));
             }
         }
         return output;

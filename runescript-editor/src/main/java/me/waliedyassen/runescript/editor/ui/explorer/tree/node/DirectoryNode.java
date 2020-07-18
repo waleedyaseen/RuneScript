@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.var;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
+import me.waliedyassen.runescript.editor.shortcut.UiAction;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonShortcuts;
 import me.waliedyassen.runescript.editor.ui.dialog.DialogManager;
@@ -52,8 +53,10 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
     /**
      * Constructs a new {@link DirectoryNode} type object instance.
      *
-     * @param tree  the owner tree of this explorer node.
-     * @param value the path which leads to the directory.
+     * @param tree
+     *         the owner tree of this explorer node.
+     * @param value
+     *         the path which leads to the directory.
      */
     public DirectoryNode(ExplorerTree tree, Path value) {
         super(tree, value);
@@ -86,48 +89,46 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
             }
         });
         newMenu.addSeparator();
-        newMenu.addAction("Server Script", (source) -> {
-            var scriptName = DialogManager.askForName("Enter the name of the script you wish to create:");
-            if (scriptName == null) {
-                return;
-            }
-            var path = getValue().resolve(scriptName + ".rs2");
-            if (Files.exists(path)) {
-                DialogManager.showErrorDialog("Error", "The specified script file already exists");
-                return;
-            }
-            try {
-                Files.createFile(path);
-            } catch (IOException e) {
-                DialogManager.showErrorDialog("Error", "An I/O error occurred while creating the file.");
-            }
-        });
-        newMenu.addAction("Client Script", (source) -> {
-            var scriptName = DialogManager.askForName("Enter the name of the script you wish to create:");
-            if (scriptName == null) {
-                return;
-            }
-            var path = getValue().resolve(scriptName + ".cs2");
-            if (Files.exists(path)) {
-                DialogManager.showErrorDialog("Error", "The specified script file already exists");
-                return;
-            }
-            try {
-                Files.createFile(path);
-            } catch (IOException e) {
-                DialogManager.showErrorDialog("Error", "An I/O error occurred while creating the file.");
-            }
-        });
+        newMenu.addAction("Server Script", createFileAction("rs2", "server script"));
+        newMenu.addAction("Client Script", createFileAction("cs2", "client script"));
         newMenu.addSeparator();
         for (var type : PrimitiveType.values()) {
-            if (type.isConfigType()) {
-                newMenu.addAction(type.getRepresentation(), (source) -> {
-
-                });
+            if (!type.isConfigType()) {
+                continue;
             }
+            newMenu.addAction("Config ." + type.getRepresentation(), createFileAction(type.getRepresentation(), type.getRepresentation() + " config"));
         }
         actionList.addSeparator();
         actionList.addAction("Delete", CommonGroups.EXPLORER.lookup(CommonShortcuts.EXPLORER_DELETE));
+    }
+
+    /**
+     * Creates a create file action for the specified extension and title name.
+     *
+     * @param extension
+     *         the extension of the file.
+     * @param titleName
+     *         the title name of the file.
+     *
+     * @return the create file action as {@link UiAction} object.
+     */
+    private UiAction createFileAction(String extension, String titleName) {
+        return (source) -> {
+            var scriptName = DialogManager.askForName("Enter the name of the " + titleName + " you wish to create:");
+            if (scriptName == null) {
+                return;
+            }
+            var path = getValue().resolve(scriptName + "." + extension);
+            if (Files.exists(path)) {
+                DialogManager.showErrorDialog("Error", "The specified " + titleName + " file already exists");
+                return;
+            }
+            try {
+                Files.createFile(path);
+            } catch (IOException e) {
+                DialogManager.showErrorDialog("Error", "An I/O error occurred while creating the file.");
+            }
+        };
     }
 
     /**

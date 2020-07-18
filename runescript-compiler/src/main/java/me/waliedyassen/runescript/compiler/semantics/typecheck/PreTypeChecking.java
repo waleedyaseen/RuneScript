@@ -12,12 +12,15 @@ import lombok.var;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.stmt.*;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstArrayDeclaration;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDeclaration;
+import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitializer;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.semantics.scope.Scope;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
@@ -51,7 +54,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
     /**
      * The symbol table to register the declared scripts in.
      */
-    private final SymbolTable symbolTable;
+    private final ScriptSymbolTable symbolTable;
 
     /**
      * {@inheritDoc}

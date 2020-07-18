@@ -11,21 +11,27 @@ import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
 import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 import javax.swing.*;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 /**
- * Represent the RuneScript Script file type.
+ * Represent the RuneScript Config file type.
  *
  * @author Walied K. Yassen
  */
-public final class ScriptFileType implements FileType {
+public final class ConfigFileType implements FileType {
 
     /**
      * An array of all the extensions this type su
      */
-    private static final String[] EXTENSIONS = new String[]{"cs2", "rs2"};
+    private static final String[] EXTENSIONS = Arrays
+            .stream(PrimitiveType.values())
+            .filter(PrimitiveType::isConfigType)
+            .map(PrimitiveType::getRepresentation)
+            .toArray(String[]::new);
 
     /**
      * {@inheritDoc}
@@ -40,7 +46,7 @@ public final class ScriptFileType implements FileType {
      */
     @Override
     public String getName() {
-        return "RuneScript Script File";
+        return "RuneScript Config File";
     }
 
     /**
@@ -48,7 +54,7 @@ public final class ScriptFileType implements FileType {
      */
     @Override
     public String getDescription() {
-        return "RuneScript Script File";
+        return "RuneScript Config File";
     }
 
     /**
@@ -64,6 +70,6 @@ public final class ScriptFileType implements FileType {
      */
     @Override
     public Icon getIcon() {
-        return EditorIcons.FILETYPE_SCRIPT_ICON;
+        return EditorIcons.FILETYPE_CONFIG_ICON;
     }
 }

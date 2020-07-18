@@ -49,7 +49,7 @@ public final class CodeParser extends AbstractParser {
         // TODO: Move error reporting again to recompileNonPersistent
         final var project = Api.getApi().getProjectManager().getCurrentProject().get();
         final var errorsView = Api.getApi().getUi().getErrorsView();
-        final var errorsPath = PathEx.normaliseToString(project.getBuildPath().getSourceDirectory(), codeEditor.getKey());
+        final var errorsPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), codeEditor.getKey());
         final var textArea = codeEditor.getTextArea();
         parseResult.clearNotices();
         parseResult.setParsedLines(0, textArea.getLineCount() - 1);
@@ -69,6 +69,7 @@ public final class CodeParser extends AbstractParser {
                 error.printStackTrace();
                 log.warn("An error occurred while adding the compiling errors to the result", e);
             }
+
         }
         return parseResult;
     }

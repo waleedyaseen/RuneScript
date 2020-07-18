@@ -218,7 +218,9 @@ public enum PrimitiveType implements Type {
     /**
      * Looks-up for the {@link PrimitiveType} with the textual representation.
      *
-     * @param representation the textual representation of the {@link PrimitiveType}.
+     * @param representation
+     *         the textual representation of the {@link PrimitiveType}.
+     *
      * @return the {@link PrimitiveType} if found otherwise {@code null}.
      */
     public static PrimitiveType forRepresentation(String representation) {
@@ -243,6 +245,23 @@ public enum PrimitiveType implements Type {
      * @return <code>true</code> if it does otherwise <code>false</code>.
      */
     public boolean isConfigType() {
-        return isDeclarable() && this != INT && this != BOOLEAN && this != LONG && this != STRING;
+        if (!isDeclarable()) {
+            return false;
+        }
+        switch (this) {
+            case INT:
+            case BOOLEAN:
+            case LONG:
+            case STRING:
+            case FONTMETRICS:
+            case GRAPHIC:
+            case SYNTH:
+            case COMPONENT:
+            case INTERFACE:
+            case COORDGRID:
+                return false;
+            default:
+                return true;
+        }
     }
 }

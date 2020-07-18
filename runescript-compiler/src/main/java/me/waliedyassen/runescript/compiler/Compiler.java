@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
 import lombok.var;
+import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
@@ -29,9 +30,8 @@ import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.message.impl.SyntaxDoneMessage;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.util.Operator;
-import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 
@@ -52,7 +52,7 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
      * The symbol table of the compiler.
      */
     @Getter
-    private final SymbolTable symbolTable = new SymbolTable();
+    private final ScriptSymbolTable symbolTable;
 
     /**
      * The code writer of the compiler.
@@ -99,13 +99,18 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
     /**
      * Constructs a new {@link Compiler} type object instance.
      *
-     * @param environment    the environment of the compiler.
-     * @param instructionMap the instruction map to use for this compiler.
-     * @param codeWriter     the code writer to use for the compiler.
-     * @param allowOverride  whether or not the compiler should override the symbols.
+     * @param environment
+     *         the environment of the compiler.
+     * @param instructionMap
+     *         the instruction map to use for this compiler.
+     * @param codeWriter
+     *         the code writer to use for the compiler.
+     * @param allowOverride
+     *         whether or not the compiler should override the symbols.
      */
     private Compiler(CompilerEnvironment environment,
                      InstructionMap instructionMap,
+                     ScriptSymbolTable symbolTable,
                      CodeWriter<?> codeWriter,
                      boolean allowOverride) {
         if (!instructionMap.isReady()) {
@@ -113,6 +118,7 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
         }
         this.environment = environment;
         this.instructionMap = instructionMap;
+        this.symbolTable = symbolTable;
         this.codeWriter = codeWriter;
         this.allowOverride = allowOverride;
         lexicalTable = createLexicalTable();
@@ -125,11 +131,14 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
     /**
      * Parses the Abstract Syntax Tree of the specified source file data.
      *
-     * @param symbolTable the symbol table to use for parsing.
-     * @param data        the source file data in bytes.
+     * @param symbolTable
+     *         the symbol table to use for parsing.
+     * @param data
+     *         the source file data in bytes.
+     *
      * @return a {@link List list} of the parsed {@link AstScript} objects.
      */
-    private List<AstScript> parseSyntaxTree(SymbolTable symbolTable, byte[] data) throws IOException {
+    private List<AstScript> parseSyntaxTree(ScriptSymbolTable symbolTable, byte[] data) throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream(data));
         var tokenizer = new Tokenizer(lexicalTable, stream);
         var lexer = new Lexer(tokenizer);
@@ -280,6 +289,11 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
         private InstructionMap instructionMap;
 
         /**
+         * The symbol table of the compiler.
+         */
+        private ScriptSymbolTable symbolTable;
+
+        /**
          * The code writer of the compiler.
          */
         private CodeWriter<?> codeWriter;
@@ -302,7 +316,9 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
         /**
          * Sets the environment object we are going to use for the compiler.
          *
-         * @param environment the environment object to set.
+         * @param environment
+         *         the environment object to set.
+         *
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withEnvironment(CompilerEnvironment environment) {
@@ -313,7 +329,9 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
         /**
          * Sets the instruction map object we are going to use for the compiler.
          *
-         * @param instructionMap the instruction map object to set.
+         * @param instructionMap
+         *         the instruction map object to set.
+         *
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withInstructionMap(InstructionMap instructionMap) {
@@ -322,10 +340,26 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
         }
 
         /**
+         * Sets the symbol table object we are going to use for the compiler.
+         *
+         * @param symbolTable
+         *         the symbol table object to set.
+         *
+         * @return this {@link CompilerBuilder} object instance.
+         */
+        public CompilerBuilder withSymbolTable(ScriptSymbolTable symbolTable) {
+            this.symbolTable = symbolTable;
+            return this;
+        }
+
+
+        /**
          * Sets whether or not the compiler that we are going to build should support the long primitive type.
          *
-         * @param supportsLongPrimitiveType <code>true</code> if it supports the long primitive type otherwise
-         *                                  <code>false</code>.
+         * @param supportsLongPrimitiveType
+         *         <code>true</code> if it supports the long primitive type otherwise
+         *         <code>false</code>.
+         *
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withSupportsLongPrimitiveType(boolean supportsLongPrimitiveType) {
@@ -336,7 +370,9 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
         /**
          * Sets the id provider that we are going to use for the compiler.
          *
-         * @param idProvider the id provider of the compiler.
+         * @param idProvider
+         *         the id provider of the compiler.
+         *
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withIdProvider(IdProvider idProvider) {
@@ -348,7 +384,9 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
          * Sets whether or not the compiler that we are going to build should override the symbols in the symbol
          * tabl.
          *
-         * @param overrideSymbols whether or not we should override symbols.
+         * @param overrideSymbols
+         *         whether or not we should override symbols.
+         *
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withOverrideSymbols(boolean overrideSymbols) {
@@ -359,7 +397,9 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
         /**
          * Sets the code writer that we are going to use for the compiler.
          *
-         * @param codeWriter the code writer of the compiler.
+         * @param codeWriter
+         *         the code writer of the compiler.
+         *
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withCodeWriter(CodeWriter<?> codeWriter) {
@@ -371,7 +411,9 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
          * Builds the {@link Compiler} object with the details configured in the builder.
          *
          * @return the built {@link Compiler} object.
-         * @throws IllegalStateException if one or more of the configuration is invalid or missing.
+         *
+         * @throws IllegalStateException
+         *         if one or more of the configuration is invalid or missing.
          */
         public Compiler build() {
             if (instructionMap == null) {
@@ -386,7 +428,10 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
             if (codeWriter == null) {
                 codeWriter = new BytecodeCodeWriter(idProvider, supportsLongPrimitiveType);
             }
-            return new Compiler(environment, instructionMap, codeWriter, overrideSymbols);
+            if (symbolTable == null) {
+                symbolTable = new ScriptSymbolTable();
+            }
+            return new Compiler(environment, instructionMap, symbolTable, codeWriter, overrideSymbols);
         }
     }
 }

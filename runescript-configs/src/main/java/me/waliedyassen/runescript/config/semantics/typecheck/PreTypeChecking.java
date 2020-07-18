@@ -10,12 +10,12 @@ package me.waliedyassen.runescript.config.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
-import me.waliedyassen.runescript.config.symbol.SymbolTable;
 
 /**
  * Represents the pre type checking semantic analysis.
@@ -45,11 +45,11 @@ public final class PreTypeChecking extends AstTreeVisitor {
      */
     @Override
     public Object visit(AstConfig config) {
-        var info = table.lookupConfig(binding.getGroup(), config.getName().getText());
+        var info = table.lookupConfig(config.getName().getText());
         if (info != null) {
             checker.reportError(new SemanticError(config.getName(), "Duplicate configuration: " + info.getName()));
         } else {
-            table.defineConfig(binding.getGroup(), config.getName().getText());
+            table.defineConfig(config.getName().getText(), binding.getGroup().getType());
         }
         return DEFAULT;
     }

@@ -8,13 +8,19 @@
 package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import me.waliedyassen.runescript.commons.document.LineColumn;
+import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.CompileInput;
 import me.waliedyassen.runescript.compiler.CompileResult;
 import me.waliedyassen.runescript.compiler.message.CompilerMessage;
 import me.waliedyassen.runescript.compiler.message.CompilerMessenger;
 import me.waliedyassen.runescript.compiler.message.impl.SyntaxDoneMessage;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
@@ -22,16 +28,16 @@ import me.waliedyassen.runescript.editor.project.dependency.DependencyTree;
 import me.waliedyassen.runescript.editor.util.ChecksumUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.index.table.IndexTable;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.TypeUtil;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -44,6 +50,10 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public final class Cache {
+
+    private static final class C {
+
+    }
 
     /**
      * A map of all the cached files in the project.
@@ -85,7 +95,8 @@ public final class Cache {
     /**
      * Constructs a new {@link Cache} type object instance.
      *
-     * @param project the project which this cache is for.
+     * @param project
+     *         the project which this cache is for.
      */
     public Cache(Project project) {
         this.project = project;
@@ -107,8 +118,11 @@ public final class Cache {
     /**
      * Deserialises the cache content form the specified {@link DataInputStream}.
      *
-     * @param stream the stream to deserialise the cache content from.
-     * @throws IOException if anything occurs while reading data from the specified stream.
+     * @param stream
+     *         the stream to deserialise the cache content from.
+     *
+     * @throws IOException
+     *         if anything occurs while reading data from the specified stream.
      */
     public void read(DataInputStream stream) throws IOException {
         var filesCount = stream.readInt();
@@ -130,8 +144,11 @@ public final class Cache {
     /**
      * Serialises the cache content form the specified {@link DataOutputStream}.
      *
-     * @param stream the stream to serialise the cache content into.
-     * @throws IOException if anything occurs while writing data to the specified stream.
+     * @param stream
+     *         the stream to serialise the cache content into.
+     *
+     * @throws IOException
+     *         if anything occurs while writing data to the specified stream.
      */
     public void write(DataOutputStream stream) throws IOException {
         stream.writeInt(filesByPath.size());
@@ -151,8 +168,11 @@ public final class Cache {
     /**
      * Compares this cache against the content of the specified source directory.
      *
-     * @param sourceDirectory the source directory to resolve the files from.
-     * @throws IOException if anything occurs walking through the path tree or while writing the changes to the disk.
+     * @param sourceDirectory
+     *         the source directory to resolve the files from.
+     *
+     * @throws IOException
+     *         if anything occurs walking through the path tree or while writing the changes to the disk.
      */
     public void diff(Path sourceDirectory) throws IOException {
         var paths = Files.walk(sourceDirectory).filter(Files::isRegularFile).collect(Collectors.toList());
@@ -160,12 +180,12 @@ public final class Cache {
         var input = new CompileInput();
         var modified = false;
         for (var path : paths) {
-            var key = PathEx.normaliseToString(sourceDirectory, path);
+            var key = PathEx.normalizeRelative(sourceDirectory, path);
             visited.add(key);
             var cachedFile = filesByPath.get(key);
             if (cachedFile == null) {
                 cachedFile = new CachedFile();
-                cachedFile.setPath(PathEx.normaliseToString(sourceDirectory, path.getParent()));
+                cachedFile.setPath(PathEx.normalizeRelative(sourceDirectory, path.getParent()));
                 cachedFile.setName(path.getFileName().toString());
                 addCachedFile(cachedFile);
             }
@@ -208,16 +228,19 @@ public final class Cache {
     /**
      * Attempts to recompile the file at the specified {@link Path} and has the specified {@code data}.
      *
-     * @param path the path which leads to the file that we want to recompile.
-     * @param data the source code data of the file that we want to recompile.
+     * @param path
+     *         the path which leads to the file that we want to recompile.
+     * @param data
+     *         the source code data of the file that we want to recompile.
+     *
      * @return the result of the re-compilation process.
      */
     public CompileResult recompile(Path path, byte[] data) {
-        var key = PathEx.normaliseToString(project.getBuildPath().getSourceDirectory(), path);
+        var key = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path);
         var cachedFile = filesByPath.get(key);
         if (cachedFile == null) {
             cachedFile = new CachedFile();
-            cachedFile.setPath(PathEx.normaliseToString(project.getBuildPath().getSourceDirectory(), path.getParent()));
+            cachedFile.setPath(PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path.getParent()));
             cachedFile.setName(path.getFileName().toString());
             filesByPath.put(key, cachedFile);
         }
@@ -282,13 +305,17 @@ public final class Cache {
      * Attempts to recompile the file at the specified {@link Path} and has the specified {@code data}. This is same
      * as {@link #recompile(Path, byte[])} except that this does not save or alter the state of the cache.
      *
-     * @param path       the path which leads to the file that we want to recompile.
-     * @param data       the source code data of the file that we want to recompile.
-     * @param runCodeGen whether or not to generate the bytecode of the compiled scripts.
+     * @param path
+     *         the path which leads to the file that we want to recompile.
+     * @param data
+     *         the source code data of the file that we want to recompile.
+     * @param runCodeGen
+     *         whether or not to generate the bytecode of the compiled scripts.
+     *
      * @return the result of the re-compilation process.
      */
     public CompileResult recompileNonPersistent(Path path, byte[] data, boolean runCodeGen) {
-        var key = PathEx.normaliseToString(project.getBuildPath().getSourceDirectory(), path);
+        var key = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path);
         var cachedFile = filesByPath.get(key);
         if (cachedFile != null) {
             for (var script : cachedFile.getScripts()) {
@@ -312,7 +339,8 @@ public final class Cache {
     /**
      * Declares all of the symbols that are in the cached file in the symbol table.
      *
-     * @param cachedFile the cached file to declare all of the symbols that are in.
+     * @param cachedFile
+     *         the cached file to declare all of the symbols that are in.
      */
     public void declareSymbols(CachedFile cachedFile) {
         for (var script : cachedFile.getScripts()) {
@@ -323,7 +351,8 @@ public final class Cache {
     /**
      * Undeclares all of the symbols that are in the cached file from the symbol table.
      *
-     * @param cachedFile the cached file to undeclare all of the symbols that are in.
+     * @param cachedFile
+     *         the cached file to undeclare all of the symbols that are in.
      */
     public void undeclareSymbols(CachedFile cachedFile) {
         for (var script : cachedFile.getScripts()) {
@@ -338,7 +367,9 @@ public final class Cache {
      * Returns the {@link IndexTable} that is responsible for indexing the file with the specified
      * {@code pth}.
      *
-     * @param path the path of the file that we want the index table for.
+     * @param path
+     *         the path of the file that we want the index table for.
+     *
      * @return the {@link IndexTable} object or {@code null} if not found.
      */
     public IndexTable getIndexForFile(Path path) {
@@ -349,11 +380,30 @@ public final class Cache {
      * Returns the {@link IndexTable} that is responsible for indexing the file with the specified
      * {@code name}.
      *
-     * @param name the name of hte file that we want the index table for.
+     * @param name
+     *         the name of hte file that we want the index table for.
+     *
      * @return the {@link IndexTable} object or {@code null} if not found.
      */
     public IndexTable getIndexForFile(String name) {
-        var indexName = name.endsWith(".rs2") ? "servescript" : "clientscript";
+        var extension = name.substring(name.lastIndexOf('.') + 1);
+        String indexName;
+        switch (extension) {
+            case "rs2":
+                indexName = "serverscript";
+                break;
+            case "cs2":
+                indexName = "clientscript";
+                break;
+            default:
+                var type = PrimitiveType.forRepresentation(name);
+                if (type.isConfigType()) {
+                    indexName = "config-" + type.getRepresentation();
+                } else {
+                    throw new IllegalArgumentException("Unrecognised extension: " + extension);
+                }
+                break;
+        }
         var index = project.getIndex().get(indexName);
         if (index == null) {
             index = project.getIndex().create(indexName);
@@ -366,8 +416,10 @@ public final class Cache {
     /**
      * Adds the specified {@link ScriptInfo} to the specified {@link CachedFile}.
      *
-     * @param cachedFile the cached file that we want to add to.
-     * @param info       the script information that we want to add.
+     * @param cachedFile
+     *         the cached file that we want to add to.
+     * @param info
+     *         the script information that we want to add.
      */
     private void addScript(CachedFile cachedFile, ScriptInfo info) {
         cachedFile.getScripts().add(info);
@@ -378,7 +430,8 @@ public final class Cache {
      * Adds the specified {@link CachedFile} to the cache, please note,
      * that this does not add any symbols to the symbols table.
      *
-     * @param cachedFile the cached file that we want to add.
+     * @param cachedFile
+     *         the cached file that we want to add.
      */
     private void addCachedFile(CachedFile cachedFile) {
         filesByPath.put(cachedFile.getFullPath(), cachedFile);
@@ -391,7 +444,8 @@ public final class Cache {
      * Removes the specified {@link CachedFile} from the cache, please note
      * that this does not remove any symbols from the symbol table.
      *
-     * @param cachedFile the cached file that we want to remove.
+     * @param cachedFile
+     *         the cached file that we want to remove.
      */
     private void removeCachedFile(CachedFile cachedFile) {
         filesByPath.remove(cachedFile.getFullPath());
@@ -404,7 +458,8 @@ public final class Cache {
      * Clears the content of the specified {@link CachedFile} and remove the linked data in
      * {@link #filesByDeclaration}.
      *
-     * @param cachedFile the cached file which we want to clear.
+     * @param cachedFile
+     *         the cached file which we want to clear.
      */
     private void clearCachedFile(CachedFile cachedFile) {
         for (var script : cachedFile.getScripts()) {

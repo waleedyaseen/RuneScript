@@ -25,7 +25,7 @@ import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
@@ -52,7 +52,7 @@ public final class ScriptParser extends ParserBase<Kind> {
     /**
      * The symbol table which we will use for checking hooks.
      */
-    private final SymbolTable symbolTable;
+    private final ScriptSymbolTable symbolTable;
 
     /**
      * The environment of the owner compiler.
@@ -69,7 +69,7 @@ public final class ScriptParser extends ParserBase<Kind> {
      * @param lexer
      *         the lexical parser to use for tokens.
      */
-    public ScriptParser(@NonNull CompilerEnvironment environment, @NonNull SymbolTable symbolTable, @NonNull Lexer lexer) {
+    public ScriptParser(@NonNull CompilerEnvironment environment, @NonNull ScriptSymbolTable symbolTable, @NonNull Lexer lexer) {
         super(lexer, Kind.EOF);
         this.environment = environment;
         this.symbolTable = symbolTable;
