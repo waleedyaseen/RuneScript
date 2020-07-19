@@ -90,7 +90,7 @@ public final class FileNode extends ExplorerNode<Path> {
      * Packs the file.
      */
     private void packFile() {
-        var editorTab = Api.getApi().getEditorView().getTab(getValue());
+    /*    var editorTab = Api.getApi().getEditorView().getTab(getValue());
         if (editorTab != null) {
             editorTab.save();
         }
@@ -109,7 +109,7 @@ public final class FileNode extends ExplorerNode<Path> {
         } catch (Throwable e) {
             e.printStackTrace();
             DialogManager.showErrorDialog("Pack Error", "An I/O error occurred while trying to read the file from the disk.");
-        }
+        }*/
     }
 
     /**

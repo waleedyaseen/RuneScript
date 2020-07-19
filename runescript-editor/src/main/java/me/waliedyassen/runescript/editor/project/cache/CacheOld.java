@@ -8,19 +8,13 @@
 package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
-import me.waliedyassen.runescript.commons.document.LineColumn;
-import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.CompileInput;
 import me.waliedyassen.runescript.compiler.CompileResult;
 import me.waliedyassen.runescript.compiler.message.CompilerMessage;
 import me.waliedyassen.runescript.compiler.message.CompilerMessenger;
 import me.waliedyassen.runescript.compiler.message.impl.SyntaxDoneMessage;
-import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
@@ -29,15 +23,16 @@ import me.waliedyassen.runescript.editor.util.ChecksumUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.index.table.IndexTable;
 import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.Type;
-import me.waliedyassen.runescript.type.TypeUtil;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -49,7 +44,7 @@ import java.util.stream.Collectors;
  * @author Walied K. Yassen
  */
 @Slf4j
-public final class Cache {
+public final class CacheOld {
 
     private static final class C {
 
@@ -93,12 +88,12 @@ public final class Cache {
     // TODO: A better way for managing the clientscript and serverscript indices.
 
     /**
-     * Constructs a new {@link Cache} type object instance.
+     * Constructs a new {@link CacheOld} type object instance.
      *
      * @param project
      *         the project which this cache is for.
      */
-    public Cache(Project project) {
+    public CacheOld(Project project) {
         this.project = project;
         saveTaskFuture = WorkExecutor.getSingleThreadScheduler().scheduleWithFixedDelay(this::performSaving, 5000L, 5000L, TimeUnit.MILLISECONDS);
     }
@@ -128,7 +123,7 @@ public final class Cache {
         var filesCount = stream.readInt();
         for (var index = 0; index < filesCount; index++) {
             var cachedFile = new CachedFile();
-            cachedFile.read(project.getCompiler().getEnvironment(), stream);
+            cachedFile.read(project.getScriptsCompiler().getEnvironment(), stream);
             addCachedFile(cachedFile);
         }
         var dependencyParentCount = stream.readInt();
@@ -202,7 +197,7 @@ public final class Cache {
         }
         input.withAstVisitor(new DependencyTreeBuilder(dependencyTree));
         input.withMessenger(new IdAssignerMessenger());
-        var result = project.getCompiler().compile(input);
+        var result = project.getScriptsCompiler().compile(input);
         for (var pair : result.getErrors()) {
             var cachedFile = (CachedFile) pair.getKey();
             cachedFile.getErrors().add(new CachedError(pair.getValue().getRange(), pair.getValue().getMessage()));
@@ -252,7 +247,7 @@ public final class Cache {
         input.withMessenger(new IdAssignerMessenger());
         CompileResult result;
         try {
-            result = project.getCompiler().compile(input);
+            result = project.getScriptsCompiler().compile(input);
         } catch (IOException e) {
             log.error("An I/O error occurred while updating a script", e);
             return null;
@@ -296,7 +291,7 @@ public final class Cache {
         }
         declareSymbols(cachedFile);
         cachedFile.setCrc(ChecksumUtil.calculateCrc32(data));
-        project.updateErrors(path);
+      //  project.updateErrors(path);
         dirty = true;
         return result;
     }
@@ -319,18 +314,18 @@ public final class Cache {
         var cachedFile = filesByPath.get(key);
         if (cachedFile != null) {
             for (var script : cachedFile.getScripts()) {
-                project.getCompiler().getSymbolTable().undefineScript(script.getTrigger(), script.getName());
+                project.getScriptsCompiler().getSymbolTable().undefineScript(script.getTrigger(), script.getName());
             }
         }
         try {
-            return project.getCompiler().compile(CompileInput.of(cachedFile, data).withRunCodeGen(runCodeGen));
+            return project.getScriptsCompiler().compile(CompileInput.of(cachedFile, data).withRunCodeGen(runCodeGen));
         } catch (IOException e) {
             log.error("An I/O error occurred while compiling a script non persistently", e);
             return null;
         } finally {
             if (cachedFile != null) {
                 for (var script : cachedFile.getScripts()) {
-                    project.getCompiler().getSymbolTable().defineScript(script);
+                    project.getScriptsCompiler().getSymbolTable().defineScript(script);
                 }
             }
         }
@@ -344,7 +339,7 @@ public final class Cache {
      */
     public void declareSymbols(CachedFile cachedFile) {
         for (var script : cachedFile.getScripts()) {
-            project.getCompiler().getSymbolTable().defineScript(script);
+            project.getScriptsCompiler().getSymbolTable().defineScript(script);
         }
     }
 
@@ -356,7 +351,7 @@ public final class Cache {
      */
     public void undeclareSymbols(CachedFile cachedFile) {
         for (var script : cachedFile.getScripts()) {
-            project.getCompiler().getSymbolTable().undefineScript(script.getTrigger(), script.getName());
+            project.getScriptsCompiler().getSymbolTable().undefineScript(script.getTrigger(), script.getName());
             dependencyTree.remove(script.getFullName());
             var index = getIndexForFile(cachedFile.getName());
             index.remove(script.getFullName());

@@ -44,7 +44,7 @@ public final class CodeCompletionProvider extends DefaultCompletionProvider {
      * Refreshes the code completions cache.
      */
     private void refreshCache() {
-        var compiler = Api.getApi().getCompiler();
+        var compiler = Api.getApi().getScriptCompiler();
         refreshKeywords(compiler.getLexicalTable());
         refreshCommands(compiler.getSymbolTable());
     }

@@ -46,7 +46,7 @@ import java.util.List;
  *
  * @author Walied K. Yassen
  */
-public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
+public final class ScriptCompiler extends CompilerBase<CompileInput, CompileResult> {
 
     /**
      * The symbol table of the compiler.
@@ -97,7 +97,7 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
     // parameters constantly and update calls.
 
     /**
-     * Constructs a new {@link Compiler} type object instance.
+     * Constructs a new {@link ScriptCompiler} type object instance.
      *
      * @param environment
      *         the environment of the compiler.
@@ -108,11 +108,11 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
      * @param allowOverride
      *         whether or not the compiler should override the symbols.
      */
-    private Compiler(CompilerEnvironment environment,
-                     InstructionMap instructionMap,
-                     ScriptSymbolTable symbolTable,
-                     CodeWriter<?> codeWriter,
-                     boolean allowOverride) {
+    private ScriptCompiler(CompilerEnvironment environment,
+                           InstructionMap instructionMap,
+                           ScriptSymbolTable symbolTable,
+                           CodeWriter<?> codeWriter,
+                           boolean allowOverride) {
         if (!instructionMap.isReady()) {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }
@@ -272,7 +272,7 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
     }
 
     /**
-     * A builder class for the {@link Compiler} type.
+     * A builder class for the {@link ScriptCompiler} type.
      *
      * @author Walied k. Yassen
      */
@@ -408,14 +408,14 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
         }
 
         /**
-         * Builds the {@link Compiler} object with the details configured in the builder.
+         * Builds the {@link ScriptCompiler} object with the details configured in the builder.
          *
-         * @return the built {@link Compiler} object.
+         * @return the built {@link ScriptCompiler} object.
          *
          * @throws IllegalStateException
          *         if one or more of the configuration is invalid or missing.
          */
-        public Compiler build() {
+        public ScriptCompiler build() {
             if (instructionMap == null) {
                 throw new IllegalStateException("You must provide an InstructionMap before performing build() operation");
             }
@@ -431,7 +431,7 @@ public final class Compiler extends CompilerBase<CompileInput, CompileResult> {
             if (symbolTable == null) {
                 symbolTable = new ScriptSymbolTable();
             }
-            return new Compiler(environment, instructionMap, symbolTable, codeWriter, overrideSymbols);
+            return new ScriptCompiler(environment, instructionMap, symbolTable, codeWriter, overrideSymbols);
         }
     }
 }

@@ -111,6 +111,19 @@ public class SymbolTable {
     }
 
     /**
+     * Defines the specified {@link ConfigInfo} in the symbol table.
+     *
+     * @param info
+     *         the configuration info object to define.
+     */
+    public void defineConfig(ConfigInfo info) {
+        if (lookupConfig(info.getName()) != null) {
+            throw new IllegalArgumentException("The configuration '" + info.getName() + "' is already defined.");
+        }
+        configs.put(info.getName(), info);
+    }
+
+    /**
      * Defines a new configuration type value symbol in this table.
      *
      * @param name
@@ -123,6 +136,16 @@ public class SymbolTable {
             throw new IllegalArgumentException("The configuration '" + name + "' is already defined.");
         }
         configs.put(name, new ConfigInfo(name, type));
+    }
+
+    /**
+     * Undefines the configuration with the specified {@code name}.
+     *
+     * @param name
+     *         the name of the configuration.
+     */
+    public void undefineConfig(String name) {
+        configs.remove(name);
     }
 
     /**

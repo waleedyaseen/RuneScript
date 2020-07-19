@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.codegen;
 import lombok.var;
 import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
-import me.waliedyassen.runescript.compiler.Compiler;
+import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
@@ -140,7 +140,7 @@ class CodeGeneratorTest {
 
     Script[] fromResource(String name) {
         try (var stream = getClass().getResourceAsStream(name)) {
-            var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, new ScriptSymbolTable(), lexer);
             var scripts = new ArrayList<Pair<Object, AstScript>>();
@@ -162,7 +162,7 @@ class CodeGeneratorTest {
 
     Script[] fromString(String text) {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
-            var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, new ScriptSymbolTable(), lexer);
             var scripts = new ArrayList<Pair<Object, AstScript>>();

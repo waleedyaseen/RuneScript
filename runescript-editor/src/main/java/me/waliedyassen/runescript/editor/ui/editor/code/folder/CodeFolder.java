@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor.code.folder;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokens;
@@ -26,6 +27,7 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 @Slf4j
+@RequiredArgsConstructor
 public final class CodeFolder implements FoldParser {
 
     /**
@@ -37,6 +39,11 @@ public final class CodeFolder implements FoldParser {
      * The script declaration code folding type.
      */
     private static final int DECLARATION = FoldType.FOLD_TYPE_USER_DEFINED_MIN + 1;
+
+    /**
+     * Whether or not it is a configuration file.
+     */
+    private final boolean configuration;
 
     /**
      * {@inheritDoc}
@@ -64,7 +71,7 @@ public final class CodeFolder implements FoldParser {
                         currentDeclarationStart = token.getOffset();
                         current = new Fold(DECLARATION, textArea, currentDeclarationStart);
                         folds.add(current);
-                    } else if (token.isLeftCurly()) {
+                    } else if (!configuration && token.isLeftCurly()) {
                         if (previous != null && line == lastCurlyBraceLine) {
                             current = previous;
                             previous = null;
@@ -75,7 +82,7 @@ public final class CodeFolder implements FoldParser {
                         } else {
                             current = current.createChild(FoldType.CODE, token.getOffset());
                         }
-                    } else if (token.isRightCurly()) {
+                    } else if (!configuration && token.isRightCurly()) {
                         if (current != null) {
                             current.setEndOffset(token.getOffset() - 1);
                             Fold parentFold = current.getParent();

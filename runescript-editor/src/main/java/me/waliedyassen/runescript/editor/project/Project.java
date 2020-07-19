@@ -12,22 +12,26 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import me.waliedyassen.runescript.compiler.Compiler;
+import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
+import me.waliedyassen.runescript.config.binding.ConfigBinding;
+import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
+import me.waliedyassen.runescript.config.type.BasicConfigVarType;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
-import me.waliedyassen.runescript.editor.project.cache.Cache;
+import me.waliedyassen.runescript.editor.project.cache.CacheNew;
+import me.waliedyassen.runescript.editor.project.cache.CacheUnit;
 import me.waliedyassen.runescript.editor.ui.editor.project.ProjectEditor;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
-import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.editor.vfs.VFS;
 import me.waliedyassen.runescript.index.Index;
 import me.waliedyassen.runescript.type.PrimitiveType;
@@ -92,26 +96,40 @@ public final class Project {
     private VFS vfs;
 
     /**
-     * The compiler we are going to use for this project.
+     * The compiler we are going to use for compiling configurations.
      */
     @Getter
-    private Compiler compiler;
+    private ConfigCompiler configsCompiler;
+
+    /**
+     * The compiler we are going to use for compiling scripts.
+     */
+    @Getter
+    private ScriptCompiler scriptsCompiler;
 
     /**
      * The instruction map of the project.
      */
+    @Getter
     private InstructionMap instructionMap;
 
     /**
      * The compiler environment of the project.
      */
+    @Getter
     private CompilerEnvironment compilerEnvironment;
+
+    /**
+     * The symbol table we are using for the compiler.
+     */
+    @Getter
+    private ScriptSymbolTable symbolTable;
 
     /**
      * The cache of the project.
      */
     @Getter
-    private Cache cache;
+    private CacheNew cache;
 
     /**
      * The index table for the script files.
@@ -168,6 +186,12 @@ public final class Project {
     private final Map<PrimitiveType, String> configsPath;
 
     /**
+     * A map which contains all of the configuration bindings paths.
+     */
+    @Getter
+    private final Map<PrimitiveType, String> bindingsPath;
+
+    /**
      * Constructs a new {@link Project} type object instance.
      *
      * @param directory
@@ -176,6 +200,7 @@ public final class Project {
     Project(Path directory) {
         this.directory = directory;
         configsPath = new HashMap<>();
+        bindingsPath = new HashMap<>();
     }
 
     /**
@@ -239,6 +264,17 @@ public final class Project {
             }
             configsPath.put(type, node.textValue());
         }
+        bindingsPath.clear();
+        for (var type : PrimitiveType.values()) {
+            if (!type.isConfigType()) {
+                continue;
+            }
+            var node = object.get("binding_" + type.getRepresentation());
+            if (node == null) {
+                continue;
+            }
+            bindingsPath.put(type, node.textValue());
+        }
         reloadCompiler();
     }
 
@@ -247,19 +283,23 @@ public final class Project {
      */
     public void reloadCompiler() {
         compilerEnvironment = new CompilerEnvironment();
+        symbolTable = new ScriptSymbolTable();
         instructionMap = new InstructionMap();
         loadInstructions();
         loadTriggers();
-        compiler = Compiler.builder()
+        scriptsCompiler = ScriptCompiler.builder()
                 .withEnvironment(compilerEnvironment)
                 .withInstructionMap(instructionMap)
+                .withSymbolTable(symbolTable)
                 .withSupportsLongPrimitiveType(false)
                 .withIdProvider(new ProjectIdProvider())
                 .build();
+        configsCompiler = new ConfigCompiler(symbolTable);
         loadCommands();
         loadConfigs();
         loadScripts();
         loadRuntimeConstants();
+        loadBindings();
     }
 
     /**
@@ -341,7 +381,6 @@ public final class Project {
         }
     }
 
-
     /**
      * Loads the commands configuration of the project.
      */
@@ -373,7 +412,7 @@ public final class Project {
                 var alternative = value.getOrElse("alternative", false);
                 var hook = value.getOrElse("hook", false);
                 var hookType = value.contains("hooktype") ? PrimitiveType.valueOf(value.get("hooktype")) : null;
-                compiler.getSymbolTable().defineCommand(new BasicOpcode(opcode, false), name, type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0], arguments, hook, hookType, alternative);
+                scriptsCompiler.getSymbolTable().defineCommand(new BasicOpcode(opcode, false), name, type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0], arguments, hook, hookType, alternative);
             }
         }
     }
@@ -399,11 +438,11 @@ public final class Project {
                         var id = value.getInt("id");
                         var name = value.contains("name") ? value.<String>get("name") : entry.getKey();
                         if (type == PrimitiveType.GRAPHIC) {
-                            compiler.getSymbolTable().defineGraphic(name, id);
+                            scriptsCompiler.getSymbolTable().defineGraphic(name, id);
                         } else {
-                            compiler.getSymbolTable().defineConfig(name, type);
+                            scriptsCompiler.getSymbolTable().defineConfig(name, type);
                             if (type == PrimitiveType.INTERFACE) {
-                                compiler.getSymbolTable().defineInterface(name, id);
+                                scriptsCompiler.getSymbolTable().defineInterface(name, id);
                             }
                         }
                     }
@@ -436,7 +475,7 @@ public final class Project {
                     var trigger = compilerEnvironment.lookupTrigger(value.<String>get("trigger"));
                     var type = ProjectConfig.parseTypes(value, "type");
                     var arguments = ProjectConfig.parseTypes(value, "arguments");
-                    compiler.getSymbolTable().defineScript(Collections.emptyMap(), trigger, name, type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type), arguments, id);
+                    scriptsCompiler.getSymbolTable().defineScript(Collections.emptyMap(), trigger, name, type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type), arguments, id);
                 }
             }
         } catch (Throwable e) {
@@ -477,12 +516,63 @@ public final class Project {
                         default:
                             throw new UnsupportedOperationException();
                     }
-                    compiler.getSymbolTable().defineRuntimeConstant(name, type, value);
+                    scriptsCompiler.getSymbolTable().defineRuntimeConstant(name, type, value);
                 }
             }
         } catch (Throwable e) {
             log.error("An error occurred while loading the predefined scripts file for path: {}", predefinedScriptsPath, e);
         }
+    }
+
+    /**
+     * Loads the configuration bindings of the project.
+     */
+    void loadBindings() {
+        bindingsPath.forEach((type, pathRaw) -> {
+            var path = Paths.get(pathRaw);
+            if (!path.isAbsolute()) {
+                path = directory.resolve(pathRaw);
+            }
+            if (!Files.exists(path)) {
+                log.info("The specified configuration binding file does not exist for type {} and path: {}", type, pathRaw);
+                return;
+            }
+            try {
+                try (var config = CommentedFileConfig.of(path.toFile())) {
+                    config.load();
+                    var binding = new ConfigBinding(() -> type);
+                    configsCompiler.registerBinding(type.getRepresentation(), binding);
+                    binding.setAllowParamVariable(config.getOrElse("config.allow_param_variable", false));
+                    binding.setAllowTransmitVariable(config.getOrElse("config.allow_transmit_variable", false));
+                    for (var entry : config.entrySet()) {
+                        if (entry.getKey().contentEquals("config")) {
+                            continue;
+                        }
+                        var value = (CommentedConfig) entry.getValue();
+                        var entryType = value.getOrElse("type", "NORMAL");
+                        var opcode = value.getInt("opcode");
+                        var required = value.getOrElse("required", false);
+                        var components = ProjectConfig.parsePrimitiveType(value, "components");
+                        var rules = ProjectConfig.parseConfigRules(value, "rules");
+                        if (entryType.contentEquals("NORMAL")) {
+                            binding.addVariable(entry.getKey(), opcode, required, new BasicConfigVarType(null, components), rules);
+                        } else if (entryType.contentEquals("REPEAT")) {
+                            var count = value.getInt("count");
+                            var format = value.getOrElse("format", entry.getKey() + "%d");
+                            binding.addVariableRepeat(format, opcode, required, new BasicConfigVarType(null, components), rules, count);
+                        }
+                    }
+                    if (binding.isAllowParamVariable()) {
+                        //   binding.addVariable("param", 249, false, new BasicConfigVarType(null, new PrimitiveType[]{PrimitiveType.PARAM, PrimitiveType.VALUE}));
+                    }
+                    if (binding.isAllowTransmitVariable()) {
+                        binding.addVariable("transmit", 250, false, new BasicConfigVarType(null, new PrimitiveType[]{PrimitiveType.BOOLEAN}), Collections.emptyList());
+                    }
+                }
+            } catch (Throwable e) {
+                log.error("An error occurred while loading the configuration file for type: {} and path: {}", type, pathRaw, e);
+            }
+        });
     }
 
     /**
@@ -501,16 +591,16 @@ public final class Project {
     private void loadCache() {
         var rootPath = resolveRsPath();
         var cacheFile = rootPath.resolve("cache");
-        cache = new Cache(this);
+        cache = new CacheNew(this);
         if (Files.exists(cacheFile)) {
             try (var stream = new DataInputStream(Files.newInputStream(cacheFile))) {
-                cache.read(stream);
+                cache.deserialize(stream);
             } catch (IOException e) {
                 log.error("An error occurred while loading the project cache", e);
             }
         }
         try {
-            cache.diff(buildPath.getSourceDirectory());
+            cache.diff();
         } catch (IOException e) {
             throw new ProjectException("Failed to generate the cache diff for the project cache", e);
         }
@@ -545,9 +635,9 @@ public final class Project {
     public void updateErrors() {
         var errorsView = Api.getApi().getUi().getErrorsView();
         errorsView.clearErrors();
-        for (var cachedFile : cache.getFilesByPath().values()) {
-            var path = cachedFile.getFullPath();
-            for (var cachedError : cachedFile.getErrors()) {
+        for (var unit : cache.getUnits().values()) {
+            var path = unit.getNameWithPath();
+            for (var cachedError : unit.getErrors()) {
                 var line = cachedError.getRange().getStart().getLine();
                 var column = cachedError.getRange().getStart().getColumn();
                 errorsView.addError(path, line, column, cachedError.getMessage());
@@ -556,32 +646,16 @@ public final class Project {
     }
 
     /**
-     * Refreshes the errors list of the cached file at the specified {@link Path path}. This does only update
-     * the UI errors view, it does not alter the cached errors list.
+     * Updates the errors in the error view that belong to the specified {@link CacheUnit unit}.
      *
-     * @param path
-     *         the path of the cached file to grab the errors from.
+     * @param unit
+     *         the cache unit to update the errors for.
      */
-    public void updateErrors(Path path) {
-        var errorsPath = PathEx.normalizeRelative(buildPath.getSourceDirectory(), path);
-        updateErrors(errorsPath);
-    }
-
-    /**
-     * Refreshes the errors list of the cached file at the specified {@code path}. This does only update
-     * the UI errors view, it does not alter the cached errors list.
-     *
-     * @param path
-     *         the path of the cached file to grab the errors from.
-     */
-    public void updateErrors(String path) {
+    public void updateErrors(CacheUnit unit) {
         var errorsView = Api.getApi().getUi().getErrorsView();
+        var path = unit.getNameWithPath();
         errorsView.removeErrorForPath(path);
-        var cachedFile = cache.getFilesByPath().get(path);
-        if (cachedFile == null) {
-            return;
-        }
-        for (var cachedError : cachedFile.getErrors()) {
+        for (var cachedError : unit.getErrors()) {
             var line = cachedError.getRange().getStart().getLine();
             var column = cachedError.getRange().getStart().getColumn();
             errorsView.addError(path, line, column, cachedError.getMessage());
@@ -595,7 +669,7 @@ public final class Project {
         var rootPath = resolveRsPath();
         var cacheFile = rootPath.resolve("cache.bin");
         try (var stream = new DataOutputStream(Files.newOutputStream(cacheFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))) {
-            cache.write(stream);
+            cache.serialize(stream);
         } catch (IOException e) {
             log.error("An error occurred while writing the project cache", e);
         }
@@ -659,7 +733,7 @@ public final class Project {
         compiler.put("scripts", predefinedScriptsPath);
         compiler.put("runtimeConstants", runtimeConstantsPath);
         for (var type : PrimitiveType.values()) {
-            if (!type.isConfigType()) {
+            if (!ProjectEditor.isPredefinable(type)) {
                 continue;
             }
             var path = configsPath.get(type);
@@ -667,6 +741,16 @@ public final class Project {
                 continue;
             }
             compiler.put("config_" + type.getRepresentation(), path);
+        }
+        for (var type : PrimitiveType.values()) {
+            if (!type.isConfigType()) {
+                continue;
+            }
+            var path = bindingsPath.get(type);
+            if (path == null) {
+                continue;
+            }
+            compiler.put("binding_" + type.getRepresentation(), path);
         }
         root.put("supportsLongPrimitiveType", supportsLongPrimitiveType);
         // Write the serialised data into the project file.

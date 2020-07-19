@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
-import me.waliedyassen.runescript.compiler.Compiler;
+import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import org.junit.jupiter.api.Test;
 
@@ -153,7 +153,7 @@ class TokenizerTest {
 
     private Tokenizer fromString(String text) {
         try (var stream = new StringBufferInputStream(text)) {
-            return new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            return new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
         } catch (IOException e) {
             // won't happen anyways
             e.printStackTrace();

@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.type;
 
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
 /**

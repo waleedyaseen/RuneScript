@@ -46,30 +46,24 @@ public final class CodeParser extends AbstractParser {
      */
     @Override
     public ParseResult parse(RSyntaxDocument doc, String style) {
-        // TODO: Move error reporting again to recompileNonPersistent
         final var project = Api.getApi().getProjectManager().getCurrentProject().get();
-        final var errorsView = Api.getApi().getUi().getErrorsView();
         final var errorsPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), codeEditor.getKey());
         final var textArea = codeEditor.getTextArea();
         parseResult.clearNotices();
         parseResult.setParsedLines(0, textArea.getLineCount() - 1);
         var start = System.currentTimeMillis();
-        var result = project.getCache().recompileNonPersistent(codeEditor.getKey(), textArea.getText().getBytes(), false);
+        project.getCache().recompile(codeEditor.getKey());
         parseResult.setParseTime(System.currentTimeMillis() - start);
-        errorsView.removeErrorForPath(errorsPath);
-        for (var pair : result.getErrors()) {
-            var error = pair.getValue();
+        var unit = project.getCache().getUnits().get(errorsPath);
+        for (var error : unit.getErrors()) {
             try {
-                errorsView.addError(errorsPath, error.getRange().getStart().getLine(), error.getRange().getStart().getColumn(), error.getMessage());
+                var line = error.getRange().getStart().getLine();
                 var startOffset = getOffset(error.getRange().getStart());
                 var endOffset = getOffset(error.getRange().getEnd());
-                var line = textArea.getLineOfOffset(startOffset);
                 parseResult.addNotice(new ErrorNotice(this, error.getMessage(), line, startOffset, endOffset));
             } catch (Throwable e) {
-                error.printStackTrace();
                 log.warn("An error occurred while adding the compiling errors to the result", e);
             }
-
         }
         return parseResult;
     }
@@ -77,7 +71,8 @@ public final class CodeParser extends AbstractParser {
     /**
      * Calculates and returns the start offset for the specified {@link LineColumn} object.
      *
-     * @param lineColumn the object which contains the line and column information.
+     * @param lineColumn
+     *         the object which contains the line and column information.
      */
     private int getOffset(LineColumn lineColumn) throws BadLocationException {
         return codeEditor.getTextArea().getLineStartOffset(lineColumn.getLine() - 1) + lineColumn.getColumn() - 1;

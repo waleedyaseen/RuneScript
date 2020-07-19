@@ -106,5 +106,11 @@
             <artifactId>autocomplete</artifactId>
             <version>3.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>me.waliedyassen.runescript</groupId>
+            <artifactId>runescript-configs</artifactId>
+            <version>0.2-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

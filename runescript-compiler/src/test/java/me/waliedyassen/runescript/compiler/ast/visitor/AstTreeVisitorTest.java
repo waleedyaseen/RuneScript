@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.ast.visitor;
 
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
-import me.waliedyassen.runescript.compiler.Compiler;
+import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -439,7 +439,7 @@ class AstTreeVisitorTest {
 
     public static ScriptParser fromString(String text) {
         try (var stream = new StringBufferInputStream(text)) {
-            var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             return new ScriptParser(environment, new ScriptSymbolTable(), lexer);
         } catch (IOException e) {
@@ -450,7 +450,7 @@ class AstTreeVisitorTest {
 
     public static ScriptParser fromResource(String name) {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
-            Tokenizer tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            Tokenizer tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
             return new ScriptParser(environment, new ScriptSymbolTable(), lexer);
         } catch (IOException e) {

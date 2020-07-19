@@ -10,9 +10,13 @@ package me.waliedyassen.runescript.editor.project;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
+import me.waliedyassen.runescript.config.type.rule.ConfigRule;
+import me.waliedyassen.runescript.config.type.rule.ConfigRules;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,10 +27,58 @@ import java.util.List;
 public final class ProjectConfig {
 
     /**
+     * Attempts to parse an array of {@link PrimitiveType} from the specified {@link CommentedConfig} object.
+     *
+     * @param config
+     *         the configuration object to attempt to parse from.
+     * @param name
+     *         the name of the configuration to parse.
+     *
+     * @return the parsed array {@link PrimitiveType} object.
+     */
+    public static List<ConfigRule> parseConfigRules(CommentedConfig config, String name) {
+        var types = config.<List<String>>get(name);
+        if (types == null) {
+            return Collections.emptyList();
+        }
+        var mapped = new ArrayList<ConfigRule>(types.size());
+        for (String typeName : types) {
+            mapped.add(ConfigRules.valueOf(typeName));
+        }
+        return mapped;
+    }
+
+    /**
+     * Attempts to parse an array of {@link PrimitiveType} from the specified {@link CommentedConfig} object.
+     *
+     * @param config
+     *         the configuration object to attempt to parse from.
+     * @param name
+     *         the name of the configuration to parse.
+     *
+     * @return the parsed array {@link PrimitiveType} object.
+     */
+    public static PrimitiveType[] parsePrimitiveType(CommentedConfig config, String name) {
+        var types = config.<List<String>>get(name);
+        if (types == null) {
+            return new PrimitiveType[0];
+        }
+        var mapped = new PrimitiveType[types.size()];
+        for (var index = 0; index < types.size(); index++) {
+            var typeName = types.get(index);
+            mapped[index] = PrimitiveType.valueOf(typeName);
+        }
+        return mapped;
+    }
+
+    /**
      * Attempts to parse an array of {@link Type} from the specified {@link CommentedConfig} object.
      *
-     * @param config the configuration object to attempt to parse from.
-     * @param name   the name of the configuration to parse.
+     * @param config
+     *         the configuration object to attempt to parse from.
+     * @param name
+     *         the name of the configuration to parse.
+     *
      * @return the parsed array {@link Type} object.
      */
     public static Type[] parseTypes(CommentedConfig config, String name) {

@@ -11,7 +11,7 @@ import lombok.Data;
 import lombok.var;
 import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
-import me.waliedyassen.runescript.compiler.Compiler;
+import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
@@ -149,7 +149,7 @@ class TypeCheckingTest {
         checker.getSymbolTable().getScripts().clear();
         checker.getErrors().clear();
         try (var stream = getClass().getResourceAsStream(name)) {
-            var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
             var scripts = new ArrayList<Pair<Object, AstScript>>();
@@ -165,7 +165,7 @@ class TypeCheckingTest {
         checker.getSymbolTable().getScripts().clear();
         checker.getErrors().clear();
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
-            var tokenizer = new Tokenizer(Compiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
             var scripts = new ArrayList<Pair<Object, AstScript>>();

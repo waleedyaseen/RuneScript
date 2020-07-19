@@ -62,6 +62,14 @@ public final class ProjectEditor extends Editor<Project> {
                 field.setText(path);
             }
         });
+        viewComponent.configBindings.forEach((type, field) -> {
+            var path = project.getBindingsPath().get(type);
+            if (path == null) {
+                field.setText("");
+            } else {
+                field.setText(path);
+            }
+        });
     }
 
     /**
@@ -77,6 +85,8 @@ public final class ProjectEditor extends Editor<Project> {
         project.setSupportsLongPrimitiveType(viewComponent.supportsLongTypeCheckBox.isSelected());
         project.getConfigsPath().clear();
         project.getConfigsPath().putAll(getConfigPathMap());
+        project.getBindingsPath().clear();
+        project.getBindingsPath().putAll(getBindingPathMap());
         project.reloadCompiler();
         try {
             project.saveData();
@@ -130,6 +140,7 @@ public final class ProjectEditor extends Editor<Project> {
         modified |= !viewComponent.predefinedScriptsField.getText().equals(project.getPredefinedScriptsPath());
         modified |= !viewComponent.runtimeConstantsField.getText().equals(project.getRuntimeConstantsPath());
         modified |= !getConfigPathMap().equals(project.getConfigsPath());
+        modified |= !getBindingPathMap().equals(project.getBindingsPath());
         modified |= project.isSupportsLongPrimitiveType() != viewComponent.supportsLongTypeCheckBox.isSelected();
         return modified;
     }
@@ -142,6 +153,18 @@ public final class ProjectEditor extends Editor<Project> {
      */
     private Map<PrimitiveType, String> getConfigPathMap() {
         return viewComponent.predefinedConfigs.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().getText().trim().length() > 0)
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getText().trim()));
+    }
+
+    /**
+     * Returns a map of all the configuration bindings file paths mapped by the associated config primitive type.
+     *
+     * @return the {@link Map} object.
+     */
+    private Map<PrimitiveType, String> getBindingPathMap() {
+        return viewComponent.configBindings.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().getText().trim().length() > 0)
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getText().trim()));
@@ -198,6 +221,11 @@ public final class ProjectEditor extends Editor<Project> {
         private final Map<PrimitiveType, JTextField> predefinedConfigs = new HashMap<>();
 
         /**
+         * A map of all the text fields that lead to the configuration bindings.
+         */
+        private final Map<PrimitiveType, JTextField> configBindings = new HashMap<>();
+
+        /**
          * Constructs a new {@link ProjectEditorUI} type object instance.
          */
         public ProjectEditorUI() {
@@ -209,6 +237,11 @@ public final class ProjectEditor extends Editor<Project> {
                 optionsPanel.add(supportsLongTypeCheckBox, "wrap");
             }
             add(optionsPanel, "grow, wrap");
+            initSymbolsPanel();
+            initBindingsPanel();
+        }
+
+        private void initSymbolsPanel() {
             var symbolPanel = new JPanel(new MigLayout("", "[][grow][]"));
             {
                 createBrowseSymbolRow(symbolPanel, "Instructions", instructionsField);
@@ -222,13 +255,31 @@ public final class ProjectEditor extends Editor<Project> {
                     }
                     var textField = new JTextField();
                     predefinedConfigs.put(type, textField);
-                    createBrowseSymbolRow(symbolPanel, "Predefined " + type.getRepresentation() + "(s)", textField);
+                    createBrowseSymbolRow(symbolPanel, "Predefined ." + type.getRepresentation() + "(s)", textField);
                 }
             }
 
-            var scrolPane = new JScrollPane(symbolPanel);
-            scrolPane.setBorder(BorderFactory.createTitledBorder("Symbol"));
-            add(scrolPane, "grow, wrap");
+            var scrollPane = new JScrollPane(symbolPanel);
+            scrollPane.setBorder(BorderFactory.createTitledBorder("Symbol"));
+            add(scrollPane, "grow, wrap");
+        }
+
+        private void initBindingsPanel() {
+            var bindingPanel = new JPanel(new MigLayout("", "[][grow][]"));
+            {
+                for (var type : PrimitiveType.values()) {
+                    if (!type.isConfigType()) {
+                        continue;
+                    }
+                    var textField = new JTextField();
+                    configBindings.put(type, textField);
+                    createBrowseSymbolRow(bindingPanel, "Binding ." + type.getRepresentation(), textField);
+                }
+            }
+
+            var scrollPane = new JScrollPane(bindingPanel);
+            scrollPane.setBorder(BorderFactory.createTitledBorder("Binding"));
+            add(scrollPane, "grow, wrap");
         }
 
         /**

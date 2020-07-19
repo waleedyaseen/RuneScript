@@ -66,13 +66,9 @@ public final class CodeEditor extends FileEditor {
         textArea.setAutoscrolls(true);
         textArea.setWrapStyleWord(false);
         new CodeTheme(textArea).apply(textArea);
-        if (config) {
-
-        } else {
-            ParserManager.installCodeParser(this);
-            textArea.setPopupMenu(null);
-            installAutoComplete();
-        }
+        ParserManager.installCodeParser(this);
+        textArea.setPopupMenu(null);
+        installAutoComplete();
     }
 
     /**
@@ -89,13 +85,15 @@ public final class CodeEditor extends FileEditor {
     @Override
     public void save() {
         var project = Api.getApi().getProjectManager().getCurrentProject().get();
-        project.getCache().recompile(path, textArea.getText().getBytes());
+        project.getCache().recompile(path);
         super.save();
     }
 
     // Register the language highlighter and other stuff in the future.
     static {
-        TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNESCRIPT, () -> new CodeTokenMaker(Api.getApi().getCompiler().getLexicalTable(), Api.getApi().getCompiler().getSymbolTable()));
-        FoldParserManager.get().addFoldParserMapping(SYNTAX_STYLE_RUNESCRIPT, new CodeFolder());
+        TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNESCRIPT, () -> new CodeTokenMaker(Api.getApi().getScriptCompiler().getLexicalTable(), Api.getApi().getScriptCompiler().getSymbolTable(), false));
+        FoldParserManager.get().addFoldParserMapping(SYNTAX_STYLE_RUNESCRIPT, new CodeFolder(false));
+        TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNECONFIG, () -> new CodeTokenMaker(Api.getApi().getConfigCompiler().getLexicalTable(), Api.getApi().getConfigCompiler().getSymbolTable(), true));
+        FoldParserManager.get().addFoldParserMapping(SYNTAX_STYLE_RUNECONFIG, new CodeFolder(true));
     }
 }
