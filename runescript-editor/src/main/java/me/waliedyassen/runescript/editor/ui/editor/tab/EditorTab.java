@@ -38,7 +38,8 @@ public final class EditorTab implements ActionSource {
     /**
      * Constructs a new {@link EditorTab} type object instance.
      *
-     * @param editor the editor which this tab is for.
+     * @param editor
+     *         the editor which this tab is for.
      */
     public EditorTab(Editor<?> editor) {
         this.editor = editor;
@@ -65,6 +66,9 @@ public final class EditorTab implements ActionSource {
     public boolean requestClose() {
         if (checkModifySave()) {
             return false;
+        }
+        if (isModified()) {
+            editor.restoreModification();
         }
         Api.getApi().getEditorView().removeTab(editor.getKey());
         return true;

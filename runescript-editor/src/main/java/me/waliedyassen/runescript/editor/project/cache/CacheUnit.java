@@ -210,6 +210,7 @@ public final class CacheUnit {
     public void clear() {
         configs.clear();
         scripts.clear();
+        errors.clear();
     }
 
     /**

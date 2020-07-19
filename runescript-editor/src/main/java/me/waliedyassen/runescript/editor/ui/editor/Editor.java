@@ -28,6 +28,13 @@ public abstract class Editor<K> {
     public abstract void save();
 
     /**
+     * Restores the state from any modification that were unsaved.
+     */
+    public void restoreModification() {
+
+    }
+
+    /**
      * Returns the view component of the editor.
      *
      * @return the view component of the editor.

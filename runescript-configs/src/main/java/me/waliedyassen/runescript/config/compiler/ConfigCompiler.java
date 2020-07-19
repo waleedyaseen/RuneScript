@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.CompilerBase;
+import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.Output;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
@@ -60,6 +61,7 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
      */
     @Override
     public Output<BinaryConfig> compile(Input input) throws IOException {
+        var symbolTable = this.symbolTable.createSubTable();
         var output = new Output<BinaryConfig>();
         for (var sourceFile : input.getSourceFiles()) {
             String extension = sourceFile.getExtension().toLowerCase();
@@ -71,21 +73,25 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
             var tokenizer = new Tokenizer(lexicalTable, stream);
             var lexer = new Lexer(tokenizer);
             var parser = new ConfigParser(lexer);
-            var configs = parser.configs();
-            if (configs.length == 0) {
-                continue;
-            }
-            var checker = new SemanticChecker(symbolTable, binding);
-            checker.executePre(configs);
-            checker.execute(configs);
-            if (checker.getErrors().isEmpty()) {
-                var codeGen = new CodeGenerator(binding);
-                for (var config : configs) {
-                    var binaryConfig = codeGen.visit(config);
-                    output.addUnit(sourceFile, binaryConfig);
+            try {
+                var configs = parser.configs();
+                if (configs.length == 0) {
+                    continue;
                 }
-            } else {
-                checker.getErrors().forEach(error -> output.addError(sourceFile, error));
+                var checker = new SemanticChecker(symbolTable, binding);
+                checker.executePre(configs);
+                checker.execute(configs);
+                if (checker.getErrors().isEmpty()) {
+                    var codeGen = new CodeGenerator(binding);
+                    for (var config : configs) {
+                        var binaryConfig = codeGen.visit(config);
+                        output.addUnit(sourceFile, binaryConfig);
+                    }
+                } else {
+                    checker.getErrors().forEach(error -> output.addError(sourceFile, error));
+                }
+            } catch (CompilerError error) {
+                output.addError(sourceFile, error);
             }
         }
         return output;

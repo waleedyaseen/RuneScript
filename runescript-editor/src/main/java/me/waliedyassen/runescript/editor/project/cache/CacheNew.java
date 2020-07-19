@@ -11,10 +11,13 @@ import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
+import javax.xml.transform.Source;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,32 +83,45 @@ public final class CacheNew {
     }
 
     /**
+     * @param path
+     */
+    @SneakyThrows
+    public void recompile(Path path) {
+        recompile(path, Files.readAllBytes(path));
+    }
+
+    /**
      * Re-compiles the content of the file at the specified {@link Path relative path}.
      *
-     * @param relativePath
+     * @param path
      *         the relative path of the file that we want to recompile.
      */
     @SneakyThrows
-    public void recompile(Path relativePath) {
-        var key = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), relativePath);
+    public void recompile(Path path, byte[] content) {
+        var key = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path);
         var unit = units.get(key);
         if (unit == null) {
-            unit = createCacheUnit(relativePath);
+            unit = createCacheUnit(path);
         } else {
+            unit.getConfigs().forEach(config -> {
+                System.out.print(config.getName() + ",");
+            });
             unit.undefineSymbols(project.getSymbolTable());
+            System.out.println(project.getSymbolTable().lookupConfig("test_obj"));
             unit.clear();
         }
         var input = new Input();
-        input.addSourceFile(SourceFile.of(relativePath));
+        input.addSourceFile(SourceFile.of(path, content));
 
         if (unit.isClientScript() || unit.isServerScript()) {
 
         } else {
-            var type = PrimitiveType.forRepresentation(PathEx.getExtension(relativePath));
+            var type = PrimitiveType.forRepresentation(PathEx.getExtension(path));
             var output = project.getConfigsCompiler().compile(input);
             for (var compiledFile : output.getCompiledFiles()) {
                 for (var binaryConfig : compiledFile.getUnits()) {
                     unit.getConfigs().add(new ConfigInfo(binaryConfig.getName(), type));
+                    project.getSymbolTable().defineConfig(binaryConfig.getName(), type);
                 }
                 for (var error : compiledFile.getErrors()) {
                     unit.getErrors().add(new CachedError(error.getRange(), error.getMessage()));

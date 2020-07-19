@@ -85,8 +85,17 @@ public final class CodeEditor extends FileEditor {
     @Override
     public void save() {
         var project = Api.getApi().getProjectManager().getCurrentProject().get();
-        project.getCache().recompile(path);
         super.save();
+        project.getCache().recompile(path);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void restoreModification() {
+        var project = Api.getApi().getProjectManager().getCurrentProject().get();
+        project.getCache().recompile(path);
     }
 
     // Register the language highlighter and other stuff in the future.

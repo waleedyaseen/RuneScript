@@ -64,8 +64,23 @@ public final class SourceFile {
      *         if anything occurs while reading the file data.
      */
     public static SourceFile of(Path path) throws IOException {
-        path = path.toAbsolutePath();
-        byte[] content = Files.readAllBytes(path);
+        return of(path, Files.readAllBytes(path));
+    }
+
+    /**
+     * Creates a {@link SourceFile} object for the specified {@link Path}.
+     *
+     * @param path
+     *         the path which leads to the source file.
+     * @param content
+     *         the content of the source file.
+     *
+     * @return the {@link SourceFile} object.
+     *
+     * @throws IOException
+     *         if anything occurs while reading the file data.
+     */
+    public static SourceFile of(Path path, byte[] content) throws IOException {
         String nameWithExtension = path.getFileName().toString();
         String fullPath = path.getParent().toString();
         String extension = nameWithExtension.substring(nameWithExtension.lastIndexOf('.') + 1);
