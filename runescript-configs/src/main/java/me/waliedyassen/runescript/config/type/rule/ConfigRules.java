@@ -1,15 +1,13 @@
-
 package me.waliedyassen.runescript.config.type.rule;
 
 import lombok.var;
 import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.AstValue;
-import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
 import me.waliedyassen.runescript.config.semantics.typecheck.TypeChecking;
 
 /**
- * An enum of common rules for configuration properties.
+ * An enum of all configuration rules that require no parameter.
  *
  * @author Walied K. Yassen
  */
@@ -24,7 +22,7 @@ public enum ConfigRules implements ConfigRule {
          */
         @Override
         public void test(TypeChecking checking, AstProperty property, AstValue value) {
-            var integer = resolveInteger(checking, value);
+            var integer = ConfigRule.resolveInteger(checking, value);
             if (integer < 1) {
                 checking.getChecker().reportError(new SemanticError(value, "Expected a positive value for this component"));
             }
@@ -47,26 +45,5 @@ public enum ConfigRules implements ConfigRule {
     @Override
     public void test(TypeChecking checking, AstProperty property, AstValue value) {
         // NOOP
-    }
-
-    /**
-     * Resolves the specified {@link AstValue} to an integer.
-     *
-     * @param checking
-     *         the type checking of the configuration.
-     * @param value
-     *         the value that we are checking.
-     *
-     * @return the integer value.
-     *
-     * @throws IllegalStateException
-     *         if the specified value cannot be resolved to an integer.
-     */
-    protected Integer resolveInteger(TypeChecking checking, AstValue value) {
-        if (value instanceof AstValueInteger) {
-            return ((AstValueInteger) value).getValue();
-        } else {
-            throw new IllegalStateException("Unrecognised value type: " + value);
-        }
     }
 }

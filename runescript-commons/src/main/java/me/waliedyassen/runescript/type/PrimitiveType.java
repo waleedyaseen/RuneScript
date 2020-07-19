@@ -41,17 +41,17 @@ public enum PrimitiveType implements Type {
     /**
      * The byte special type.
      */
-    BYTE('\ufff3', null, null, null, TypeSerializer.BYTE),
+    BYTE('\ufff3', "byte", null, null, TypeSerializer.BYTE),
 
     /**
      * The short special type.
      */
-    SHORT('\ufff4', null, null, null, TypeSerializer.SHORT),
+    SHORT('\ufff4', "short", null, null, TypeSerializer.SHORT),
 
     /**
      * The type special type.
      */
-    TYPE('\ufff5', null, null, null, TypeSerializer.BYTE),
+    TYPE('\ufff5', "type", null, null, TypeSerializer.BYTE),
 
     // All the types below are verified to be part of script var type.
 
@@ -218,12 +218,50 @@ public enum PrimitiveType implements Type {
     private final TypeSerializer serializer;
 
     /**
+     * Casts this type and the specified other type to a highest type then compares if they are equals.
+     *
+     * @param other
+     *         the other type that we want to compare.
+     *
+     * @return <code>true</code> if they are equals otherwise <code>false</code>.
+     */
+    public boolean implicitEquals(PrimitiveType other) {
+        return implicitCastToHigher(this) == implicitCastToHigher(other);
+    }
+
+    /**
+     * Casts the specified {@link PrimitiveType type} to a higher type.
+     *
+     * @param type
+     *         the type that we want to cast to a higher type.
+     *
+     * @return the casted {@link PrimitiveType type} or the {@link PrimitiveType type} that was passed.
+     */
+    private PrimitiveType implicitCastToHigher(PrimitiveType type) {
+        switch (type) {
+            case BYTE:
+            case SHORT:
+                return INT;
+            default:
+                return type;
+        }
+    }
+
+    /**
      * Checks whether er or not the primitive type is a referencable type.
      *
      * @return <code>true</code> if it is otherwise <code>false</code>.
      */
     public boolean isReferencable() {
-        return representation != null && this != HOOK && this != UNDEFINED;
+        switch (this) {
+            case HOOK:
+            case UNDEFINED:
+            case BYTE:
+            case SHORT:
+                return false;
+            default:
+                return representation != null;
+        }
     }
 
     /**

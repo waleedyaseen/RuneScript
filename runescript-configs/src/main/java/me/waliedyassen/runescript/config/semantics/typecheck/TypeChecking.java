@@ -88,7 +88,7 @@ public final class TypeChecking extends AstTreeVisitor {
         for (var index = 0; index < values.length; index++) {
             var value = values[index];
             var type = (PrimitiveType) value.accept(this);
-            if (type == components[index]) {
+            if (type.implicitEquals(components[index])) {
                 variable.getRules().forEach(rule -> rule.test(this, property, value));
             } else {
                 checker.reportError(new SemanticError(value, "Type mismatch: cannot convert from " + type.getRepresentation() + " to " + components[index].getRepresentation()));

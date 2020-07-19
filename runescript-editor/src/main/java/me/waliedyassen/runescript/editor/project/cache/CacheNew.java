@@ -103,11 +103,7 @@ public final class CacheNew {
         if (unit == null) {
             unit = createCacheUnit(path);
         } else {
-            unit.getConfigs().forEach(config -> {
-                System.out.print(config.getName() + ",");
-            });
             unit.undefineSymbols(project.getSymbolTable());
-            System.out.println(project.getSymbolTable().lookupConfig("test_obj"));
             unit.clear();
         }
         var input = new Input();

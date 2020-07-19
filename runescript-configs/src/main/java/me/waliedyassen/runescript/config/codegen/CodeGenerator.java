@@ -45,6 +45,9 @@ public final class CodeGenerator implements AstVisitor<Object> {
         var properties = new ArrayList<BinaryProperty>(count);
         for (var index = 0; index < count; index++) {
             var property = visit(config.getProperties()[index]);
+            if (property == null) {
+                continue;
+            }
             properties.add(property);
         }
         return new BinaryConfig(binding.getGroup(), config.getName().getText(), properties.toArray(new BinaryProperty[0]));
@@ -70,8 +73,14 @@ public final class CodeGenerator implements AstVisitor<Object> {
             } else if (variable.getRules().contains(ConfigRules.EMIT_EMPTY_IF_FALSE)) {
                 rule = Boolean.FALSE;
             }
-            if (rule != null && values[0] == rule) {
-                values = null;
+            if (rule != null) {
+                if (values[0] == rule) {
+                    // emit empty if the true matches.
+                    values = null;
+                } else {
+                    // Skip if the rule does not match.
+                    return null;
+                }
             }
         }
         return new BinaryProperty(variable.getOpcode(), types, values);

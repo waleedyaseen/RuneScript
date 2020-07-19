@@ -18,6 +18,7 @@ import me.waliedyassen.runescript.config.type.ConfigVarType;
 import me.waliedyassen.runescript.config.type.TypeRegistry;
 import me.waliedyassen.runescript.config.type.rule.ConfigRule;
 import me.waliedyassen.runescript.config.var.ConfigVar;
+import me.waliedyassen.runescript.util.ReflectionUtil;
 
 import java.lang.reflect.Modifier;
 import java.util.Collections;
@@ -82,23 +83,7 @@ public final class ConfigBinding {
                 throw new IllegalStateException("ConfigArray must be always used with array type fields: " + field);
             }
             Class<?> nativeType = field.getType().isArray() ? field.getType().getComponentType() : field.getType();
-            if (nativeType.isPrimitive()) {
-                if (nativeType == byte.class) {
-                    nativeType = Byte.class;
-                } else if (nativeType == short.class) {
-                    nativeType = Short.class;
-                } else if (nativeType == int.class) {
-                    nativeType = Integer.class;
-                } else if (nativeType == long.class) {
-                    nativeType = Long.class;
-                } else if (nativeType == boolean.class) {
-                    nativeType = Boolean.class;
-                } else if (nativeType == char.class) {
-                    nativeType = Character.class;
-                } else {
-                    throw new IllegalStateException("The specified primitive configuration type is not allowed: " + nativeType.getSimpleName());
-                }
-            }
+            nativeType = ReflectionUtil.box(nativeType);
             var varType = typeRegistry.lookup(nativeType);
             if (varType == null) {
                 throw new IllegalStateException("Failed to find a matching type for native type: " + nativeType);

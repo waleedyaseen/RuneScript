@@ -162,7 +162,12 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
                         changeTokenType(COORDGRID_LITERAL);
                     } else if (!Character.isDigit(ch) && (tokenType != COORDGRID_LITERAL || ch != '_')) {
                         if (ch != 'L' && ch != 'l') {
-                            pos--;
+                            if (configuration && TokenizerBase.isIdentifierPart(ch)) {
+                                changeTokenType(IDENTIFIER);
+                                continue;
+                            } else {
+                                pos--;
+                            }
                         }
                         popAddToken(text, pos);
                     }
