@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.semantics.typecheck;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
@@ -33,16 +34,19 @@ public final class TypeChecking extends AstTreeVisitor {
     /**
      * The semantic checker which owns this type checker.
      */
+    @Getter
     private final SemanticChecker checker;
 
     /**
      * The symbol table to use for looking up.
      */
+    @Getter
     private final SymbolTable table;
 
     /**
      * The configuration group we are checking for.
      */
+    @Getter
     private final ConfigBinding binding;
 
     /**
@@ -74,16 +78,19 @@ public final class TypeChecking extends AstTreeVisitor {
             checker.reportError(new SemanticError(property.getKey(), "Unknown property: " + property.getKey().getText()));
             return null;
         }
-        var types = variable.getType().getComponents();
+        var components = variable.getType().getComponents();
         var values = property.getValues();
-        if (types.length != values.length) {
-            checker.reportError(new SemanticError(property, "Argument mismatch: expected " + types.length + " argument(s) but got " + values.length + " argument(s)"));
+        if (components.length != values.length) {
+            checker.reportError(new SemanticError(property, "Components mismatch: expected " + components.length + " component(s) but got " + values.length + " component(s)"));
             return null;
         }
         for (var index = 0; index < values.length; index++) {
-            var type = (PrimitiveType) values[index].accept(this);
-            if (type != types[index]) {
-                checker.reportError(new SemanticError(property.getValues()[index], "Type mismatch: cannot convert from " + type.getRepresentation() + " to " + types[index].getRepresentation()));
+            var value = values[index];
+            var type = (PrimitiveType) value.accept(this);
+            if (type == components[index]) {
+                variable.getRules().forEach(rule -> rule.test(this, property, value));
+            } else {
+                checker.reportError(new SemanticError(value, "Type mismatch: cannot convert from " + type.getRepresentation() + " to " + components[index].getRepresentation()));
             }
         }
         return DEFAULT;

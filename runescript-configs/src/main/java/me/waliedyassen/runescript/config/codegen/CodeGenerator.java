@@ -17,8 +17,10 @@ import me.waliedyassen.runescript.config.ast.value.AstValueLong;
 import me.waliedyassen.runescript.config.ast.value.AstValueString;
 import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
+import me.waliedyassen.runescript.config.type.rule.ConfigRules;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
+import java.util.ArrayList;
 /**
  * The code generator for the configuration compiler.
  *
@@ -38,11 +40,12 @@ public final class CodeGenerator implements AstVisitor<Object> {
     @Override
     public BinaryConfig visit(AstConfig config) {
         var count = config.getProperties().length;
-        var properties = new BinaryProperty[count];
+        var properties = new ArrayList<BinaryProperty>(count);
         for (var index = 0; index < count; index++) {
-            properties[index] = visit(config.getProperties()[index]);
+            var property = visit(config.getProperties()[index]);
+            properties.add(property);
         }
-        return new BinaryConfig(binding.getGroup(), config.getName().getText(), properties);
+        return new BinaryConfig(binding.getGroup(), config.getName().getText(), properties.toArray(new BinaryProperty[0]));
     }
 
     /**
@@ -58,7 +61,17 @@ public final class CodeGenerator implements AstVisitor<Object> {
             types[valueIndex] = variable.getType().getComponents()[valueIndex];
             values[valueIndex] = rawValues[valueIndex].accept(this);
         }
-
+        if (values.length == 1) {
+            Boolean rule = null;
+            if (variable.getRules().contains(ConfigRules.EMIT_EMPTY_IF_TRUE)) {
+                rule = Boolean.TRUE;
+            } else if (variable.getRules().contains(ConfigRules.EMIT_EMPTY_IF_FALSE)) {
+                rule = Boolean.FALSE;
+            }
+            if (rule != null && values[0] == rule) {
+                values = null;
+            }
+        }
         return new BinaryProperty(variable.getOpcode(), types, values);
     }
 

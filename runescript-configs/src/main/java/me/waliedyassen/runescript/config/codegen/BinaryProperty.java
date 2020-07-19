@@ -41,12 +41,18 @@ public final class BinaryProperty {
     /**
      * Writes the content of the binary property to the specified {@link DataOutputStream stream}.
      *
-     * @param stream the stream to write the the content data to.
-     * @throws IOException if anything occurs while writing the content data of the binary property to the stream.
+     * @param stream
+     *         the stream to write the the content data to.
+     *
+     * @throws IOException
+     *         if anything occurs while writing the content data of the binary property to the stream.
      */
     @SuppressWarnings("unchecked")
     public void write(DataOutputStream stream) throws IOException {
         stream.writeByte(code);
+        if (values == null) {
+            return;
+        }
         for (int index = 0; index < types.length; index++) {
             types[index].getSerializer().serialize(values[index], stream);
         }

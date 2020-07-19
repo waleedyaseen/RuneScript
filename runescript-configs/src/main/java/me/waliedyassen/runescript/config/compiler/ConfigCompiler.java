@@ -45,6 +45,7 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
     /**
      * The lexical table of the configuration compiler.
      */
+    @Getter
     private final LexicalTable<Kind> lexicalTable = createLexicalTable();
 
     /**
