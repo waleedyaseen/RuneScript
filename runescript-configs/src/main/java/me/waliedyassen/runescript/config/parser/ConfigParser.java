@@ -12,10 +12,7 @@ import me.waliedyassen.runescript.compiler.parser.ParserBase;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
-import me.waliedyassen.runescript.config.ast.value.AstValue;
-import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
-import me.waliedyassen.runescript.config.ast.value.AstValueLong;
-import me.waliedyassen.runescript.config.ast.value.AstValueString;
+import me.waliedyassen.runescript.config.ast.value.*;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
 
@@ -120,6 +117,8 @@ public final class ConfigParser extends ParserBase<Kind> {
                 return valueInteger();
             case LONG:
                 return valueLong();
+            case BOOLEAN:
+                return valueBoolean();
             default:
                 throwError(consume(), "Expected a property value");
                 return null;
@@ -164,6 +163,21 @@ public final class ConfigParser extends ParserBase<Kind> {
             return new AstValueLong(popRange(), Long.parseLong(token.getLexeme()));
         } catch (NumberFormatException e) {
             throw createError(token, "The literal " + token.getLexeme() + " of type long is out of range");
+        }
+    }
+
+    /**
+     * Attempts to parse an {@link AstValueInteger} object from the next sequence of tokens.
+     *
+     * @return the parsed {@link AstValueInteger} object.
+     */
+    public AstValueBoolean valueBoolean() {
+        pushRange();
+        var token = consume(BOOLEAN);
+        try {
+            return new AstValueBoolean(popRange(), "yes".contentEquals(token.getLexeme()) || "true".contentEquals(token.getLexeme()));
+        } catch (NumberFormatException e) {
+            throw createError(token, "The literal " + token.getLexeme() + " of type int is out of range");
         }
     }
 

@@ -15,6 +15,20 @@ import java.io.IOException;
 public interface TypeSerializer<T> {
 
     /**
+     * The {@link Boolean} type serializer.
+     */
+    TypeSerializer<Boolean> BOOLEAN = new TypeSerializer<Boolean>() {
+        @Override
+        public void serialize(Boolean value, DataOutputStream stream) throws IOException {
+            stream.writeByte(value ? 1 : 0);
+        }
+
+        @Override
+        public Boolean deserialize(DataInputStream stream) throws IOException {
+            return stream.readByte() == 1;
+        }
+    };
+    /**
      * The {@link Byte} type serializer.
      */
     TypeSerializer<Byte> BYTE = new TypeSerializer<Byte>() {

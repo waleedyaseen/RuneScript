@@ -9,17 +9,20 @@ package me.waliedyassen.runescript.config.binding;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.annotation.ConfigArray;
 import me.waliedyassen.runescript.config.annotation.ConfigProps;
 import me.waliedyassen.runescript.config.type.ConfigVarType;
 import me.waliedyassen.runescript.config.type.TypeRegistry;
+import me.waliedyassen.runescript.config.type.rule.ConfigRule;
 import me.waliedyassen.runescript.config.var.ConfigVar;
-import me.waliedyassen.runescript.config.var.ConfigVarArray;
 
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +44,20 @@ public final class ConfigBinding {
      */
     @Getter
     private final ConfigGroup group;
+
+    /**
+     * Whether or not this configuration binding allows param variable.
+     */
+    @Getter
+    @Setter
+    private boolean allowParamVariable;
+
+    /**
+     * Whether or not this configuration binding allow transmit variable.
+     */
+    @Getter
+    @Setter
+    private boolean allowTransmitVariable;
 
     /**
      * Tries to find all of the bindings that are declared inside the specified {@link Class class type}
@@ -87,9 +104,9 @@ public final class ConfigBinding {
                 throw new IllegalStateException("Failed to find a matching type for native type: " + nativeType);
             }
             if (array != null) {
-                addVariableArray(props.name(), props.opcode(), props.required(), varType, array.format(), array.size());
+                addVariableRepeat(array.format(), props.opcode(), props.required(), varType, Collections.emptyList(), array.size());
             } else {
-                addVariable(props.name(), props.opcode(), props.required(), varType);
+                addVariable(props.name(), props.opcode(), props.required(), varType, Collections.emptyList());
             }
         }
     }
@@ -105,52 +122,34 @@ public final class ConfigBinding {
      *         whether or not the variable that we want to add is required.
      * @param type
      *         the type of the variable that we want to add.
+     * @param rules
+     *         the rules of the variable.
      */
-    public void addVariable(String name, int opcode, boolean required, ConfigVarType type) {
-        addVariable(name, opcode, required, type, null);
-    }
-
-    /**
-     * Adds a new variable to the configuration binding.
-     *
-     * @param name
-     *         the name of the variable that we want to add.
-     * @param opcode
-     *         the opcode of the variable that we want to add.
-     * @param required
-     *         whether or not the variable that we want to add is required.
-     * @param type
-     *         the type of the variable that we want to add.
-     * @param array
-     *         the array properties of the variable.
-     */
-    private void addVariable(String name, int opcode, boolean required, ConfigVarType type, ConfigVarArray array) {
+    public void addVariable(String name, int opcode, boolean required, ConfigVarType type, List<ConfigRule> rules) {
         if (variables.containsKey(name)) {
             throw new IllegalArgumentException("Another variable with the same name is already defined in the binding");
         }
-        variables.put(name, new ConfigVar(name, opcode, required, type, array));
+        variables.put(name, new ConfigVar(name, opcode, required, type, rules));
     }
 
     /**
      * Adds a new array variable to the configuration binding.
      *
-     * @param name
-     *         the name of the variable that we want to add.
+     * @param nameFormat
+     *         the format of the array component names.
      * @param opcode
      *         the opcode of the variable that we want to add.
      * @param required
      *         whether or not the variable that we want to add is required.
      * @param type
      *         the type of the variable that we want to add.
-     * @param arrayFormat
-     *         the format of the array component names.
-     * @param arraySize
-     *         the size of the array (the amount of components).
+     * @param rules
+     *         the rules of the variable.
      */
-    public void addVariableArray(String name, int opcode, boolean required, ConfigVarType type, String arrayFormat, int arraySize) {
-        for (var index = 1; index <= arraySize; index++) {
-            var componentName = String.format(arrayFormat, name, index);
-            addVariable(componentName, opcode, required, type, new ConfigVarArray(index - 1, arraySize));
+    public void addVariableRepeat(String nameFormat, int opcode, boolean required, ConfigVarType type, List<ConfigRule> rules, int count) {
+        for (var index = 1; index <= count; index++) {
+            var componentName = String.format(nameFormat, index);
+            addVariable(componentName, opcode, required, type, rules);
         }
     }
 }

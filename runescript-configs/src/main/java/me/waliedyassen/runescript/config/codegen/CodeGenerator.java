@@ -12,6 +12,7 @@ import lombok.var;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
+import me.waliedyassen.runescript.config.ast.value.AstValueBoolean;
 import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
 import me.waliedyassen.runescript.config.ast.value.AstValueLong;
 import me.waliedyassen.runescript.config.ast.value.AstValueString;
@@ -21,6 +22,7 @@ import me.waliedyassen.runescript.config.type.rule.ConfigRules;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
 import java.util.ArrayList;
+
 /**
  * The code generator for the configuration compiler.
  *
@@ -97,6 +99,14 @@ public final class CodeGenerator implements AstVisitor<Object> {
     @Override
     public Long visit(AstValueLong value) {
         return value.getValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Boolean visit(AstValueBoolean value) {
+        return value.isValue();
     }
 
     /**

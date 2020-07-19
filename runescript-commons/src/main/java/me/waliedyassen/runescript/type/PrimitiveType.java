@@ -39,6 +39,23 @@ public enum PrimitiveType implements Type {
     VOID('\ufff2', "void", null, null, null),
 
     /**
+     * The byte special type.
+     */
+    BYTE('\ufff3', null, null, null, TypeSerializer.BYTE),
+
+    /**
+     * The short special type.
+     */
+    SHORT('\ufff4', null, null, null, TypeSerializer.SHORT),
+
+    /**
+     * The type special type.
+     */
+    TYPE('\ufff5', null, null, null, TypeSerializer.BYTE),
+
+    // All the types below are verified to be part of script var type.
+
+    /**
      * The integer primitive type.
      */
     INT('i', "int", StackType.INT, 0, TypeSerializer.INT),
@@ -116,7 +133,7 @@ public enum PrimitiveType implements Type {
     /**
      * The boolean primitive type.
      */
-    BOOLEAN('1', "boolean", StackType.INT, false, TypeSerializer.BYTE),
+    BOOLEAN('1', "boolean", StackType.INT, false, TypeSerializer.BOOLEAN),
 
     /**
      * The category primitive type.
@@ -157,8 +174,12 @@ public enum PrimitiveType implements Type {
     /**
      * The loc primitive type.
      */
-    LOC('l', "loc", StackType.INT, -1, TypeSerializer.SHORT);
+    LOC('l', "loc", StackType.INT, -1, TypeSerializer.SHORT),
 
+    /**
+     * The colour primitive type.
+     */
+    COLOUR('C', "colour", StackType.INT, -1, TypeSerializer.SHORT);
 
     /**
      * The {@link PrimitiveType} by {@link #representation} look-up map.
@@ -245,23 +266,22 @@ public enum PrimitiveType implements Type {
      * @return <code>true</code> if it does otherwise <code>false</code>.
      */
     public boolean isConfigType() {
-        if (!isDeclarable()) {
-            return false;
-        }
         switch (this) {
-            case INT:
-            case BOOLEAN:
-            case LONG:
-            case STRING:
-            case FONTMETRICS:
-            case GRAPHIC:
-            case SYNTH:
-            case COMPONENT:
-            case INTERFACE:
-            case COORDGRID:
-                return false;
-            default:
+            case SEQ:
+            case STAT:
+            case MAPAREA:
+            case ENUM:
+            case NPC:
+            case CATEGORY:
+            case OBJ:
+            case INV:
+            case MAPELEMENT:
+            case VAR:
+            case STRUCT:
+            case LOC:
                 return true;
+            default:
+                return false;
         }
     }
 }

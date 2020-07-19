@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.compiler;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
@@ -51,6 +52,7 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
     /**
      * The symbol table of the configuration compiler.
      */
+    @Getter
     private final SymbolTable symbolTable;
 
     /**
@@ -117,6 +119,10 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
         table.registerSeparator(']', Kind.RBRACKET);
         table.registerSeparator('=', Kind.EQUAL);
         table.registerSeparator(',', Kind.COMMA);
+        table.registerKeyword("yes", Kind.BOOLEAN);
+        table.registerKeyword("no", Kind.BOOLEAN);
+        table.registerKeyword("true", Kind.BOOLEAN);
+        table.registerKeyword("false", Kind.BOOLEAN);
         return table;
     }
 }

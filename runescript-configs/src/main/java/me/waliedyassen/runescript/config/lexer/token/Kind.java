@@ -55,6 +55,11 @@ public enum Kind {
     LONG,
 
     /**
+     * The boolean literal token kind.
+     */
+    BOOLEAN,
+
+    /**
      * The comment token kind.
      */
     COMMENT,

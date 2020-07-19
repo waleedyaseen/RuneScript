@@ -14,6 +14,7 @@ import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
+import me.waliedyassen.runescript.config.ast.value.AstValueBoolean;
 import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
 import me.waliedyassen.runescript.config.ast.value.AstValueLong;
 import me.waliedyassen.runescript.config.ast.value.AstValueString;
@@ -100,6 +101,14 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
+    public PrimitiveType visit(AstValueString value) {
+        return PrimitiveType.STRING;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public PrimitiveType visit(AstValueInteger value) {
         return PrimitiveType.INT;
     }
@@ -116,13 +125,15 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public PrimitiveType visit(AstValueString value) {
-        return PrimitiveType.STRING;
+    public PrimitiveType visit(AstValueBoolean value) {
+        return PrimitiveType.BOOLEAN;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object visit(AstIdentifier identifier) {
-        checker.reportError(new SemanticError(identifier, "Not supported yet!"));
         return DEFAULT;
     }
 }
