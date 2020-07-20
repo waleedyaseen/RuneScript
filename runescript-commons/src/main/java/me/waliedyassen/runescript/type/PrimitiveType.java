@@ -258,6 +258,7 @@ public enum PrimitiveType implements Type {
             case UNDEFINED:
             case BYTE:
             case SHORT:
+            case TYPE:
                 return false;
             default:
                 return representation != null;

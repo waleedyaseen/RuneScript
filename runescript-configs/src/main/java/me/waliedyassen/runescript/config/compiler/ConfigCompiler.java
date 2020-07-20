@@ -25,6 +25,7 @@ import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
 import me.waliedyassen.runescript.config.parser.ConfigParser;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -129,6 +130,11 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
         table.registerKeyword("no", Kind.BOOLEAN);
         table.registerKeyword("true", Kind.BOOLEAN);
         table.registerKeyword("false", Kind.BOOLEAN);
+        for (PrimitiveType type : PrimitiveType.values()) {
+            if (type.isReferencable()) {
+                table.registerKeyword(type.getRepresentation(), Kind.TYPE);
+            }
+        }
         return table;
     }
 }

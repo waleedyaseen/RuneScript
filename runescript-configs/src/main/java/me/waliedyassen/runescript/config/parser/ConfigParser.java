@@ -15,6 +15,7 @@ import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.*;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 import java.util.ArrayList;
 
@@ -119,6 +120,8 @@ public final class ConfigParser extends ParserBase<Kind> {
                 return valueLong();
             case BOOLEAN:
                 return valueBoolean();
+            case TYPE:
+                return valueType();
             default:
                 throwError(consume(), "Expected a property value");
                 return null;
@@ -179,6 +182,17 @@ public final class ConfigParser extends ParserBase<Kind> {
         } catch (NumberFormatException e) {
             throw createError(token, "The literal " + token.getLexeme() + " of type int is out of range");
         }
+    }
+
+    /**
+     * Attempts to parse an {@link AstValueType} object from the next sequence of tokens.
+     *
+     * @return the parsed {@link AstValueType} object.
+     */
+    private AstValueType valueType() {
+        pushRange();
+        var identifier = consume(TYPE);
+        return new AstValueType(popRange(), PrimitiveType.forRepresentation(identifier.getLexeme()));
     }
 
     /**

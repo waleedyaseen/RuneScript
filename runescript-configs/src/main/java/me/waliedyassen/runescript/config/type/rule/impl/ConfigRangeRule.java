@@ -1,4 +1,4 @@
-package me.waliedyassen.runescript.config.type.rule;
+package me.waliedyassen.runescript.config.type.rule.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
@@ -6,6 +6,7 @@ import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.AstValue;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
 import me.waliedyassen.runescript.config.semantics.typecheck.TypeChecking;
+import me.waliedyassen.runescript.config.type.rule.ConfigRule;
 
 /**
  * A rule which checks if an integer is between a specific range inclusively.

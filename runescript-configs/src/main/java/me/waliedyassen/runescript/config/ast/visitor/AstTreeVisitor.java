@@ -11,10 +11,7 @@ import lombok.var;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
-import me.waliedyassen.runescript.config.ast.value.AstValueBoolean;
-import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
-import me.waliedyassen.runescript.config.ast.value.AstValueLong;
-import me.waliedyassen.runescript.config.ast.value.AstValueString;
+import me.waliedyassen.runescript.config.ast.value.*;
 
 /**
  * Represents an {@link AstVisitor} that will visit every node and it's children in the tree.
@@ -81,6 +78,14 @@ public abstract class AstTreeVisitor implements AstVisitor<Object> {
      */
     @Override
     public Object visit(AstValueBoolean value) {
+        return DEFAULT;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(AstValueType value) {
         return DEFAULT;
     }
 

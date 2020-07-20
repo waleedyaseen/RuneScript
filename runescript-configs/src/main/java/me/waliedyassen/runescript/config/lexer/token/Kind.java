@@ -60,6 +60,11 @@ public enum Kind {
     BOOLEAN,
 
     /**
+     * The type literal token kind.
+     */
+    TYPE,
+
+    /**
      * The comment token kind.
      */
     COMMENT,

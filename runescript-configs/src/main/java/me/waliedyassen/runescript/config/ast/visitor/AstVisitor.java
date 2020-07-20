@@ -10,10 +10,7 @@ package me.waliedyassen.runescript.config.ast.visitor;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
-import me.waliedyassen.runescript.config.ast.value.AstValueBoolean;
-import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
-import me.waliedyassen.runescript.config.ast.value.AstValueLong;
-import me.waliedyassen.runescript.config.ast.value.AstValueString;
+import me.waliedyassen.runescript.config.ast.value.*;
 
 /**
  * Represents the Abstract-Syntax-Tree node visitor.
@@ -82,6 +79,16 @@ public interface AstVisitor<R> {
      * @return An object which is specified by the implementation.
      */
     R visit(AstValueBoolean value);
+
+    /**
+     * Gets called when we have just visited an {@link AstValueType} object.
+     *
+     * @param value
+     *         the object we have just visited.
+     *
+     * @return An object which is specified by the implementation.
+     */
+    R visit(AstValueType value);
 
     /**
      * Gets called when we have just visited an {@link AstIdentifier} object.

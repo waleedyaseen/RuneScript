@@ -8,6 +8,7 @@ import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.editor.project.Project;
+import me.waliedyassen.runescript.editor.util.ChecksumUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
@@ -20,6 +21,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.zip.Checksum;
 
 /**
  * A cache system that is for a specific project.
@@ -80,6 +82,7 @@ public final class CacheNew {
     }
 
     public void diff() throws IOException {
+
     }
 
     /**
@@ -108,7 +111,6 @@ public final class CacheNew {
         }
         var input = new Input();
         input.addSourceFile(SourceFile.of(path, content));
-
         if (unit.isClientScript() || unit.isServerScript()) {
 
         } else {
@@ -124,13 +126,14 @@ public final class CacheNew {
                 }
             }
         }
+        unit.setCrc(ChecksumUtil.calculateCrc32(content));
         project.updateErrors(unit);
     }
 
     /**
      *
      */
-    public void pack() {
+    public void pack(CacheUnit unit) {
 
     }
 
