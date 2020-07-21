@@ -54,6 +54,7 @@ public final class ProjectEditor extends Editor<Project> {
         viewComponent.predefinedScriptsField.setText(project.getPredefinedScriptsPath());
         viewComponent.runtimeConstantsField.setText(project.getRuntimeConstantsPath());
         viewComponent.supportsLongTypeCheckBox.setSelected(project.isSupportsLongPrimitiveType());
+        viewComponent.overrideSymbolsCheckBox.setSelected(project.isOverrideSymbols());
         viewComponent.predefinedConfigs.forEach((type, field) -> {
             var path = project.getConfigsPath().get(type);
             if (path == null) {
@@ -83,6 +84,7 @@ public final class ProjectEditor extends Editor<Project> {
         project.setPredefinedScriptsPath(viewComponent.predefinedScriptsField.getText());
         project.setRuntimeConstantsPath(viewComponent.runtimeConstantsField.getText());
         project.setSupportsLongPrimitiveType(viewComponent.supportsLongTypeCheckBox.isSelected());
+        project.setOverrideSymbols(viewComponent.overrideSymbolsCheckBox.isSelected());
         project.getConfigsPath().clear();
         project.getConfigsPath().putAll(getConfigPathMap());
         project.getBindingsPath().clear();
@@ -142,6 +144,7 @@ public final class ProjectEditor extends Editor<Project> {
         modified |= !getConfigPathMap().equals(project.getConfigsPath());
         modified |= !getBindingPathMap().equals(project.getBindingsPath());
         modified |= project.isSupportsLongPrimitiveType() != viewComponent.supportsLongTypeCheckBox.isSelected();
+        modified |= project.isOverrideSymbols() != viewComponent.overrideSymbolsCheckBox.isSelected();
         return modified;
     }
 
@@ -191,6 +194,11 @@ public final class ProjectEditor extends Editor<Project> {
         private final JCheckBox supportsLongTypeCheckBox = new JCheckBox();
 
         /**
+         * The override symbols type check box.
+         */
+        private final JCheckBox overrideSymbolsCheckBox = new JCheckBox();
+
+        /**
          * The commands configuration file path text field.
          */
         private final JTextField commandsField = new JTextField();
@@ -229,12 +237,14 @@ public final class ProjectEditor extends Editor<Project> {
          * Constructs a new {@link ProjectEditorUI} type object instance.
          */
         public ProjectEditorUI() {
-            super(new MigLayout("", "[grow]", "[][]"));
-            var optionsPanel = new JPanel(new MigLayout("", "[][grow][]"));
+            super(new MigLayout("", "[grow]", "[][][grow]"));
+            var optionsPanel = new JPanel(new MigLayout());
             optionsPanel.setBorder(BorderFactory.createTitledBorder("Options"));
             {
                 optionsPanel.add(new JLabel("Supports long type:"));
-                optionsPanel.add(supportsLongTypeCheckBox, "wrap");
+                optionsPanel.add(supportsLongTypeCheckBox);
+                optionsPanel.add(new JLabel("Override symbols:"));
+                optionsPanel.add(overrideSymbolsCheckBox);
             }
             add(optionsPanel, "grow, wrap");
             initSymbolsPanel();
@@ -261,7 +271,7 @@ public final class ProjectEditor extends Editor<Project> {
 
             var scrollPane = new JScrollPane(symbolPanel);
             scrollPane.setBorder(BorderFactory.createTitledBorder("Symbol"));
-            add(scrollPane, "grow, wrap");
+            add(scrollPane, "growx, wrap");
         }
 
         private void initBindingsPanel() {
@@ -279,7 +289,7 @@ public final class ProjectEditor extends Editor<Project> {
 
             var scrollPane = new JScrollPane(bindingPanel);
             scrollPane.setBorder(BorderFactory.createTitledBorder("Binding"));
-            add(scrollPane, "grow, wrap");
+            add(scrollPane, "growx, wrap");
         }
 
         /**

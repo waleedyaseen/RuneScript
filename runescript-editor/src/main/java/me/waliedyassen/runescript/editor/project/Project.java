@@ -145,6 +145,13 @@ public final class Project {
     private boolean supportsLongPrimitiveType;
 
     /**
+     * Whether or not the project supports overriding already defined symbols.
+     */
+    @Getter
+    @Setter
+    private boolean overrideSymbols;
+
+    /**
      * The commands configuration path.
      */
     @Getter
@@ -219,7 +226,8 @@ public final class Project {
         name = JsonUtil.getTextOrThrow(root, "name", "The project name cannot be null or empty");
         loadBuildPath(root);
         loadCompiler(root);
-        supportsLongPrimitiveType = JsonUtil.getBooleanOrThrow(root, "supportsLongPrimitiveType", "The project supportsLongPrimitiveType cannot be null or empty");
+        supportsLongPrimitiveType = JsonUtil.getBooleanOrDefault(root, "supportsLongPrimitiveType", false);
+        overrideSymbols = JsonUtil.getBooleanOrDefault(root, "overrideSymbols", false);
         postLoad();
     }
 
@@ -291,7 +299,8 @@ public final class Project {
                 .withEnvironment(compilerEnvironment)
                 .withInstructionMap(instructionMap)
                 .withSymbolTable(symbolTable)
-                .withSupportsLongPrimitiveType(false)
+                .withOverrideSymbols(overrideSymbols)
+                .withSupportsLongPrimitiveType(supportsLongPrimitiveType)
                 .withIdProvider(new ProjectIdProvider())
                 .build();
         configsCompiler = new ConfigCompiler(symbolTable);
@@ -332,7 +341,6 @@ public final class Project {
                 var large = value.getOrElse("large", false);
                 instructionMap.registerCore(coreOpcode, opcode, large);
             }
-
         }
     }
 
@@ -453,6 +461,9 @@ public final class Project {
         });
     }
 
+    /**
+     * Loads all of the pdefined scripts of the projects.
+     */
     private void loadScripts() {
         if (predefinedScriptsPath == null || predefinedScriptsPath.trim().isEmpty()) {
             return;
@@ -483,6 +494,9 @@ public final class Project {
         }
     }
 
+    /**
+     * Loads all of the predefined runtime constants of the project.
+     */
     private void loadRuntimeConstants() {
         if (runtimeConstantsPath == null || runtimeConstantsPath.trim().isEmpty()) {
             return;
@@ -525,7 +539,7 @@ public final class Project {
     }
 
     /**
-     * Loads the configuration bindings of the project.
+     * Loads all of the configuration bindings of the project.
      */
     void loadBindings() {
         bindingsPath.forEach((type, pathRaw) -> {
@@ -554,12 +568,20 @@ public final class Project {
                         var required = value.getOrElse("required", false);
                         var components = ProjectConfig.parsePrimitiveType(value, "components");
                         var rules = ProjectConfig.parseConfigRules(value, "rules");
-                        if (entryType.contentEquals("NORMAL")) {
-                            binding.addVariable(entry.getKey(), opcode, required, new BasicConfigVarType(null, components), rules);
-                        } else if (entryType.contentEquals("REPEAT")) {
-                            var count = value.getInt("count");
-                            var format = value.getOrElse("format", entry.getKey() + "%d");
-                            binding.addVariableRepeat(format, opcode, required, new BasicConfigVarType(null, components), rules, count);
+                        switch (entryType) {
+                            case "NORMAL": {
+                                binding.addVariable(entry.getKey(), opcode, required, new BasicConfigVarType(null, components), rules);
+                                break;
+                            }
+                            case "REPEAT": {
+                                var count = value.getInt("count");
+                                var format = value.getOrElse("format", entry.getKey() + "%d");
+                                binding.addVariableRepeat(format, opcode, required, new BasicConfigVarType(null, components), rules, count);
+                                break;
+                            }
+                            default: {
+                                //  throw new IllegalArgumentException("The specified type is not recognised: " + entryType);
+                            }
                         }
                     }
                     if (binding.isAllowParamVariable()) {
@@ -753,6 +775,7 @@ public final class Project {
             compiler.put("binding_" + type.getRepresentation(), path);
         }
         root.put("supportsLongPrimitiveType", supportsLongPrimitiveType);
+        root.put("overrideSymbols", overrideSymbols);
         // Write the serialised data into the project file.
         JsonUtil.getMapper().writerWithDefaultPrettyPrinter().writeValue(findProjectFile().toFile(), root);
         // Save the cache of the project to the local disk.

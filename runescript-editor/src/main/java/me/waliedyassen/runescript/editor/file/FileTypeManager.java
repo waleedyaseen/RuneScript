@@ -44,7 +44,8 @@ public final class FileTypeManager {
     /**
      * Registers a new {@link FileType} in the file type manager.
      *
-     * @param type the type to register in the file type mnager.
+     * @param type
+     *         the type to register in the file type mnager.
      */
     public static void register(FileType type) {
         for (var extension : type.getExtensions()) {
@@ -55,11 +56,29 @@ public final class FileTypeManager {
     /**
      * Returns the {@link FileType} that is associated with the specified {@code extension}.
      *
-     * @param extension the extension that we want to look for it's associated file type.
+     * @param extension
+     *         the extension that we want to look for it's associated file type.
+     *
      * @return the associated {@link FileType} object.
      */
     public static FileType lookup(String extension) {
         return registeredTypes.getOrDefault(extension, DEFAULT_TYPE);
+    }
+
+    /**
+     * Checks whether or not the file manager is compilable.
+     *
+     * @param extension
+     *         the extension of the file.
+     *
+     * @return <code>true</code> if it is compilable otherwise <code>false</code>.
+     */
+    public static boolean isCompilable(String extension) {
+        var type = lookup(extension);
+        if (type == null) {
+            return false;
+        }
+        return type instanceof ConfigFileType || type instanceof ScriptFileType;
     }
 
     private FileTypeManager() {
