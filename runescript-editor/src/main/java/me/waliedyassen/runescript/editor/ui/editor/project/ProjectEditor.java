@@ -51,8 +51,9 @@ public final class ProjectEditor extends Editor<Project> {
         viewComponent.instructionsField.setText(project.getInstructionsPath());
         viewComponent.commandsField.setText(project.getCommandsPath());
         viewComponent.triggersField.setText(project.getTriggersPath());
-        viewComponent.predefinedScriptsField.setText(project.getPredefinedScriptsPath());
         viewComponent.runtimeConstantsField.setText(project.getRuntimeConstantsPath());
+        viewComponent.predefinedConstantsField.setText(project.getPredefinedConstantsPath());
+        viewComponent.predefinedScriptsField.setText(project.getPredefinedScriptsPath());
         viewComponent.supportsLongTypeCheckBox.setSelected(project.isSupportsLongPrimitiveType());
         viewComponent.overrideSymbolsCheckBox.setSelected(project.isOverrideSymbols());
         viewComponent.predefinedConfigs.forEach((type, field) -> {
@@ -83,6 +84,7 @@ public final class ProjectEditor extends Editor<Project> {
         project.setTriggersPath(viewComponent.triggersField.getText());
         project.setPredefinedScriptsPath(viewComponent.predefinedScriptsField.getText());
         project.setRuntimeConstantsPath(viewComponent.runtimeConstantsField.getText());
+        project.setPredefinedConstantsPath(viewComponent.predefinedConstantsField.getText());
         project.setSupportsLongPrimitiveType(viewComponent.supportsLongTypeCheckBox.isSelected());
         project.setOverrideSymbols(viewComponent.overrideSymbolsCheckBox.isSelected());
         project.getConfigsPath().clear();
@@ -139,8 +141,9 @@ public final class ProjectEditor extends Editor<Project> {
         modified |= !viewComponent.instructionsField.getText().equals(project.getInstructionsPath());
         modified |= !viewComponent.commandsField.getText().equals(project.getCommandsPath());
         modified |= !viewComponent.triggersField.getText().equals(project.getTriggersPath());
-        modified |= !viewComponent.predefinedScriptsField.getText().equals(project.getPredefinedScriptsPath());
         modified |= !viewComponent.runtimeConstantsField.getText().equals(project.getRuntimeConstantsPath());
+        modified |= !viewComponent.predefinedScriptsField.getText().equals(project.getPredefinedScriptsPath());
+        modified |= !viewComponent.predefinedConstantsField.getText().equals(project.getPredefinedConstantsPath());
         modified |= !getConfigPathMap().equals(project.getConfigsPath());
         modified |= !getBindingPathMap().equals(project.getBindingsPath());
         modified |= project.isSupportsLongPrimitiveType() != viewComponent.supportsLongTypeCheckBox.isSelected();
@@ -224,6 +227,11 @@ public final class ProjectEditor extends Editor<Project> {
         private final JTextField runtimeConstantsField = new JTextField();
 
         /**
+         * The constants file path text field.
+         */
+        private final JTextField predefinedConstantsField = new JTextField();
+
+        /**
          * A map of all the text fields that lead to the predefined configs.
          */
         private final Map<PrimitiveType, JTextField> predefinedConfigs = new HashMap<>();
@@ -258,6 +266,7 @@ public final class ProjectEditor extends Editor<Project> {
                 createBrowseSymbolRow(symbolPanel, "Commands", commandsField);
                 createBrowseSymbolRow(symbolPanel, "Triggers", triggersField);
                 createBrowseSymbolRow(symbolPanel, "Runtime Constants", runtimeConstantsField);
+                createBrowseSymbolRow(symbolPanel, "Predefined constant(s)", predefinedConstantsField);
                 createBrowseSymbolRow(symbolPanel, "Predefined script(s)", predefinedScriptsField);
                 for (var type : PrimitiveType.values()) {
                     if (!isPredefinable(type)) {

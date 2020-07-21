@@ -173,6 +173,13 @@ public final class Project {
     private String instructionsPath;
 
     /**
+     * The runtime constants configuration path.
+     */
+    @Getter
+    @Setter
+    private String runtimeConstantsPath;
+
+    /**
      * The instructions configuration path.
      */
     @Getter
@@ -180,11 +187,11 @@ public final class Project {
     private String predefinedScriptsPath;
 
     /**
-     * The runtime constants configuration path.
+     * The constants configuration path.
      */
     @Getter
     @Setter
-    private String runtimeConstantsPath;
+    private String predefinedConstantsPath;
 
     /**
      * A map which contains all of the predefined configuration paths.
@@ -259,8 +266,9 @@ public final class Project {
         instructionsPath = JsonUtil.getTextOrThrow(object, "instructions", "The instructions map cannot be null");
         triggersPath = JsonUtil.getTextOrThrow(object, "triggers", "The triggers cannot be null");
         commandsPath = JsonUtil.getTextOrThrow(object, "commands", "The commands cannot be null");
-        predefinedScriptsPath = object.has("scripts") ? object.get("scripts").textValue() : "";
         runtimeConstantsPath = object.has("runtimeConstants") ? object.get("runtimeConstants").textValue() : "";
+        predefinedScriptsPath = object.has("scripts") ? object.get("scripts").textValue() : "";
+        predefinedConstantsPath = object.has("constants") ? object.get("constants").textValue() : "";
         configsPath.clear();
         for (var type : PrimitiveType.values()) {
             if (!ProjectEditor.isPredefinable(type)) {
@@ -307,6 +315,7 @@ public final class Project {
         loadCommands();
         loadConfigs();
         loadScripts();
+        loadConstants();
         loadRuntimeConstants();
         loadBindings();
     }
@@ -420,7 +429,7 @@ public final class Project {
                 var alternative = value.getOrElse("alternative", false);
                 var hook = value.getOrElse("hook", false);
                 var hookType = value.contains("hooktype") ? PrimitiveType.valueOf(value.get("hooktype")) : null;
-                scriptsCompiler.getSymbolTable().defineCommand(new BasicOpcode(opcode, false), name, type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0], arguments, hook, hookType, alternative);
+                symbolTable.defineCommand(new BasicOpcode(opcode, false), name, type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0], arguments, hook, hookType, alternative);
             }
         }
     }
@@ -446,11 +455,11 @@ public final class Project {
                         var id = value.getInt("id");
                         var name = value.contains("name") ? value.<String>get("name") : entry.getKey();
                         if (type == PrimitiveType.GRAPHIC) {
-                            scriptsCompiler.getSymbolTable().defineGraphic(name, id);
+                            symbolTable.defineGraphic(name, id);
                         } else {
-                            scriptsCompiler.getSymbolTable().defineConfig(name, type);
+                            symbolTable.defineConfig(name, type);
                             if (type == PrimitiveType.INTERFACE) {
-                                scriptsCompiler.getSymbolTable().defineInterface(name, id);
+                                symbolTable.defineInterface(name, id);
                             }
                         }
                     }
@@ -462,7 +471,7 @@ public final class Project {
     }
 
     /**
-     * Loads all of the pdefined scripts of the projects.
+     * Loads all of the predefined scripts of the projects.
      */
     private void loadScripts() {
         if (predefinedScriptsPath == null || predefinedScriptsPath.trim().isEmpty()) {
@@ -486,11 +495,47 @@ public final class Project {
                     var trigger = compilerEnvironment.lookupTrigger(value.<String>get("trigger"));
                     var type = ProjectConfig.parseTypes(value, "type");
                     var arguments = ProjectConfig.parseTypes(value, "arguments");
-                    scriptsCompiler.getSymbolTable().defineScript(Collections.emptyMap(), trigger, name, type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type), arguments, id);
+                    symbolTable.defineScript(Collections.emptyMap(), trigger, name, type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type), arguments, id);
                 }
             }
         } catch (Throwable e) {
             log.error("An error occurred while loading the predefined scripts file for path: {}", predefinedScriptsPath, e);
+        }
+    }
+
+    /**
+     * Loads all of the predefined runtime constants of the project.
+     */
+    private void loadConstants() {
+        if (predefinedConstantsPath == null || predefinedConstantsPath.trim().isEmpty()) {
+            return;
+        }
+        var path = Paths.get(predefinedConstantsPath);
+        if (!path.isAbsolute()) {
+            path = directory.resolve(predefinedConstantsPath);
+        }
+        if (!Files.exists(path)) {
+            log.info("The specified constants file does not exist: {}", predefinedConstantsPath);
+            return;
+        }
+        try {
+            try (var fileConfig = CommentedFileConfig.of(path.toFile())) {
+                fileConfig.load();
+                for (var entry : fileConfig.entrySet()) {
+                    var object = entry.getValue();
+                    if (object instanceof Integer) {
+                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.INT, ((Integer) object).intValue());
+                    } else if (object instanceof Long) {
+                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.LONG, ((Long) object).longValue());
+                    } else if (object instanceof String) {
+                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.STRING, (String) object);
+                    } else {
+                        throw new IllegalArgumentException("Unrecognised value in the predefined constant(s) file for key: " + entry.getKey());
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            log.error("An error occurred while loading the predefined constants file for path: {}", predefinedConstantsPath, e);
         }
     }
 
@@ -530,11 +575,11 @@ public final class Project {
                         default:
                             throw new UnsupportedOperationException();
                     }
-                    scriptsCompiler.getSymbolTable().defineRuntimeConstant(name, type, value);
+                    symbolTable.defineRuntimeConstant(name, type, value);
                 }
             }
         } catch (Throwable e) {
-            log.error("An error occurred while loading the predefined scripts file for path: {}", predefinedScriptsPath, e);
+            log.error("An error occurred while loading the runtime constants file for path: {}", runtimeConstantsPath, e);
         }
     }
 
@@ -592,7 +637,7 @@ public final class Project {
                     }
                 }
             } catch (Throwable e) {
-                log.error("An error occurred while loading the configuration file for type: {} and path: {}", type, pathRaw, e);
+                log.error("An error occurred while loading the configuration binding file for type: {} and path: {}", type, pathRaw, e);
             }
         });
     }
@@ -752,8 +797,9 @@ public final class Project {
         compiler.put("instructions", instructionsPath);
         compiler.put("triggers", triggersPath);
         compiler.put("commands", commandsPath);
-        compiler.put("scripts", predefinedScriptsPath);
         compiler.put("runtimeConstants", runtimeConstantsPath);
+        compiler.put("scripts", predefinedScriptsPath);
+        compiler.put("constants", predefinedConstantsPath);
         for (var type : PrimitiveType.values()) {
             if (!ProjectEditor.isPredefinable(type)) {
                 continue;
