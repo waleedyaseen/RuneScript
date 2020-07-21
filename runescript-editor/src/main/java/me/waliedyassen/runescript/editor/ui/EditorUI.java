@@ -13,6 +13,7 @@ import bibliothek.gui.dock.common.DefaultSingleCDockable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.RuneScriptEditor;
 import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.errors.ErrorsView;
@@ -74,6 +75,7 @@ public final class EditorUI implements WindowListener {
      * Initialises the user-interface.
      */
     public void initialise() {
+        frame.setIconImage(EditorIcons.FAVICON);
         initialiseComponents();
         initialiseProperties();
         editor.getProjectManager().getCurrentProject().addListener(project -> {

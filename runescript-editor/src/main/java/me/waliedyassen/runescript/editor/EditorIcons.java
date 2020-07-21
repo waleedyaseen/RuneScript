@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.editor;
 import me.waliedyassen.runescript.editor.resource.ResourceManager;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * Contains all of the useful icons for the editor components.
@@ -17,6 +18,11 @@ import javax.swing.*;
  * @author Walied K. Yassen
  */
 public final class EditorIcons {
+
+    /**
+     * The main icon of the editor.
+     */
+    public static final Image FAVICON = ResourceManager.getInstance().loadImage("/icons/favicon.png");
 
     /**
      * The icon of the folder node in the explorer tree.

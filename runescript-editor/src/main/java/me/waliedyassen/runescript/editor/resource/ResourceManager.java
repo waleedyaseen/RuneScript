@@ -8,9 +8,13 @@
 package me.waliedyassen.runescript.editor.resource;
 
 import lombok.Getter;
+import lombok.SneakyThrows;
 import lombok.var;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,6 +59,29 @@ public final class ResourceManager {
                 return null;
             }
             cached = new ImageIcon(url);
+            cachedResources.put(fullPath, cached);
+        }
+        return cached;
+    }
+
+    /**
+     * Loads an {@link Image} from the specified resources file {@code path}.
+     *
+     * @param path
+     *         the path of the icon.
+     *
+     * @return the loaded {@link Image} object.
+     */
+    @SneakyThrows
+    public Image loadImage(String... path) {
+        var fullPath = /*normalise(*/String.join("/", path)/*)*/;
+        var cached = (Image) cachedResources.get(fullPath);
+        if (cached == null) {
+            var url = getClass().getResource(fullPath);
+            if (url == null) {
+                return null;
+            }
+            cached = ImageIO.read(url);
             cachedResources.put(fullPath, cached);
         }
         return cached;
