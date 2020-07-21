@@ -56,11 +56,15 @@ public final class TypeChecking extends AstTreeVisitor {
             property.accept(this);
         }
         for (var entry : binding.getVariables().values()) {
-            if (!entry.isRequired()) {
+            var properties = config.findProperties(entry.getName());
+            if (properties.isEmpty()) {
+                if (entry.isRequired()) {
+                    checker.reportError(new SemanticError(config.getName(), String.format("The '%s' config requires property '%s'", binding.getGroup().getType().getRepresentation(), entry.getName())));
+                }
                 continue;
             }
-            if (config.findProperty(entry.getName()) == null) {
-                checker.reportError(new SemanticError(config.getName(), String.format("The '%s' config requires property '%s'", binding.getGroup().getType().getRepresentation(), entry.getName())));
+            if (properties.size() > 1) {
+                checker.reportError(new SemanticError(config.getName(), String.format("The property '%s' is already defined", entry.getName())));
             }
         }
         return DEFAULT;
