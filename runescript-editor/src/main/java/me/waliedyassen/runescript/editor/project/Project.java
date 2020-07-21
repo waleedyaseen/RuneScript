@@ -612,7 +612,7 @@ public final class Project {
      */
     private void loadCache() {
         var rootPath = resolveRsPath();
-        var cacheFile = rootPath.resolve("cache");
+        var cacheFile = rootPath.resolve("cache.bin");
         cache = new CacheNew(this);
         if (Files.exists(cacheFile)) {
             try (var stream = new DataInputStream(Files.newInputStream(cacheFile))) {

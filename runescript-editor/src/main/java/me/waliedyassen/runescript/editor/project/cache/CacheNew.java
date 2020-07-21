@@ -1,13 +1,14 @@
 package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.editor.file.FileTypeManager;
+import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.util.ChecksumUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
@@ -20,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +29,7 @@ import java.util.stream.Collectors;
  *
  * @author Walied K. Yassen
  */
-@RequiredArgsConstructor
+@Slf4j
 public final class CacheNew {
 
     /**
@@ -40,6 +42,22 @@ public final class CacheNew {
      * The project which this cache is for.
      */
     private final Project project;
+
+    /**
+     * Whether or not the cache file is currently dirty.
+     */
+    private boolean dirtyCache;
+
+    /**
+     * Constructs a new {@link CacheNew} type object instance.
+     *
+     * @param project
+     *         the project which owns this cache.
+     */
+    public CacheNew(Project project) {
+        this.project = project;
+        WorkExecutor.getSingleThreadScheduler().scheduleWithFixedDelay(this::performSaving, 5, 5, TimeUnit.SECONDS);
+    }
 
     /**
      * Reads the content of the cache from the specified {@link DataInputStream stream}.
@@ -76,10 +94,14 @@ public final class CacheNew {
     }
 
     /**
-     *
+     * Saves all of hte data in the cache to the local disk.
      */
     public void performSaving() {
-
+        if (dirtyCache) {
+            log.info("Found dirty cache.. saving cache");
+            project.saveCache();
+            dirtyCache = false;
+        }
     }
 
     /**
@@ -94,20 +116,29 @@ public final class CacheNew {
                 .filter(path -> Files.isRegularFile(path) && FileTypeManager.isCompilable(PathEx.getExtension(path)))
                 .collect(Collectors.toList());
         var changes = new HashMap<Path, byte[]>();
+        var deletions = new HashMap<>(units);
         for (var path : paths) {
             var normalizedPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path);
             var diskData = Files.readAllBytes(path);
             var unit = units.get(normalizedPath);
-            if (unit != null && ChecksumUtil.calculateCrc32(diskData) != unit.getCrc()) {
+            deletions.remove(normalizedPath);
+            if (unit != null && ChecksumUtil.calculateCrc32(diskData) == unit.getCrc()) {
                 continue;
             }
             changes.put(path, diskData);
         }
-        if (changes.isEmpty()) {
-            return;
+        if (!deletions.isEmpty()) {
+            log.info("Found {} deleted files", deletions.size());
+            for (var deletedUnit : deletions.values()) {
+                deletedUnit.undefineSymbols(project.getSymbolTable());
+                units.remove(deletedUnit.getPath());
+            }
         }
-        for (var change : changes.entrySet()) {
-            recompile(change.getKey(), change.getValue());
+        if (!changes.isEmpty()) {
+            log.info("Found {} changed files", changes.size());
+            for (var change : changes.entrySet()) {
+                recompile(change.getKey(), change.getValue());
+            }
         }
     }
 
@@ -157,6 +188,7 @@ public final class CacheNew {
         }
         unit.setCrc(ChecksumUtil.calculateCrc32(content));
         project.updateErrors(unit);
+        markCacheDirty();
     }
 
     /**
@@ -173,4 +205,15 @@ public final class CacheNew {
         units.put(fullPath, unit);
         return unit;
     }
+
+    /**
+     * Marks the cache file as dirty.
+     */
+    private void markCacheDirty() {
+        if (dirtyCache) {
+            return;
+        }
+        dirtyCache = true;
+    }
+
 }
