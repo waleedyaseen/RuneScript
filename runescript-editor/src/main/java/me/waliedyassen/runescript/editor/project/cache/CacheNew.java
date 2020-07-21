@@ -7,21 +7,20 @@ import lombok.var;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
+import me.waliedyassen.runescript.editor.file.FileTypeManager;
 import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.util.ChecksumUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
-import javax.xml.transform.Source;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.Checksum;
+import java.util.stream.Collectors;
 
 /**
  * A cache system that is for a specific project.
@@ -76,17 +75,47 @@ public final class CacheNew {
         }
     }
 
-
+    /**
+     *
+     */
     public void performSaving() {
 
     }
 
+    /**
+     * Collects all of the changes of the compilable files in the source directory and compiles
+     * the affected files.
+     *
+     * @throws IOException
+     *         if anything occurs accessing the files on the local disk.
+     */
     public void diff() throws IOException {
-
+        var paths = Files.walk(project.getBuildPath().getSourceDirectory())
+                .filter(path -> Files.isRegularFile(path) && FileTypeManager.isCompilable(PathEx.getExtension(path)))
+                .collect(Collectors.toList());
+        var changes = new HashMap<Path, byte[]>();
+        for (var path : paths) {
+            var normalizedPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path);
+            var diskData = Files.readAllBytes(path);
+            var unit = units.get(normalizedPath);
+            if (unit != null && ChecksumUtil.calculateCrc32(diskData) != unit.getCrc()) {
+                continue;
+            }
+            changes.put(path, diskData);
+        }
+        if (changes.isEmpty()) {
+            return;
+        }
+        for (var change : changes.entrySet()) {
+            recompile(change.getKey(), change.getValue());
+        }
     }
 
     /**
+     * Re-compiles the content of the file at the specified {@link Path relative path}.
+     *
      * @param path
+     *         the path of the file to recompile relative to the source directory of the project.
      */
     @SneakyThrows
     public void recompile(Path path) {
@@ -128,13 +157,6 @@ public final class CacheNew {
         }
         unit.setCrc(ChecksumUtil.calculateCrc32(content));
         project.updateErrors(unit);
-    }
-
-    /**
-     *
-     */
-    public void pack(CacheUnit unit) {
-
     }
 
     /**
