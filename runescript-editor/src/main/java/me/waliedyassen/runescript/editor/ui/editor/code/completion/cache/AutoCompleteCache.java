@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.CodeCompletion;
-import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.KeywordCompletion;
-import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.CompletionProvider;
 

@@ -8,8 +8,6 @@
 package me.waliedyassen.runescript.editor.ui.menu.action.impl;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.var;
 import me.waliedyassen.runescript.editor.shortcut.UiAction;
 import me.waliedyassen.runescript.editor.ui.menu.action.Action;

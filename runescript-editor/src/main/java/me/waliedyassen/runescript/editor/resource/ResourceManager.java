@@ -14,7 +14,6 @@ import lombok.var;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 

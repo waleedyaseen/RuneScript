@@ -8,11 +8,6 @@
 package me.waliedyassen.runescript.editor.util;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatIntelliJLaf;
-import com.formdev.flatlaf.intellijthemes.FlatDarkFlatIJTheme;
-import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatAtomOneDarkIJTheme;
-import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatDraculaIJTheme;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;

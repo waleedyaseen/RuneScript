@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
-import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 

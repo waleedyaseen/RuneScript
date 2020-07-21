@@ -7,11 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.shortcut;
 
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.var;
+import lombok.*;
 
 import javax.swing.*;
 import java.util.ArrayList;
