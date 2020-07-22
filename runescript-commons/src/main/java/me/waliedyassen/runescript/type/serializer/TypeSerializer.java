@@ -35,14 +35,14 @@ public interface TypeSerializer<T> {
     /**
      * The {@link Byte} type serializer.
      */
-    TypeSerializer<Byte> BYTE = new TypeSerializer<Byte>() {
+    TypeSerializer<Number> BYTE = new TypeSerializer<Number>() {
         @Override
-        public void serialize(Byte value, DataOutputStream stream) throws IOException {
-            stream.writeByte(value);
+        public void serialize(Number value, DataOutputStream stream) throws IOException {
+            stream.writeByte(value.byteValue());
         }
 
         @Override
-        public Byte deserialize(DataInputStream stream) throws IOException {
+        public Number deserialize(DataInputStream stream) throws IOException {
             return stream.readByte();
         }
     };
@@ -50,14 +50,14 @@ public interface TypeSerializer<T> {
     /**
      * The {@link Short} type serializer.
      */
-    TypeSerializer<Short> SHORT = new TypeSerializer<Short>() {
+    TypeSerializer<Number> SHORT = new TypeSerializer<Number>() {
         @Override
-        public void serialize(Short value, DataOutputStream stream) throws IOException {
-            stream.writeShort(value);
+        public void serialize(Number value, DataOutputStream stream) throws IOException {
+            stream.writeShort(value.shortValue());
         }
 
         @Override
-        public Short deserialize(DataInputStream stream) throws IOException {
+        public Number deserialize(DataInputStream stream) throws IOException {
             return stream.readShort();
         }
     };
@@ -65,14 +65,14 @@ public interface TypeSerializer<T> {
     /**
      * The {@link Integer} type serializer.
      */
-    TypeSerializer<Integer> INT = new TypeSerializer<Integer>() {
+    TypeSerializer<Number> INT = new TypeSerializer<Number>() {
         @Override
-        public void serialize(Integer value, DataOutputStream stream) throws IOException {
-            stream.writeInt(value);
+        public void serialize(Number value, DataOutputStream stream) throws IOException {
+            stream.writeInt(value.intValue());
         }
 
         @Override
-        public Integer deserialize(DataInputStream stream) throws IOException {
+        public Number deserialize(DataInputStream stream) throws IOException {
             return stream.readInt();
         }
     };
@@ -80,14 +80,14 @@ public interface TypeSerializer<T> {
     /**
      * The {@link Long} type serializer.
      */
-    TypeSerializer<Long> LONG = new TypeSerializer<Long>() {
+    TypeSerializer<Number> LONG = new TypeSerializer<Number>() {
         @Override
-        public void serialize(Long value, DataOutputStream stream) throws IOException {
-            stream.writeLong(value);
+        public void serialize(Number value, DataOutputStream stream) throws IOException {
+            stream.writeLong(value.longValue());
         }
 
         @Override
-        public Long deserialize(DataInputStream stream) throws IOException {
+        public Number deserialize(DataInputStream stream) throws IOException {
             return stream.readLong();
         }
     };
