@@ -104,8 +104,8 @@ public final class CodeTheme extends Theme {
                 styles[NUMBER_LITERAL] = new Style(new Color(0xf78c6c));
                 styles[HEX_LITERAL] = new Style(new Color(0xf78c6c));
                 styles[COORDGRID_LITERAL] = new Style(new Color(0xE73737));
-                styles[GLOBAL_VARIABLE] = styles[NULL];
-                styles[CONSTANT] = styles[NULL];
+                styles[GLOBAL_VARIABLE] = new Style(new Color(0x9B8DE8));
+                styles[CONSTANT] = new Style(new Color(0x9B8DE8));
                 styles[STRING_LITERAL] = new Style(new Color(0xc3e88d));
                 styles[STRING_INTERPOLATE] = new Style(new Color(0xffcb6b));
                 styles[LINE_COMMENT] = new Style(new Color(0x616161));
