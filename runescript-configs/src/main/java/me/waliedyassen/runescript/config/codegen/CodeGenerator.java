@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.config.codegen;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
@@ -17,8 +18,10 @@ import me.waliedyassen.runescript.config.ast.value.*;
 import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinaryBasicProperty;
+import me.waliedyassen.runescript.config.codegen.property.impl.BinaryParamProperty;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinarySplitArrayProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
+import me.waliedyassen.runescript.config.var.ConfigParamProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
@@ -30,6 +33,11 @@ import me.waliedyassen.runescript.type.PrimitiveType;
  */
 @RequiredArgsConstructor
 public final class CodeGenerator implements AstVisitor<Object> {
+
+    /**
+     * The ID provider of the generator.
+     */
+    private final IdProvider idProvider;
 
     /**
      * The symbol table of the compiler.
@@ -70,6 +78,8 @@ public final class CodeGenerator implements AstVisitor<Object> {
             generateBasicProperty(config, property, (ConfigBasicProperty) bindingProperty);
         } else if (bindingProperty instanceof ConfigSplitArrayProperty) {
             generateSplitArrayProperty(config, property, (ConfigSplitArrayProperty) bindingProperty);
+        } else if (bindingProperty instanceof ConfigParamProperty) {
+            generateParamProperty(config, property, (ConfigParamProperty) bindingProperty);
         } else {
             throw new IllegalArgumentException("Unrecognised binding property type: " + bindingProperty);
         }
@@ -140,6 +150,27 @@ public final class CodeGenerator implements AstVisitor<Object> {
         binaryValue.getValues()[property.getComponentId()] = node.getValues()[0].accept(this);
     }
 
+
+    /**
+     * Generates a binary property for the specified param property.
+     *
+     * @param config
+     *         the binary configuration.
+     * @param node
+     *         the AST node of the property.
+     * @param property
+     *         the basic property that we are generating for.
+     */
+    private void generateParamProperty(BinaryConfig config, AstProperty node, ConfigParamProperty property) {
+        var binaryProperty = (BinaryParamProperty) config.findProperty(property.getCode());
+        if (binaryProperty == null) {
+            binaryProperty = new BinaryParamProperty(property.getCode());
+            config.addProperty(binaryProperty);
+        }
+        var paramInfo = symbolTable.lookupConfig(((AstValueConfig) node.getValues()[0]).getName().getText());
+        binaryProperty.getValues().put(idProvider.findConfig(PrimitiveType.PARAM, paramInfo.getName()), node.getValues()[1].accept(this));
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -198,6 +229,15 @@ public final class CodeGenerator implements AstVisitor<Object> {
     @Override
     public Object visit(AstValueConstant value) {
         return symbolTable.lookupConstant(value.getName().getText()).getValue();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(AstValueConfig value) {
+        var name = value.getName().getText();
+        return idProvider.findConfig(symbolTable.lookupConfig(name).getType(), name);
     }
 
     /**

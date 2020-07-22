@@ -7,6 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler;
 
+import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
+
 import java.io.IOException;
 
 /**
@@ -19,7 +22,13 @@ import java.io.IOException;
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public abstract class CompilerBase<I, R> {
+
+    /**
+     * The ID provider for configurations or scripts.
+     */
+    protected final IdProvider idProvider;
 
     /**
      * Attempts to compile all of the source code specified in the {@link I input} object

@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.symbol.impl;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
 import me.waliedyassen.runescript.type.Type;
 
@@ -39,4 +40,13 @@ public final class ConfigInfo extends Symbol {
      */
     @Getter
     private final Type contentType;
+
+    // TODO: Remove the predefinedId field once packing is fully complete.
+
+    /**
+     * The predefined id of the configuration. This will be removed once packing is fully complete.
+     */
+    @Getter
+    @Setter
+    private Integer predefinedId;
 }

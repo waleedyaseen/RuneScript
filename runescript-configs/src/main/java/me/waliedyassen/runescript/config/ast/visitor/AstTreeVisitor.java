@@ -101,6 +101,14 @@ public abstract class AstTreeVisitor implements AstVisitor<Object> {
      * {@inheritDoc}
      */
     @Override
+    public Object visit(AstValueConfig value) {
+        return DEFAULT;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Object visit(AstIdentifier identifier) {
         return DEFAULT;
     }

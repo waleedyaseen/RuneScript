@@ -90,10 +90,10 @@ class CodeGeneratorTest {
 
     @Test
     void testCalcPrecedence() {
-        var script = fromString("[proc,test](int $param)(int) return(calc(1 + $param * 5));")[0];
+        var script = fromString("[proc,test](int $parameter)(int) return(calc(1 + $parameter * 5));")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 1);
-        assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
+        assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.PUSH_INT_LOCAL, new Local("parameter", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.PUSH_INT_CONSTANT, 5);
         assertInstructionEquals(block.getInstructions().get(3), CoreOpcode.MUL, 0);
         assertInstructionEquals(block.getInstructions().get(4), CoreOpcode.ADD, 0);
@@ -102,24 +102,24 @@ class CodeGeneratorTest {
 
     @Test
     void testCalcSimple() {
-        var script = fromString("[proc,test](int $param)(int) return(calc($param));")[0];
+        var script = fromString("[proc,test](int $parameter)(int) return(calc($parameter));")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
-        assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
+        assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("parameter", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.RETURN, 0);
     }
 
     @Test
     void testDiscard() {
-        var script = fromString("[proc,test](int $param) calc($param);")[0];
+        var script = fromString("[proc,test](int $parameter) calc($parameter);")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
-        assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("param", PrimitiveType.INT));
+        assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("parameter", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.POP_INT_DISCARD, 0);
         assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.RETURN, 0);
     }
 
     @Test
     void testCall01() {
-        var scripts = fromString("[proc,my_proc](int $param) @my_label(0); [label,my_label](int $param) ~my_proc(0);");
+        var scripts = fromString("[proc,my_proc](int $parameter) @my_label(0); [label,my_label](int $parameter) ~my_proc(0);");
         assertEquals(2, scripts.length);
         var first = scripts[0];
         var first_block = first.getBlocks().get(new Label(0, "entry_0"));

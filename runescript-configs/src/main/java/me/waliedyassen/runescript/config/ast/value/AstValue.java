@@ -22,7 +22,7 @@ public abstract class AstValue extends AstNode {
      * Constructs a new {@link AstValue} type object instance.
      *
      * @param range
-     *         the node source range.
+     *         the node source range range.
      */
     public AstValue(Range range) {
         super(range);

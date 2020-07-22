@@ -23,6 +23,7 @@ import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
+import me.waliedyassen.runescript.config.var.ConfigParamProperty;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
@@ -309,9 +310,9 @@ public final class Project {
                 .withSymbolTable(symbolTable)
                 .withOverrideSymbols(overrideSymbols)
                 .withSupportsLongPrimitiveType(supportsLongPrimitiveType)
-                .withIdProvider(new ProjectIdProvider())
+                .withIdProvider(new ProjectIdProvider(this))
                 .build();
-        configsCompiler = new ConfigCompiler(symbolTable);
+        configsCompiler = new ConfigCompiler(new ProjectIdProvider(this), symbolTable);
         loadCommands();
         loadConfigs();
         loadScripts();
@@ -458,7 +459,8 @@ public final class Project {
                         if (type == PrimitiveType.GRAPHIC) {
                             symbolTable.defineGraphic(name, id);
                         } else {
-                            symbolTable.defineConfig(name, type, contentType);
+                            var info = symbolTable.defineConfig(name, type, contentType);
+                            info.setPredefinedId(id);
                             if (type == PrimitiveType.INTERFACE) {
                                 symbolTable.defineInterface(name, id);
                             }
@@ -643,6 +645,9 @@ public final class Project {
                         if (prop == null || prop.getComponents().length != 1 || prop.getComponents()[0] != PrimitiveType.TYPE) {
                             throw new IllegalArgumentException("Malformed content type property: " + binding.getContentTypeProperty());
                         }
+                    }
+                    if (binding.isAllowParamProperty()) {
+                        binding.addProperty("param", new ConfigParamProperty("param", 249));
                     }
                 }
             } catch (Throwable e) {
@@ -862,14 +867,20 @@ public final class Project {
      *
      * @author Walied K. Yassen
      */
-    private final class ProjectIdProvider implements IdProvider {
+    @RequiredArgsConstructor
+    private static final class ProjectIdProvider implements IdProvider {
+
+        /**
+         * The project this provider is for.
+         */
+        private final Project project;
 
         /**
          * {@inheritDoc}
          */
         @Override
         public int findScript(String name) throws IllegalArgumentException {
-            var id = index.get("serverscript").find(name);
+            var id = project.index.get("serverscript").find(name);
             if (id == null) {
                 throw new IllegalArgumentException("Failed to find an id for script with name: " + name);
             }
@@ -882,7 +893,14 @@ public final class Project {
         @Override
         public int findConfig(Type type, String name) throws IllegalArgumentException {
             if (type instanceof PrimitiveType && ((PrimitiveType) type).isConfigType()) {
-                var id = index.get("config-" + type.getRepresentation()).find(name);
+                var config = project.symbolTable.lookupConfig(name);
+                if (config != null && config.getPredefinedId() != null) {
+                    if (config.getType() != type) {
+                        throw new IllegalStateException();
+                    }
+                    return config.getPredefinedId();
+                }
+                var id = project.index.get("config-" + type.getRepresentation()).find(name);
                 if (id != null) {
                     return id;
                 }

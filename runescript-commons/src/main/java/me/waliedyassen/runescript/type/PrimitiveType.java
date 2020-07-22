@@ -54,6 +54,11 @@ public enum PrimitiveType implements Type {
      */
     TYPE('\ufff5', "type", null, null, TypeSerializer.TYPE),
 
+    /**
+     * The param configuration type.
+     */
+    PARAM('\ufff6', "param", null, null, null),
+
     // All the types below are verified to be part of script var type.
 
     /**
@@ -307,6 +312,7 @@ public enum PrimitiveType implements Type {
             case VAR:
             case STRUCT:
             case LOC:
+            case PARAM:
                 return true;
             default:
                 return false;

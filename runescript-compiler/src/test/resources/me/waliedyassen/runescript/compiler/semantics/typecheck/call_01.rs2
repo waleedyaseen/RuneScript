@@ -6,8 +6,8 @@ if ($call_sub_01 = true) {
     @sub_01(0);
 }
 
-[label,sub_01](int $param)
+[label,sub_01](int $parameter)
 ~main(false);
-@sub_02(calc($param + 1));
+@sub_02(calc($parameter + 1));
 
-[label,sub_02](int $param)
+[label,sub_02](int $parameter)

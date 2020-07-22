@@ -8,13 +8,13 @@
 package me.waliedyassen.runescript.config.compiler;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.CompilerBase;
 import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.Output;
+import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
@@ -29,6 +29,7 @@ import me.waliedyassen.runescript.type.PrimitiveType;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +38,6 @@ import java.util.Map;
  *
  * @author Walied K. Yassen
  */
-@RequiredArgsConstructor
 public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfig>> {
 
     /**
@@ -56,6 +56,19 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
      */
     @Getter
     private final SymbolTable symbolTable;
+
+    /**
+     * Constructs a new {@link ConfigCompiler} type object instance.
+     *
+     * @param idProvider
+     *         the ids provider for the compiler.
+     * @param symbolTable
+     *         the symbol table for the compiler.
+     */
+    public ConfigCompiler(IdProvider idProvider, SymbolTable symbolTable) {
+        super(idProvider);
+        this.symbolTable = symbolTable;
+    }
 
     /**
      * {@inheritDoc}
@@ -83,7 +96,7 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
                 checker.executePre(configs);
                 checker.execute(configs);
                 if (checker.getErrors().isEmpty()) {
-                    var codeGen = new CodeGenerator(symbolTable, binding);
+                    var codeGen = new CodeGenerator(idProvider, symbolTable, binding);
                     for (var config : configs) {
                         var binaryConfig = codeGen.visit(config);
                         output.addUnit(sourceFile, binaryConfig);
@@ -92,6 +105,7 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
                     checker.getErrors().forEach(error -> output.addError(sourceFile, error));
                 }
             } catch (CompilerError error) {
+                error.printStackTrace();
                 output.addError(sourceFile, error);
             }
         }

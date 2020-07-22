@@ -2,6 +2,7 @@ package me.waliedyassen.runescript.type.serializer;
 
 import lombok.var;
 import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.util.StreamUtil;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -98,8 +99,7 @@ public interface TypeSerializer<T> {
     TypeSerializer<String> STRING = new TypeSerializer<String>() {
         @Override
         public void serialize(String value, DataOutputStream stream) throws IOException {
-            stream.writeBytes(value);
-            stream.writeByte(0);
+            StreamUtil.writeString(stream, value);
         }
 
         @Override

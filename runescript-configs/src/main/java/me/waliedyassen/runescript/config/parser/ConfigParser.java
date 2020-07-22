@@ -66,19 +66,6 @@ public final class ConfigParser extends ParserBase<Kind> {
     }
 
     /**
-     * Attempts to parse an {@link AstProperty} object from the next sequence of tokens.
-     *
-     * @return the parsed {@link AstProperty} object.
-     */
-    public AstProperty property() {
-        pushRange();
-        var name = identifier();
-        consume(EQUAL);
-        var values = values();
-        return new AstProperty(popRange(), name, values);
-    }
-
-    /**
      * Attempts to parse an array of {@link AstProperty} objects from the next sequence of tokens.
      *
      * @return the parsed array of {@link AstProperty} objects.
@@ -86,10 +73,32 @@ public final class ConfigParser extends ParserBase<Kind> {
     public AstProperty[] propertyList() {
         pushRange();
         var properties = new ArrayList<AstProperty>();
-        while (peekKind() == IDENTIFIER) {
+        while (isKey()) {
             properties.add(property());
         }
         return properties.toArray(new AstProperty[0]);
+    }
+
+    /**
+     * Attempts to parse an {@link AstProperty} object from the next sequence of tokens.
+     *
+     * @return the parsed {@link AstProperty} object.
+     */
+    public AstProperty property() {
+        pushRange();
+        var name = advancedIdentifier();
+        consume(EQUAL);
+        var values = values();
+        return new AstProperty(popRange(), name, values);
+    }
+
+    /**
+     * Checks whether or not the next token can be fit as a property key.
+     *
+     * @return <code>true</code> if it can otherwise <code>false</code>.
+     */
+    private boolean isKey() {
+        return isAdvancedIdentifier();
     }
 
     /**
@@ -124,10 +133,23 @@ public final class ConfigParser extends ParserBase<Kind> {
                 return valueType();
             case CARET:
                 return valueConstant();
+            case IDENTIFIER:
+                return valueConfig();
             default:
                 throwError(consume(), "Expected a property value");
                 return null;
         }
+    }
+
+    /**
+     * Attempts to parse an {@link AstValueConfig} object from the next sequence of tokens.
+     *
+     * @return the parsed {@link AstValueConfig} object.
+     */
+    private AstValueConfig valueConfig() {
+        pushRange();
+        var name = identifier();
+        return new AstValueConfig(popRange(), name);
     }
 
     /**
@@ -209,6 +231,39 @@ public final class ConfigParser extends ParserBase<Kind> {
         return new AstValueConstant(popRange(), name);
     }
 
+
+    /**
+     * Attempts to parse an {@link AstIdentifier} object from the next sequence of tokens.
+     *
+     * @return the parsed {@link AstIdentifier} object.
+     */
+    private AstIdentifier advancedIdentifier() {
+        pushRange();
+        var token = consume();
+        switch (token.getKind()) {
+            case IDENTIFIER:
+            case TYPE:
+                return new AstIdentifier(popRange(), token.getLexeme());
+            default:
+                throw createError(token, "Expected an identifier");
+        }
+    }
+
+    /**
+     * Checks whether or not the next token can be fit as an advanced identifier.
+     *
+     * @return <code>true</code> if it can otherwise <code>false</code>.
+     */
+    private boolean isAdvancedIdentifier() {
+        switch (peekKind()) {
+            case IDENTIFIER:
+            case TYPE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Attempts to parse an {@link AstIdentifier} object from the next sequence of tokens.
      *
@@ -219,4 +274,5 @@ public final class ConfigParser extends ParserBase<Kind> {
         var text = consume(IDENTIFIER).getLexeme();
         return new AstIdentifier(popRange(), text);
     }
+
 }

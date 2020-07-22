@@ -1,5 +1,5 @@
-[proc,calc_01](int $param)(int)
-def_int $first = calc($param * 2 + 1);
-def_int $second = calc($param % 2 + 1);
-def_int $third = calc($param / 2 + 1);
+[proc,calc_01](int $parameter)(int)
+def_int $first = calc($parameter * 2 + 1);
+def_int $second = calc($parameter % 2 + 1);
+def_int $third = calc($parameter / 2 + 1);
 return(calc($first + $second - $third));

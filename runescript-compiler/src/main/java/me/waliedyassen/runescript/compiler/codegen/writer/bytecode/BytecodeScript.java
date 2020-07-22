@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.var;
+import me.waliedyassen.runescript.util.StreamUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -93,12 +94,12 @@ public final class BytecodeScript {
     public byte[] encode() {
         try (var bos = new ByteArrayOutputStream(); var data = new DataOutputStream(bos)) {
             // write the name of the script.
-            writeString(data, name);
+            StreamUtil.writeString(data, name);
             for (var instruction : instructions) {
                 var operand = instruction.getOperand();
                 data.writeShort(instruction.getOpcode());
                 if (operand instanceof String) {
-                    writeString(data, (String) operand);
+                    StreamUtil.writeString(data, (String) operand);
                 } else if (operand instanceof Long) {
                     if (!supportsLongPrimitiveType) {
                         throw new IllegalArgumentException("Long operands are not allowed");
@@ -140,17 +141,5 @@ public final class BytecodeScript {
             data.writeShort(size);
             return bos.toByteArray();
         }
-    }
-
-    /**
-     * Writes a C-Style string (null terminated string) to the specified {@link DataOutputStream stream}.
-     *
-     * @param stream the stream to write to.
-     * @param value  the string to write.
-     * @throws IOException if anything occurs while writing the string to the stream.
-     */
-    private void writeString(DataOutputStream stream, String value) throws IOException {
-        stream.writeBytes(value);
-        stream.writeByte(0);
     }
 }

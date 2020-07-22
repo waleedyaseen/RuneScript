@@ -113,6 +113,7 @@ public final class ScriptCompiler extends CompilerBase<CompileInput, CompileResu
                            ScriptSymbolTable symbolTable,
                            CodeWriter<?> codeWriter,
                            boolean allowOverride) {
+        super(null);
         if (!instructionMap.isReady()) {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }

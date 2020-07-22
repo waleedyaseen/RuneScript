@@ -132,12 +132,16 @@ public class SymbolTable {
      *         the type of the configuration.
      * @param contentType
      *         the content type of the configuration.
+     *
+     * @return the created {@link ConfigInfo} object.
      */
-    public void defineConfig(String name, Type type, Type contentType) {
+    public ConfigInfo defineConfig(String name, Type type, Type contentType) {
         if (lookupConfig(name) != null) {
             throw new IllegalArgumentException("The configuration '" + name + "' is already defined.");
         }
-        configs.put(name, new ConfigInfo(name, type, contentType));
+        var config = new ConfigInfo(name, type, contentType);
+        configs.put(name, config);
+        return config;
     }
 
     /**

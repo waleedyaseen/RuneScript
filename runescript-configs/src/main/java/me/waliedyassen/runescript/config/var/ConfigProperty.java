@@ -37,6 +37,15 @@ public interface ConfigProperty {
     }
 
     /**
+     * Checks whether or not this configuration property allow duplicates of the same property.
+     *
+     * @return <code>true</code> if it allows otherwise <code>false</code>.
+     */
+    default boolean isAllowDuplicates() {
+        return false;
+    }
+
+    /**
      * Returns a list of all the rules that apply to this property.
      *
      * @return a list of all the  rules that apply to this property.

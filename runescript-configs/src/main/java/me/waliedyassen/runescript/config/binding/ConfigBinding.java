@@ -152,7 +152,7 @@ public final class ConfigBinding {
      * @param property
      *         the property that we want to add.
      */
-    private void addProperty(String name, ConfigProperty property) {
+    public void addProperty(String name, ConfigProperty property) {
         if (properties.containsKey(name)) {
             throw new IllegalArgumentException("Another property with the same name is already defined in the binding");
         }
