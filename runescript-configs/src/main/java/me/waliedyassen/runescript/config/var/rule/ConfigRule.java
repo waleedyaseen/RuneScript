@@ -1,5 +1,6 @@
 package me.waliedyassen.runescript.config.var.rule;
 
+import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.AstValue;
 import me.waliedyassen.runescript.config.ast.value.AstValueConstant;
@@ -15,15 +16,14 @@ public interface ConfigRule {
 
     /**
      * Tests the configuration value against this configuration rule.
-     *
-     * @param checking
+     *  @param checking
      *         the type checker that we are using for the configuration.
+     * @param config
      * @param property
      *         the property which the value lies in.
      * @param value
-     *         the value that we are testing.
      */
-    void test(TypeChecking checking, AstProperty property, AstValue value);
+    void test(TypeChecking checking, AstConfig config, AstProperty property, AstValue value);
 
     /**
      * Resolves the specified {@link AstValue} to an integer.

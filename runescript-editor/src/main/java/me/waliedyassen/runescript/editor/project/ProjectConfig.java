@@ -13,6 +13,7 @@ import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.config.var.rule.impl.ConfigRangeRule;
+import me.waliedyassen.runescript.config.var.rule.impl.ConfigRequireRule;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.util.ReflectionUtil;
@@ -33,6 +34,11 @@ public final class ProjectConfig {
      * The range rule pattern.
      */
     private static final Pattern RANGE_RULE_PATTERN = createConfigRulePattern("RANGE", int.class, int.class);
+
+    /**
+     * The require rule pattern.
+     */
+    private static final Pattern REQUIRE_RULE_PATTERN = createConfigRulePattern("REQUIRE", String.class);
 
     /**
      * Attempts to parse an array of {@link PrimitiveType} from the specified {@link CommentedConfig} object.
@@ -68,12 +74,20 @@ public final class ProjectConfig {
         var lParenIndex = raw.indexOf('(');
         var ruleName = lParenIndex > 0 ? raw.substring(0, lParenIndex) : raw;
         switch (ruleName) {
-            case "RANGE":
+            case "RANGE": {
                 var arguments = extractArguments(RANGE_RULE_PATTERN, raw);
                 if (arguments == null) {
                     throw new IllegalArgumentException("Malformed arguments for configuration rule:" + raw);
                 }
                 return new ConfigRangeRule(Integer.parseInt(arguments[0]), Integer.parseInt(arguments[1]));
+            }
+            case "REQUIRE": {
+                var arguments = extractArguments(REQUIRE_RULE_PATTERN, raw);
+                if (arguments == null) {
+                    throw new IllegalArgumentException("Malformed arguments for configuration rule:" + raw);
+                }
+                return new ConfigRequireRule(arguments[0]);
+            }
             default:
                 return ConfigRules.valueOf(raw);
         }
@@ -125,11 +139,15 @@ public final class ProjectConfig {
                 builder.append(IGNORE_WHIETSPACE);
             }
             var parameter = ReflectionUtil.box(parameters[index]);
+            builder.append("(");
             if (parameter == Integer.class) {
-                builder.append("([-+]?[0-9]+)");
+                builder.append("[-+]?[0-9]+");
+            } else if (parameter == String.class) {
+                builder.append("[a-zA-Z0-9_]+");
             } else {
                 throw new IllegalArgumentException("Unrecognized config rule parameter type: " + parameter.getSimpleName());
             }
+            builder.append(")");
         }
         builder.append(IGNORE_WHIETSPACE);
         builder.append("\\)");
@@ -146,7 +164,7 @@ public final class ProjectConfig {
      *
      * @return the parsed array {@link PrimitiveType} object.
      */
-    public static PrimitiveType[] parsePrimitiveType(CommentedConfig config, String name) {
+    public static PrimitiveType[] parsePrimitiveTypes(CommentedConfig config, String name) {
         var types = config.<List<String>>get(name);
         if (types == null) {
             return new PrimitiveType[0];

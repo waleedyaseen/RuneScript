@@ -1,7 +1,6 @@
 package me.waliedyassen.runescript.config.var.rule.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.AstValue;
@@ -10,31 +9,25 @@ import me.waliedyassen.runescript.config.semantics.typecheck.TypeChecking;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 
 /**
- * A rule which checks if an integer is between a specific range inclusively.
+ * A configuration rule which ensures a property with a specific name is present.
  *
- * @author Walied K. yassen
+ * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class ConfigRangeRule implements ConfigRule {
+public final class ConfigRequireRule implements ConfigRule {
 
     /**
-     * The minimum value of the range.
+     * The required sibling properties.
      */
-    private final int minimum;
-
-    /**
-     * The maximum value of the range.
-     */
-    private final int maximum;
+    private final String name;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void test(TypeChecking checking, AstConfig config, AstProperty property, AstValue value) {
-        var integer = ConfigRule.resolveInteger(checking, value);
-        if (integer < minimum || integer > maximum) {
-            checking.getChecker().reportError(new SemanticError(value, "Value of this component must be in range [" + minimum + "," + maximum + "]"));
+        if (config.findProperty(name) == null) {
+            checking.getChecker().reportError(new SemanticError(property, String.format("Property '%s' requires property '%s'", property.getKey().getText(), name)));
         }
     }
 }
