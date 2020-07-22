@@ -162,6 +162,10 @@ public final class TypeChecking extends AstTreeVisitor {
      */
     @Override
     public PrimitiveType visit(AstValueString value) {
+        var graphic = table.lookupGraphic(value.getText());
+        if (graphic != null) {
+            return PrimitiveType.GRAPHIC;
+        }
         return PrimitiveType.STRING;
     }
 

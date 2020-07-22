@@ -152,7 +152,11 @@ public final class CodeGenerator implements AstVisitor<Object> {
      * {@inheritDoc}
      */
     @Override
-    public String visit(AstValueString value) {
+    public Object visit(AstValueString value) {
+        var graphic = symbolTable.lookupGraphic(value.getText());
+        if (graphic != null) {
+            return graphic.getId();
+        }
         return value.getText();
     }
 
