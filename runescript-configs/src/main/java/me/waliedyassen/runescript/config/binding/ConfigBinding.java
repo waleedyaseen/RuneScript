@@ -15,8 +15,12 @@ import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
 import me.waliedyassen.runescript.config.var.ConfigProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
+import me.waliedyassen.runescript.config.var.rule.impl.ConfigRequireRule;
+import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayData;
+import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,6 +97,44 @@ public final class ConfigBinding {
      */
     public void addBasicProperty(String name, int opcode, boolean required, PrimitiveType[] components, List<ConfigRule> rules) {
         addProperty(name, new ConfigBasicProperty(name, opcode, required, components, rules));
+    }
+
+    /**
+     * Adds a new split array property to the configuration binding.
+     *
+     * @param name
+     *         the name of the property.
+     * @param opcode
+     *         the opcode of the property.
+     * @param required
+     *         whether or not the property is required.
+     * @param componentNames
+     *         the component names of the property.
+     * @param components
+     *         the components of the property.
+     * @param rules
+     *         the rules of the property.
+     * @param sizeType
+     *         the size type of the property.
+     * @param maxSize
+     *         the maximum amount of elements of the property.
+     */
+    public void addSplitArrayProperty(String name, int opcode, boolean required, String[] componentNames, PrimitiveType[] components, List<ConfigRule> rules, PrimitiveType sizeType, int maxSize) {
+        var data = new ConfigSplitArrayData(name, opcode, required, sizeType, componentNames.length, maxSize);
+        for (var id = 0; id < maxSize; id++) {
+            for (int index = 0; index < componentNames.length; index++) {
+                var componentType = components[index];
+                var componentName = String.format(componentNames[index], id);
+                var specificRules = new ArrayList<>(rules);
+                for (int otherIndex = 0; otherIndex < componentNames.length; otherIndex++) {
+                    if (otherIndex == index) {
+                        continue;
+                    }
+                    specificRules.add(new ConfigRequireRule(String.format(componentNames[otherIndex], id)));
+                }
+                addProperty(componentName, new ConfigSplitArrayProperty(data, componentName, componentType, specificRules, id, index));
+            }
+        }
     }
 
     /**

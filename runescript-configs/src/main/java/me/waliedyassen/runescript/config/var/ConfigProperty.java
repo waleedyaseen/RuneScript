@@ -1,6 +1,10 @@
 package me.waliedyassen.runescript.config.var;
 
+import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 import me.waliedyassen.runescript.type.PrimitiveType;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The base class for all of the properties.
@@ -30,5 +34,14 @@ public interface ConfigProperty {
      */
     default boolean isRequired() {
         return false;
+    }
+
+    /**
+     * Returns a list of all the rules that apply to this property.
+     *
+     * @return a list of all the  rules that apply to this property.
+     */
+    default List<ConfigRule> getRules() {
+        return Collections.emptyList();
     }
 }

@@ -20,8 +20,13 @@ import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
+import me.waliedyassen.runescript.config.var.ConfigProperty;
+import me.waliedyassen.runescript.config.var.rule.ConfigRule;
+import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
+
+import java.util.List;
 
 /**
  * Represents the type checking semantic analysis.
@@ -82,8 +87,11 @@ public final class TypeChecking extends AstTreeVisitor {
             checker.reportError(new SemanticError(property.getKey(), "Unknown property: " + property.getKey().getText()));
             return null;
         }
+        var config = (AstConfig) property.getParent();
         if (bindingProperty instanceof ConfigBasicProperty) {
-            checkBasicProperty(property, (ConfigBasicProperty) bindingProperty);
+            performBasicChecks(config, property, bindingProperty);
+        } else if (bindingProperty instanceof ConfigSplitArrayProperty) {
+            performSplitArrayChecks(config, property, (ConfigSplitArrayProperty) bindingProperty);
         } else {
             throw new IllegalArgumentException("Unrecognised binding property type: " + bindingProperty);
         }
@@ -91,14 +99,16 @@ public final class TypeChecking extends AstTreeVisitor {
     }
 
     /**
-     * Performs type checking for a basic property.
+     * Performs the basic checks for a config property.
      *
+     * @param config
+     *         the owner configuration of the property.
      * @param node
      *         the AST node of the property.
      * @param property
      *         the basic property that we want to type check.
      */
-    private void checkBasicProperty(AstProperty node, ConfigBasicProperty property) {
+    private void performBasicChecks(AstConfig config, AstProperty node, ConfigProperty property) {
         var components = property.getComponents();
         var values = node.getValues();
         if (components.length != values.length) {
@@ -106,13 +116,44 @@ public final class TypeChecking extends AstTreeVisitor {
             return;
         }
         for (var index = 0; index < values.length; index++) {
-            var value = values[index];
-            var type = (PrimitiveType) value.accept(this);
-            if (type.implicitEquals(components[index])) {
-                property.getRules().forEach(rule -> rule.test(this, node, value));
-            } else {
-                checker.reportError(new SemanticError(value, "Type mismatch: cannot convert from " + type.getRepresentation() + " to " + components[index].getRepresentation()));
-            }
+            checkComponentRules(config, node, components[index], values[index], property.getRules());
+        }
+    }
+
+    /**
+     * Performs type checking for a split array property.
+     *
+     * @param config
+     *         the owner configuration of the property.
+     * @param node
+     *         the AST node of the property.
+     * @param property
+     *         the split array property that we want to type check.
+     */
+    private void performSplitArrayChecks(AstConfig config, AstProperty node, ConfigSplitArrayProperty property) {
+        performBasicChecks(config, node, property);
+    }
+
+    /**
+     * Tests the specified value of the specified component against the specified list of rules.
+     *
+     * @param config
+     *         the owner configuration of the property.
+     * @param node
+     *         the property of the value and the component.
+     * @param component
+     *         the component type of the value.
+     * @param value
+     *         the value that we want to test.
+     * @param rules
+     *         the rules that we want to test against.
+     */
+    private void checkComponentRules(AstConfig config, AstProperty node, PrimitiveType component, AstValue value, List<ConfigRule> rules) {
+        var type = (PrimitiveType) value.accept(this);
+        if (type.implicitEquals(component)) {
+            rules.forEach(rule -> rule.test(this, config, node, value));
+        } else {
+            checker.reportError(new SemanticError(value, "Type mismatch: cannot convert from " + type.getRepresentation() + " to " + component.getRepresentation()));
         }
     }
 

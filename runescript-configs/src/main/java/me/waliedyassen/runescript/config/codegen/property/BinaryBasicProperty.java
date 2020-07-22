@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.config.codegen;
+package me.waliedyassen.runescript.config.codegen.property;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import java.io.IOException;
  */
 @Getter
 @RequiredArgsConstructor
-public final class BinaryProperty {
+public final class BinaryBasicProperty implements BinaryProperty {
 
     /**
      * The opcode for this binary property.
@@ -39,17 +39,12 @@ public final class BinaryProperty {
     private final Object[] values;
 
     /**
-     * Writes the content of the binary property to the specified {@link DataOutputStream stream}.
-     *
-     * @param stream
-     *         the stream to write the the content data to.
-     *
-     * @throws IOException
-     *         if anything occurs while writing the content data of the binary property to the stream.
+     * {@inheritDoc}
      */
     @SuppressWarnings("unchecked")
+    @Override
     public void write(DataOutputStream stream) throws IOException {
-        stream.writeByte(code);
+        writeCode(stream);
         if (values == null) {
             return;
         }

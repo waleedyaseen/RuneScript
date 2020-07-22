@@ -16,11 +16,12 @@ import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.*;
 import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
+import me.waliedyassen.runescript.config.codegen.property.BinaryBasicProperty;
+import me.waliedyassen.runescript.config.codegen.property.BinarySplitArrayProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRules;
+import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
-
-import java.util.ArrayList;
 
 /**
  * The code generator for the configuration compiler.
@@ -40,32 +41,35 @@ public final class CodeGenerator implements AstVisitor<Object> {
      */
     private final ConfigBinding binding;
 
-
     /**
      * {@inheritDoc}
      */
     @Override
     public BinaryConfig visit(AstConfig config) {
         var count = config.getProperties().length;
-        var properties = new ArrayList<BinaryProperty>(count);
+        var binaryConfig = new BinaryConfig(binding.getGroup(), config.getName().getText());
         for (var index = 0; index < count; index++) {
-            var property = visit(config.getProperties()[index]);
-            if (property == null) {
-                continue;
-            }
-            properties.add(property);
+            generateProperty(binaryConfig, config.getProperties()[index]);
         }
-        return new BinaryConfig(binding.getGroup(), config.getName().getText(), properties.toArray(new BinaryProperty[0]));
+        return binaryConfig;
     }
 
+    // TODO: Do this in a cleaner way.
+
     /**
-     * {@inheritDoc}
+     * Generates a binary property for the specified property.
+     *
+     * @param config
+     *         the binary configuration.
+     * @param property
+     *         the  property that we are generating for.
      */
-    @Override
-    public BinaryProperty visit(AstProperty property) {
+    private void generateProperty(BinaryConfig config, AstProperty property) {
         var bindingProperty = binding.getProperties().get(property.getKey().getText());
         if (bindingProperty instanceof ConfigBasicProperty) {
-            return generateBasicProperty(property, (ConfigBasicProperty) bindingProperty);
+            generateBasicProperty(config, property, (ConfigBasicProperty) bindingProperty);
+        } else if (bindingProperty instanceof ConfigSplitArrayProperty) {
+            generateSplitArrayProperty(config, property, (ConfigSplitArrayProperty) bindingProperty);
         } else {
             throw new IllegalArgumentException("Unrecognised binding property type: " + bindingProperty);
         }
@@ -74,12 +78,14 @@ public final class CodeGenerator implements AstVisitor<Object> {
     /**
      * Generates a binary property for the specified basic property.
      *
+     * @param config
+     *         the binary configuration.
      * @param node
      *         the AST node of the property.
      * @param property
      *         the basic property that we are generating for.
      */
-    private BinaryProperty generateBasicProperty(AstProperty node, ConfigBasicProperty property) {
+    private void generateBasicProperty(BinaryConfig config, AstProperty node, ConfigBasicProperty property) {
         var rawValues = node.getValues();
         var types = new PrimitiveType[rawValues.length];
         var values = new Object[rawValues.length];
@@ -100,11 +106,46 @@ public final class CodeGenerator implements AstVisitor<Object> {
                     values = null;
                 } else {
                     // Skip if the rule does not match.
-                    return null;
+                    return;
                 }
             }
         }
-        return new BinaryProperty(property.getOpcode(), types, values);
+        config.addProperty(new BinaryBasicProperty(property.getOpcode(), types, values));
+    }
+
+    /**
+     * Generates a binary property for the specified split array property.
+     *
+     * @param config
+     *         the binary configuration.
+     * @param node
+     *         the AST node of the property.
+     * @param property
+     *         the basic property that we are generating for.
+     */
+    private void generateSplitArrayProperty(BinaryConfig config, AstProperty node, ConfigSplitArrayProperty property) {
+        var binaryProperty = (BinarySplitArrayProperty) config.findProperty(property.getData().getCode());
+        if (binaryProperty == null) {
+            binaryProperty = new BinarySplitArrayProperty(
+                    property.getData().getCode(),
+                    property.getData().getSizeType(),
+                    property.getData().getMaxSize());
+            config.addProperty(binaryProperty);
+        }
+        var binaryValue = binaryProperty.getValue(property.getElementId());
+        if (binaryValue == null) {
+            binaryValue = binaryProperty.addValue(property.getElementId(), property.getData().getComponentsCount());
+        }
+        binaryValue.getTypes()[property.getComponentId()] = property.getType();
+        binaryValue.getValues()[property.getComponentId()] = node.getValues()[0].accept(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(AstProperty property) {
+        throw new UnsupportedOperationException("You shouldn't be doing this, for now.");
     }
 
     /**

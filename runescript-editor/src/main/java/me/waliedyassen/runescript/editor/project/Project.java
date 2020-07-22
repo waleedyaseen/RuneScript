@@ -47,6 +47,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -610,7 +611,7 @@ public final class Project {
                         var entryType = value.getOrElse("type", "BASIC");
                         var opcode = value.getInt("opcode");
                         var required = value.getOrElse("required", false);
-                        var components = ProjectConfig.parsePrimitiveType(value, "components");
+                        var components = ProjectConfig.parsePrimitiveTypes(value, "components");
                         var rules = ProjectConfig.parseConfigRules(value, "rules");
                         switch (entryType) {
                             case "BASIC": {
@@ -623,8 +624,15 @@ public final class Project {
                                 binding.addBasicProperty(format, opcode, required, components, rules, count);
                                 break;
                             }
+                            case "SPLIT_ARRAY": {
+                                var sizeType = PrimitiveType.valueOf(value.get("sizeType"));
+                                var maxSize = value.getInt("maxSize");
+                                var names = value.<List<String>>get("names");
+                                binding.addSplitArrayProperty(entry.getKey(), opcode, required, names.toArray(new String[0]), components, rules, sizeType, maxSize);
+                                break;
+                            }
                             default: {
-                                //  throw new IllegalArgumentException("The specified type is not recognised: " + entryType);
+                                  throw new IllegalArgumentException("The specified type is not recognised: " + entryType);
                             }
                         }
                     }
