@@ -93,9 +93,9 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
                         pushToken(HEX_LITERAL, pos++);
                     } else if (Character.isDigit(ch) || (ch == '-' || ch == '+') && Character.isDigit(next)) {
                         pushToken(NUMBER_LITERAL, pos);
-                    } else if (ch == '$' && TokenizerBase.isIdentifierStart(next)) {
+                    } else if (!configuration && ch == '$' && TokenizerBase.isIdentifierStart(next)) {
                         pushToken(LOCAL_VARIABLE, pos);
-                    } else if (ch == '%' && TokenizerBase.isIdentifierStart(next)) {
+                    } else if (!configuration && ch == '%' && TokenizerBase.isIdentifierStart(next)) {
                         pushToken(GLOBAL_VARIABLE, pos);
                     } else if (ch == '^' && TokenizerBase.isIdentifierStart(next)) {
                         pushToken(CONSTANT, pos);
