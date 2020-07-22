@@ -19,7 +19,9 @@ import me.waliedyassen.runescript.config.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
+import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents the type checking semantic analysis.
@@ -55,7 +57,7 @@ public final class TypeChecking extends AstTreeVisitor {
         for (var property : config.getProperties()) {
             property.accept(this);
         }
-        for (var entry : binding.getVariables().values()) {
+        for (var entry : binding.getProperties().values()) {
             var properties = config.findProperties(entry.getName());
             if (properties.isEmpty()) {
                 if (entry.isRequired()) {
@@ -75,27 +77,43 @@ public final class TypeChecking extends AstTreeVisitor {
      */
     @Override
     public Object visit(AstProperty property) {
-        var variable = binding.getVariables().get(property.getKey().getText());
-        if (variable == null) {
+        var bindingProperty = binding.findProperty(property.getKey().getText());
+        if (bindingProperty == null) {
             checker.reportError(new SemanticError(property.getKey(), "Unknown property: " + property.getKey().getText()));
             return null;
         }
-        var components = variable.getType().getComponents();
-        var values = property.getValues();
+        if (bindingProperty instanceof ConfigBasicProperty) {
+            checkBasicProperty(property, (ConfigBasicProperty) bindingProperty);
+        } else {
+            throw new IllegalArgumentException("Unrecognised binding property type: " + bindingProperty);
+        }
+        return DEFAULT;
+    }
+
+    /**
+     * Performs type checking for a basic property.
+     *
+     * @param node
+     *         the AST node of the property.
+     * @param property
+     *         the basic property that we want to type check.
+     */
+    private void checkBasicProperty(AstProperty node, ConfigBasicProperty property) {
+        var components = property.getComponents();
+        var values = node.getValues();
         if (components.length != values.length) {
-            checker.reportError(new SemanticError(property, "Components mismatch: expected " + components.length + " component(s) but got " + values.length + " component(s)"));
-            return null;
+            checker.reportError(new SemanticError(node, "Components mismatch: expected " + components.length + " component(s) but got " + values.length + " component(s)"));
+            return;
         }
         for (var index = 0; index < values.length; index++) {
             var value = values[index];
             var type = (PrimitiveType) value.accept(this);
             if (type.implicitEquals(components[index])) {
-                variable.getRules().forEach(rule -> rule.test(this, property, value));
+                property.getRules().forEach(rule -> rule.test(this, node, value));
             } else {
                 checker.reportError(new SemanticError(value, "Type mismatch: cannot convert from " + type.getRepresentation() + " to " + components[index].getRepresentation()));
             }
         }
-        return DEFAULT;
     }
 
     /**
@@ -136,6 +154,19 @@ public final class TypeChecking extends AstTreeVisitor {
     @Override
     public PrimitiveType visit(AstValueType value) {
         return PrimitiveType.TYPE;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(AstValueConstant value) {
+        var constantInfo = table.lookupConstant(value.getName().getText());
+        if (constantInfo == null) {
+            checker.reportError(new SemanticError(value, String.format("%s cannot be resolved to a constant", value.getName().getText())));
+            return PrimitiveType.UNDEFINED;
+        }
+        return constantInfo.getType();
     }
 
     /**

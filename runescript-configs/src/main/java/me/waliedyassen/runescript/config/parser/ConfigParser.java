@@ -122,6 +122,8 @@ public final class ConfigParser extends ParserBase<Kind> {
                 return valueBoolean();
             case TYPE:
                 return valueType();
+            case CARET:
+                return valueConstant();
             default:
                 throwError(consume(), "Expected a property value");
                 return null;
@@ -193,6 +195,18 @@ public final class ConfigParser extends ParserBase<Kind> {
         pushRange();
         var identifier = consume(TYPE);
         return new AstValueType(popRange(), PrimitiveType.forRepresentation(identifier.getLexeme()));
+    }
+
+    /**
+     * Attempts to parse an {@link AstValueConstant} object from the next sequence of tokens.
+     *
+     * @return the parsed {@link AstValueConstant} object.
+     */
+    private AstValueConstant valueConstant() {
+        pushRange();
+        consume(CARET);
+        var name = identifier();
+        return new AstValueConstant(popRange(), name);
     }
 
     /**

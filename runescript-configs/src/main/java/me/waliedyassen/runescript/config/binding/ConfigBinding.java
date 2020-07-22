@@ -12,16 +12,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
-import me.waliedyassen.runescript.config.annotation.ConfigArray;
-import me.waliedyassen.runescript.config.annotation.ConfigProps;
-import me.waliedyassen.runescript.config.type.ConfigVarType;
-import me.waliedyassen.runescript.config.type.TypeRegistry;
-import me.waliedyassen.runescript.config.type.rule.ConfigRule;
-import me.waliedyassen.runescript.config.var.ConfigVar;
-import me.waliedyassen.runescript.util.ReflectionUtil;
+import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
+import me.waliedyassen.runescript.config.var.ConfigProperty;
+import me.waliedyassen.runescript.config.var.rule.ConfigRule;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
-import java.lang.reflect.Modifier;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,10 +30,10 @@ import java.util.Map;
 public final class ConfigBinding {
 
     /**
-     * A map of all the variables that are in this binding.
+     * A map of all the properties that are in this binding.
      */
     @Getter
-    private final Map<String, ConfigVar> variables = new HashMap<>();
+    private final Map<String, ConfigProperty> properties = new HashMap<>();
 
     /**
      * The configuration group this binding is for.
@@ -47,94 +42,83 @@ public final class ConfigBinding {
     private final ConfigGroup group;
 
     /**
-     * Whether or not this configuration binding allows param variable.
+     * Whether or not this configuration binding allows param property.
      */
     @Getter
     @Setter
-    private boolean allowParamVariable;
+    private boolean allowParamProperty;
 
     /**
-     * Whether or not this configuration binding allow transmit variable.
+     * Whether or not this configuration binding allow transmit property.
      */
     @Getter
     @Setter
-    private boolean allowTransmitVariable;
+    private boolean allowTransmitProperty;
 
     /**
-     * Tries to find all of the bindings that are declared inside the specified {@link Class class type}
-     * through annotations on fields.
+     * Adds a specific amount of basic properties to the binding./
      *
-     * @param typeRegistry
-     *         the type registry that we will use for translating types.
-     * @param classType
-     *         the class type to populate the binding from it's field annotations.
+     * @param nameTemplate
+     *         the name template for the properties.
+     * @param opcode
+     *         the base opcode for the properties.
+     * @param required
+     *         whether or not the properties are required.
+     * @param components
+     *         the value components of each of the properties.
+     * @param rules
+     *         the rules of the property that applies to each value component of the properties.
      */
-    public void populateFromAnnotations(TypeRegistry typeRegistry, Class<?> classType) {
-        for (var field : classType.getDeclaredFields()) {
-            if (Modifier.isStatic(field.getModifiers())) {
-                continue;
-            }
-            var props = field.getAnnotation(ConfigProps.class);
-            if (props == null) {
-                continue;
-            }
-            var array = field.getAnnotation(ConfigArray.class);
-            if (field.getType().isArray() ^ array != null) {
-                throw new IllegalStateException("ConfigArray must be always used with array type fields: " + field);
-            }
-            Class<?> nativeType = field.getType().isArray() ? field.getType().getComponentType() : field.getType();
-            nativeType = ReflectionUtil.box(nativeType);
-            var varType = typeRegistry.lookup(nativeType);
-            if (varType == null) {
-                throw new IllegalStateException("Failed to find a matching type for native type: " + nativeType);
-            }
-            if (array != null) {
-                addVariableRepeat(array.format(), props.opcode(), props.required(), varType, Collections.emptyList(), array.size());
-            } else {
-                addVariable(props.name(), props.opcode(), props.required(), varType, Collections.emptyList());
-            }
+    public void addBasicProperty(String nameTemplate, int opcode, boolean required, PrimitiveType[] components, List<ConfigRule> rules, int count) {
+        for (var index = 1; index <= count; index++) {
+            var componentName = String.format(nameTemplate, index);
+            addBasicProperty(componentName, opcode, required, components, rules);
         }
     }
 
+
     /**
-     * Adds a new variable to the configuration binding.
+     * Adds a new basic property to the configuration binding.
      *
      * @param name
-     *         the name of the variable that we want to add.
+     *         the name of the property.
      * @param opcode
-     *         the opcode of the variable that we want to add.
+     *         the opcode of the property.
      * @param required
-     *         whether or not the variable that we want to add is required.
-     * @param type
-     *         the type of the variable that we want to add.
+     *         whether or not the property is required.
+     * @param components
+     *         the value components of the property.
      * @param rules
-     *         the rules of the variable.
+     *         the rules of the property that applies to each value.
      */
-    public void addVariable(String name, int opcode, boolean required, ConfigVarType type, List<ConfigRule> rules) {
-        if (variables.containsKey(name)) {
-            throw new IllegalArgumentException("Another variable with the same name is already defined in the binding");
-        }
-        variables.put(name, new ConfigVar(name, opcode, required, type, rules));
+    public void addBasicProperty(String name, int opcode, boolean required, PrimitiveType[] components, List<ConfigRule> rules) {
+        addProperty(name, new ConfigBasicProperty(name, opcode, required, components, rules));
     }
 
     /**
-     * Adds a new array variable to the configuration binding.
+     * Adds the specified {@link ConfigProperty property} to the binding.
      *
-     * @param nameFormat
-     *         the format of the array component names.
-     * @param opcode
-     *         the opcode of the variable that we want to add.
-     * @param required
-     *         whether or not the variable that we want to add is required.
-     * @param type
-     *         the type of the variable that we want to add.
-     * @param rules
-     *         the rules of the variable.
+     * @param name
+     *         the name of the property to add it under.
+     * @param property
+     *         the property that we want to add.
      */
-    public void addVariableRepeat(String nameFormat, int opcode, boolean required, ConfigVarType type, List<ConfigRule> rules, int count) {
-        for (var index = 1; index <= count; index++) {
-            var componentName = String.format(nameFormat, index);
-            addVariable(componentName, opcode, required, type, rules);
+    private void addProperty(String name, ConfigProperty property) {
+        if (properties.containsKey(name)) {
+            throw new IllegalArgumentException("Another property with the same name is already defined in the binding");
         }
+        properties.put(name, property);
+    }
+
+    /**
+     * Returns the {@link ConfigProperty} with the specified {@code name}.
+     *
+     * @param name
+     *         the configuration property with the specified {@code name}.
+     *
+     * @return the {@link ConfigProperty} if it was found otherwise {@code null}.
+     */
+    public ConfigProperty findProperty(String name) {
+        return properties.get(name);
     }
 }

@@ -30,6 +30,11 @@ public enum Kind {
     EQUAL,
 
     /**
+     * The Caret token kind.
+     */
+    CARET,
+
+    /**
      * The Comma token kind.
      */
     COMMA,

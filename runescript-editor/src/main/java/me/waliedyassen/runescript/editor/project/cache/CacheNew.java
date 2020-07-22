@@ -56,7 +56,7 @@ public final class CacheNew {
      */
     public CacheNew(Project project) {
         this.project = project;
-        WorkExecutor.getSingleThreadScheduler().scheduleWithFixedDelay(this::performSaving, 5, 5, TimeUnit.SECONDS);
+        WorkExecutor.getSingleThreadScheduler().scheduleWithFixedDelay(this::performSaving, 0, 1, TimeUnit.MINUTES);
     }
 
     /**

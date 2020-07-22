@@ -71,10 +71,10 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
                 throw new IllegalStateException("Missing configuration binding for file extension: " + extension);
             }
             var stream = new BufferedCharStream(new ByteArrayInputStream(sourceFile.getContent()));
-            var tokenizer = new Tokenizer(lexicalTable, stream);
-            var lexer = new Lexer(tokenizer);
-            var parser = new ConfigParser(lexer);
             try {
+                var tokenizer = new Tokenizer(lexicalTable, stream);
+                var lexer = new Lexer(tokenizer);
+                var parser = new ConfigParser(lexer);
                 var configs = parser.configs();
                 if (configs.length == 0) {
                     continue;
@@ -83,7 +83,7 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
                 checker.executePre(configs);
                 checker.execute(configs);
                 if (checker.getErrors().isEmpty()) {
-                    var codeGen = new CodeGenerator(binding);
+                    var codeGen = new CodeGenerator(symbolTable, binding);
                     for (var config : configs) {
                         var binaryConfig = codeGen.visit(config);
                         output.addUnit(sourceFile, binaryConfig);
@@ -125,6 +125,7 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
         table.registerSeparator('[', Kind.LBRACKET);
         table.registerSeparator(']', Kind.RBRACKET);
         table.registerSeparator('=', Kind.EQUAL);
+        table.registerSeparator('^', Kind.CARET);
         table.registerSeparator(',', Kind.COMMA);
         table.registerKeyword("yes", Kind.BOOLEAN);
         table.registerKeyword("no", Kind.BOOLEAN);

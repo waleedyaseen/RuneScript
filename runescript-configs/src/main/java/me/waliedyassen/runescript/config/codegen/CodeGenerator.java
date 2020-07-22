@@ -9,13 +9,15 @@ package me.waliedyassen.runescript.config.codegen;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
 import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.*;
 import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
-import me.waliedyassen.runescript.config.type.rule.ConfigRules;
+import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
+import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
 import java.util.ArrayList;
@@ -29,9 +31,15 @@ import java.util.ArrayList;
 public final class CodeGenerator implements AstVisitor<Object> {
 
     /**
+     * The symbol table of the compiler.
+     */
+    private final SymbolTable symbolTable;
+
+    /**
      * The binding of the configuration.
      */
     private final ConfigBinding binding;
+
 
     /**
      * {@inheritDoc}
@@ -55,19 +63,35 @@ public final class CodeGenerator implements AstVisitor<Object> {
      */
     @Override
     public BinaryProperty visit(AstProperty property) {
-        var variable = binding.getVariables().get(property.getKey().getText());
-        var rawValues = property.getValues();
+        var bindingProperty = binding.getProperties().get(property.getKey().getText());
+        if (bindingProperty instanceof ConfigBasicProperty) {
+            return generateBasicProperty(property, (ConfigBasicProperty) bindingProperty);
+        } else {
+            throw new IllegalArgumentException("Unrecognised binding property type: " + bindingProperty);
+        }
+    }
+
+    /**
+     * Generates a binary property for the specified basic property.
+     *
+     * @param node
+     *         the AST node of the property.
+     * @param property
+     *         the basic property that we are generating for.
+     */
+    private BinaryProperty generateBasicProperty(AstProperty node, ConfigBasicProperty property) {
+        var rawValues = node.getValues();
         var types = new PrimitiveType[rawValues.length];
         var values = new Object[rawValues.length];
         for (var valueIndex = 0; valueIndex < rawValues.length; valueIndex++) {
-            types[valueIndex] = variable.getType().getComponents()[valueIndex];
+            types[valueIndex] = property.getComponents()[valueIndex];
             values[valueIndex] = rawValues[valueIndex].accept(this);
         }
         if (values.length == 1) {
             Boolean rule = null;
-            if (variable.getRules().contains(ConfigRules.EMIT_EMPTY_IF_TRUE)) {
+            if (property.getRules().contains(ConfigRules.EMIT_EMPTY_IF_TRUE)) {
                 rule = Boolean.TRUE;
-            } else if (variable.getRules().contains(ConfigRules.EMIT_EMPTY_IF_FALSE)) {
+            } else if (property.getRules().contains(ConfigRules.EMIT_EMPTY_IF_FALSE)) {
                 rule = Boolean.FALSE;
             }
             if (rule != null) {
@@ -80,7 +104,7 @@ public final class CodeGenerator implements AstVisitor<Object> {
                 }
             }
         }
-        return new BinaryProperty(variable.getOpcode(), types, values);
+        return new BinaryProperty(property.getOpcode(), types, values);
     }
 
     /**
@@ -121,6 +145,14 @@ public final class CodeGenerator implements AstVisitor<Object> {
     @Override
     public PrimitiveType visit(AstValueType value) {
         return value.getType();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(AstValueConstant value) {
+        return symbolTable.lookupConstant(value.getName().getText()).getValue();
     }
 
     /**

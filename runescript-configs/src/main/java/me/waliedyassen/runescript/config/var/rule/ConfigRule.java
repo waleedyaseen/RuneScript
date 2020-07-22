@@ -1,7 +1,8 @@
-package me.waliedyassen.runescript.config.type.rule;
+package me.waliedyassen.runescript.config.var.rule;
 
 import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.AstValue;
+import me.waliedyassen.runescript.config.ast.value.AstValueConstant;
 import me.waliedyassen.runescript.config.ast.value.AstValueInteger;
 import me.waliedyassen.runescript.config.semantics.typecheck.TypeChecking;
 
@@ -40,6 +41,8 @@ public interface ConfigRule {
     static Integer resolveInteger(TypeChecking checking, AstValue value) {
         if (value instanceof AstValueInteger) {
             return ((AstValueInteger) value).getValue();
+        } else if (value instanceof AstValueConstant) {
+            return (Integer) checking.getTable().lookupConstant(((AstValueConstant) value).getName().getText()).getValue();
         } else {
             throw new IllegalStateException("Unrecognised value type: " + value);
         }

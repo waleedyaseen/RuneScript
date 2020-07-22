@@ -1,4 +1,4 @@
-package me.waliedyassen.runescript.config.type.rule;
+package me.waliedyassen.runescript.config.var.rule;
 
 import lombok.var;
 import me.waliedyassen.runescript.config.ast.AstProperty;

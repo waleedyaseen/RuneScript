@@ -8,21 +8,21 @@
 package me.waliedyassen.runescript.config.var;
 
 import lombok.Data;
-import me.waliedyassen.runescript.config.type.ConfigVarType;
-import me.waliedyassen.runescript.config.type.rule.ConfigRule;
+import me.waliedyassen.runescript.config.var.rule.ConfigRule;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 import java.util.List;
 
 /**
- * Represents a configuration variable properties.
+ * Represents a basic property that is not special in any way.
  *
  * @author Walied K. Yassen
  */
 @Data
-public final class ConfigVar {
+public final class ConfigBasicProperty implements ConfigProperty {
 
     /**
-     * The name of the configuration variable.
+     * The name of the property.
      */
     private final String name;
 
@@ -39,7 +39,7 @@ public final class ConfigVar {
     /**
      * The variable type of this configuration variable.
      */
-    private final ConfigVarType type;
+    private final PrimitiveType[] components;
 
     /**
      * A list of all the rules this configuration variable abides by.

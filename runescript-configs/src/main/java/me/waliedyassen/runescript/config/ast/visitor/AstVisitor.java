@@ -91,6 +91,16 @@ public interface AstVisitor<R> {
     R visit(AstValueType value);
 
     /**
+     * Gets called when we have just visited an {@link AstValueConstant} object.
+     *
+     * @param value
+     *         the object we have just visited.
+     *
+     * @return An object which is specified by the implementation.
+     */
+    R visit(AstValueConstant value);
+
+    /**
      * Gets called when we have just visited an {@link AstIdentifier} object.
      *
      * @param identifier

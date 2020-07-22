@@ -23,7 +23,6 @@ import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
-import me.waliedyassen.runescript.config.type.BasicConfigVarType;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
@@ -504,7 +503,7 @@ public final class Project {
     }
 
     /**
-     * Loads all of the predefined runtime constants of the project.
+     * Loads all of the predefined constants of the project.
      */
     private void loadConstants() {
         if (predefinedConstantsPath == null || predefinedConstantsPath.trim().isEmpty()) {
@@ -524,11 +523,11 @@ public final class Project {
                 for (var entry : fileConfig.entrySet()) {
                     var object = entry.getValue();
                     if (object instanceof Integer) {
-                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.INT, ((Integer) object).intValue());
+                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.INT, object);
                     } else if (object instanceof Long) {
-                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.LONG, ((Long) object).longValue());
+                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.LONG, object);
                     } else if (object instanceof String) {
-                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.STRING, (String) object);
+                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.STRING, object);
                     } else {
                         throw new IllegalArgumentException("Unrecognised value in the predefined constant(s) file for key: " + entry.getKey());
                     }
@@ -601,39 +600,33 @@ public final class Project {
                     config.load();
                     var binding = new ConfigBinding(() -> type);
                     configsCompiler.registerBinding(type.getRepresentation(), binding);
-                    binding.setAllowParamVariable(config.getOrElse("config.allow_param_variable", false));
-                    binding.setAllowTransmitVariable(config.getOrElse("config.allow_transmit_variable", false));
+                    binding.setAllowParamProperty(config.getOrElse("config.allow_param_variable", false));
+                    binding.setAllowTransmitProperty(config.getOrElse("config.allow_transmit_variable", false));
                     for (var entry : config.entrySet()) {
                         if (entry.getKey().contentEquals("config")) {
                             continue;
                         }
                         var value = (CommentedConfig) entry.getValue();
-                        var entryType = value.getOrElse("type", "NORMAL");
+                        var entryType = value.getOrElse("type", "BASIC");
                         var opcode = value.getInt("opcode");
                         var required = value.getOrElse("required", false);
                         var components = ProjectConfig.parsePrimitiveType(value, "components");
                         var rules = ProjectConfig.parseConfigRules(value, "rules");
                         switch (entryType) {
-                            case "NORMAL": {
-                                binding.addVariable(entry.getKey(), opcode, required, new BasicConfigVarType(null, components), rules);
+                            case "BASIC": {
+                                binding.addBasicProperty(entry.getKey(), opcode, required, components, rules);
                                 break;
                             }
-                            case "REPEAT": {
+                            case "BASIC_REPEAT": {
                                 var count = value.getInt("count");
                                 var format = value.getOrElse("format", entry.getKey() + "%d");
-                                binding.addVariableRepeat(format, opcode, required, new BasicConfigVarType(null, components), rules, count);
+                                binding.addBasicProperty(format, opcode, required, components, rules, count);
                                 break;
                             }
                             default: {
                                 //  throw new IllegalArgumentException("The specified type is not recognised: " + entryType);
                             }
                         }
-                    }
-                    if (binding.isAllowParamVariable()) {
-                        //   binding.addVariable("param", 249, false, new BasicConfigVarType(null, new PrimitiveType[]{PrimitiveType.PARAM, PrimitiveType.VALUE}));
-                    }
-                    if (binding.isAllowTransmitVariable()) {
-                        binding.addVariable("transmit", 250, false, new BasicConfigVarType(null, new PrimitiveType[]{PrimitiveType.BOOLEAN}), Collections.emptyList());
                     }
                 }
             } catch (Throwable e) {
