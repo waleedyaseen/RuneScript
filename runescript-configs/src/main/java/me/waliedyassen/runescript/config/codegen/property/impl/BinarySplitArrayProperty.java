@@ -1,8 +1,9 @@
-package me.waliedyassen.runescript.config.codegen.property;
+package me.waliedyassen.runescript.config.codegen.property.impl;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.config.codegen.property.BinaryProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
 import java.io.DataOutputStream;

@@ -454,10 +454,11 @@ public final class Project {
                         var value = (CommentedConfig) entry.getValue();
                         var id = value.getInt("id");
                         var name = value.contains("name") ? value.<String>get("name") : entry.getKey();
+                        var contentType = value.contains("contentType") ? PrimitiveType.valueOf(value.<String>get("contentType")) : null;
                         if (type == PrimitiveType.GRAPHIC) {
                             symbolTable.defineGraphic(name, id);
                         } else {
-                            symbolTable.defineConfig(name, type);
+                            symbolTable.defineConfig(name, type, contentType);
                             if (type == PrimitiveType.INTERFACE) {
                                 symbolTable.defineInterface(name, id);
                             }
@@ -601,8 +602,9 @@ public final class Project {
                     config.load();
                     var binding = new ConfigBinding(() -> type);
                     configsCompiler.registerBinding(type.getRepresentation(), binding);
-                    binding.setAllowParamProperty(config.getOrElse("config.allow_param_variable", false));
-                    binding.setAllowTransmitProperty(config.getOrElse("config.allow_transmit_variable", false));
+                    binding.setAllowParamProperty(config.getOrElse("config.allow_param_property", false));
+                    binding.setAllowTransmitProperty(config.getOrElse("config.allow_transmit_property", false));
+                    binding.setContentTypeProperty(config.contains("config.content_type_property") ? config.get("config.content_type_property") : null);
                     for (var entry : config.entrySet()) {
                         if (entry.getKey().contentEquals("config")) {
                             continue;
@@ -632,8 +634,14 @@ public final class Project {
                                 break;
                             }
                             default: {
-                                  throw new IllegalArgumentException("The specified type is not recognised: " + entryType);
+                                throw new IllegalArgumentException("The specified type is not recognised: " + entryType);
                             }
+                        }
+                    }
+                    if (binding.getContentTypeProperty() != null) {
+                        var prop = binding.findProperty(binding.getContentTypeProperty());
+                        if (prop == null || prop.getComponents().length != 1 || prop.getComponents()[0] != PrimitiveType.TYPE) {
+                            throw new IllegalArgumentException("Malformed content type property: " + binding.getContentTypeProperty());
                         }
                     }
                 }

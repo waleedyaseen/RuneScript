@@ -12,9 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
-import me.waliedyassen.runescript.config.codegen.property.BinaryBasicProperty;
+import me.waliedyassen.runescript.config.codegen.property.impl.BinaryBasicProperty;
 import me.waliedyassen.runescript.config.codegen.property.BinaryProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.Type;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -51,6 +52,12 @@ public final class BinaryConfig {
      */
     @Getter
     private final String name;
+
+    /**
+     * The content type  of the configuration.
+     */
+    @Getter
+    private final Type contentType;
 
     /**
      * Serializes this {@link BinaryConfig configuration} object into an array of {@code byte}.

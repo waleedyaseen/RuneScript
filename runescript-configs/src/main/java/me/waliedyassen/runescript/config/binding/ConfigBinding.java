@@ -60,6 +60,13 @@ public final class ConfigBinding {
     private boolean allowTransmitProperty;
 
     /**
+     * The name of the content type property.
+     */
+    @Getter
+    @Setter
+    private String contentTypeProperty;
+
+    /**
      * Adds a specific amount of basic properties to the binding./
      *
      * @param nameTemplate

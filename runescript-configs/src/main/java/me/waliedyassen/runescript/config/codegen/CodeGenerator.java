@@ -16,8 +16,8 @@ import me.waliedyassen.runescript.config.ast.AstProperty;
 import me.waliedyassen.runescript.config.ast.value.*;
 import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
-import me.waliedyassen.runescript.config.codegen.property.BinaryBasicProperty;
-import me.waliedyassen.runescript.config.codegen.property.BinarySplitArrayProperty;
+import me.waliedyassen.runescript.config.codegen.property.impl.BinaryBasicProperty;
+import me.waliedyassen.runescript.config.codegen.property.impl.BinarySplitArrayProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
@@ -47,7 +47,7 @@ public final class CodeGenerator implements AstVisitor<Object> {
     @Override
     public BinaryConfig visit(AstConfig config) {
         var count = config.getProperties().length;
-        var binaryConfig = new BinaryConfig(binding.getGroup(), config.getName().getText());
+        var binaryConfig = new BinaryConfig(binding.getGroup(), config.getName().getText(), config.resolveContentType(binding));
         for (var index = 0; index < count; index++) {
             generateProperty(binaryConfig, config.getProperties()[index]);
         }

@@ -126,6 +126,7 @@ public final class CacheUnit {
         for (var config : configs) {
             stream.writeUTF(config.getName());
             stream.writeUTF(config.getType().getRepresentation());
+            stream.writeUTF(config.getContentType() == null ? "" : config.getContentType().getRepresentation());
         }
     }
 
@@ -170,7 +171,9 @@ public final class CacheUnit {
         for (var index = 0; index < configsCount; index++) {
             var name = stream.readUTF();
             var type = PrimitiveType.forRepresentation(stream.readUTF());
-            configs.add(new ConfigInfo(name, type));
+            var contentTypeRaw = stream.readUTF();
+            var contentType = contentTypeRaw.isEmpty() ? null : PrimitiveType.forRepresentation(contentTypeRaw);
+            configs.add(new ConfigInfo(name, type, contentType));
         }
     }
 

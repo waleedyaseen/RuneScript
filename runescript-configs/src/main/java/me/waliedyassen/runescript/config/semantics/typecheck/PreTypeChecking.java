@@ -49,7 +49,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
         if (info != null) {
             checker.reportError(new SemanticError(config.getName(), "Duplicate configuration: " + info.getName()));
         } else {
-            table.defineConfig(config.getName().getText(), binding.getGroup().getType());
+            table.defineConfig(config.getName().getText(), binding.getGroup().getType(), config.resolveContentType(binding));
         }
         return DEFAULT;
     }

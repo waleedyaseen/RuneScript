@@ -10,7 +10,10 @@ package me.waliedyassen.runescript.config.ast;
 import lombok.Getter;
 import lombok.var;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.config.ast.value.AstValueType;
 import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
+import me.waliedyassen.runescript.config.binding.ConfigBinding;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,5 +94,29 @@ public final class AstConfig extends AstNode {
             }
         }
         return list;
+    }
+
+    /**
+     * Resolves the content type of this configuration.
+     *
+     * @param binding
+     *         the binding of the configuration.
+     *
+     * @return the {@link PrimitiveType} of the configuration.
+     */
+    public PrimitiveType resolveContentType(ConfigBinding binding) {
+        var contentType = binding.getContentTypeProperty();
+        if (contentType == null) {
+            return null;
+        }
+        var property = findProperty(binding.getContentTypeProperty());
+        if (property == null || property.getValues().length != 1) {
+            return PrimitiveType.UNDEFINED;
+        }
+        var value = property.getValues()[0];
+        if (!(value instanceof AstValueType)) {
+            return PrimitiveType.UNDEFINED;
+        }
+        return ((AstValueType) value).getType();
     }
 }

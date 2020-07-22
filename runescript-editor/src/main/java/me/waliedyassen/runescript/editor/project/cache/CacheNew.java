@@ -178,8 +178,9 @@ public final class CacheNew {
             var output = project.getConfigsCompiler().compile(input);
             for (var compiledFile : output.getCompiledFiles()) {
                 for (var binaryConfig : compiledFile.getUnits()) {
-                    unit.getConfigs().add(new ConfigInfo(binaryConfig.getName(), type));
-                    project.getSymbolTable().defineConfig(binaryConfig.getName(), type);
+                    var info = new ConfigInfo(binaryConfig.getName(), type, binaryConfig.getContentType());
+                    unit.getConfigs().add(info);
+                    project.getSymbolTable().defineConfig(info);
                 }
                 for (var error : compiledFile.getErrors()) {
                     unit.getErrors().add(new CachedError(error.getRange(), error.getMessage()));

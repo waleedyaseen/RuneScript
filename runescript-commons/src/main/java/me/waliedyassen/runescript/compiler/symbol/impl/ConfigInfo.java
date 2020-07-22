@@ -33,4 +33,10 @@ public final class ConfigInfo extends Symbol {
      */
     @Getter
     private final Type type;
+
+    /**
+     * Available in some of the configurations such as enum or params.
+     */
+    @Getter
+    private final Type contentType;
 }
