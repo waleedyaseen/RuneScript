@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.type.serializer.TypeSerializer;
 
 import java.util.Arrays;
@@ -51,7 +52,7 @@ public enum PrimitiveType implements Type {
     /**
      * The type special type.
      */
-    TYPE('\ufff5', "type", null, null, TypeSerializer.BYTE),
+    TYPE('\ufff5', "type", null, null, TypeSerializer.TYPE),
 
     // All the types below are verified to be part of script var type.
 
@@ -276,18 +277,6 @@ public enum PrimitiveType implements Type {
     }
 
     /**
-     * Looks-up for the {@link PrimitiveType} with the textual representation.
-     *
-     * @param representation
-     *         the textual representation of the {@link PrimitiveType}.
-     *
-     * @return the {@link PrimitiveType} if found otherwise {@code null}.
-     */
-    public static PrimitiveType forRepresentation(String representation) {
-        return lookupMap.get(representation);
-    }
-
-    /**
      * Checks whether or not the type can be used as an array.
      *
      * @return <code>true</code> if it does otherwise <code>false</code>.
@@ -322,5 +311,34 @@ public enum PrimitiveType implements Type {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Looks-up for the {@link PrimitiveType} with the textual representation.
+     *
+     * @param representation
+     *         the textual representation of the {@link PrimitiveType}.
+     *
+     * @return the {@link PrimitiveType} if found otherwise {@code null}.
+     */
+    public static PrimitiveType forRepresentation(String representation) {
+        return lookupMap.get(representation);
+    }
+
+    /**
+     * Returns the {@link PrimitiveType} with the specified {@code code}.
+     *
+     * @param code
+     *         the code that we want it's associated primitive type.
+     *
+     * @return the {@link PrimitiveType} if found otherwise {@code null}.
+     */
+    public static PrimitiveType forCode(char code) {
+        for (var type : PrimitiveType.values()) {
+            if (type.code == code) {
+                return type;
+            }
+        }
+        return null;
     }
 }

@@ -1,5 +1,8 @@
 package me.waliedyassen.runescript.type.serializer;
 
+import lombok.var;
+import me.waliedyassen.runescript.type.PrimitiveType;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -28,6 +31,7 @@ public interface TypeSerializer<T> {
             return stream.readByte() == 1;
         }
     };
+
     /**
      * The {@link Byte} type serializer.
      */
@@ -109,6 +113,30 @@ public interface TypeSerializer<T> {
                 builder.append((char) ch);
             }
             return builder.toString();
+        }
+    };
+
+    /**
+     * The {@link Boolean} type serializer.
+     */
+    TypeSerializer<PrimitiveType> TYPE = new TypeSerializer<PrimitiveType>() {
+        @Override
+        public void serialize(PrimitiveType value, DataOutputStream stream) throws IOException {
+            var code = value.getCode();
+            if (code > 0xff) {
+                throw new IllegalArgumentException("You cannot serialise primitive type: " + value);
+            }
+            stream.writeByte(code);
+        }
+
+        @Override
+        public PrimitiveType deserialize(DataInputStream stream) throws IOException {
+            var code = stream.readUnsignedByte();
+            var type = PrimitiveType.forCode((char) code);
+            if (type == null) {
+                throw new IllegalArgumentException("Failed to find a matching primitive type for code: " + code);
+            }
+            return type;
         }
     };
 
