@@ -20,6 +20,7 @@ import me.waliedyassen.runescript.config.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
+import me.waliedyassen.runescript.config.var.ConfigBasicDynamicProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
 import me.waliedyassen.runescript.config.var.ConfigParamProperty;
 import me.waliedyassen.runescript.config.var.ConfigProperty;
@@ -92,6 +93,8 @@ public final class TypeChecking extends AstTreeVisitor {
         var config = (AstConfig) property.getParent();
         if (bindingProperty instanceof ConfigBasicProperty) {
             performBasicChecks(config, property, bindingProperty);
+        } else if (bindingProperty instanceof ConfigBasicDynamicProperty) {
+            performBasicDynamicChecks(config, property, (ConfigBasicDynamicProperty) bindingProperty);
         } else if (bindingProperty instanceof ConfigSplitArrayProperty) {
             performSplitArrayChecks(config, property, (ConfigSplitArrayProperty) bindingProperty);
         } else if (bindingProperty instanceof ConfigParamProperty) {
@@ -116,11 +119,37 @@ public final class TypeChecking extends AstTreeVisitor {
         var components = property.getComponents();
         var values = node.getValues();
         if (components.length != values.length) {
-            checker.reportError(new SemanticError(node, "Components mismatch: expected " + components.length + " component(s) but got " + values.length + " component(s)"));
+            checker.reportError(new SemanticError(node, String.format("Components mismatch: expected %d component(s) but got %d component(s)", components.length, values.length)));
             return;
         }
         for (var index = 0; index < values.length; index++) {
             performComponentCheck(config, node, components[index], values[index], property.getRules());
+        }
+    }
+
+    /**
+     * Performs the basic dynamic checks for a config property.
+     *
+     * @param config
+     *         the owner configuration of the property.
+     * @param node
+     *         the AST node of the property.
+     * @param property
+     *         the basic dynamic property that we want to type check.
+     */
+    private void performBasicDynamicChecks(AstConfig config, AstProperty node, ConfigBasicDynamicProperty property) {
+        var inferringProperty = config.findProperty(property.getInferring());
+        if (inferringProperty == null || inferringProperty.getValues().length != 1 || !(inferringProperty.getValues()[0] instanceof AstValueType)) {
+            checker.reportError(new SemanticError(node, String.format("Missing inference property: %s", property.getInferring())));
+            return;
+        }
+        if (node.getValues().length != 1) {
+            checker.reportError(new SemanticError(node, String.format("Components mismatch: expected %d component(s) but got %d component(s)", 1, node.getValues().length)));
+            return;
+        }
+        var valueRaw = node.getValues()[0];
+        if (!performTypeCheck(node.getValues()[0], ((AstValueType) inferringProperty.getValues()[0]).getType(), (PrimitiveType) valueRaw.accept(this))) {
+            return;
         }
     }
 

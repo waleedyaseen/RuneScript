@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.config.ast;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.var;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.config.ast.value.AstValueType;
@@ -36,6 +37,13 @@ public final class AstConfig extends AstNode {
      */
     @Getter
     private final AstProperty[] properties;
+
+    /**
+     * The content type of the configuration, resolved at type checking time.
+     */
+    @Getter
+    @Setter
+    private PrimitiveType contentType;
 
     /**
      * Constructs a new {@link AstConfig} type object instance.

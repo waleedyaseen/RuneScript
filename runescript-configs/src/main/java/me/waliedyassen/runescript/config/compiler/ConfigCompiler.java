@@ -18,7 +18,6 @@ import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
-import me.waliedyassen.runescript.config.codegen.BinaryConfig;
 import me.waliedyassen.runescript.config.codegen.CodeGenerator;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.Tokenizer;
@@ -38,7 +37,7 @@ import java.util.Map;
  *
  * @author Walied K. Yassen
  */
-public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfig>> {
+public final class ConfigCompiler extends CompilerBase<Input, Output<CompiledConfigUnit>> {
 
     /**
      * A map of all the bindings that can be used by this compiler mapped by their extension.
@@ -74,11 +73,11 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
      * {@inheritDoc}
      */
     @Override
-    public Output<BinaryConfig> compile(Input input) throws IOException {
+    public Output<CompiledConfigUnit> compile(Input input) throws IOException {
         var symbolTable = this.symbolTable.createSubTable();
-        var output = new Output<BinaryConfig>();
+        var output = new Output<CompiledConfigUnit>();
         for (var sourceFile : input.getSourceFiles()) {
-            String extension = sourceFile.getExtension().toLowerCase();
+            var extension = sourceFile.getExtension().toLowerCase();
             var binding = bindings.get(extension);
             if (binding == null) {
                 throw new IllegalStateException("Missing configuration binding for file extension: " + extension);
@@ -92,20 +91,30 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
                 if (configs.length == 0) {
                     continue;
                 }
+                var compiledUnits = new CompiledConfigUnit[configs.length];
+                for (int index = 0; index < configs.length; index++) {
+                    var compiledUnit = new CompiledConfigUnit(binding.getGroup());
+                    compiledUnit.setConfig(configs[index]);
+                    output.addUnit(sourceFile, compiledUnit);
+                    compiledUnits[index] = compiledUnit;
+                }
                 var checker = new SemanticChecker(symbolTable, binding);
                 checker.executePre(configs);
                 checker.execute(configs);
                 if (checker.getErrors().isEmpty()) {
-                    var codeGen = new CodeGenerator(idProvider, symbolTable, binding);
-                    for (var config : configs) {
-                        var binaryConfig = codeGen.visit(config);
-                        output.addUnit(sourceFile, binaryConfig);
+                    if (input.isRunCodeGeneration() || true) {
+                        var codeGen = new CodeGenerator(idProvider, symbolTable, binding);
+                        for (int index = 0; index < configs.length; index++) {
+                            var binaryConfig = codeGen.visit(configs[index]);
+                            compiledUnits[index].setBinaryConfig(binaryConfig);
+                            String array = Arrays.toString(binaryConfig.serialize());
+                            System.out.println("byte[] array = new byte[] {"+array.substring(1, array.length() - 1)+"}");
+                        }
                     }
                 } else {
                     checker.getErrors().forEach(error -> output.addError(sourceFile, error));
                 }
             } catch (CompilerError error) {
-                error.printStackTrace();
                 output.addError(sourceFile, error);
             }
         }
@@ -126,6 +135,18 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<BinaryConfi
             throw new IllegalArgumentException("The specified binding extension is already registered: " + extension);
         }
         bindings.put(extension, binding);
+    }
+
+    /**
+     * Looks-up for the {@link ConfigBinding} with the specified {@code extension}.
+     *
+     * @param extension
+     *         the extension of the config binding that we want.
+     *
+     * @return the {@link ConfigBinding} object if it was found otherwise {@code null}.
+     */
+    public ConfigBinding lookupBinding(String extension) {
+        return bindings.get(extension);
     }
 
     /**

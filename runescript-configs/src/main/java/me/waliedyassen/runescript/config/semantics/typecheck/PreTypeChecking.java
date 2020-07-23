@@ -45,11 +45,12 @@ public final class PreTypeChecking extends AstTreeVisitor {
      */
     @Override
     public Object visit(AstConfig config) {
+        config.setContentType(config.resolveContentType(binding));
         var info = table.lookupConfig(config.getName().getText());
         if (info != null) {
             checker.reportError(new SemanticError(config.getName(), "Duplicate configuration: " + info.getName()));
         } else {
-            table.defineConfig(config.getName().getText(), binding.getGroup().getType(), config.resolveContentType(binding));
+            table.defineConfig(config.getName().getText(), binding.getGroup().getType(), config.getContentType());
         }
         return DEFAULT;
     }

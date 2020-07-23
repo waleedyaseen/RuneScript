@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
+import me.waliedyassen.runescript.config.var.ConfigBasicDynamicProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
 import me.waliedyassen.runescript.config.var.ConfigProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
@@ -20,10 +21,7 @@ import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayData;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents a configuration binding for a specific configuration type.
@@ -87,7 +85,6 @@ public final class ConfigBinding {
         }
     }
 
-
     /**
      * Adds a new basic property to the configuration binding.
      *
@@ -104,6 +101,22 @@ public final class ConfigBinding {
      */
     public void addBasicProperty(String name, int opcode, boolean required, PrimitiveType[] components, List<ConfigRule> rules) {
         addProperty(name, new ConfigBasicProperty(name, opcode, required, components, rules));
+    }
+
+    /**
+     * Adds a new basic dynamic opcode property to the configuration binding.
+     *
+     * @param name
+     *         the name of the property.
+     * @param inferring
+     *         the property name we are inferring the type from.
+     * @param opcodes
+     *         the opcodes of the property for each base stack type.
+     */
+    public void addBasicDynamicProperty(String name, String inferring, int[] opcodes) {
+        var rules = Collections.<ConfigRule>singletonList(new ConfigRequireRule(inferring));
+        var property = new ConfigBasicDynamicProperty(name, inferring, opcodes, rules);
+        addProperty(name, property);
     }
 
     /**

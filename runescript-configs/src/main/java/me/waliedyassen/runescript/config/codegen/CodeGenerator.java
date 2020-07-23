@@ -20,11 +20,13 @@ import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinaryBasicProperty;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinaryParamProperty;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinarySplitArrayProperty;
+import me.waliedyassen.runescript.config.var.ConfigBasicDynamicProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
 import me.waliedyassen.runescript.config.var.ConfigParamProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.StackType;
 
 /**
  * The code generator for the configuration compiler.
@@ -55,7 +57,7 @@ public final class CodeGenerator implements AstVisitor<Object> {
     @Override
     public BinaryConfig visit(AstConfig config) {
         var count = config.getProperties().length;
-        var binaryConfig = new BinaryConfig(binding.getGroup(), config.getName().getText(), config.resolveContentType(binding));
+        var binaryConfig = new BinaryConfig(binding.getGroup(), config.getName().getText());
         for (var index = 0; index < count; index++) {
             generateProperty(binaryConfig, config.getProperties()[index]);
         }
@@ -76,6 +78,8 @@ public final class CodeGenerator implements AstVisitor<Object> {
         var bindingProperty = binding.getProperties().get(property.getKey().getText());
         if (bindingProperty instanceof ConfigBasicProperty) {
             generateBasicProperty(config, property, (ConfigBasicProperty) bindingProperty);
+        } else if (bindingProperty instanceof ConfigBasicDynamicProperty) {
+            generateBasicDynamicProperty(config, property, (ConfigBasicDynamicProperty) bindingProperty);
         } else if (bindingProperty instanceof ConfigSplitArrayProperty) {
             generateSplitArrayProperty(config, property, (ConfigSplitArrayProperty) bindingProperty);
         } else if (bindingProperty instanceof ConfigParamProperty) {
@@ -121,6 +125,25 @@ public final class CodeGenerator implements AstVisitor<Object> {
             }
         }
         config.addProperty(new BinaryBasicProperty(property.getOpcode(), types, values));
+    }
+
+    /**
+     * Generates a binary property for the specified basic dynamic opcode property.
+     *
+     * @param config
+     *         the binary configuration.
+     * @param node
+     *         the AST node of the property.
+     * @param property
+     *         the basic dynamic opcode property that we are generating for.
+     */
+    private void generateBasicDynamicProperty(BinaryConfig config, AstProperty node, ConfigBasicDynamicProperty property) {
+        var inferring = ((AstConfig) node.getParent()).findProperty(property.getInferring());
+        if (inferring == null) {
+            throw new IllegalStateException();
+        }
+        var type = ((AstValueType) inferring.getValues()[0]).getType();
+        config.addProperty(new BinaryBasicProperty(property.getOpcodes()[type.getStackType() == StackType.INT ? 0 : 1], new PrimitiveType[]{type}, new Object[]{node.getValues()[0].accept(this)}));
     }
 
     /**
