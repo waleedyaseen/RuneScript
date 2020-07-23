@@ -55,6 +55,15 @@ public class ConfigSplitArrayProperty implements ConfigProperty {
     /**
      * {@inheritDoc}
      */
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<ConfigRule>[] getRules() {
+        return new List[]{rules};
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PrimitiveType[] getComponents() {
         return new PrimitiveType[]{type};

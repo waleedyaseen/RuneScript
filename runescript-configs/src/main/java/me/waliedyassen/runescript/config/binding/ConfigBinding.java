@@ -17,6 +17,7 @@ import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
 import me.waliedyassen.runescript.config.var.ConfigMapProperty;
 import me.waliedyassen.runescript.config.var.ConfigProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
+import me.waliedyassen.runescript.config.var.rule.impl.ConfigRangeRule;
 import me.waliedyassen.runescript.config.var.rule.impl.ConfigRequireRule;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayData;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
@@ -79,7 +80,8 @@ public final class ConfigBinding {
      * @param rules
      *         the rules of the property that applies to each value component of the properties.
      */
-    public void addBasicProperty(String nameTemplate, int opcode, boolean required, PrimitiveType[] components, List<ConfigRule> rules, int count) {
+    public void addBasicProperty(String nameTemplate, int opcode, boolean required, PrimitiveType[] components, List<ConfigRule>[] rules, int count) {
+        rules = prepareRules(components, rules);
         for (var index = 1; index <= count; index++) {
             var componentName = String.format(nameTemplate, index);
             addBasicProperty(componentName, opcode, required, components, rules);
@@ -100,7 +102,8 @@ public final class ConfigBinding {
      * @param rules
      *         the rules of the property that applies to each value.
      */
-    public void addBasicProperty(String name, int opcode, boolean required, PrimitiveType[] components, List<ConfigRule> rules) {
+    public void addBasicProperty(String name, int opcode, boolean required, PrimitiveType[] components, List<ConfigRule>[] rules) {
+        rules = prepareRules(components, rules);
         addProperty(name, new ConfigBasicProperty(name, opcode, required, components, rules));
     }
 
@@ -140,19 +143,21 @@ public final class ConfigBinding {
      * @param maxSize
      *         the maximum amount of elements of the property.
      */
-    public void addSplitArrayProperty(String name, int opcode, boolean required, String[] componentNames, PrimitiveType[] components, List<ConfigRule> rules, PrimitiveType sizeType, int maxSize) {
+    public void addSplitArrayProperty(String name, int opcode, boolean required, String[] componentNames, PrimitiveType[] components, List<ConfigRule>[] rules, PrimitiveType sizeType, int maxSize) {
+        rules = prepareRules(components, rules);
         var data = new ConfigSplitArrayData(name, opcode, required, sizeType, componentNames.length, maxSize);
         for (var id = 0; id < maxSize; id++) {
             for (int index = 0; index < componentNames.length; index++) {
                 var componentType = components[index];
                 var componentName = String.format(componentNames[index], id);
-                var specificRules = new ArrayList<>(rules);
+                var specificRules = new ArrayList<>(rules[index]);
                 for (int otherIndex = 0; otherIndex < componentNames.length; otherIndex++) {
                     if (otherIndex == index) {
                         continue;
                     }
                     specificRules.add(new ConfigRequireRule(String.format(componentNames[otherIndex], id)));
                 }
+                addDefaultRangeRule(specificRules, componentType);
                 addProperty(componentName, new ConfigSplitArrayProperty(data, componentName, componentType, specificRules, id, index));
             }
         }
@@ -199,5 +204,56 @@ public final class ConfigBinding {
      */
     public ConfigProperty findProperty(String name) {
         return properties.get(name);
+    }
+
+    /**
+     * Prepares the specified array of {@link ConfigRule} objects for the specified {@link PrimitiveType components}.
+     *
+     * @param components
+     *         the array of components to prepare the rules for.
+     * @param rules
+     *         the array of config rules to prepare.
+     *
+     * @return the prepared array of config rules.
+     */
+    private static List<ConfigRule>[] prepareRules(PrimitiveType[] components, List<ConfigRule>[] rules) {
+        if (rules.length > components.length) {
+            throw new IllegalArgumentException("There are more rule sections than components");
+        }
+        if (rules.length != components.length) {
+            rules = Arrays.copyOf(rules, components.length);
+        }
+        for (var index = 0; index < components.length; index++) {
+            if (rules[index] == null) {
+                rules[index] = new ArrayList<>(1);
+            }
+            addDefaultRangeRule(rules[index], components[index]);
+        }
+        return rules;
+    }
+
+    /**
+     * Adds teh default range rule of the specified {@link PrimitiveType component}.
+     *
+     * @param rules
+     *         the list of rules that we want to add the rule to.
+     * @param component
+     *         the component to use for determining the rule we want to add.
+     */
+    private static void addDefaultRangeRule(List<ConfigRule> rules, PrimitiveType component) {
+        if (rules.stream().anyMatch(rule -> rule instanceof ConfigRangeRule)) {
+            return;
+        }
+        switch (component) {
+            case BYTE:
+                rules.add(new ConfigRangeRule(0, 255));
+                break;
+            case SHORT:
+                rules.add(new ConfigRangeRule(0, 65535));
+                break;
+            case TRIBYTE:
+                rules.add(new ConfigRangeRule(0, 16777215));
+                break;
+        }
     }
 }

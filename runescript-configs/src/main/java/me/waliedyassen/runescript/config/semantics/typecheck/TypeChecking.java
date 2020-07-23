@@ -26,6 +26,7 @@ import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -122,7 +123,8 @@ public final class TypeChecking extends AstTreeVisitor {
             return;
         }
         for (var index = 0; index < values.length; index++) {
-            performComponentCheck(config, node, components[index], values[index], property.getRules());
+            var rules = property.getRules();
+            performComponentCheck(config, node, components[index], values[index], index < rules.length ? rules[index] : Collections.emptyList());
         }
     }
 

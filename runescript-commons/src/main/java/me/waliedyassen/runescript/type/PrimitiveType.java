@@ -14,6 +14,7 @@ import me.waliedyassen.runescript.type.serializer.TypeSerializer;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 /**
@@ -50,14 +51,40 @@ public enum PrimitiveType implements Type {
     SHORT('\ufff4', "short", null, null, TypeSerializer.SHORT),
 
     /**
+     * The tribyte special type.
+     */
+    TRIBYTE('\ufff5', "tribyte", null, null, TypeSerializer.TRIBYTE),
+
+    /**
      * The type special type.
      */
-    TYPE('\ufff5', "type", null, null, TypeSerializer.TYPE),
+    TYPE('\ufff6', "type", null, null, TypeSerializer.TYPE),
 
     /**
      * The param configuration type.
      */
-    PARAM('\ufff6', "param", null, null, null),
+    PARAM('\uffd0', "param", null, null, null),
+
+    /**
+     * The floor overlay configuration type.
+     */
+    FLO('\uffd1', "flo", null, null, null),
+
+    /**
+     * The floor underlay configuration type.
+     */
+    FLU('\uffd2', "flu", null, null, null),
+
+    /**
+     * The var configuration type.
+     */
+    VAR('\uffd3', "var", null, null, null),
+
+    /**
+     * The varbit configuration type.
+     */
+    VARBIT('\uffd4', "varbit", null, null, null),
+    // TODO: Rework variables to be part of the configuration system in the symbol table.
 
     // All the types below are verified to be part of script var type.
 
@@ -70,6 +97,11 @@ public enum PrimitiveType implements Type {
      * The string primitive type.
      */
     STRING('s', "string", StackType.STRING, "", TypeSerializer.STRING),
+
+    /**
+     * The spotanim primitive type.
+     */
+    SPOTANIM('t', "spotanim", StackType.INT, -1, TypeSerializer.INT),
 
     /**
      * The seq primitive type.
@@ -157,6 +189,11 @@ public enum PrimitiveType implements Type {
     INV('v', "inv", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
+     * The texture primitive type.
+     */
+    TEXTURE('x', "texture", StackType.INT, -1, TypeSerializer.BYTE),
+
+    /**
      * The mapelement primitive type.
      */
     MAPELEMENT('µ', "mapelement", StackType.INT, -1, TypeSerializer.SHORT),
@@ -170,7 +207,7 @@ public enum PrimitiveType implements Type {
      * The var primitive type.
      */
     // TODO: Verify the char code is correct
-    VAR('2', "var", StackType.INT, -1, TypeSerializer.SHORT),
+    //VAR('2', "var", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The struct primitive type.
@@ -247,6 +284,7 @@ public enum PrimitiveType implements Type {
         switch (type) {
             case BYTE:
             case SHORT:
+            case TRIBYTE:
                 return INT;
             default:
                 return type;
@@ -264,6 +302,7 @@ public enum PrimitiveType implements Type {
             case UNDEFINED:
             case BYTE:
             case SHORT:
+            case TRIBYTE:
             case TYPE:
                 return false;
             default:
@@ -313,6 +352,9 @@ public enum PrimitiveType implements Type {
             case STRUCT:
             case LOC:
             case PARAM:
+            case FLO:
+            case FLU:
+            case SPOTANIM:
                 return true;
             default:
                 return false;

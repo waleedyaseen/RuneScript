@@ -44,5 +44,5 @@ public final class ConfigBasicProperty implements ConfigProperty {
     /**
      * A list of all the rules this configuration variable abides by.
      */
-    private final List<ConfigRule> rules;
+    private final List<ConfigRule>[] rules;
 }

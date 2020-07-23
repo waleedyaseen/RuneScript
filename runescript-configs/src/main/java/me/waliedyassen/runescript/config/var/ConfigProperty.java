@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.config.var;
 
+import lombok.var;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
@@ -19,6 +20,12 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 public interface ConfigProperty {
+
+    /**
+     * An empty array of rules.
+     */
+    @SuppressWarnings("unchecked")
+    List<ConfigRule>[] NO_RULES = new List[0];
 
     /**
      * Returns the name of the property.
@@ -57,7 +64,24 @@ public interface ConfigProperty {
      *
      * @return a list of all the  rules that apply to this property.
      */
-    default List<ConfigRule> getRules() {
-        return Collections.emptyList();
+    default List<ConfigRule>[] getRules() {
+        return NO_RULES;
+    }
+
+    /**
+     * Returns the list of {@link ConfigRule} of the value at the specified {@code index}.
+     *
+     * @param index
+     *         the index the value is at.
+     *
+     * @return a {@link List} object containing the {@link ConfigRule rules}.
+     */
+    default List<ConfigRule> getRules(int index) {
+        var array = getRules();
+        if (index < 0 || index >= array.length) {
+            return Collections.emptyList();
+        }
+        var rules = array[index];
+        return rules == null ? Collections.emptyList() : rules;
     }
 }

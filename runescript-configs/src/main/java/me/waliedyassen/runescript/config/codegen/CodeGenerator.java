@@ -113,9 +113,9 @@ public final class CodeGenerator implements AstVisitor<Object> {
         }
         if (values.length == 1) {
             Boolean rule = null;
-            if (property.getRules().contains(ConfigRules.EMIT_EMPTY_IF_TRUE)) {
+            if (property.getRules(0).contains(ConfigRules.EMIT_EMPTY_IF_TRUE)) {
                 rule = Boolean.TRUE;
-            } else if (property.getRules().contains(ConfigRules.EMIT_EMPTY_IF_FALSE)) {
+            } else if (property.getRules(0).contains(ConfigRules.EMIT_EMPTY_IF_FALSE)) {
                 rule = Boolean.FALSE;
             }
             if (rule != null) {

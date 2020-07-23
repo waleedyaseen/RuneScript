@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.editor.project;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
+import me.waliedyassen.runescript.config.var.ConfigProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.config.var.rule.impl.ConfigRangeRule;
@@ -19,7 +20,6 @@ import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.util.ReflectionUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -62,25 +62,31 @@ public final class ProjectConfig {
     }
 
     /**
-     * Attempts to parse an array of {@link PrimitiveType} from the specified {@link CommentedConfig} object.
+     * Attempts to parse an array of {@link ConfigRule}s list from the specified {@link CommentedConfig} object.
      *
      * @param config
      *         the configuration object to attempt to parse from.
      * @param name
      *         the name of the configuration to parse.
      *
-     * @return the parsed array {@link PrimitiveType} object.
+     * @return the parsed array of {@link ConfigRule}s list objects.
      */
-    public static List<ConfigRule> parseConfigRules(CommentedConfig config, String name) {
-        var types = config.<List<String>>get(name);
-        if (types == null) {
-            return Collections.emptyList();
+    public static List<ConfigRule>[] parseConfigRules(CommentedConfig config, String name) {
+        var array = config.<List<List<String>>>get(name);
+        if (array == null) {
+            return ConfigProperty.NO_RULES;
         }
-        var mapped = new ArrayList<ConfigRule>(types.size());
-        for (String typeName : types) {
-            mapped.add(parseConfigRule(typeName));
+        System.out.println(config);
+        var rules = new List[array.size()];
+        for (var index = 0; index < array.size(); index++) {
+            var types = array.get(index);
+            var mapped = new ArrayList<ConfigRule>(types.size());
+            for (var typeName : types) {
+                mapped.add(parseConfigRule(typeName));
+            }
+            rules[index] = mapped;
         }
-        return mapped;
+        return rules;
     }
 
     /**

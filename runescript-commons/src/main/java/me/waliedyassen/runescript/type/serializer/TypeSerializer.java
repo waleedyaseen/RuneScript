@@ -66,7 +66,24 @@ public interface TypeSerializer<T> {
 
         @Override
         public Number deserialize(DataInputStream stream) throws IOException {
-            return stream.readShort();
+            return stream.readUnsignedShort();
+        }
+    };
+
+    /**
+     * The triple byte type serializer.
+     */
+    TypeSerializer<Number> TRIBYTE = new TypeSerializer<Number>() {
+        @Override
+        public void serialize(Number value, DataOutputStream stream) throws IOException {
+            var integer = value.intValue();
+            stream.writeShort(integer >> 8);
+            stream.writeByte(integer & 0xff);
+        }
+
+        @Override
+        public Number deserialize(DataInputStream stream) throws IOException {
+            return stream.readUnsignedShort() << 8 | stream.readUnsignedByte();
         }
     };
 

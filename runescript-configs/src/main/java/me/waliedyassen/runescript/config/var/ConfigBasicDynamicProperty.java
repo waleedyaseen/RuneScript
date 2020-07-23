@@ -45,6 +45,15 @@ public final class ConfigBasicDynamicProperty implements ConfigProperty {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
+    public List<ConfigRule>[] getRules() {
+        return new List[]{rules};
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public PrimitiveType[] getComponents() {
         throw new UnsupportedOperationException();
     }
