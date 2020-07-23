@@ -20,6 +20,7 @@
         <surefire.version>2.22.2</surefire.version>
         <compiler.version>3.8.1</compiler.version>
         <release.version>2.5.3</release.version>
+        <logback.verison>1.2.3</logback.verison>
     </properties>
     <modules>
         <module>runescript-commons</module>
@@ -36,6 +37,11 @@
         <tag>HEAD</tag>
     </scm>
     <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.verison}</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>

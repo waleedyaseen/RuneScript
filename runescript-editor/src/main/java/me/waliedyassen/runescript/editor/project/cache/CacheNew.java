@@ -11,23 +11,23 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.editor.file.FileTypeManager;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
-import me.waliedyassen.runescript.editor.util.ChecksumUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.util.ChecksumUtil;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -122,7 +122,7 @@ public final class CacheNew {
         var paths = Files.walk(project.getBuildPath().getSourceDirectory())
                 .filter(path -> Files.isRegularFile(path) && FileTypeManager.isCompilable(PathEx.getExtension(path)))
                 .collect(Collectors.toList());
-        var changes = new HashMap<Path, byte[]>();
+        var changes = new ArrayList<Pair<Path, byte[]>>();
         var deletions = new HashMap<>(units);
         for (var path : paths) {
             var normalizedPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path);
@@ -132,7 +132,7 @@ public final class CacheNew {
             if (unit != null && ChecksumUtil.calculateCrc32(diskData) == unit.getCrc()) {
                 continue;
             }
-            changes.put(path, diskData);
+            changes.add(Pair.of(path, diskData));
         }
         if (!deletions.isEmpty()) {
             log.info("Found {} deleted files", deletions.size());
@@ -143,9 +143,7 @@ public final class CacheNew {
         }
         if (!changes.isEmpty()) {
             log.info("Found {} changed files", changes.size());
-            for (var change : changes.entrySet()) {
-                recompile(change.getKey(), change.getValue());
-            }
+            recompile(changes);
         }
     }
 
@@ -168,35 +166,83 @@ public final class CacheNew {
      */
     @SneakyThrows
     public void recompile(Path path, byte[] content) {
-        var key = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path);
-        var unit = units.get(key);
-        if (unit == null) {
-            unit = createCacheUnit(path);
-        } else {
-            unit.undefineSymbols(project.getSymbolTable());
-            unit.clear();
-        }
-        var input = new Input();
-        input.addSourceFile(SourceFile.of(path, content));
-        if (unit.isClientScript() || unit.isServerScript()) {
+        recompile(Collections.singletonList(Pair.of(path, content)));
+    }
 
-        } else {
-            var type = PrimitiveType.forRepresentation(PathEx.getExtension(path));
-            var output = project.getConfigsCompiler().compile(input);
-            for (var compiledFile : output.getCompiledFiles()) {
-                for (var binaryConfig : compiledFile.getUnits()) {
-                    var info = new ConfigInfo(binaryConfig.getName(), type, binaryConfig.getContentType());
+    /**
+     * Re-compiles the specified list of files.
+     *
+     * @param files
+     *         the list of files that we want to recompile.
+     */
+    @SneakyThrows
+    private void recompile(List<Pair<Path, byte[]>> files) {
+        // TODO: Soft compilation mode that does not recompile all of the dependencies.
+        var configInput = new Input();
+        for (var pair : files) {
+            var path = pair.getKey();
+            var content = pair.getValue();
+            var key = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path);
+            var unit = units.get(key);
+            if (unit == null) {
+                unit = createCacheUnit(path);
+            } else {
+                unit.undefineSymbols(project.getSymbolTable());
+                unit.clear();
+            }
+            if (unit.isClientScript()) {
+
+            } else if (unit.isServerScript()) {
+
+            } else {
+                configInput.addSourceFile(SourceFile.of(path, content));
+            }
+        }
+        var dirty = false;
+        if (!configInput.getSourceFiles().isEmpty()) {
+            var output = project.getConfigsCompiler().compile(configInput);
+            for (var entry : output.getFiles().entrySet()) {
+                var normalizedPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), Paths.get(entry.getKey()));
+                var compiledFile = entry.getValue();
+                var unit = units.get(normalizedPath);
+                unit.setCrc(compiledFile.getCrc());
+                for (var compiledUnit : compiledFile.getUnits()) {
+                    var info = new ConfigInfo(compiledUnit.getConfig().getName().getText(), compiledUnit.getGroup().getType(), compiledUnit.getConfig().getContentType());
                     unit.getConfigs().add(info);
-                    project.getSymbolTable().defineConfig(info);
                 }
+                unit.defineSymbols(project.getSymbolTable());
                 for (var error : compiledFile.getErrors()) {
                     unit.getErrors().add(new CachedError(error.getRange(), error.getMessage()));
                 }
+                project.updateErrors(unit);
             }
+            dirty = true;
         }
-        unit.setCrc(ChecksumUtil.calculateCrc32(content));
-        project.updateErrors(unit);
-        markCacheDirty();
+        if (dirty) {
+            markCacheDirty();
+        }
+    }
+
+    /**
+     * Attempts to pack all of the files that needs packing in the project.
+     *
+     * @return <code>true</code> if the pack was successful otherwise <code>false</code>.
+     */
+    public boolean pack() {
+        if (units.values().stream().anyMatch(unit -> unit.getErrors().size() > 0)) {
+            return false;
+        }
+        for (var unit : units.values()) {
+            if (unit.getCrc() == unit.getPackCrc()) {
+                continue;
+            }
+            pack(unit);
+        }
+        return true;
+    }
+
+    private void pack(CacheUnit unit) {
+        unit.setPackCrc(unit.getCrc());
     }
 
     /**
@@ -223,5 +269,4 @@ public final class CacheNew {
         }
         dirtyCache = true;
     }
-
 }

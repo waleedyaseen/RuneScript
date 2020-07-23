@@ -613,22 +613,45 @@ public final class Project {
                         }
                         var value = (CommentedConfig) entry.getValue();
                         var entryType = value.getOrElse("type", "BASIC");
-                        var opcode = value.getInt("opcode");
-                        var required = value.getOrElse("required", false);
-                        var components = ProjectConfig.parsePrimitiveTypes(value, "components");
-                        var rules = ProjectConfig.parseConfigRules(value, "rules");
                         switch (entryType) {
                             case "BASIC": {
+                                var opcode = value.getInt("opcode");
+                                var required = value.getOrElse("required", false);
+                                var components = ProjectConfig.parsePrimitiveTypes(value, "components");
+                                var rules = ProjectConfig.parseConfigRules(value, "rules");
                                 binding.addBasicProperty(entry.getKey(), opcode, required, components, rules);
                                 break;
                             }
                             case "BASIC_REPEAT": {
+                                var opcode = value.getInt("opcode");
+                                var required = value.getOrElse("required", false);
+                                var components = ProjectConfig.parsePrimitiveTypes(value, "components");
+                                var rules = ProjectConfig.parseConfigRules(value, "rules");
                                 var count = value.getInt("count");
                                 var format = value.getOrElse("format", entry.getKey() + "%d");
                                 binding.addBasicProperty(format, opcode, required, components, rules, count);
                                 break;
                             }
+                            case "BASIC_DYNAMIC": {
+                                var opcodes = value.<List<Integer>>get("opcodes");
+                                if (opcodes.size() != 2) {
+                                    throw new IllegalArgumentException("Expected 2 values (int opcode, string opcode) for opcodes field in property: " + entry.getKey());
+                                }
+                                var inferring = value.<String>get("inferring");
+                                if (inferring == null || config.getOrElse(inferring + ".type", "").contentEquals("type")) {
+                                    throw new IllegalArgumentException("Malformed inferring property for property: " + entry.getKey());
+                                }
+                                binding.addBasicDynamicProperty(
+                                        entry.getKey(),
+                                        inferring,
+                                        opcodes.stream().mapToInt(Integer::intValue).toArray());
+                                break;
+                            }
                             case "SPLIT_ARRAY": {
+                                var opcode = value.getInt("opcode");
+                                var required = value.getOrElse("required", false);
+                                var components = ProjectConfig.parsePrimitiveTypes(value, "components");
+                                var rules = ProjectConfig.parseConfigRules(value, "rules");
                                 var sizeType = PrimitiveType.valueOf(value.get("sizeType"));
                                 var maxSize = value.getInt("maxSize");
                                 var names = value.<List<String>>get("names");

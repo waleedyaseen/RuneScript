@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
-import me.waliedyassen.runescript.editor.util.ChecksumUtil;
+import me.waliedyassen.runescript.util.ChecksumUtil;
 import org.fife.ui.rsyntaxtextarea.ErrorStrip;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;

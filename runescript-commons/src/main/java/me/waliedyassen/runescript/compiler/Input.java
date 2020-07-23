@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,13 @@ public final class Input {
      */
     @Getter
     private final List<SourceFile> sourceFiles = new ArrayList<>();
+
+    /**
+     * Whether or not we want to run the code generation.
+     */
+    @Getter
+    @Setter
+    private boolean runCodeGeneration;
 
     /**
      * Adds the specified {@link SourceFile} to the list of files we want to compile.

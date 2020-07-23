@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public final class CompiledFile<U> {
 
     /**
@@ -33,6 +35,12 @@ public final class CompiledFile<U> {
      */
     @Getter
     private final List<U> units = new ArrayList<>();
+
+    /**
+     * The CRC-32 hash value of the source code data.
+     */
+    @Getter
+    private final int crc;
 
     /**
      * Adds the specified {@link U unit} to this compiled file.

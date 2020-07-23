@@ -57,6 +57,13 @@ public final class CacheUnit {
     private int crc;
 
     /**
+     * The last packed CRC-32 hash of the file content.
+     */
+    @Getter
+    @Setter
+    private int packCrc;
+
+    /**
      * A list of all the errors that are in this cache unit.
      */
     @Getter

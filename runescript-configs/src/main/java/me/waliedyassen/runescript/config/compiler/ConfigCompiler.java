@@ -102,13 +102,11 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<CompiledCon
                 checker.executePre(configs);
                 checker.execute(configs);
                 if (checker.getErrors().isEmpty()) {
-                    if (input.isRunCodeGeneration() || true) {
+                    if (input.isRunCodeGeneration()) {
                         var codeGen = new CodeGenerator(idProvider, symbolTable, binding);
                         for (int index = 0; index < configs.length; index++) {
                             var binaryConfig = codeGen.visit(configs[index]);
                             compiledUnits[index].setBinaryConfig(binaryConfig);
-                            String array = Arrays.toString(binaryConfig.serialize());
-                            System.out.println("byte[] array = new byte[] {"+array.substring(1, array.length() - 1)+"}");
                         }
                     }
                 } else {

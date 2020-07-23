@@ -19,7 +19,7 @@ import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.project.dependency.DependencyTree;
-import me.waliedyassen.runescript.editor.util.ChecksumUtil;
+import me.waliedyassen.runescript.util.ChecksumUtil;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
 import me.waliedyassen.runescript.index.table.IndexTable;
 import me.waliedyassen.runescript.type.PrimitiveType;

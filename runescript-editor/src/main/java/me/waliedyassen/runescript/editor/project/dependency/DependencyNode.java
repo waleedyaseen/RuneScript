@@ -58,7 +58,7 @@ public final class DependencyNode<K> {
      */
     public void addDependency(K key) {
         if (isChildFor(key)) {
-            throw new CircularDependencyException("Circular dependency found in between " + this.key + " and " + key);
+            throw new CircularDependencyException("Circular dependency found between " + this.key + " and " + key);
         }
         if (key.equals(this.key)) {
             return;

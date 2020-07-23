@@ -76,11 +76,8 @@ public final class SourceFile {
      *         the content of the source file.
      *
      * @return the {@link SourceFile} object.
-     *
-     * @throws IOException
-     *         if anything occurs while reading the file data.
      */
-    public static SourceFile of(Path path, byte[] content) throws IOException {
+    public static SourceFile of(Path path, byte[] content) {
         String nameWithExtension = path.getFileName().toString();
         String fullPath = path.getParent().toString();
         String extension = nameWithExtension.substring(nameWithExtension.lastIndexOf('.') + 1);
