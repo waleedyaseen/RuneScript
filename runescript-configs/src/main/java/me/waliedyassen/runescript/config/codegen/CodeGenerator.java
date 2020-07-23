@@ -18,10 +18,12 @@ import me.waliedyassen.runescript.config.ast.value.*;
 import me.waliedyassen.runescript.config.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinaryBasicProperty;
+import me.waliedyassen.runescript.config.codegen.property.impl.BinaryMapProperty;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinaryParamProperty;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinarySplitArrayProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicDynamicProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
+import me.waliedyassen.runescript.config.var.ConfigMapProperty;
 import me.waliedyassen.runescript.config.var.ConfigParamProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
@@ -84,6 +86,8 @@ public final class CodeGenerator implements AstVisitor<Object> {
             generateSplitArrayProperty(config, property, (ConfigSplitArrayProperty) bindingProperty);
         } else if (bindingProperty instanceof ConfigParamProperty) {
             generateParamProperty(config, property, (ConfigParamProperty) bindingProperty);
+        } else if (bindingProperty instanceof ConfigMapProperty) {
+            generateMapProperty(config, property, (ConfigMapProperty) bindingProperty);
         } else {
             throw new IllegalArgumentException("Unrecognised binding property type: " + bindingProperty);
         }
@@ -138,7 +142,7 @@ public final class CodeGenerator implements AstVisitor<Object> {
      *         the basic dynamic opcode property that we are generating for.
      */
     private void generateBasicDynamicProperty(BinaryConfig config, AstProperty node, ConfigBasicDynamicProperty property) {
-        var inferring = ((AstConfig) node.getParent()).findProperty(property.getInferring());
+        var inferring = ((AstConfig) node.getParent()).findProperty(property.getTypeProperty());
         if (inferring == null) {
             throw new IllegalStateException();
         }
@@ -173,7 +177,6 @@ public final class CodeGenerator implements AstVisitor<Object> {
         binaryValue.getValues()[property.getComponentId()] = node.getValues()[0].accept(this);
     }
 
-
     /**
      * Generates a binary property for the specified param property.
      *
@@ -192,6 +195,33 @@ public final class CodeGenerator implements AstVisitor<Object> {
         }
         var paramInfo = symbolTable.lookupConfig(((AstValueConfig) node.getValues()[0]).getName().getText());
         binaryProperty.getValues().put(idProvider.findConfig(PrimitiveType.PARAM, paramInfo.getName()), node.getValues()[1].accept(this));
+    }
+
+    /**
+     * Generates a binary property for the specified param property.
+     *
+     * @param config
+     *         the binary configuration.
+     * @param node
+     *         the AST node of the property.
+     * @param property
+     *         the basic property that we are generating for.
+     */
+    private void generateMapProperty(BinaryConfig config, AstProperty node, ConfigMapProperty property) {
+        var valueProperty = ((AstConfig) node.getParent()).findProperty(property.getValueTypeProperty());
+        if (valueProperty == null) {
+            throw new IllegalStateException();
+        }
+        var valueType = ((AstValueType) valueProperty.getValues()[0]).getType();
+        var code = property.getOpcodes()[valueType.getStackType() == StackType.INT ? 0 : 1];
+        var binaryProperty = (BinaryMapProperty) config.findProperty(code);
+        if (binaryProperty == null) {
+            binaryProperty = new BinaryMapProperty(code);
+            config.addProperty(binaryProperty);
+        }
+        var keyRaw = node.getValues()[0];
+        var valueRaw = node.getValues()[1];
+        binaryProperty.getValues().put((Integer)keyRaw.accept(this), valueRaw.accept(this));
     }
 
     /**

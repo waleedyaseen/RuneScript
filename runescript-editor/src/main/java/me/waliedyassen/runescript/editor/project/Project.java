@@ -637,14 +637,8 @@ public final class Project {
                                 if (opcodes.size() != 2) {
                                     throw new IllegalArgumentException("Expected 2 values (int opcode, string opcode) for opcodes field in property: " + entry.getKey());
                                 }
-                                var inferring = value.<String>get("inferring");
-                                if (inferring == null || config.getOrElse(inferring + ".type", "").contentEquals("type")) {
-                                    throw new IllegalArgumentException("Malformed inferring property for property: " + entry.getKey());
-                                }
-                                binding.addBasicDynamicProperty(
-                                        entry.getKey(),
-                                        inferring,
-                                        opcodes.stream().mapToInt(Integer::intValue).toArray());
+                                var inferring = ProjectConfig.parseInferredVariable(config, value.get("typeProperty"));
+                                binding.addBasicDynamicProperty(entry.getKey(), inferring, opcodes.stream().mapToInt(Integer::intValue).toArray());
                                 break;
                             }
                             case "SPLIT_ARRAY": {
@@ -656,6 +650,16 @@ public final class Project {
                                 var maxSize = value.getInt("maxSize");
                                 var names = value.<List<String>>get("names");
                                 binding.addSplitArrayProperty(entry.getKey(), opcode, required, names.toArray(new String[0]), components, rules, sizeType, maxSize);
+                                break;
+                            }
+                            case "MAP": {
+                                var opcodes = value.<List<Integer>>get("opcodes");
+                                if (opcodes.size() != 2) {
+                                    throw new IllegalArgumentException("Expected 2 values (int opcode, string opcode) for opcodes field in property: " + entry.getKey());
+                                }
+                                var keyTypeProperty = ProjectConfig.parseInferredVariable(config, value.get("keyTypeProperty"));
+                                var valueTypeProperty = ProjectConfig.parseInferredVariable(config, value.get("valueTypeProperty"));
+                                binding.addMapProperty(entry.getKey(), opcodes.stream().mapToInt(Integer::intValue).toArray(), keyTypeProperty, valueTypeProperty);
                                 break;
                             }
                             default: {
@@ -898,6 +902,9 @@ public final class Project {
          */
         private final Project project;
 
+        private final Map<String, Integer> temporary = new HashMap<>();
+        int counter = 10000;
+
         /**
          * {@inheritDoc}
          */
@@ -923,12 +930,15 @@ public final class Project {
                     }
                     return config.getPredefinedId();
                 }
-                var id = project.index.get("config-" + type.getRepresentation()).find(name);
-                if (id != null) {
-                    return id;
+                var index = project.index.get("config-" + type.getRepresentation());
+                if (index != null) {
+                    var id = index.find(name);
+                    if (id != null) {
+                        return id;
+                    }
                 }
             }
-            throw new IllegalArgumentException("Failed to find an id for config with name: " + name + " and type: " + type);
+            return temporary.computeIfAbsent(name, ($name) -> counter++);
         }
     }
 }

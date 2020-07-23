@@ -14,6 +14,7 @@ import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.var.ConfigBasicDynamicProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
+import me.waliedyassen.runescript.config.var.ConfigMapProperty;
 import me.waliedyassen.runescript.config.var.ConfigProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 import me.waliedyassen.runescript.config.var.rule.impl.ConfigRequireRule;
@@ -155,6 +156,22 @@ public final class ConfigBinding {
                 addProperty(componentName, new ConfigSplitArrayProperty(data, componentName, componentType, specificRules, id, index));
             }
         }
+    }
+
+    /**
+     * Adds a new split array property to the configuration binding.
+     *
+     * @param name
+     *         the name of the property.
+     * @param opcodes
+     *         the opcodes of the property.
+     * @param keyTypeProperty
+     *         the key type property name.
+     * @param valueTypeProperty
+     *         the value type property name.
+     */
+    public void addMapProperty(String name, int[] opcodes, String keyTypeProperty, String valueTypeProperty) {
+        addProperty(name, new ConfigMapProperty(name, opcodes, keyTypeProperty, valueTypeProperty));
     }
 
     /**

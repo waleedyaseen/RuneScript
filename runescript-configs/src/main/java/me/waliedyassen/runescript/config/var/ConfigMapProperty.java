@@ -8,18 +8,15 @@
 package me.waliedyassen.runescript.config.var;
 
 import lombok.Data;
-import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
-import java.util.List;
-
 /**
- * A basic property with dynamic opcode based on the inferred stack type.
+ * A single map configuration property.
  *
  * @author Walied K. Yassen
  */
 @Data
-public final class ConfigBasicDynamicProperty implements ConfigProperty {
+public final class ConfigMapProperty implements ConfigProperty {
 
     /**
      * The name of the property.
@@ -27,19 +24,19 @@ public final class ConfigBasicDynamicProperty implements ConfigProperty {
     private final String name;
 
     /**
-     * The name of the type property.
-     */
-    private final String typeProperty;
-
-    /**
      * The opcodes of the property.
      */
     private final int[] opcodes;
 
     /**
-     * The rules of the property.
+     * The key type property name of the property.
      */
-    private final List<ConfigRule> rules;
+    private final String keyTypeProperty;
+
+    /**
+     * The value type property name of the property.
+     */
+    private final String valueTypeProperty;
 
     /**
      * {@inheritDoc}
@@ -48,6 +45,12 @@ public final class ConfigBasicDynamicProperty implements ConfigProperty {
     public PrimitiveType[] getComponents() {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isAllowDuplicates() {
+        return true;
+    }
 }
-
-

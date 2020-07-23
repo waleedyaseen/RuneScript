@@ -41,6 +41,27 @@ public final class ProjectConfig {
     private static final Pattern REQUIRE_RULE_PATTERN = createConfigRulePattern("REQUIRE", String.class);
 
     /**
+     * Attempts to parse a type variable from the specified {@link CommentedConfig config}.
+     *
+     * @param config
+     *         the configuration object to attempt to parse from.
+     * @param name
+     *         the name of the variable that we are trying to parse.
+     *
+     * @return the inferred variable name.
+     */
+    public static String parseInferredVariable(CommentedConfig config, String name) {
+        if (!config.contains(name + ".components")) {
+            throw new IllegalArgumentException("Missing required property: " + name);
+        }
+        var components = parsePrimitiveTypes(config, name + ".components");
+        if (components.length != 1 || components[0] != PrimitiveType.TYPE) {
+            throw new IllegalArgumentException("Malformed components for required property: " + name + ", expected TYPE component only");
+        }
+        return name;
+    }
+
+    /**
      * Attempts to parse an array of {@link PrimitiveType} from the specified {@link CommentedConfig} object.
      *
      * @param config

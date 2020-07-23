@@ -20,10 +20,7 @@ import me.waliedyassen.runescript.config.ast.visitor.AstTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
-import me.waliedyassen.runescript.config.var.ConfigBasicDynamicProperty;
-import me.waliedyassen.runescript.config.var.ConfigBasicProperty;
-import me.waliedyassen.runescript.config.var.ConfigParamProperty;
-import me.waliedyassen.runescript.config.var.ConfigProperty;
+import me.waliedyassen.runescript.config.var.*;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
@@ -99,6 +96,8 @@ public final class TypeChecking extends AstTreeVisitor {
             performSplitArrayChecks(config, property, (ConfigSplitArrayProperty) bindingProperty);
         } else if (bindingProperty instanceof ConfigParamProperty) {
             performParamChecks(config, property, (ConfigParamProperty) bindingProperty);
+        } else if (bindingProperty instanceof ConfigMapProperty) {
+            performMapChecks(config, property, (ConfigMapProperty) bindingProperty);
         } else {
             throw new IllegalArgumentException("Unrecognised binding property type: " + bindingProperty);
         }
@@ -138,19 +137,16 @@ public final class TypeChecking extends AstTreeVisitor {
      *         the basic dynamic property that we want to type check.
      */
     private void performBasicDynamicChecks(AstConfig config, AstProperty node, ConfigBasicDynamicProperty property) {
-        var inferringProperty = config.findProperty(property.getInferring());
-        if (inferringProperty == null || inferringProperty.getValues().length != 1 || !(inferringProperty.getValues()[0] instanceof AstValueType)) {
-            checker.reportError(new SemanticError(node, String.format("Missing inference property: %s", property.getInferring())));
-            return;
-        }
         if (node.getValues().length != 1) {
             checker.reportError(new SemanticError(node, String.format("Components mismatch: expected %d component(s) but got %d component(s)", 1, node.getValues().length)));
             return;
         }
-        var valueRaw = node.getValues()[0];
-        if (!performTypeCheck(node.getValues()[0], ((AstValueType) inferringProperty.getValues()[0]).getType(), (PrimitiveType) valueRaw.accept(this))) {
+        var inferredType = inferTypeFromProperty(config, node, property.getTypeProperty());
+        if (inferredType == null) {
             return;
         }
+        var valueRaw = node.getValues()[0];
+        performTypeCheck(valueRaw, inferredType, (PrimitiveType) valueRaw.accept(this));
     }
 
     /**
@@ -188,9 +184,34 @@ public final class TypeChecking extends AstTreeVisitor {
         }
         var paramInfo = table.lookupConfig(((AstValueConfig) paramRaw).getName().getText());
         var valueRaw = node.getValues()[1];
-        if (!performTypeCheck(valueRaw, (PrimitiveType) paramInfo.getContentType(), (PrimitiveType) valueRaw.accept(this))) {
+        performTypeCheck(valueRaw, (PrimitiveType) paramInfo.getContentType(), (PrimitiveType) valueRaw.accept(this));
+    }
+
+
+    /**
+     * Performs the basic dynamic checks for a config property.
+     *
+     * @param config
+     *         the owner configuration of the property.
+     * @param node
+     *         the AST node of the property.
+     * @param property
+     *         the basic dynamic property that we want to type check.
+     */
+    private void performMapChecks(AstConfig config, AstProperty node, ConfigMapProperty property) {
+        if (node.getValues().length != 2) {
+            checker.reportError(new SemanticError(node, String.format("Components mismatch: expected %d component(s) but got %d component(s)", 2, node.getValues().length)));
             return;
         }
+        var inferredKeyType = inferTypeFromProperty(config, node, property.getKeyTypeProperty());
+        var inferredValueType = inferTypeFromProperty(config, node, property.getValueTypeProperty());
+        if (inferredKeyType == null || inferredValueType == null) {
+            return;
+        }
+        var keyRaw = node.getValues()[0];
+        var valueRaw = node.getValues()[1];
+        performTypeCheck(keyRaw, inferredKeyType, (PrimitiveType) keyRaw.accept(this));
+        performTypeCheck(valueRaw, inferredValueType, (PrimitiveType) valueRaw.accept(this));
     }
 
     /**
@@ -309,5 +330,30 @@ public final class TypeChecking extends AstTreeVisitor {
     @Override
     public Object visit(AstIdentifier identifier) {
         return DEFAULT;
+    }
+
+    /**
+     * Attempts to infer a type property from the specified {@link AstConfig config} and has the specified {@code name}.
+     *
+     * @param config
+     *         the configuration which contains the property.
+     * @param node
+     *         the node which requested the type inference.
+     * @param name
+     *         the name of the type property we are trying to infer.
+     *
+     * @return the {@link PrimitiveType} if it was inferred successfuly otherwise {@code null}
+     */
+    private PrimitiveType inferTypeFromProperty(AstConfig config, AstProperty node, String name) {
+        var property = config.findProperty(name);
+        if (property == null) {
+            checker.reportError(new SemanticError(node, String.format("Property '%s' requires property '%s'", node.getKey().getText(), name)));
+            return null;
+        }
+        if (property.getValues().length != 1 || !(property.getValues()[0] instanceof AstValueType)) {
+            checker.reportError(new SemanticError(node, String.format("Cannot identify type in a required property: %s", name)));
+            return null;
+        }
+        return ((AstValueType) property.getValues()[0]).getType();
     }
 }
