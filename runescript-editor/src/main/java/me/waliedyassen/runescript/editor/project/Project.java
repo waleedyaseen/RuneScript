@@ -404,22 +404,27 @@ public final class Project {
      */
     @SneakyThrows
     void loadCommands() {
-        var file = (File) null;
-        var path = commandsPath;
-        if (path.startsWith("*")) {
-            path = path.substring(1);
-            if ("osrs_default".equals(path)) {
-                file = new File(getClass().getResource("osrs_default_commands.toml").toURI());
+        if (commandsPath == null || commandsPath.trim().isEmpty()) {
+            return;
+        }
+        var path = (Path) null;
+        if (commandsPath.startsWith("*")) {
+            var name = commandsPath.substring(1);
+            if ("osrs_default".equals(name)) {
+                path = Paths.get(getClass().getResource("osrs_default_commands.toml").toURI());
             } else {
-                throw new IllegalStateException("Unrecognised macro: " + path);
+                throw new IllegalStateException("Unrecognised macro: " + name);
             }
         } else {
-            file = new File(path);
+            path = Paths.get(commandsPath);
         }
-        if (!file.exists()) {
-            throw new IllegalStateException("The specified instructions file does not exist");
+        if (!path.isAbsolute()) {
+            path = directory.resolve(commandsPath);
         }
-        try (var config = CommentedFileConfig.of(file)) {
+        if (!Files.exists(path)) {
+            throw new IllegalStateException("The specified instructions file does not exist: " + path);
+        }
+        try (var config = CommentedFileConfig.of(path)) {
             config.load();
             for (var entry : config.entrySet()) {
                 var name = entry.getKey();
