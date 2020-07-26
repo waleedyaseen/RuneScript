@@ -9,11 +9,11 @@ package me.waliedyassen.runescript.config.parser;
 
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.io.ByteArrayInputStream;

@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler.util;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class VariableScopeTest {
 

@@ -8,9 +8,7 @@
 package me.waliedyassen.runescript.compiler.codegen.block;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Represents a code label, used for branching and jumping to targets.

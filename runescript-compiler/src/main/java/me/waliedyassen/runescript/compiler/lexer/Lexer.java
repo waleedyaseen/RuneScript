@@ -9,10 +9,10 @@ package me.waliedyassen.runescript.compiler.lexer;
 
 import lombok.Getter;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 
 /**
  * Represents the script parser {@link LexerBase} implementation.

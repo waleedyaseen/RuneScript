@@ -7,9 +7,6 @@
  */
 package me.waliedyassen.runescript.config.codegen.property;
 
-import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
-import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 

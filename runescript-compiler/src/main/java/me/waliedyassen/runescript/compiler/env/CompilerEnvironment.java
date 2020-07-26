@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.compiler.env;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;

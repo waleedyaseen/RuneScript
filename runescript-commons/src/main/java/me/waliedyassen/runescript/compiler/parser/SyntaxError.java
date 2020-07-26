@@ -7,8 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
-import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.CompilerError;
 
 /**
  * Represents a syntax error. The syntax error occurs when the input text sequence does not match the grammar rule or is

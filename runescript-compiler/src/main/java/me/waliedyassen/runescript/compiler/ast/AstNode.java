@@ -7,14 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.ast;
 
-import lombok.*;
-import me.waliedyassen.runescript.commons.document.Element;
+import lombok.EqualsAndHashCode;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Represents the smallest unit in the Abstract Syntax Tree (AST).

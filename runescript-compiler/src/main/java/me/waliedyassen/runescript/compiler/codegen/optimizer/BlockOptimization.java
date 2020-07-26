@@ -8,8 +8,8 @@
 package me.waliedyassen.runescript.compiler.codegen.optimizer;
 
 import lombok.var;
-import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
+import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 
 /**
  * Represents an {@link Optimization} that is ran on a block level instead of script..

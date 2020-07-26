@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.compiler.ast.stmt;
 import lombok.Getter;
 import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
+import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
 
 /**
  * Represents an AST switch statement case.

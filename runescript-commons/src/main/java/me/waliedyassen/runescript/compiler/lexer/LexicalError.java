@@ -7,8 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.lexer;
 
-import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.CompilerError;
 
 /**
  * Represents any error that has occurred during a lexical phase parsing.

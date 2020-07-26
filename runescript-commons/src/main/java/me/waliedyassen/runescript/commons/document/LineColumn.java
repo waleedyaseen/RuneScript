@@ -8,9 +8,7 @@
 package me.waliedyassen.runescript.commons.document;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
 /**
  * Represents a ("line and column") structure with additional utility methods.

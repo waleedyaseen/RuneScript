@@ -8,9 +8,9 @@
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import lombok.var;
-import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
+import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import org.junit.jupiter.api.Test;
 
