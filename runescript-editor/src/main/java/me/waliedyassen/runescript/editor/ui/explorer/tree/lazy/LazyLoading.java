@@ -60,7 +60,6 @@ public final class LazyLoading extends SwingWorker<List<ExplorerNode<?>>, Void> 
             var children = get();
             node.removeAllChildren();
             children.forEach(node::add);
-            node.setAllowsChildren(!children.isEmpty());
             node.setLoading(false);
             node.setLoaded(true);
             tree.getModel().nodeStructureChanged(node);
@@ -81,7 +80,6 @@ public final class LazyLoading extends SwingWorker<List<ExplorerNode<?>>, Void> 
             throw new IllegalArgumentException("The directory node needs to be empty before it can be lazily loaded");
         }
         node.add(new LoadingNode(node.getTree()));
-        node.setAllowsChildren(true);
     }
 
     /**

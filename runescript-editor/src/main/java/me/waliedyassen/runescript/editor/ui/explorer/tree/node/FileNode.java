@@ -45,9 +45,9 @@ public final class FileNode extends ExplorerNode<Path> {
      */
     public FileNode(ExplorerTree tree, Path path) {
         super(tree, path);
-        fileType = FileTypeManager.lookup(PathEx.getExtension(path));
-        setUserObject(path.getFileName());
         setAllowsChildren(false);
+        setUserObject(path.getFileName());
+        fileType = FileTypeManager.lookup(PathEx.getExtension(path));
     }
 
     /**

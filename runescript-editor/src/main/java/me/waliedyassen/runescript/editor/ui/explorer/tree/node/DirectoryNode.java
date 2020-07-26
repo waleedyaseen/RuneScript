@@ -60,6 +60,7 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
      */
     public DirectoryNode(ExplorerTree tree, Path value) {
         super(tree, value);
+        setAllowsChildren(true);
         setUserObject(value.getFileName().toString());
         LazyLoading.setup(this);
         var file = Api.getApi().getProjectManager().getCurrentProject().get().getVfs().resolveFile(value);
