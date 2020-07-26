@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.config.compiler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.ast.AstConfig;
+import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.codegen.BinaryConfig;
 
 /**
@@ -25,9 +25,9 @@ import me.waliedyassen.runescript.config.codegen.BinaryConfig;
 public final class CompiledConfigUnit {
 
     /**
-     * The configuration group this compiled unit belongs to.
+     * The configuration binding that was used for the compiled unit.
      */
-    private final ConfigGroup group;
+    private final ConfigBinding binding;
 
     /**
      * The AST configuration node of the compiled unit.

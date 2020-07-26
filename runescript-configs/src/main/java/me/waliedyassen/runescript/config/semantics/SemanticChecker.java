@@ -28,6 +28,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public final class SemanticChecker {
 
+    // TODO: Convert this into ErrorReport and move the methods to static ones.
+
     /**
      * The generated errors during this semantic checker life time.
      */
@@ -41,17 +43,14 @@ public final class SemanticChecker {
     private final SymbolTable symbolTable;
 
     /**
-     * The configuration binding we are checking for.
-     */
-    private final ConfigBinding binding;
-
-    /**
      * Executes the pre semantic checking for the specified {@link AstConfig configs}.
      *
      * @param configs
      *         the configs to perform the pre semantic checking on.
+     * @param binding
+     *         the binding to use for the type checking.
      */
-    public void executePre(AstConfig... configs) {
+    public void executePre(Iterable<AstConfig> configs, ConfigBinding binding) {
         var checker = new PreTypeChecking(this, symbolTable, binding);
         for (var config : configs) {
             config.accept(checker);
@@ -63,8 +62,10 @@ public final class SemanticChecker {
      *
      * @param configs
      *         the configs to perform the semantic checking on.
+     * @param binding
+     *         the binding to use for the type checking.
      */
-    public void execute(AstConfig... configs) {
+    public void execute(Iterable<AstConfig> configs, ConfigBinding binding) {
         var checker = new TypeChecking(this, symbolTable, binding);
         for (var config : configs) {
             config.accept(checker);

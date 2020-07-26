@@ -25,12 +25,16 @@ import me.waliedyassen.runescript.config.lexer.token.Kind;
 import me.waliedyassen.runescript.config.parser.ConfigParser;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.util.CollectorsEx;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Represents the RuneScript configurations compiler.
@@ -77,10 +81,9 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<CompiledCon
         var symbolTable = this.symbolTable.createSubTable();
         var output = new Output<CompiledConfigUnit>();
         for (var sourceFile : input.getSourceFiles()) {
-            var extension = sourceFile.getExtension().toLowerCase();
-            var binding = bindings.get(extension);
+            var binding = bindings.get(sourceFile.getExtension());
             if (binding == null) {
-                throw new IllegalStateException("Missing configuration binding for file extension: " + extension);
+                throw new IllegalStateException("Missing configuration binding for file extension: " + sourceFile.getExtension());
             }
             var stream = new BufferedCharStream(new ByteArrayInputStream(sourceFile.getContent()));
             try {
@@ -91,29 +94,33 @@ public final class ConfigCompiler extends CompilerBase<Input, Output<CompiledCon
                 if (configs.length == 0) {
                     continue;
                 }
-                var compiledUnits = new CompiledConfigUnit[configs.length];
-                for (int index = 0; index < configs.length; index++) {
-                    var compiledUnit = new CompiledConfigUnit(binding.getGroup());
-                    compiledUnit.setConfig(configs[index]);
+                for (var config : configs) {
+                    var compiledUnit = new CompiledConfigUnit(binding);
+                    compiledUnit.setConfig(config);
                     output.addUnit(sourceFile, compiledUnit);
-                    compiledUnits[index] = compiledUnit;
-                }
-                var checker = new SemanticChecker(symbolTable, binding);
-                checker.executePre(configs);
-                checker.execute(configs);
-                if (checker.getErrors().isEmpty()) {
-                    if (input.isRunCodeGeneration()) {
-                        var codeGen = new CodeGenerator(idProvider, symbolTable, binding);
-                        for (int index = 0; index < configs.length; index++) {
-                            var binaryConfig = codeGen.visit(configs[index]);
-                            compiledUnits[index].setBinaryConfig(binaryConfig);
-                        }
-                    }
-                } else {
-                    checker.getErrors().forEach(error -> output.addError(sourceFile, error));
                 }
             } catch (CompilerError error) {
                 output.addError(sourceFile, error);
+            }
+        }
+        var checker = new SemanticChecker(symbolTable);
+        var mapped = output.getCompiledFiles().stream().collect(groupingBy(Function.identity(), CollectorsEx.flatMapping(file -> file.getUnits().stream().map(CompiledConfigUnit::getConfig), toList())));
+        for (var entry : mapped.entrySet()) {
+            var binding = bindings.get(entry.getKey().getExtension());
+            checker.executePre(entry.getValue(), binding);
+        }
+        for (var entry : mapped.entrySet()) {
+            var binding = bindings.get(entry.getKey().getExtension());
+            checker.execute(entry.getValue(), binding);
+        }
+        if (input.isRunCodeGeneration()) {
+            for (var entry : mapped.keySet()) {
+                var binding = bindings.get(entry.getExtension());
+                var codeGen = new CodeGenerator(idProvider, symbolTable, binding);
+                for (var unit : entry.getUnits()) {
+                    var binaryConfig = codeGen.visit(unit.getConfig());
+                    unit.setBinaryConfig(binaryConfig);
+                }
             }
         }
         return output;
