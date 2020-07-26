@@ -15,15 +15,13 @@ import java.io.IOException;
 /**
  * The base class for all the compiler implementations we use for RuneScript.
  *
- * @param <I>
- *         the input type of the compile calls.
- * @param <R>
- *         the result type of the compile calls.
+ * @param <O>
+ *         the output type of the compiler.
  *
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public abstract class CompilerBase<I, R> {
+public abstract class CompilerBase<O> {
 
     /**
      * The ID provider for configurations or scripts.
@@ -31,18 +29,18 @@ public abstract class CompilerBase<I, R> {
     protected final IdProvider idProvider;
 
     /**
-     * Attempts to compile all of the source code specified in the {@link I input} object
-     * and produce a {@link R result} object which contains the compiled form of the object
+     * Attempts to compile all of the source code specified in the {@link Input} object
+     * and produce a {@link Output output} object which contains the compiled form of the object
      * and the associated errors produced during that compilation process.
      *
      * @param input
      *         the input object which contains the all of the source code that we want to compile.
      *
-     * @return the {@link R result} object instance.
+     * @return the {@link Output} object instance.
      *
      * @throws IOException
      *         if somehow a problem occurred while writing or reading from the temporary streams.
      */
-    public abstract R compile(I input) throws IOException;
+    public abstract Output<O> compile(Input input) throws IOException;
 
 }

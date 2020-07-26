@@ -12,7 +12,7 @@ import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.BlockOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
-import me.waliedyassen.runescript.compiler.codegen.script.Script;
+import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 
 /**
  * Represents a dead branch optimization.
@@ -25,7 +25,7 @@ public final class DeadBranchOptimization extends BlockOptimization {
      * {@inheritDoc}
      */
     @Override
-    public int run(Optimizer optimizer, Script script, Block block) {
+    public int run(Optimizer optimizer, BinaryScript script, Block block) {
         var instruction = block.last();
         if (instruction != null && optimizer.is(instruction, CoreOpcode.BRANCH)) {
             // We currently define dead branch if it's after a return
@@ -46,7 +46,7 @@ public final class DeadBranchOptimization extends BlockOptimization {
      * {@inheritDoc}
      */
     @Override
-    public void clean(Optimizer optimizer, Script script) {
+    public void clean(Optimizer optimizer, BinaryScript script) {
         // NOOP
     }
 }

@@ -12,7 +12,7 @@ import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
-import me.waliedyassen.runescript.compiler.codegen.script.Script;
+import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
@@ -57,7 +57,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
      * {@inheritDoc}
      */
     @Override
-    public BytecodeScript write(Script script) {
+    public BytecodeScript write(BinaryScript script) {
         // Build the address table of the blocks.
         final var addressTable = buildAddressTable(script.getBlocks());
         // Build the index table of the local variables.

@@ -26,7 +26,7 @@ import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.local.LocalMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
-import me.waliedyassen.runescript.compiler.codegen.script.Script;
+import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchMap;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
@@ -116,7 +116,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Script visit(AstScript script) {
+    public BinaryScript visit(AstScript script) {
         // perform code generation on the script.
         pushContext(ContextType.SCRIPT);
         for (var parameter : script.getParameters()) {
@@ -145,7 +145,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         initialise();
         // return the generated script object.
         var info = symbolTable.lookupScript(environment.lookupTrigger(script.getTrigger().getText()), AstExpression.extractNameText(script.getName()));
-        return new Script(name, blocks, parameters, variables, tables, info);
+        return new BinaryScript(name, blocks, parameters, variables, tables, info);
     }
 
     /**

@@ -25,7 +25,7 @@ import java.util.*;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class Script {
+public final class BinaryScript {
 
     /**
      * The full name of the script.

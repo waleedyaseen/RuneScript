@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020 Walied K. Yassen, All rights reserved.
- *  
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -8,14 +8,13 @@
 package me.waliedyassen.runescript.compiler.codegen;
 
 import lombok.var;
-import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
-import me.waliedyassen.runescript.compiler.codegen.script.Script;
+import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
@@ -138,20 +137,22 @@ class CodeGeneratorTest {
         assertEquals(operand, instruction.getOperand());
     }
 
-    Script[] fromResource(String name) {
+    BinaryScript[] fromResource(String name) {
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, new ScriptSymbolTable(), lexer);
-            var scripts = new ArrayList<Pair<Object, AstScript>>();
+            var scripts = new ArrayList<CompiledScriptUnit>();
             do {
-                scripts.add(Pair.of(null, parser.script()));
+                var unit = new CompiledScriptUnit();
+                unit.setScript(parser.script());
+                scripts.add(unit);
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
-            var parsed = new Script[scripts.size()];
+            var parsed = new BinaryScript[scripts.size()];
             for (var index = 0; index < parsed.length; index++) {
-                parsed[index] = generator.visit(scripts.get(index).getValue());
+                parsed[index] = generator.visit(scripts.get(index).getScript());
             }
             return parsed;
         } catch (IOException e) {
@@ -160,21 +161,23 @@ class CodeGeneratorTest {
         }
     }
 
-    Script[] fromString(String text) {
+    BinaryScript[] fromString(String text) {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, new ScriptSymbolTable(), lexer);
-            var scripts = new ArrayList<Pair<Object, AstScript>>();
+            var scripts = new ArrayList<CompiledScriptUnit>();
             do {
-                scripts.add(Pair.of(null, parser.script()));
+                var unit = new CompiledScriptUnit();
+                unit.setScript(parser.script());
+                scripts.add(unit);
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
             checker.getErrors().forEach(System.out::println);
-            var parsed = new Script[scripts.size()];
+            var parsed = new BinaryScript[scripts.size()];
             for (var index = 0; index < parsed.length; index++) {
-                parsed[index] = generator.visit(scripts.get(index).getValue());
+                parsed[index] = generator.visit(scripts.get(index).getScript());
             }
             return parsed;
         } catch (IOException e) {

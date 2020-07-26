@@ -9,10 +9,8 @@ package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
 import lombok.var;
-import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
@@ -27,7 +25,6 @@ import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.message.impl.SyntaxDoneMessage;
 import me.waliedyassen.runescript.compiler.parser.ScriptParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
@@ -38,15 +35,16 @@ import me.waliedyassen.runescript.type.StackType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Represents the main class for the RuneScript language compiler module.
  *
  * @author Walied K. Yassen
  */
-public final class ScriptCompiler extends CompilerBase<CompileInput, CompileResult> {
+public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
 
     /**
      * The symbol table of the compiler.
@@ -155,55 +153,36 @@ public final class ScriptCompiler extends CompilerBase<CompileInput, CompileResu
      * {@inheritDoc}
      */
     @Override
-    public CompileResult compile(CompileInput input) throws IOException {
-        var compilingScripts = new ArrayList<Pair<Object, AstScript>>();
-        var errors = new ArrayList<Pair<Object, CompilerError>>();
-        for (var source : input.getSourceData()) {
-            try {
-                var scripts = parseSyntaxTree(symbolTable, source.getValue());
-                for (var script : scripts) {
-                    compilingScripts.add(Pair.of(source.getKey(), script));
-                }
-            } catch (CompilerError e) {
-                errors.add(Pair.of(source.getKey(), e));
-            }
-        }
-        if (compilingScripts.isEmpty()) {
-            return CompileResult.of(Collections.emptyList(), errors);
-        }
-        for (var script : compilingScripts) {
-            input.getVisitors().forEach(script.getValue()::accept);
-            input.postMessage(new SyntaxDoneMessage(script.getKey(), script.getValue()));
-        }
+    public Output<CompiledScriptUnit> compile(Input input) throws IOException {
         var symbolTable = this.symbolTable.createSubTable();
-        // Perform semantic analysis checking on the parsed AST.
+        var output = new Output<CompiledScriptUnit>();
+        for (var sourceFile : input.getSourceFiles()) {
+            try {
+                var scripts = parseSyntaxTree(symbolTable, sourceFile.getContent());
+                for (var script : scripts) {
+                    var compiledUnit = new CompiledScriptUnit();
+                    compiledUnit.setScript(script);
+                    output.addUnit(sourceFile, compiledUnit);
+                }
+            } catch (CompilerError error) {
+                output.addError(sourceFile, error);
+            }
+        }
+        var listOfUnits = output.getCompiledFiles().stream()
+                .flatMap(file -> file.getUnits().stream())
+                .collect(toList());
         var checker = new SemanticChecker(environment, symbolTable, allowOverride);
-        checker.executePre(compilingScripts);
-        checker.execute(compilingScripts);
-        // Check if there is any compilation errors and throw them if there is any.
-        if (checker.getErrors().size() > 0) {
-            for (var pair : checker.getErrors()) {
-                var key = pair.getKey();
-                var value = pair.getValue();
-                errors.add(Pair.of(key, value));
-                compilingScripts.removeIf(pairInList -> pairInList.getValue() == value.getScript());
-            }
-        }
-        // Compile all of the parsed and checked scripts into a bytecode format.
-        var compiledScripts = new ArrayList<Pair<Object, CompiledScript>>();
-        if (input.isRunCodeGen()) {
+        checker.executePre(listOfUnits);
+        checker.execute(listOfUnits);
+        if (input.isRunCodeGeneration()) {
             var codeGenerator = new CodeGenerator(environment, symbolTable, instructionMap, environment.getHookTriggerType());
-            for (var pair : compilingScripts) {
-                var script = pair.getValue();
-                var trigger = environment.lookupTrigger(script.getTrigger().getText());
-                var info = symbolTable.lookupScript(trigger, AstExpression.extractNameText(script.getName()));
-                var generated = codeGenerator.visit(script);
-                optimizer.run(generated);
-                var output = codeWriter.write(generated);
-                compiledScripts.add(Pair.of(pair.getKey(), new CompiledScript(generated.getName(), output, info)));
+            for (var unit : listOfUnits) {
+                var binaryScript = codeGenerator.visit(unit.getScript());
+                optimizer.run(binaryScript);
+                unit.setBinaryScript(binaryScript);
             }
         }
-        return CompileResult.of(compiledScripts, errors);
+        return output;
     }
 
     /**

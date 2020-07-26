@@ -12,7 +12,7 @@ import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.BlockOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
-import me.waliedyassen.runescript.compiler.codegen.script.Script;
+import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ public final class DeadBlockOptimization extends BlockOptimization {
      * {@inheritDoc}
      */
     @Override
-    public int run(Optimizer optimizer, Script script) {
+    public int run(Optimizer optimizer, BinaryScript script) {
         for (var switchTable : script.getSwitchTables()) {
             for (var switchCase : switchTable.getCases()) {
                 jumps.put(switchCase.getLabel(), jumps.getOrDefault(switchCase.getLabel(), 0) + 1);
@@ -61,7 +61,7 @@ public final class DeadBlockOptimization extends BlockOptimization {
      * {@inheritDoc}
      */
     @Override
-    public int run(Optimizer optimizer, Script script, Block block) {
+    public int run(Optimizer optimizer, BinaryScript script, Block block) {
         for (var instruction : block.getInstructions()) {
             var operand = instruction.getOperand();
             if (operand instanceof Label) {
@@ -76,7 +76,7 @@ public final class DeadBlockOptimization extends BlockOptimization {
      * {@inheritDoc}
      */
     @Override
-    public void clean(Optimizer optimizer, Script script) {
+    public void clean(Optimizer optimizer, BinaryScript script) {
         removing.clear();
         jumps.clear();
     }

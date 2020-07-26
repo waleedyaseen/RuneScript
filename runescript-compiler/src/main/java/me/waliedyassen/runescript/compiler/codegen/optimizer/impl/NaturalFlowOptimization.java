@@ -13,7 +13,7 @@ import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.BlockOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
-import me.waliedyassen.runescript.compiler.codegen.script.Script;
+import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 
 /**
  * Represents the natural flow redudant jumps removal optimizations.
@@ -26,7 +26,7 @@ public final class NaturalFlowOptimization extends BlockOptimization {
      * {@inheritDoc}
      */
     @Override
-    public int run(Optimizer optimizer, Script script, Block block) {
+    public int run(Optimizer optimizer, BinaryScript script, Block block) {
         var instruction = block.last();
         if (instruction != null && optimizer.is(instruction, CoreOpcode.BRANCH)) {
             var label = (Label) instruction.getOperand();
@@ -42,7 +42,7 @@ public final class NaturalFlowOptimization extends BlockOptimization {
      * {@inheritDoc}
      */
     @Override
-    public void clean(Optimizer optimizer, Script script) {
+    public void clean(Optimizer optimizer, BinaryScript script) {
         // NOOP
     }
 }

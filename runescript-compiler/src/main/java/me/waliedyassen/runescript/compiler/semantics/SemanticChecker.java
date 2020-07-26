@@ -10,9 +10,7 @@ package me.waliedyassen.runescript.compiler.semantics;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.commons.Pair;
-import me.waliedyassen.runescript.compiler.ast.AstNodeBase;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecking;
@@ -33,7 +31,7 @@ public final class SemanticChecker implements ErrorReporter {
      * The generated errors during this semantic checker life time.
      */
     @Getter
-    private final List<Pair<Object, SemanticError>> errors = new ArrayList<>();
+    private final List<SemanticError> errors = new ArrayList<>();
 
     /**
      * The environment of the owner compiler.
@@ -54,36 +52,28 @@ public final class SemanticChecker implements ErrorReporter {
     private final boolean allowOverriding;
 
     /**
-     * The current key that we are going to register the errors under.
-     */
-    // TODO(Walied): A temporary workaround, a proper solution would be finding a way to specify the key when reporting.
-    private Object currentKey;
-
-    /**
-     * Executes the pre semantic checking for the specified {@link AstScript scripts}.
+     * Executes the pre semantic checking for the specified {@link CompiledScriptUnit scripts}.
      *
      * @param scripts
      *         the scripts to perform the pre semantic checking on.
      */
-    public void executePre(Iterable<Pair<Object, AstScript>> scripts) {
+    public void executePre(Iterable<CompiledScriptUnit> scripts) {
         var pre = new PreTypeChecking(this, symbolTable);
-        for (var pair : scripts) {
-            currentKey = pair.getKey();
-            pair.getValue().accept(pre);
+        for (var script : scripts) {
+            script.getScript().accept(pre);
         }
     }
 
     /**
-     * Executes the semantic checking for the specified {@link AstNodeBase node}.
+     * Executes the semantic checking for the specified {@link CompiledScriptUnit script}s.
      *
      * @param scripts
      *         the scripts to perform the semantic checking on.
      */
-    public void execute(Iterable<Pair<Object, AstScript>> scripts) {
+    public void execute(Iterable<CompiledScriptUnit> scripts) {
         var checker = new TypeChecking(this, symbolTable, environment.getHookTriggerType());
-        for (var pair : scripts) {
-            currentKey = pair.getKey();
-            pair.getValue().accept(checker);
+        for (var script : scripts) {
+            script.getScript().accept(checker);
         }
     }
 
@@ -92,6 +82,6 @@ public final class SemanticChecker implements ErrorReporter {
      */
     @Override
     public void reportError(SemanticError error) {
-        errors.add(Pair.of(currentKey, error));
+        errors.add(error);
     }
 }

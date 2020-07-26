@@ -41,7 +41,7 @@ import static java.util.stream.Collectors.toList;
  *
  * @author Walied K. Yassen
  */
-public final class ConfigCompiler extends CompilerBase<Input, Output<CompiledConfigUnit>> {
+public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
 
     /**
      * A map of all the bindings that can be used by this compiler mapped by their extension.

@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.optimizer;
 
-import me.waliedyassen.runescript.compiler.codegen.script.Script;
+import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 
 /**
  * Represents a script optimization that is applied after the code generation and before the code writing.
@@ -17,7 +17,7 @@ import me.waliedyassen.runescript.compiler.codegen.script.Script;
 public abstract class Optimization {
 
     /**
-     * Runs the optimization on the specified {@link Script script}.
+     * Runs the optimization on the specified {@link BinaryScript script}.
      *
      * @param optimizer
      *         the optimizer which is running this optimization.
@@ -26,7 +26,7 @@ public abstract class Optimization {
      *
      * @return the amount of units that has been optimized.
      */
-    public abstract int run(Optimizer optimizer, Script script);
+    public abstract int run(Optimizer optimizer, BinaryScript script);
 
     /**
      * Cleans-up the state from the current run.
@@ -36,5 +36,5 @@ public abstract class Optimization {
      * @param script
      *         the script we ran the optimization on.
      */
-    public abstract void clean(Optimizer optimizer, Script script);
+    public abstract void clean(Optimizer optimizer, BinaryScript script);
 }

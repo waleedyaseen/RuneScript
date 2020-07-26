@@ -37,6 +37,12 @@ public final class CompiledFile<U> {
     private final List<U> units = new ArrayList<>();
 
     /**
+     * The extension of the source file.
+     */
+    @Getter
+    private final String extension;
+
+    /**
      * The CRC-32 hash value of the source code data.
      */
     @Getter

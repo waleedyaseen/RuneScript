@@ -9,10 +9,9 @@ package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.Data;
 import lombok.var;
-import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
@@ -152,9 +151,11 @@ class TypeCheckingTest {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
-            var scripts = new ArrayList<Pair<Object, AstScript>>();
+            var scripts = new ArrayList<CompiledScriptUnit>();
             do {
-                scripts.add(Pair.of(null, parser.script()));
+                var unit = new CompiledScriptUnit();
+                unit.setScript(parser.script());
+                scripts.add(unit);
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
@@ -168,9 +169,11 @@ class TypeCheckingTest {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
             var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
-            var scripts = new ArrayList<Pair<Object, AstScript>>();
+            var scripts = new ArrayList<CompiledScriptUnit>();
             do {
-                scripts.add(Pair.of(null, parser.script()));
+                var unit = new CompiledScriptUnit();
+                unit.setScript(parser.script());
+                scripts.add(unit);
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);

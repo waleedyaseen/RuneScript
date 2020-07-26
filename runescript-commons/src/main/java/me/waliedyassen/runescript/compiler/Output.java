@@ -80,7 +80,7 @@ public final class Output<U> {
         var fullName = sourceFile.getFullNameWithLocation();
         var file = files.get(fullName);
         if (file == null) {
-            files.put(fullName, file = new CompiledFile<>(ChecksumUtil.calculateCrc32(sourceFile.getContent())));
+            files.put(fullName, file = new CompiledFile<>(sourceFile.getExtension(), ChecksumUtil.calculateCrc32(sourceFile.getContent())));
         }
         return file;
     }

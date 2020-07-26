@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.codegen.optimizer;
 
 import lombok.var;
-import me.waliedyassen.runescript.compiler.codegen.script.Script;
+import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 
 /**
@@ -22,7 +22,7 @@ public abstract class BlockOptimization extends Optimization {
      * {@inheritDoc}
      */
     @Override
-    public int run(Optimizer optimizer, Script script) {
+    public int run(Optimizer optimizer, BinaryScript script) {
         var units = 0;
         // TODO: We might run into concurrent modification issues if we try to modify
         // the script whilst we are still running a block optimisation.
@@ -44,5 +44,5 @@ public abstract class BlockOptimization extends Optimization {
      *
      * @return the amount of blocks that has been optimised.
      */
-    public abstract int run(Optimizer optimizer, Script script, Block block);
+    public abstract int run(Optimizer optimizer, BinaryScript script, Block block);
 }
