@@ -114,6 +114,7 @@ public final class CacheUnit {
         stream.writeUTF(path);
         stream.writeUTF(name);
         stream.writeInt(crc);
+        stream.writeInt(packCrc);
         stream.writeShort(errors.size());
         for (var error : errors) {
             stream.writeInt(error.getRange().getStart().getLine());
@@ -159,6 +160,7 @@ public final class CacheUnit {
         path = stream.readUTF();
         name = stream.readUTF();
         crc = stream.readInt();
+        packCrc = stream.readInt();
         var errorsCount = stream.readUnsignedShort();
         for (var index = 0; index < errorsCount; index++) {
             var start = new LineColumn(stream.readInt(), stream.readInt());

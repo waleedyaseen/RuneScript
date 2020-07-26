@@ -16,7 +16,7 @@ import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
-import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
+import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.type.StackType;
@@ -40,7 +40,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
     /**
      * The ID provider which is used to translate names into ids.
      */
-    private final IdProvider idProvider;
+    private final IDManager idProvider;
 
     /**
      * Whether or not the code writer supports long primitive type.

@@ -20,7 +20,7 @@ import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.NaturalFlowOpt
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
-import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
+import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
@@ -294,9 +294,9 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         private boolean overrideSymbols;
 
         /**
-         * The {@link IdProvider} of the compiler.
+         * The {@link IDManager} of the compiler.
          */
-        private IdProvider idProvider;
+        private IDManager idProvider;
 
         /**
          * Sets the environment object we are going to use for the compiler.
@@ -360,7 +360,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
          *
          * @return this {@link CompilerBuilder} object instance.
          */
-        public CompilerBuilder withIdProvider(IdProvider idProvider) {
+        public CompilerBuilder withIdProvider(IDManager idProvider) {
             this.idProvider = idProvider;
             return this;
         }

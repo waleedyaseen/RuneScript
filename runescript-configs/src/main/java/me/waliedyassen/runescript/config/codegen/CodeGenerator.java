@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.config.codegen;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
+import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.ast.AstConfig;
 import me.waliedyassen.runescript.config.ast.AstIdentifier;
@@ -41,7 +41,7 @@ public final class CodeGenerator implements AstVisitor<Object> {
     /**
      * The ID provider of the generator.
      */
-    private final IdProvider idProvider;
+    private final IDManager idProvider;
 
     /**
      * The symbol table of the compiler.

@@ -17,7 +17,7 @@ import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
-import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
+import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
@@ -28,7 +28,7 @@ import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
-import me.waliedyassen.runescript.editor.project.cache.CacheNew;
+import me.waliedyassen.runescript.editor.project.cache.Cache;
 import me.waliedyassen.runescript.editor.project.cache.CacheUnit;
 import me.waliedyassen.runescript.editor.ui.editor.project.ProjectEditor;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
@@ -130,7 +130,7 @@ public final class Project {
      * The cache of the project.
      */
     @Getter
-    private CacheNew cache;
+    private Cache cache;
 
     /**
      * The index table for the script files.
@@ -460,7 +460,7 @@ public final class Project {
                         var value = (CommentedConfig) entry.getValue();
                         var id = value.getInt("id");
                         var name = value.contains("name") ? value.<String>get("name") : entry.getKey();
-                        var contentType = value.contains("contentType") ? PrimitiveType.valueOf(value.<String>get("contentType")) : null;
+                        var contentType = value.contains("contentType") ? PrimitiveType.valueOf(value.get("contentType")) : null;
                         if (type == PrimitiveType.GRAPHIC) {
                             symbolTable.defineGraphic(name, id);
                         } else {
@@ -704,7 +704,7 @@ public final class Project {
     private void loadCache() {
         var rootPath = resolveRsPath();
         var cacheFile = rootPath.resolve("cache.bin");
-        cache = new CacheNew(this);
+        cache = new Cache(this);
         if (Files.exists(cacheFile)) {
             try (var stream = new DataInputStream(Files.newInputStream(cacheFile))) {
                 cache.deserialize(stream);
@@ -895,20 +895,17 @@ public final class Project {
     }
 
     /**
-     * Represents {@link IdProvider} implementation for projects.
+     * Represents {@link IDManager} implementation for projects.
      *
      * @author Walied K. Yassen
      */
     @RequiredArgsConstructor
-    private static final class ProjectIdProvider implements IdProvider {
+    private static final class ProjectIdProvider implements IDManager {
 
         /**
          * The project this provider is for.
          */
         private final Project project;
-
-        private final Map<String, Integer> temporary = new HashMap<>();
-        int counter = 10000;
 
         /**
          * {@inheritDoc}
@@ -943,7 +940,7 @@ public final class Project {
                     }
                 }
             }
-            return temporary.computeIfAbsent(name, ($name) -> counter++);
+            throw new IllegalArgumentException("Failed to find an id for config with name: " + name + " and type: " + type.getRepresentation());
         }
     }
 }

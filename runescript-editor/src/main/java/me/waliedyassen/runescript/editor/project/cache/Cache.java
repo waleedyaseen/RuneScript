@@ -7,17 +7,20 @@
  */
 package me.waliedyassen.runescript.editor.project.cache;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.commons.Pair;
+import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
+import me.waliedyassen.runescript.config.compiler.CompiledConfigUnit;
 import me.waliedyassen.runescript.editor.file.FileTypeManager;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
@@ -33,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -41,7 +45,12 @@ import java.util.stream.Collectors;
  * @author Walied K. Yassen
  */
 @Slf4j
-public final class CacheNew {
+public final class Cache {
+
+    /**
+     * The default compile options.
+     */
+    private static final CompileOptions DEFAULT_OPTIONS = new CompileOptions();
 
     /**
      * A map of all the cache units that are stored in this
@@ -60,12 +69,12 @@ public final class CacheNew {
     private boolean dirtyCache;
 
     /**
-     * Constructs a new {@link CacheNew} type object instance.
+     * Constructs a new {@link Cache} type object instance.
      *
      * @param project
      *         the project which owns this cache.
      */
-    public CacheNew(Project project) {
+    public Cache(Project project) {
         this.project = project;
         WorkExecutor.getSingleThreadScheduler().scheduleWithFixedDelay(this::performSaving, 0, 1, TimeUnit.MINUTES);
     }
@@ -181,9 +190,19 @@ public final class CacheNew {
      */
     @SneakyThrows
     private void recompile(List<Pair<Path, byte[]>> files) {
-        // TODO: Soft compilation mode that does not recompile all of the dependencies.
-        var configInput = new Input();
-        var scriptInput = new Input();
+        recompile(files, DEFAULT_OPTIONS);
+    }
+
+    /**
+     * Re-compiles the specified list of files.
+     *
+     * @param files
+     *         the list of files that we want to recompile.
+     */
+    @SneakyThrows
+    private void recompile(List<Pair<Path, byte[]>> files, CompileOptions options) {
+        var configInput = options.createInput();
+        var scriptInput = options.createInput();
         for (var pair : files) {
             var path = pair.getKey();
             var content = pair.getValue();
@@ -212,6 +231,9 @@ public final class CacheNew {
                 for (var compiledUnit : compiledFile.getUnits()) {
                     var info = new ConfigInfo(compiledUnit.getConfig().getName().getText(), compiledUnit.getBinding().getGroup().getType(), compiledUnit.getConfig().getContentType());
                     unit.getConfigs().add(info);
+                    if (options.getOnUnitCompilation() != null) {
+                        options.getOnUnitCompilation().accept(compiledUnit);
+                    }
                 }
                 unit.defineSymbols(project.getSymbolTable());
                 for (var error : compiledFile.getErrors()) {
@@ -238,6 +260,9 @@ public final class CacheNew {
                             Arrays.stream(scriptNode.getParameters()).map(AstParameter::getType).toArray(Type[]::new),
                             null);
                     unit.getScripts().add(info);
+                    if (options.getOnUnitCompilation() != null) {
+                        options.getOnUnitCompilation().accept(compiledUnit);
+                    }
                 }
                 unit.defineSymbols(project.getSymbolTable());
                 for (var error : compiledFile.getErrors()) {
@@ -261,6 +286,8 @@ public final class CacheNew {
         if (units.values().stream().anyMatch(unit -> unit.getErrors().size() > 0)) {
             return false;
         }
+        // TODO: We need to make sure all of the tabs are currently saved so we don't cause any issues
+        // TODO: in the symbol table.
         for (var unit : units.values()) {
             if (unit.getCrc() == unit.getPackCrc()) {
                 continue;
@@ -270,8 +297,31 @@ public final class CacheNew {
         return true;
     }
 
+    @SneakyThrows
     private void pack(CacheUnit unit) {
+        var options = new CompileOptions();
+        options.setRunCodeGeneration(true);
+        options.setOnUnitCompilation(createRepackProcedure(unit));
         unit.setPackCrc(unit.getCrc());
+        var path = project.getBuildPath().getSourceDirectory().resolve(unit.getNameWithPath());
+        recompile(Collections.singletonList(Pair.of(path, Files.readAllBytes(path))), options);
+        if (!unit.getErrors().isEmpty()) {
+            throw new IllegalStateException("Attempted to pack but errors were discovered after recompilation");
+        }
+    }
+
+    private Consumer<Object> createRepackProcedure(CacheUnit unit) {
+        return object -> {
+            if (object instanceof CompiledConfigUnit) {
+                var compiledConfig = (CompiledConfigUnit) object;
+                System.out.println("Repacking config: " +  compiledConfig.getBinaryConfig().getName());
+            } else if (object instanceof CompiledScriptUnit) {
+                var compiledScript = (CompiledScriptUnit) object;
+                System.out.println("Repacking script: " + compiledScript.getBinaryScript().getName());
+            } else {
+                throw new IllegalArgumentException();
+            }
+        };
     }
 
     /**
@@ -297,5 +347,36 @@ public final class CacheNew {
             return;
         }
         dirtyCache = true;
+    }
+
+    /**
+     * Holds common options for the compilation process.
+     *
+     * @author Walied K. Yasen
+     */
+    @Data
+    public static class CompileOptions {
+
+        /**
+         * Whether or not to run the code generation.
+         */
+        private boolean runCodeGeneration;
+
+        /**
+         * A callback which gets called when we finish compiling a unit.
+         */
+        private Consumer<Object> onUnitCompilation;
+
+        /**
+         * Creates a base {@link Input} object with all the possible options that are present
+         * in this {@link CompileOptions} instance.
+         *
+         * @return the created {@link Input} object.
+         */
+        public Input createInput() {
+            var input = new Input();
+            input.setRunCodeGeneration(runCodeGeneration);
+            return input;
+        }
     }
 }

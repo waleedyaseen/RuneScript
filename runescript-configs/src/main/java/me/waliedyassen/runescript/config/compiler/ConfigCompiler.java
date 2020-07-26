@@ -14,7 +14,7 @@ import me.waliedyassen.runescript.compiler.CompilerBase;
 import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.Output;
-import me.waliedyassen.runescript.compiler.idmapping.IdProvider;
+import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
@@ -68,7 +68,7 @@ public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
      * @param symbolTable
      *         the symbol table for the compiler.
      */
-    public ConfigCompiler(IdProvider idProvider, SymbolTable symbolTable) {
+    public ConfigCompiler(IDManager idProvider, SymbolTable symbolTable) {
         super(idProvider);
         this.symbolTable = symbolTable;
     }

@@ -14,7 +14,7 @@ import me.waliedyassen.runescript.type.Type;
  *
  * @author Walied K. Yassen
  */
-public interface IdProvider {
+public interface IDManager {
 
     /**
      * Attempts to find the id for the script with the specified {@code name}.
@@ -28,6 +28,7 @@ public interface IdProvider {
      *         if we failed to find an id for the specified {@code name}.
      */
     int findScript(String name) throws IllegalArgumentException;
+
 
     /**
      * Attempts to find the id for the config with the specified {@code name} and {@link Type type}.
