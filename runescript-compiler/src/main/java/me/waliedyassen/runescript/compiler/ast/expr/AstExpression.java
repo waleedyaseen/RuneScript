@@ -59,6 +59,7 @@ public abstract class AstExpression extends AstNode {
      * @return the name of the script.
      */
     public static String extractNameText(AstExpression name) {
+        // TODO: Allow `:` in identifiers
         if (name instanceof AstComponent) {
             return ((AstComponent) name).getParentInterface().getText() + ":" + ((AstComponent) name).getComponentName();
         }

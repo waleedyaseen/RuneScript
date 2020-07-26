@@ -103,15 +103,19 @@ public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
                 output.addError(sourceFile, error);
             }
         }
-        var checker = new SemanticChecker(symbolTable);
         var mapped = output.getCompiledFiles().stream().collect(groupingBy(Function.identity(), CollectorsEx.flatMapping(file -> file.getUnits().stream().map(CompiledConfigUnit::getConfig), toList())));
+        var checker = new SemanticChecker(symbolTable);
         for (var entry : mapped.entrySet()) {
             var binding = bindings.get(entry.getKey().getExtension());
             checker.executePre(entry.getValue(), binding);
+            entry.getKey().getErrors().addAll(checker.getErrors());
+            checker.getErrors().clear();
         }
         for (var entry : mapped.entrySet()) {
             var binding = bindings.get(entry.getKey().getExtension());
             checker.execute(entry.getValue(), binding);
+            entry.getKey().getErrors().addAll(checker.getErrors());
+            checker.getErrors().clear();
         }
         if (input.isRunCodeGeneration()) {
             for (var entry : mapped.keySet()) {

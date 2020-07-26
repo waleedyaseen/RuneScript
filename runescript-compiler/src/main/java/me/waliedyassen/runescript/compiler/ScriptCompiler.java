@@ -36,6 +36,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -168,18 +170,25 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
                 output.addError(sourceFile, error);
             }
         }
-        var listOfUnits = output.getCompiledFiles().stream()
-                .flatMap(file -> file.getUnits().stream())
-                .collect(toList());
         var checker = new SemanticChecker(environment, symbolTable, allowOverride);
-        checker.executePre(listOfUnits);
-        checker.execute(listOfUnits);
+        for (var compiledFile : output.getFiles().values()) {
+            checker.executePre(compiledFile.getUnits());
+            compiledFile.getErrors().addAll(checker.getErrors());
+            checker.getErrors().clear();
+        }
+        for (var compiledFile : output.getFiles().values()) {
+            checker.execute(compiledFile.getUnits());
+            compiledFile.getErrors().addAll(checker.getErrors());
+            checker.getErrors().clear();
+        }
         if (input.isRunCodeGeneration()) {
             var codeGenerator = new CodeGenerator(environment, symbolTable, instructionMap, environment.getHookTriggerType());
-            for (var unit : listOfUnits) {
-                var binaryScript = codeGenerator.visit(unit.getScript());
-                optimizer.run(binaryScript);
-                unit.setBinaryScript(binaryScript);
+            for (var compiledFile : output.getFiles().values()) {
+                for (var unit : compiledFile.getUnits()) {
+                    var binaryScript = codeGenerator.visit(unit.getScript());
+                    optimizer.run(binaryScript);
+                    unit.setBinaryScript(binaryScript);
+                }
             }
         }
         return output;
@@ -362,7 +371,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
 
         /**
          * Sets whether or not the compiler that we are going to build should override the symbols in the symbol
-         * tabl.
+         * table.
          *
          * @param overrideSymbols
          *         whether or not we should override symbols.

@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
+import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecking;
@@ -25,13 +26,13 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class SemanticChecker implements ErrorReporter {
+public final class SemanticChecker {
 
     /**
      * The generated errors during this semantic checker life time.
      */
     @Getter
-    private final List<SemanticError> errors = new ArrayList<>();
+    private final List<CompilerError> errors = new ArrayList<>();
 
     /**
      * The environment of the owner compiler.
@@ -78,10 +79,12 @@ public final class SemanticChecker implements ErrorReporter {
     }
 
     /**
-     * {@inheritDoc}
+     * Adds the specified {@link CompilerError error} to the list of errors.
+     *
+     * @param error
+     *         the error to add to the list of errors.
      */
-    @Override
-    public void reportError(SemanticError error) {
+    public void reportError(CompilerError error) {
         errors.add(error);
     }
 }

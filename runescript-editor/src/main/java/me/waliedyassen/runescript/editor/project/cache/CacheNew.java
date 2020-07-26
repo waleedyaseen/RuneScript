@@ -14,11 +14,15 @@ import lombok.var;
 import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
+import me.waliedyassen.runescript.compiler.ast.AstParameter;
+import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.editor.file.FileTypeManager;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
+import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.util.ChecksumUtil;
 
 import java.io.DataInputStream;
@@ -179,6 +183,7 @@ public final class CacheNew {
     private void recompile(List<Pair<Path, byte[]>> files) {
         // TODO: Soft compilation mode that does not recompile all of the dependencies.
         var configInput = new Input();
+        var scriptInput = new Input();
         for (var pair : files) {
             var path = pair.getKey();
             var content = pair.getValue();
@@ -190,10 +195,8 @@ public final class CacheNew {
                 unit.undefineSymbols(project.getSymbolTable());
                 unit.clear();
             }
-            if (unit.isClientScript()) {
-
-            } else if (unit.isServerScript()) {
-
+            if (unit.isClientScript() || unit.isServerScript()) {
+                scriptInput.addSourceFile(SourceFile.of(path, content));
             } else {
                 configInput.addSourceFile(SourceFile.of(path, content));
             }
@@ -207,8 +210,34 @@ public final class CacheNew {
                 var unit = units.get(normalizedPath);
                 unit.setCrc(compiledFile.getCrc());
                 for (var compiledUnit : compiledFile.getUnits()) {
-                    var info = new ConfigInfo(compiledUnit.getConfig().getName().getText(), compiledUnit.getGroup().getType(), compiledUnit.getConfig().getContentType());
+                    var info = new ConfigInfo(compiledUnit.getConfig().getName().getText(), compiledUnit.getBinding().getGroup().getType(), compiledUnit.getConfig().getContentType());
                     unit.getConfigs().add(info);
+                }
+                unit.defineSymbols(project.getSymbolTable());
+                for (var error : compiledFile.getErrors()) {
+                    unit.getErrors().add(new CachedError(error.getRange(), error.getMessage()));
+                }
+                project.updateErrors(unit);
+            }
+            dirty = true;
+        }
+        if (!scriptInput.getSourceFiles().isEmpty()) {
+            var output = project.getScriptsCompiler().compile(scriptInput);
+            for (var entry : output.getFiles().entrySet()) {
+                var normalizedPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), Paths.get(entry.getKey()));
+                var compiledFile = entry.getValue();
+                var unit = units.get(normalizedPath);
+                unit.setCrc(compiledFile.getCrc());
+                for (var compiledUnit : compiledFile.getUnits()) {
+                    var scriptNode = compiledUnit.getScript();
+                    var scriptName = AstExpression.extractNameText(compiledUnit.getScript().getName());
+                    var triggerName = compiledUnit.getScript().getTrigger().getText();
+                    var info = new ScriptInfo(Collections.emptyMap(), scriptName,
+                            project.getCompilerEnvironment().lookupTrigger(triggerName),
+                            scriptNode.getType(),
+                            Arrays.stream(scriptNode.getParameters()).map(AstParameter::getType).toArray(Type[]::new),
+                            null);
+                    unit.getScripts().add(info);
                 }
                 unit.defineSymbols(project.getSymbolTable());
                 for (var error : compiledFile.getErrors()) {
