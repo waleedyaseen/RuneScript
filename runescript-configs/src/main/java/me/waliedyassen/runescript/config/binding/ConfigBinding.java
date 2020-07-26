@@ -246,13 +246,13 @@ public final class ConfigBinding {
         }
         switch (component) {
             case BYTE:
-                rules.add(new ConfigRangeRule(0, 255));
+                rules.add(new ConfigRangeRule(0, 0xff));
                 break;
             case SHORT:
-                rules.add(new ConfigRangeRule(0, 65535));
+                rules.add(new ConfigRangeRule(0, 0xffff));
                 break;
             case TRIBYTE:
-                rules.add(new ConfigRangeRule(0, 16777215));
+                rules.add(new ConfigRangeRule(0, 0xffffff));
                 break;
         }
     }

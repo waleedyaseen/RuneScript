@@ -172,9 +172,15 @@ public final class ConfigParser extends ParserBase<Kind> {
         pushRange();
         var token = consume(INTEGER);
         try {
-            return new AstValueInteger(popRange(), Integer.parseInt(token.getLexeme()));
+            var radix = 10;
+            var text = token.getLexeme();
+            if (text.startsWith("0x")) {
+                text = text.substring(2);
+                radix = 16;
+            }
+            return new AstValueInteger(popRange(), Integer.parseInt(text, radix));
         } catch (NumberFormatException e) {
-            throw createError(token, "The literal " + token.getLexeme() + " of type int is out of range");
+            throw createError(token, "The value " + token.getLexeme() + " of type int is out of range");
         }
     }
 

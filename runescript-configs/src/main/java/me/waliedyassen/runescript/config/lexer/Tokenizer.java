@@ -94,6 +94,12 @@ public final class Tokenizer extends TokenizerBase {
                         mode = Mode.IDENTIFIER;
                     } else if (current == '\"') {
                         mode = Mode.STRING_LITERAL;
+                    } else if (current == '0' && next == 'x') {
+                        builder.append(current);
+                        builder.append(next);
+                        stream.take();
+                        stream.mark();
+                        mode = Mode.HEX_LITERAL;
                     } else if (Character.isDigit(current) || (current == '-' || current == '+') && Character.isDigit(next)) {
                         builder.append(current);
                         stream.mark();
@@ -158,6 +164,20 @@ public final class Tokenizer extends TokenizerBase {
                         return createToken(STRING, builder.toString());
                     } else {
                         builder.append(current);
+                    }
+                    break;
+                case HEX_LITERAL:
+                    if (Character.isDigit(current) || (current >= 'a' && current <= 'f') || (current >= 'A' && current <= 'F')) {
+                        builder.append(current);
+                        stream.mark();
+                    } else {
+                        var kind = INTEGER;
+                        if (current == 'L' || current == 'l') {
+                            kind = LONG;
+                        } else if (current != NULL) {
+                            stream.reset();
+                        }
+                        return createToken(kind, builder.toString());
                     }
                     break;
                 case NUMBER_LITERAL:
@@ -258,6 +278,7 @@ public final class Tokenizer extends TokenizerBase {
      * Creates a {@link Range} object starting at the marked start position and ending at the current position.
      *
      * @return the created {@link Range} object.
+     *
      * @see #mark()
      */
     public Range range() {
@@ -332,6 +353,11 @@ public final class Tokenizer extends TokenizerBase {
          * Indicates that the parser is currently parsing a number literal.
          */
         NUMBER_LITERAL,
+
+        /**
+         * Indicates that the parser is currently parsing a hexadecimal literal.
+         */
+        HEX_LITERAL,
 
         /**
          * Indicates that the parser is currently parsing a line comment.
