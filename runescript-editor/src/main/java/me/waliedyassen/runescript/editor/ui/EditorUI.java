@@ -13,8 +13,12 @@ import bibliothek.gui.dock.common.DefaultSingleCDockable;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.RuneScriptEditor;
+import me.waliedyassen.runescript.editor.project.Project;
+import me.waliedyassen.runescript.editor.project.ProjectManager;
+import me.waliedyassen.runescript.editor.property.impl.ReferenceProperty;
 import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.errors.ErrorsView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
@@ -181,12 +185,30 @@ public final class EditorUI implements WindowListener {
         var editMenu = new JMenu("Edit");
         editMenu.add(new JMenuItem("Test"));
         bar.add(editMenu);
+        bar.add(buildCompileMenu());
         var windowMenu = new JMenu("Window");
         windowMenu.add(new JMenuItem("Test"));
         bar.add(windowMenu);
         var helpMenu = new JMenu("Help");
         helpMenu.add(new JMenuItem("Test"));
         bar.add(helpMenu);
+    }
+
+    private JMenu buildCompileMenu() {
+        var menu = new JMenu("Compile");
+        menu.setMnemonic('C');
+        {
+            var menuItem = new JMenuItem("Repack");
+            menuItem.addActionListener(evt -> {
+                var property = Api.getApi().getProjectManager().getCurrentProject();
+                if (property.isEmpty()) {
+                    return;
+                }
+                property.get().getCache().pack();
+            });
+            menu.add(menuItem);
+        }
+        return menu;
     }
 
     /**
