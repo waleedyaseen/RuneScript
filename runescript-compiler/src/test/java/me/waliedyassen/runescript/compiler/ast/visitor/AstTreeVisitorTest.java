@@ -441,7 +441,7 @@ class AstTreeVisitorTest {
         try (var stream = new StringBufferInputStream(text)) {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            return new ScriptParser(environment, new ScriptSymbolTable(), lexer);
+            return new ScriptParser(environment, new ScriptSymbolTable(), lexer, "cs2");
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -452,7 +452,7 @@ class AstTreeVisitorTest {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
             Tokenizer tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            return new ScriptParser(environment, new ScriptSymbolTable(), lexer);
+            return new ScriptParser(environment, new ScriptSymbolTable(), lexer, "cs2");
         } catch (IOException e) {
             e.printStackTrace();
             return null;

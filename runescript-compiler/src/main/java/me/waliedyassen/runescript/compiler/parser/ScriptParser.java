@@ -60,6 +60,11 @@ public final class ScriptParser extends ParserBase<Kind> {
     private final CompilerEnvironment environment;
 
     /**
+     * The scripts type that we are parsing.
+     */
+    private final String type;
+
+    /**
      * Constructs a new {@link ScriptParser} type object instance.
      *
      * @param environment
@@ -68,11 +73,14 @@ public final class ScriptParser extends ParserBase<Kind> {
      *         the symbol table to use for checking hooks.
      * @param lexer
      *         the lexical parser to use for tokens.
+     * @param type
+     *         the scripts type that we are parsing.
      */
-    public ScriptParser(@NonNull CompilerEnvironment environment, @NonNull ScriptSymbolTable symbolTable, @NonNull Lexer lexer) {
+    public ScriptParser(@NonNull CompilerEnvironment environment, @NonNull ScriptSymbolTable symbolTable, @NonNull Lexer lexer, @NonNull String type) {
         super(lexer, Kind.EOF);
         this.environment = environment;
         this.symbolTable = symbolTable;
+        this.type = type;
     }
 
     /**
@@ -122,7 +130,7 @@ public final class ScriptParser extends ParserBase<Kind> {
         // we will allow empty scripts for now.
         var code = unbracedBlockStatement();
         // return the parsed script.
-        return new AstScript(popRange(), annotations, trigger, name, parameters.toArray(new AstParameter[0]), type, code);
+        return new AstScript(popRange(), this.type, annotations, trigger, name, parameters.toArray(new AstParameter[0]), type, code);
     }
 
     /**

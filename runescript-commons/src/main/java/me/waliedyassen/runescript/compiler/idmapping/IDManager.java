@@ -17,17 +17,44 @@ import me.waliedyassen.runescript.type.Type;
 public interface IDManager {
 
     /**
+     * Attempts to find the script ID with the specified {@code name} and contained by the file with the specified {@code extension}.
+     * If no script is found, we will create a new ID and assign it to that script.
+     *
+     * @param name
+     *         the name of the script.
+     * @param extension
+     *         the extension of the file  which contains the script.
+     *
+     * @return the id of the script.
+     */
+    int findOrCreateScript(String name, String extension);
+
+    /**
+     * Attempts to find the config ID with the specified {@code name} and the specified {@link Type type}.
+     * If no config is found, we will create a new ID and assign it to that config.
+     *
+     * @param type
+     *         the type of the config.
+     * @param name
+     *         the name of the config.
+     *
+     * @return the id of the config.
+     */
+    int findOrCreateConfig(Type type, String name);
+
+    /**
      * Attempts to find the id for the script with the specified {@code name}.
      *
      * @param name
      *         the name of the script that we want to find the id for.
+     * @param extension
      *
      * @return the id of the script that we found.
      *
      * @throws IllegalArgumentException
      *         if we failed to find an id for the specified {@code name}.
      */
-    int findScript(String name) throws IllegalArgumentException;
+    int findScript(String name, String extension) throws IllegalArgumentException;
 
 
     /**

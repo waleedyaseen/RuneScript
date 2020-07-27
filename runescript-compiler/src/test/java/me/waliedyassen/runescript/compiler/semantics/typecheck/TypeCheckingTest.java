@@ -150,7 +150,7 @@ class TypeCheckingTest {
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
+            var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer, "cs2");
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();
@@ -168,7 +168,7 @@ class TypeCheckingTest {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer);
+            var parser = new ScriptParser(environment, checker.getSymbolTable(), lexer, "cs2");
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();

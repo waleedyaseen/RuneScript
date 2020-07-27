@@ -18,6 +18,7 @@ import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
+import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.config.compiler.CompiledConfigUnit;
@@ -282,46 +283,56 @@ public final class Cache {
      *
      * @return <code>true</code> if the pack was successful otherwise <code>false</code>.
      */
-    public boolean pack() {
+    @SneakyThrows
+    public boolean pack(boolean forceAll) {
         if (units.values().stream().anyMatch(unit -> unit.getErrors().size() > 0)) {
             return false;
         }
-        // TODO: We need to make sure all of the tabs are currently saved so we don't cause any issues
-        // TODO: in the symbol table.
-        for (var unit : units.values()) {
-            if (unit.getCrc() == unit.getPackCrc()) {
-                continue;
-            }
-            pack(unit);
-        }
-        return true;
-    }
-
-    @SneakyThrows
-    private void pack(CacheUnit unit) {
+        // TODO: We need to make sure all of the tabs are currently saved so we don't cause any issues in the symbol table.
+        // TODO: Clean this function up.
+        var configUnits = new ArrayList<CompiledConfigUnit>();
+        var scriptUnits = new ArrayList<CompiledScriptUnit>();
         var options = new CompileOptions();
         options.setRunCodeGeneration(true);
-        options.setOnUnitCompilation(createRepackProcedure(unit));
-        unit.setPackCrc(unit.getCrc());
-        var path = project.getBuildPath().getSourceDirectory().resolve(unit.getNameWithPath());
-        recompile(Collections.singletonList(Pair.of(path, Files.readAllBytes(path))), options);
-        if (!unit.getErrors().isEmpty()) {
-            throw new IllegalStateException("Attempted to pack but errors were discovered after recompilation");
-        }
-    }
-
-    private Consumer<Object> createRepackProcedure(CacheUnit unit) {
-        return object -> {
+        options.setOnUnitCompilation(object -> {
             if (object instanceof CompiledConfigUnit) {
-                var compiledConfig = (CompiledConfigUnit) object;
-                System.out.println("Repacking config: " +  compiledConfig.getBinaryConfig().getName());
+                configUnits.add((CompiledConfigUnit) object);
             } else if (object instanceof CompiledScriptUnit) {
-                var compiledScript = (CompiledScriptUnit) object;
-                System.out.println("Repacking script: " + compiledScript.getBinaryScript().getName());
+                scriptUnits.add((CompiledScriptUnit) object);
             } else {
                 throw new IllegalArgumentException();
             }
-        };
+        });
+        var units = this.units.values().stream().filter(unit -> forceAll || unit.getCrc() != unit.getPackCrc()).collect(Collectors.toList());
+        var files = new ArrayList<Pair<Path, byte[]>>();
+        for (var unit : units) {
+            var path = project.getBuildPath().getSourceDirectory().resolve(unit.getNameWithPath());
+            files.add(Pair.of(path, Files.readAllBytes(path)));
+        }
+        recompile(files, options);
+        for (var configUnit : configUnits) {
+            var binaryConfig = configUnit.getBinaryConfig();
+            project.getIdManager().findOrCreateConfig(binaryConfig.getGroup().getType(), binaryConfig.getName());
+        }
+        for (var scriptUnit : scriptUnits) {
+            var binaryScript = scriptUnit.getBinaryScript();
+            project.getIdManager().findOrCreateScript(binaryScript.getName(), binaryScript.getExtension());
+        }
+        for (var configUnit : configUnits) {
+            var type = configUnit.getBinding().getGroup().getType();
+            var name = configUnit.getBinaryConfig().getName();
+            var id = project.getIdManager().findConfig(type, name);
+            project.getPackManager().pack(type.getRepresentation(), id, name, configUnit.getBinaryConfig().serialize());
+        }
+        var writer = new BytecodeCodeWriter(project.getIdManager(), project.isSupportsLongPrimitiveType());
+        for (var scriptUnit : scriptUnits) {
+            var binaryScript = scriptUnit.getBinaryScript();
+            var name = scriptUnit.getBinaryScript().getName();
+            var id = project.getIdManager().findScript(name, binaryScript.getExtension());
+            var serialised = writer.write(binaryScript).encode();
+            project.getPackManager().pack(binaryScript.getExtension(), id, name, serialised);
+        }
+        return true;
     }
 
     /**

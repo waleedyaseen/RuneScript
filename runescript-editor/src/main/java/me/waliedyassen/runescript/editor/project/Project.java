@@ -65,6 +65,12 @@ public final class Project {
     static final String FILE_NAME = ".rsproj";
 
     /**
+     * The ID manager of the project.
+     */
+    @Getter
+    private final ProjectIDManager idManager = new ProjectIDManager(this);
+
+    /**
      * The base directory {@link Path} of the project.
      */
     @Getter
@@ -310,9 +316,9 @@ public final class Project {
                 .withSymbolTable(symbolTable)
                 .withOverrideSymbols(overrideSymbols)
                 .withSupportsLongPrimitiveType(supportsLongPrimitiveType)
-                .withIdProvider(new ProjectIdProvider(this))
+                .withIdProvider(idManager)
                 .build();
-        configsCompiler = new ConfigCompiler(new ProjectIdProvider(this), symbolTable);
+        configsCompiler = new ConfigCompiler(new ProjectIDManager(this), symbolTable);
         loadCommands();
         loadConfigs();
         loadScripts();
@@ -900,7 +906,7 @@ public final class Project {
      * @author Walied K. Yassen
      */
     @RequiredArgsConstructor
-    private static final class ProjectIdProvider implements IDManager {
+    public static final class ProjectIDManager implements IDManager {
 
         /**
          * The project this provider is for.
@@ -911,8 +917,37 @@ public final class Project {
          * {@inheritDoc}
          */
         @Override
-        public int findScript(String name) throws IllegalArgumentException {
-            var id = project.index.get("serverscript").find(name);
+        public int findOrCreateScript(String name, String extension) {
+            var index = project.index.getOrCreate(extension.endsWith("cs2") ? "clientscript" : "serverscript");
+            return index.findOrCreate(name);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int findOrCreateConfig(Type type, String name) {
+            if (!(type instanceof PrimitiveType)) {
+                throw new IllegalArgumentException();
+            }
+            var config = project.symbolTable.lookupConfig(name);
+            if (config != null && config.getPredefinedId() != null) {
+                if (config.getType() != type) {
+                    throw new IllegalStateException();
+                }
+                return config.getPredefinedId();
+            }
+            var index = project.index.getOrCreate("config-" + type.getRepresentation());
+            return index.findOrCreate(name);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public int findScript(String name, String extension) throws IllegalArgumentException {
+            var index = project.index.get(extension.endsWith("cs2") ? "clientscript" : "serverscript");
+            var id = index.find(name);
             if (id == null) {
                 throw new IllegalArgumentException("Failed to find an id for script with name: " + name);
             }
@@ -924,8 +959,9 @@ public final class Project {
          */
         @Override
         public int findConfig(Type type, String name) throws IllegalArgumentException {
-            if (type instanceof PrimitiveType && ((PrimitiveType) type).isConfigType()) {
+            if (type instanceof PrimitiveType) {
                 var config = project.symbolTable.lookupConfig(name);
+                System.out.println(config);
                 if (config != null && config.getPredefinedId() != null) {
                     if (config.getType() != type) {
                         throw new IllegalStateException();

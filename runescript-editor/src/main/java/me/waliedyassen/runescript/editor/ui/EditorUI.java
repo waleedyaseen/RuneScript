@@ -195,13 +195,22 @@ public final class EditorUI implements WindowListener {
         var menu = new JMenu("Compile");
         menu.setMnemonic('C');
         {
-            var menuItem = new JMenuItem("Repack");
+            var menuItem = new JMenuItem("Pack");
             menuItem.addActionListener(evt -> {
                 var property = Api.getApi().getProjectManager().getCurrentProject();
                 if (property.isEmpty()) {
                     return;
                 }
-                property.get().getCache().pack();
+                property.get().getCache().pack(false);
+            });
+            menu.add(menuItem);
+            menuItem = new JMenuItem("Repack");
+            menuItem.addActionListener(evt -> {
+                var property = Api.getApi().getProjectManager().getCurrentProject();
+                if (property.isEmpty()) {
+                    return;
+                }
+                property.get().getCache().pack(true);
             });
             menu.add(menuItem);
         }

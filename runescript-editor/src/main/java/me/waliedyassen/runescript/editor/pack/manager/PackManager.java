@@ -39,47 +39,29 @@ public final class PackManager {
     /**
      * Attempts to pack the specified {@code data} for the file with the specified {@link Path path}.
      *
-     * @param relativePath the path which the data was produced from.
-     * @param id           the id of the entity we are packing.
-     * @param name         the name of the entity we are packing.
-     * @param data         the encoded data of the file to pack.
+     * @param extension
+     *         the extension which the unit is contained in.
+     * @param id
+     *         the id of the entity we are packing.
+     * @param name
+     *         the name of the entity we are packing.
+     * @param data
+     *         the encoded data of the file to pack.
      */
-    public void pack(Path relativePath, int id, String name, byte[] data) {
-        var formattedPath = (String) null;
-        var fullName = (String) null;
-        for (var index = 0; index < relativePath.getNameCount(); index++) {
-            var part = relativePath.getName(index).toString();
-            if (index == relativePath.getNameCount() - 1) {
-                fullName = part;
-            }
-            if (formattedPath == null) {
-                formattedPath = part;
-            } else {
-                formattedPath += '/' + part;
-            }
-        }
-        if (formattedPath == null) {
-            formattedPath = "";
-        }
-        if (fullName == null) {
-            throw new IllegalArgumentException("The specified file path does not lead to file");
-        }
-        var dot = fullName.lastIndexOf('.');
-        if (dot == -1) {
-            throw new IllegalArgumentException("The specified file path does not have an extension");
-        }
-        var extension = fullName.substring(dot + 1);
+    public void pack(String extension, int id, String name, byte[] data) {
         var pack = getPack(extension);
         if (pack == null) {
             throw new IllegalArgumentException("Could not find a suitable packer for the specified file path extension");
         }
-        pack.pack(new PackFile(formattedPath, id, name, extension, data));
+        pack.pack(new PackFile(id, name, data));
     }
 
     /**
      * Returns the {@link Pack} for the specified {@code extension}.
      *
-     * @param extension the extension to grab the pack object for.
+     * @param extension
+     *         the extension to grab the pack object for.
+     *
      * @return the {@link Pack} object if found or {@code null} if failed to create after not finding.
      */
     private Pack getPack(String extension) {

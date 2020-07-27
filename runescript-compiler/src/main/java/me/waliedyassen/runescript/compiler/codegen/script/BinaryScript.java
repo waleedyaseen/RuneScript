@@ -29,6 +29,12 @@ import java.util.Map;
 public final class BinaryScript {
 
     /**
+     * The extension of the file containing the script.
+     */
+    @Getter
+    private final String extension;
+
+    /**
      * The full name of the script.
      */
     @Getter
@@ -65,6 +71,7 @@ public final class BinaryScript {
     private final ScriptInfo scriptInfo;
 
     // TODO: toString so we can get rid of stuff like AstExpression.extractNameText
+
     /**
      * Checks whether or not the specified labels are next to each other.
      *

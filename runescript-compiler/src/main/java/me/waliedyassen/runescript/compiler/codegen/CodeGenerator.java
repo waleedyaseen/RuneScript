@@ -145,7 +145,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         initialise();
         // return the generated script object.
         var info = symbolTable.lookupScript(environment.lookupTrigger(script.getTrigger().getText()), AstExpression.extractNameText(script.getName()));
-        return new BinaryScript(name, blocks, parameters, variables, tables, info);
+        return new BinaryScript(script.getExtension(), name, blocks, parameters, variables, tables, info);
     }
 
     /**

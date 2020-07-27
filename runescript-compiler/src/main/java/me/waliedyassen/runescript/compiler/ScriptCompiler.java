@@ -132,14 +132,16 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
      *         the symbol table to use for parsing.
      * @param data
      *         the source file data in bytes.
+     * @param extension
+     *         the extension of the file containing the script.
      *
      * @return a {@link List list} of the parsed {@link AstScript} objects.
      */
-    private List<AstScript> parseSyntaxTree(ScriptSymbolTable symbolTable, byte[] data) throws IOException {
+    private List<AstScript> parseSyntaxTree(ScriptSymbolTable symbolTable, byte[] data, String extension) throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream(data));
         var tokenizer = new Tokenizer(lexicalTable, stream);
         var lexer = new Lexer(tokenizer);
-        var parser = new ScriptParser(environment, symbolTable, lexer);
+        var parser = new ScriptParser(environment, symbolTable, lexer, extension);
         var scripts = new ArrayList<AstScript>();
         while (lexer.remaining() > 0) {
             scripts.add(parser.script());
@@ -156,7 +158,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         var output = new Output<CompiledScriptUnit>();
         for (var sourceFile : input.getSourceFiles()) {
             try {
-                var scripts = parseSyntaxTree(symbolTable, sourceFile.getContent());
+                var scripts = parseSyntaxTree(symbolTable, sourceFile.getContent(), sourceFile.getExtension());
                 for (var script : scripts) {
                     var compiledUnit = new CompiledScriptUnit();
                     compiledUnit.setScript(script);

@@ -40,7 +40,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
     /**
      * The ID provider which is used to translate names into ids.
      */
-    private final IDManager idProvider;
+    private final IDManager idManager;
 
     /**
      * Whether or not the code writer supports long primitive type.
@@ -85,10 +85,10 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
                     switchTables.add(jumps);
                 } else if (operand instanceof ScriptInfo) {
                     var info = (ScriptInfo) operand;
-                    operand = info.getPredefinedId() != null ? info.getPredefinedId() : idProvider.findScript(info.getFullName());
+                    operand = info.getPredefinedId() != null ? info.getPredefinedId() : idManager.findScript(info.getFullName(), script.getExtension());
                 } else if (operand instanceof ConfigInfo) {
                     var info = (ConfigInfo) operand;
-                    operand = idProvider.findConfig(info.getType(), info.getName());
+                    operand = idManager.findConfig(info.getType(), info.getName());
                 } else if (operand instanceof Local) {
                     operand = localTable.get(operand);
                 } else if (operand instanceof Integer) {

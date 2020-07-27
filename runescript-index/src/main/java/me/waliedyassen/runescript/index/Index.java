@@ -18,7 +18,9 @@ import java.util.Map;
 /**
  * Represents an index table container.
  *
- * @param <K> the key type of the index.
+ * @param <K>
+ *         the key type of the index.
+ *
  * @author Walied K. Yassen
  */
 public final class Index<K> {
@@ -32,9 +34,13 @@ public final class Index<K> {
     /**
      * Attempts to create a new {@link IndexTable} with the specified {@link K key}.
      *
-     * @param key the key of the index table to create.
+     * @param key
+     *         the key of the index table to create.
+     *
      * @return the created {@link IndexTable} object.
-     * @throws IllegalArgumentException if the specified key is already taken by another index table.
+     *
+     * @throws IllegalArgumentException
+     *         if the specified key is already taken by another index table.
      */
     public IndexTable create(@NonNull K key) {
         if (tables.containsKey(key)) {
@@ -48,10 +54,29 @@ public final class Index<K> {
     /**
      * Attempts to get the {@link IndexTable} with the specified {@link K key}.
      *
-     * @param key the key of the index table to get.
+     * @param key
+     *         the key of the index table to get.
+     *
      * @return the {@link IndexTable} object if it was present otherwise {@code null}.
      */
     public IndexTable get(@NonNull K key) {
         return tables.get(key);
+    }
+
+    /**
+     * Returns the  {@link IndexTable} with the specified {@link K key}. If there was no {@link IndexTable} found
+     * a new one would be created and cached.
+     *
+     * @param key
+     *         the key of the index table.
+     *
+     * @return the {@link IndexTable} object.
+     */
+    public IndexTable getOrCreate(@NonNull K key) {
+        var table = get(key);
+        if (table == null) {
+            table = create(key);
+        }
+        return table;
     }
 }

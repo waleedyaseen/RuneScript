@@ -28,6 +28,12 @@ import java.util.List;
 public final class AstScript extends AstNodeBase {
 
     /**
+     * The extension of the file containing the script.
+     */
+    @Getter
+    private final String extension;
+
+    /**
      * The annotations of the script.
      */
     @Getter
@@ -66,16 +72,26 @@ public final class AstScript extends AstNodeBase {
     /**
      * Construct a new {@link AstScript} type object instance.
      *
-     * @param annotations the annotations of the script.
-     * @param range       the script source range.
-     * @param trigger     the script trigger type.
-     * @param name        the script name.
-     * @param parameters  the script parameters.
-     * @param type        the script type.
-     * @param code        the script code statement.
+     * @param range
+     *         the script source range.
+     * @param extension
+     *         the extension of the file containg the script.
+     * @param annotations
+     *         the annotations of the script.
+     * @param trigger
+     *         the script trigger type.
+     * @param name
+     *         the script name.
+     * @param parameters
+     *         the script parameters.
+     * @param type
+     *         the script type.
+     * @param code
+     *         the script code statement.
      */
-    public AstScript(Range range, List<AstAnnotation> annotations, AstIdentifier trigger, AstExpression name, AstParameter[] parameters, Type type, AstBlockStatement code) {
+    public AstScript(Range range, String extension, List<AstAnnotation> annotations, AstIdentifier trigger, AstExpression name, AstParameter[] parameters, Type type, AstBlockStatement code) {
         super(range);
+        this.extension = extension;
         this.annotations = addChild(annotations);
         this.trigger = addChild(trigger);
         this.name = addChild(name);
@@ -94,7 +110,9 @@ public final class AstScript extends AstNodeBase {
     /**
      * Attempts to find the {@link AstAnnotation} with the specified {@code name}.
      *
-     * @param name the name of the annotation we trying to find.
+     * @param name
+     *         the name of the annotation we trying to find.
+     *
      * @return the  {@link AstAnnotation} object if found othrwise {@code null}.
      */
     public AstAnnotation findAnnotation(String name) {

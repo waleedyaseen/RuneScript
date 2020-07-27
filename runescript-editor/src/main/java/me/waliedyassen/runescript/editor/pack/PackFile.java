@@ -18,11 +18,6 @@ import lombok.Data;
 public final class PackFile {
 
     /**
-     * The path which leads to the file.
-     */
-    private final String path;
-
-    /**
      * The id that was assigned to the file.
      */
     private final int id;
@@ -31,11 +26,6 @@ public final class PackFile {
      * The name of the file.
      */
     private final String name;
-
-    /**
-     * The extension of the file.
-     */
-    private final String extension;
 
     /**
      * The binary data of file.
