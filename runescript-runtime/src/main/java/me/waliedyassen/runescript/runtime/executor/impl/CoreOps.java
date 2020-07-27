@@ -205,7 +205,7 @@ public interface CoreOps {
         runtime.setAddress(-1);
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumIntArguments();
-            runtime.getIntLocals()[argument ? script.getNumStringArguments() - index - 1 : index] = argument ? runtime.popInt() : 0;
+            runtime.getIntLocals()[argument ? script.getNumIntArguments() - index - 1 : index] = argument ? runtime.popInt() : 0;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumStringArguments();
@@ -230,7 +230,7 @@ public interface CoreOps {
         runtime.setAddress(-1);
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumIntArguments();
-            runtime.getIntLocals()[argument ? script.getNumStringArguments() - index - 1 : index] = argument ? runtime.popInt() : 0;
+            runtime.getIntLocals()[argument ? script.getNumIntArguments() - index - 1 : index] = argument ? runtime.popInt() : 0;
         }
         for (var index = 0; index < ScriptRuntime.MAX_LOCALS; index++) {
             var argument = index < script.getNumStringArguments();
