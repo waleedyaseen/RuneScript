@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor.project;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -20,6 +21,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,12 +33,18 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RequiredArgsConstructor
-public final class ProjectEditor extends Editor<Project> {
+public final class ProjectEditor extends Editor<Path> {
 
     /**
      * The view component of the editor.
      */
     private final ProjectEditorUI viewComponent = new ProjectEditorUI();
+
+    /**
+     * Th key of the editor.
+     */
+    @Getter
+    private final Path key;
 
     /**
      * The project which we are editing.
@@ -174,14 +182,6 @@ public final class ProjectEditor extends Editor<Project> {
                 .stream()
                 .filter(entry -> entry.getValue().getText().trim().length() > 0)
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getText().trim()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Project getKey() {
-        return project;
     }
 
     /**

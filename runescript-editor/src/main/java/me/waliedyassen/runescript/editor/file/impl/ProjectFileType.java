@@ -29,9 +29,8 @@ public final class ProjectFileType implements FileType {
      */
     @Override
     public Editor<?> createEditor(Path path) {
-        // TODO: Maybe use the path to confirm we are opening the modifying project.
         var currentProject = Api.getApi().getProjectManager().getCurrentProject().get();
-        return new ProjectEditor(currentProject);
+        return new ProjectEditor(path, currentProject);
     }
 
     /**
