@@ -718,6 +718,7 @@ public final class Project {
                 log.error("An error occurred while loading the project cache", e);
             }
         }
+        cache.getUnits().values().forEach(unit -> unit.defineSymbols(symbolTable));
         try {
             cache.diff();
         } catch (IOException e) {
