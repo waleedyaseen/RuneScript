@@ -143,7 +143,7 @@ public final class ScriptSymbolTable extends SymbolTable {
      */
     public void defineScript(Map<String, Annotation> annotations, TriggerType trigger, String name, Type type, Type[] arguments, Integer predefinedId) {
         if (lookupScript(trigger, name) != null) {
-            throw new IllegalArgumentException("The script '" + name + "' is already defined.");
+            throw new IllegalArgumentException(String.format("The script '[%s,%s]' is already defined.", trigger.getRepresentation(), name));
         }
         scripts.put(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name), new ScriptInfo(annotations, name, trigger, type, arguments, predefinedId));
     }
