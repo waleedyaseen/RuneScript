@@ -33,8 +33,8 @@ import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
+import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
@@ -248,12 +248,13 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      */
     @Override
     public Instruction visit(AstVariableExpression variableExpression) {
-        var variable = variableExpression.getVariable();
-        if (variable.getDomain() == VariableDomain.LOCAL) {
-            var local = localMap.lookup(variable.getName());
-            return instruction(getPushVariableOpcode(variable.getDomain(), variable.getType()), local);
+        var name = variableExpression.getName().getText();
+        if (variableExpression.getScope() == VariableScope.LOCAL) {
+            var local = localMap.lookup(name);
+            return instruction(getPushVariableOpcode(variableExpression.getScope(), (PrimitiveType) local.getType()), local);
         } else {
-            return instruction(getPushVariableOpcode(variable.getDomain(), variable.getType()), variable);
+            var config = symbolTable.lookupConfig(name);
+            return instruction(getPushVariableOpcode(variableExpression.getScope(), (PrimitiveType) config.getType()), config);
         }
     }
 
@@ -437,9 +438,8 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
             var opcode = getConstantOpcode(variableDeclaration.getType());
             instruction(opcode, variableDeclaration.getType().getDefaultValue());
         }
-        var variable = variableDeclaration.getVariable();
-        var local = localMap.registerVariable(variable.getName(), variable.getType());
-        return instruction(getPopVariableOpcode(variable.getDomain(), variable.getType()), local);
+        var local = localMap.registerVariable(variableDeclaration.getName().getText(), variableDeclaration.getType());
+        return instruction(getPopVariableOpcode(VariableScope.LOCAL, (PrimitiveType) variableDeclaration.getType()), local);
     }
 
     /**
@@ -469,9 +469,17 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
                 instruction(POP_ARRAY_INT, arrayVariable.getArrayInfo().getIndex());
             } else {
                 var scopedVariable = (AstScopedVariable) variable;
-                var info = scopedVariable.getVariableInfo();
-                Object local = info.getDomain() == VariableDomain.LOCAL ? localMap.lookup(info.getName()) : variable;
-                instruction(getPopVariableOpcode(info.getDomain(), info.getType()), local);
+                Object operand;
+                PrimitiveType type;
+                if (scopedVariable.getScope() == VariableScope.LOCAL) {
+                    operand = localMap.lookup(scopedVariable.getName().getText());
+                    type = (PrimitiveType) scopedVariable.getType();
+                } else {
+                    var configInfo = symbolTable.lookupVariable(scopedVariable.getName().getText());
+                    operand = configInfo;
+                    type = (PrimitiveType) configInfo.getType();
+                }
+                instruction(getPopVariableOpcode(scopedVariable.getScope(), type), operand);
             }
         }
         return null;
@@ -601,8 +609,6 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      *         the if-true block label.
      * @param branch_false
      *         the if-false block label.
-     *
-     * @return the {@link CoreOpcode} of the generated condition code.
      */
     private void generateCondition(AstExpression condition, Block source_block, Label branch_true, Label branch_false) {
         if (condition instanceof AstBinaryOperation) {
@@ -937,19 +943,19 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         return contexts.pop();
     }
 
+
     /**
-     * Gets the push variable instruction {@link CoreOpcode opcode} of the specified {@link VariableDomain} and the
-     * specified {@link Type}.
+     * Returns the push core opcode for a variable with the specified {@link VariableScope scope} and {@link PrimitiveType type}.
      *
-     * @param domain
-     *         the variable domain.
+     * @param scope
+     *         the scope of the variable we want the opcode for.
      * @param type
-     *         the variable type.
+     *         the type of the variable we want the opcode for,
      *
-     * @return the instruction {@link CoreOpcode opcode} of that constant type.
+     * @return the push {@link CoreOpcode opcode} enum constant.
      */
-    private static CoreOpcode getPushVariableOpcode(VariableDomain domain, Type type) {
-        switch (domain) {
+    private static CoreOpcode getPushVariableOpcode(VariableScope scope, PrimitiveType type) {
+        switch (scope) {
             case LOCAL:
                 switch (type.getStackType()) {
                     case INT:
@@ -962,32 +968,36 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
                         throw new UnsupportedOperationException("Unsupported local variable stack type: " + type.getStackType());
 
                 }
-            case PLAYER:
-                return CoreOpcode.PUSH_VARP;
-            case PLAYER_BIT:
-                return CoreOpcode.PUSH_VARP_BIT;
-            case CLIENT_INT:
-                return CoreOpcode.PUSH_VARC_INT;
-            case CLIENT_STRING:
-                return CoreOpcode.PUSH_VARC_STRING;
+            case GLOBAL:
+                switch (type) {
+                    case VAR:
+                        return CoreOpcode.PUSH_VARP;
+                    case VARBIT:
+                        return CoreOpcode.PUSH_VARP_BIT;
+                    case VARCINT:
+                        return CoreOpcode.PUSH_VARC_INT;
+                    case VARCSTR:
+                        return CoreOpcode.PUSH_VARC_STRING;
+                    default:
+                        throw new UnsupportedOperationException("Unsupported variable domain type: " + type);
+                }
             default:
-                throw new UnsupportedOperationException("Unsupported variable domain: " + domain);
+                throw new UnsupportedOperationException();
         }
     }
 
     /**
-     * Gets the pop variable instruction {@link CoreOpcode opcode} of the specified {@link VariableDomain} and the
-     * specified {@link Type}.
+     * Returns the pop core opcode for a variable with the specified {@link VariableScope scope} and {@link PrimitiveType type}.
      *
-     * @param domain
-     *         the variable domain.
+     * @param scope
+     *         the scope of the variable we want the opcode for.
      * @param type
-     *         the variable type.
+     *         the type of the variable we want the opcode for,
      *
-     * @return the instruction {@link CoreOpcode opcode} of that constant type.
+     * @return the pop {@link CoreOpcode opcode} enum constant.
      */
-    private static CoreOpcode getPopVariableOpcode(VariableDomain domain, Type type) {
-        switch (domain) {
+    private static CoreOpcode getPopVariableOpcode(VariableScope scope, PrimitiveType type) {
+        switch (scope) {
             case LOCAL:
                 switch (type.getStackType()) {
                     case INT:
@@ -998,17 +1008,23 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
                         return CoreOpcode.POP_LONG_LOCAL;
                     default:
                         throw new UnsupportedOperationException("Unsupported local variable stack type: " + type.getStackType());
+
                 }
-            case PLAYER:
-                return CoreOpcode.POP_VARP;
-            case PLAYER_BIT:
-                return CoreOpcode.POP_VARP_BIT;
-            case CLIENT_INT:
-                return CoreOpcode.POP_VARC_INT;
-            case CLIENT_STRING:
-                return CoreOpcode.POP_VARC_STRING;
+            case GLOBAL:
+                switch (type) {
+                    case VAR:
+                        return CoreOpcode.POP_VARP;
+                    case VARBIT:
+                        return CoreOpcode.POP_VARP_BIT;
+                    case VARCINT:
+                        return CoreOpcode.POP_VARC_INT;
+                    case VARCSTR:
+                        return CoreOpcode.POP_VARC_STRING;
+                    default:
+                        throw new UnsupportedOperationException("Unsupported variable domain type: " + type);
+                }
             default:
-                throw new UnsupportedOperationException("Unsupported variable domain: " + domain);
+                throw new UnsupportedOperationException();
         }
     }
 

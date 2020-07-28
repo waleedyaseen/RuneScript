@@ -155,10 +155,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstVariableExpression variableExpression) {
-        if (variableExpression.getVariable() == null) {
-            return PrimitiveType.UNDEFINED;
-        }
-        return variableExpression.setType(variableExpression.getVariable().getType());
+        return variableExpression.getType();
     }
 
     /**
@@ -357,9 +354,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
             }
             return null;
         }
-        if (variableDeclaration.getVariable() != null) {
-            checkType(expression, variableDeclaration.getVariable().getType(), expression.accept(this));
-        }
+        checkType(expression, variableDeclaration.getType(), expression.accept(this));
         return PrimitiveType.VOID;
     }
 
@@ -401,7 +396,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      */
     @Override
     public Type visit(AstScopedVariable scopedVariable) {
-        return scopedVariable.setType(scopedVariable.getVariableInfo() == null ? PrimitiveType.UNDEFINED : scopedVariable.getVariableInfo().getType());
+        return scopedVariable.getType();
     }
 
     /**

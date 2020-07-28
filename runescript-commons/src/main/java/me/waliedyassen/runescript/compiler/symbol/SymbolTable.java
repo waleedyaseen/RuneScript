@@ -11,8 +11,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.symbol.impl.*;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 
@@ -20,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Represents a compile-time symbol table, it contains various information about different symbol taypes such as
+ * Represents a compile-time symbol table, it contains various information about different symbol types such as
  * constants, commands, scripts, and global variables.
  *
  * @author Walied K. Yassen
@@ -45,12 +43,6 @@ public class SymbolTable {
      */
     @Getter
     private final Map<String, ConfigInfo> configs = new HashMap<>();
-
-    /**
-     * The defined variables map.
-     */
-    @Getter
-    private final Map<String, VariableInfo> variables = new HashMap<>();
 
     /**
      * The defined components map.
@@ -170,37 +162,28 @@ public class SymbolTable {
         return info;
     }
 
-    /**
-     * Defines a new variable symbol information in this table.
-     *
-     * @param domain
-     *         the domain of the variable.
-     * @param name
-     *         the name of the variable.
-     * @param type
-     *         the type of the variable.
-     */
-    public void defineVariable(VariableDomain domain, String name, Type type) {
-        if (lookupVariable(name) != null) {
-            throw new IllegalArgumentException("The variable '" + name + "' is already defined.");
-        }
-        variables.put(name, new VariableInfo(domain, name, type));
-    }
 
     /**
-     * Looks-up for the {@link VariableInfo variable information} with the specified {@code name}.
+     * Looks-up for the {@link ConfigInfo variable information} with the specified {@code name}.
      *
      * @param name
-     *         the name of the variable to lookup for.
+     *         the name of the variable configuration type value.
      *
-     * @return the {@link VariableInfo} if it was present otherwise {@code null}.
+     * @return the {@link ConfigInfo} if it was present otherwise {@code null}.
      */
-    public VariableInfo lookupVariable(String name) {
-        var info = variables.get(name);
-        if (info == null && parent != null) {
-            info = parent.lookupVariable(name);
+    public ConfigInfo lookupVariable(String name) {
+        var config = lookupConfig(name);
+        if (config == null) {
+            return null;
         }
-        return info;
+        switch ((PrimitiveType) config.getType()) {
+            case VAR:
+            case VARBIT:
+            case VARCINT:
+            case VARCSTR:
+                return config;
+        }
+        return null;
     }
 
     /**

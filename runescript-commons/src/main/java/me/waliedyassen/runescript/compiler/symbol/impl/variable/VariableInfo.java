@@ -9,8 +9,7 @@ package me.waliedyassen.runescript.compiler.symbol.impl.variable;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.compiler.symbol.Symbol;
+import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.type.Type;
 
 /**
@@ -18,9 +17,8 @@ import me.waliedyassen.runescript.type.Type;
  *
  * @author Walied K. Yassen
  */
-@RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public final class VariableInfo extends Symbol {
+public final class VariableInfo extends ConfigInfo {
 
     /**
      * The domain of the variable.
@@ -29,22 +27,27 @@ public final class VariableInfo extends Symbol {
     private final VariableDomain domain;
 
     /**
-     * The name of the variable.
+     * Constructs a new {@link VariableInfo} type object instance.
+     *
+     * @param name
+     *         the name of the variable.
+     * @param type
+     *         the type of the variable.
+     * @param contentType
+     *         the content type of the variable.
+     * @param domain
+     *         the domain of the variable.
      */
-    @Getter
-    private final String name;
-
-    /**
-     * The type of the variable.
-     */
-    @Getter
-    private final Type type;
+    public VariableInfo(String name, Type type, Type contentType, VariableDomain domain) {
+        super(name, type, contentType);
+        this.domain = domain;
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
-        return (domain == VariableDomain.LOCAL ? "$" : "%") + name;
+        return (getDomain() == VariableDomain.LOCAL ? "$" : "%") + getName();
     }
 }

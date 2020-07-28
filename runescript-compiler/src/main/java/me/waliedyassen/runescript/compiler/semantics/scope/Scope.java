@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.compiler.semantics.scope;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
@@ -38,7 +38,7 @@ public final class Scope {
     /**
      * The declared variables within this scope.
      */
-    private final Map<String, VariableInfo> variables = new LinkedHashMap<>();
+    private final Map<String, Local> variables = new LinkedHashMap<>();
 
     /**
      * The declared arrays within this scope.
@@ -66,8 +66,8 @@ public final class Scope {
      *
      * @return the declared variable information.
      */
-    public VariableInfo declareLocalVariable(String name, Type type) {
-        var info = new VariableInfo(VariableDomain.LOCAL, name, type);
+    public Local declareLocalVariable(String name, Type type) {
+        var info = new Local(name, type);
         variables.put(name, info);
         return info;
     }
@@ -80,7 +80,7 @@ public final class Scope {
      *
      * @return the {@link VariableInfo} object if the variable could be accessed otherwise {@code null}.
      */
-    public VariableInfo getLocalVariable(String name) {
+    public Local getLocalVariable(String name) {
         var variable = variables.get(name);
         if (variable == null && parent != null) {
             variable = parent.getLocalVariable(name);

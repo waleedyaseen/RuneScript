@@ -8,10 +8,8 @@
 package me.waliedyassen.runescript.compiler.ast.expr;
 
 import lombok.Getter;
-import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 
 /**
@@ -32,12 +30,6 @@ public final class AstVariableExpression extends AstExpression {
      */
     @Getter
     private final AstIdentifier name;
-
-    /**
-     * The semantic information of that variable.
-     */
-    @Getter @Setter
-    private VariableInfo variable;
 
     /**
      * Constructs a new {@link AstVariableExpression} type object instance.

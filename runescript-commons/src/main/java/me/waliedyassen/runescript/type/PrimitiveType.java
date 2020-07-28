@@ -78,12 +78,20 @@ public enum PrimitiveType implements Type {
      * The var configuration type.
      */
     VAR('\uffd3', "var", null, null, null),
+    /**
+     * The var configuration type.
+     */
+    VARBIT('\uffd3', "varbit", null, null, null),
 
     /**
-     * The varbit configuration type.
+     * The var client string configuration type.
      */
-    VARBIT('\uffd4', "varbit", null, null, null),
-    // TODO: Rework variables to be part of the configuration system in the symbol table.
+    VARCSTR('\uffd3', "varcstr", null, null, null),
+
+    /**
+     * The var client integer configuration type.
+     */
+    VARCINT('\uffd3', "varcint", null, null, null),
 
     // All the types below are verified to be part of script var type.
 
@@ -348,6 +356,9 @@ public enum PrimitiveType implements Type {
             case INV:
             case MAPELEMENT:
             case VAR:
+            case VARBIT:
+            case VARCINT:
+            case VARCSTR:
             case STRUCT:
             case LOC:
             case PARAM:

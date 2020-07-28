@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.compiler.ast.AstNode;
 import me.waliedyassen.runescript.compiler.ast.AstParameter;
 import me.waliedyassen.runescript.compiler.ast.AstScript;
 import me.waliedyassen.runescript.compiler.ast.expr.*;
@@ -17,6 +18,7 @@ import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDeclaration;
 import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitializer;
 import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
+import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.semantics.scope.Scope;
@@ -157,12 +159,11 @@ public final class PreTypeChecking extends AstTreeVisitor {
     public Void visit(AstVariableDeclaration declaration) {
         var result = super.visit(declaration);
         var name = declaration.getName();
-        var variable = resolveVariable(VariableScope.LOCAL, name.getText());
+        var variable = resolveLocalVariable(name.getText());
         if (variable != null) {
             reportError(new SemanticError(name, String.format("Duplicate local variable %s", name.getText())));
         } else {
-            variable = scopes.lastElement().declareLocalVariable(name.getText(), declaration.getType());
-            declaration.setVariable(variable);
+            scopes.lastElement().declareLocalVariable(name.getText(), declaration.getType());
         }
         return result;
     }
@@ -186,12 +187,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
                 }
             } else {
                 var scopedVariable = (AstScopedVariable) variable;
-                var variableInfo = resolveVariable(scopedVariable.getScope(), name);
-                if (variableInfo == null) {
-                    reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to a variable", name)));
-                } else {
-                    scopedVariable.setVariableInfo(variableInfo);
-                }
+                scopedVariable.setType(checkVariableResolving(scopedVariable.getName(), scopedVariable.getScope(), name));
             }
         }
         return super.visit(variableInitializer);
@@ -203,13 +199,53 @@ public final class PreTypeChecking extends AstTreeVisitor {
     @Override
     public Void visit(AstVariableExpression variableExpression) {
         var name = variableExpression.getName();
-        var variable = resolveVariable(variableExpression.getScope(), name.getText());
-        if (variable == null) {
-            reportError(new SemanticError(name, String.format("%s cannot be resolved to a variable", name.getText())));
-        } else {
-            variableExpression.setVariable(variable);
-        }
+        variableExpression.setType(checkVariableResolving(name, variableExpression.getScope(), name.getText()));
         return super.visit(variableExpression);
+    }
+
+    /**
+     * Attempts to resolve the variable with the specified name.
+     *
+     * @param node
+     *         the node to throw the errors at when the resolve fails.
+     * @param scope
+     *         the scope of the variable we are trying to resolve.
+     * @param name
+     *         the name of the variable we are trying to resolve.
+     *
+     * @return the type of the variable that we resolved or {@link PrimitiveType#UNDEFINED}.
+     */
+    private Type checkVariableResolving(AstNode node, VariableScope scope, String name) {
+        switch (scope) {
+            case LOCAL: {
+                var local = resolveLocalVariable(name);
+                if (local == null) {
+                    reportError(new SemanticError(node, String.format("%s cannot be resolved to a local variable", name)));
+                    return PrimitiveType.UNDEFINED;
+                }
+                return local.getType();
+            }
+            case GLOBAL: {
+                var config = symbolTable.lookupVariable(name);
+                if (config == null) {
+                    reportError(new SemanticError(node, String.format("%s cannot be resolved to a global variable", name)));
+                    return PrimitiveType.UNDEFINED;
+                }
+                switch ((PrimitiveType) config.getType()) {
+                    case VARCSTR:
+                        return PrimitiveType.STRING;
+                    case VAR:
+                        if (config.getContentType() == null) {
+                            throw new IllegalStateException("Expected content type to be present");
+                        }
+                        return config.getContentType();
+                    default:
+                        return PrimitiveType.INT;
+                }
+            }
+            default:
+                throw new UnsupportedOperationException();
+        }
     }
 
     /**
@@ -289,20 +325,14 @@ public final class PreTypeChecking extends AstTreeVisitor {
     }
 
     /**
-     * Attempts to resolve the variable with the given {@link VariableScope scope} and {@code name}.
+     * Resolves the local variable with the specified {@code name}.
      *
-     * @param scope
-     *         the variable scope to resolve.
      * @param name
-     *         the variable name to resolve.
+     *         the name of the local variable that we want to resolve.
      *
-     * @return the resolved {@link VariableInfo} if it was present otherwise {@code null}.
+     * @return the {@link VariableInfo} of the name.
      */
-    private VariableInfo resolveVariable(VariableScope scope, String name) {
-        if (scope == VariableScope.LOCAL) {
-            return scopes.lastElement().getLocalVariable(name);
-        } else {
-            return symbolTable.lookupVariable(name);
-        }
+    private Local resolveLocalVariable(String name) {
+        return scopes.lastElement().getLocalVariable(name);
     }
 }

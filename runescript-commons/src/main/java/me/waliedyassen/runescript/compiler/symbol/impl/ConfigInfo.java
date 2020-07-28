@@ -21,7 +21,7 @@ import me.waliedyassen.runescript.type.Type;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public final class ConfigInfo extends Symbol {
+public class ConfigInfo extends Symbol {
 
     /**
      * The name of the configuration.
