@@ -154,6 +154,7 @@ public final class Cache {
                 deletedUnit.undefineSymbols(project.getSymbolTable());
                 units.remove(deletedUnit.getPath());
             }
+            dirtyCache = true;
         }
         if (!changes.isEmpty()) {
             log.info("Found {} changed files", changes.size());
