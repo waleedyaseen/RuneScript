@@ -20,6 +20,7 @@ import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
@@ -962,7 +963,6 @@ public final class Project {
         public int findConfig(Type type, String name) throws IllegalArgumentException {
             if (type instanceof PrimitiveType) {
                 var config = project.symbolTable.lookupConfig(name);
-                System.out.println(config);
                 if (config != null && config.getPredefinedId() != null) {
                     if (config.getType() != type) {
                         throw new IllegalStateException();

@@ -76,7 +76,6 @@ public final class ProjectConfig {
         if (array == null) {
             return ConfigProperty.NO_RULES;
         }
-        System.out.println(config);
         var rules = new List[array.size()];
         for (var index = 0; index < array.size(); index++) {
             var types = array.get(index);

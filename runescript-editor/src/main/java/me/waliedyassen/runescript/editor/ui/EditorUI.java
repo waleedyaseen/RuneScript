@@ -166,10 +166,11 @@ public final class EditorUI implements WindowListener {
             fileMenu.addSeparator();
 
             menuItem = new JMenuItem("Create");
-            //menuItem.addActionListener((evt) -> editor.getProjectManager().close());
+            menuItem.addActionListener((evt) -> {
+                // TBI
+            });
             fileMenu.add(menuItem);
             editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
-
             fileMenu.addSeparator();
 
             menuItem = new JMenuItem("Exit");
@@ -194,25 +195,34 @@ public final class EditorUI implements WindowListener {
     private JMenu buildCompileMenu() {
         var menu = new JMenu("Compile");
         menu.setMnemonic('C');
+        var activeProperty = Api.getApi().getProjectManager().getActiveProperty();
         {
-            var menuItem = new JMenuItem("Pack");
-            menuItem.addActionListener(evt -> {
-                var property = Api.getApi().getProjectManager().getCurrentProject();
-                if (property.isEmpty()) {
-                    return;
-                }
-                property.get().getCache().pack(false);
-            });
-            menu.add(menuItem);
-            menuItem = new JMenuItem("Repack");
-            menuItem.addActionListener(evt -> {
-                var property = Api.getApi().getProjectManager().getCurrentProject();
-                if (property.isEmpty()) {
-                    return;
-                }
-                property.get().getCache().pack(true);
-            });
-            menu.add(menuItem);
+            {
+                var menuItem = new JMenuItem("Pack");
+                menuItem.setAccelerator(KeyStroke.getKeyStroke("F10"));
+                menuItem.addActionListener(evt -> {
+                    var property = Api.getApi().getProjectManager().getCurrentProject();
+                    if (property.isEmpty()) {
+                        return;
+                    }
+                    property.get().getCache().pack(false);
+                });
+                activeProperty.bind(menuItem::setEnabled);
+                menu.add(menuItem);
+            }
+            {
+                var menuItem = new JMenuItem("Repack");
+                menuItem.setAccelerator(KeyStroke.getKeyStroke("shift F10"));
+                menuItem.addActionListener(evt -> {
+                    var property = Api.getApi().getProjectManager().getCurrentProject();
+                    if (property.isEmpty()) {
+                        return;
+                    }
+                    property.get().getCache().pack(true);
+                });
+                activeProperty.bind(menuItem::setEnabled);
+                menu.add(menuItem);
+            }
         }
         return menu;
     }

@@ -77,7 +77,7 @@ public final class Cache {
      */
     public Cache(Project project) {
         this.project = project;
-        WorkExecutor.getSingleThreadScheduler().scheduleWithFixedDelay(this::performSaving, 0, 1, TimeUnit.MINUTES);
+        WorkExecutor.getSingleThreadScheduler().scheduleWithFixedDelay(this::performSaving, 0, 10, TimeUnit.SECONDS);
     }
 
     /**
