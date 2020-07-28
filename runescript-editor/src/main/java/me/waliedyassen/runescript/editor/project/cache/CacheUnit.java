@@ -200,11 +200,16 @@ public final class CacheUnit {
      *         the symbol table to define all of the symbols in.
      */
     public void defineSymbols(ScriptSymbolTable symbolTable) {
+        // TODO: Remove hte lookup calls and prevent registering duplicate configs in recompile.
         for (var info : configs) {
-            symbolTable.defineConfig(info);
+            if (symbolTable.lookupConfig(info.getName()) == null) {
+                symbolTable.defineConfig(info);
+            }
         }
         for (var info : scripts) {
-            symbolTable.defineScript(info);
+            if (symbolTable.lookupScript(info.getTrigger(), info.getName()) == null) {
+                symbolTable.defineScript(info);
+            }
         }
     }
 
