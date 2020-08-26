@@ -12,15 +12,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
-import me.waliedyassen.runescript.compiler.ast.AstParameter;
-import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralBool;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralInteger;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralLong;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.AstLiteralString;
-import me.waliedyassen.runescript.compiler.ast.stmt.*;
-import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
+import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
+import me.waliedyassen.runescript.compiler.syntax.expr.*;
+import me.waliedyassen.runescript.compiler.syntax.expr.literal.LiteralBooleanSyntax;
+import me.waliedyassen.runescript.compiler.syntax.expr.literal.LiteralIntegerSyntax;
+import me.waliedyassen.runescript.compiler.syntax.expr.literal.LiteralLongSyntax;
+import me.waliedyassen.runescript.compiler.syntax.expr.literal.LiteralStringSyntax;
+import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.*;
+import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
@@ -63,8 +65,8 @@ public final class ScriptParserTest {
         assertAll("script", () -> {
             var script = fromResource("parse-script.rs2").script();
             assertEquals(script.getCode().getStatements().length, 2);
-            assertTrue(script.getCode().getStatements()[0] instanceof AstIfStatement);
-            assertTrue(script.getCode().getStatements()[1] instanceof AstIfStatement);
+            assertTrue(script.getCode().getStatements()[0] instanceof IfStatementSyntax);
+            assertTrue(script.getCode().getStatements()[1] instanceof IfStatementSyntax);
             // TODO: Bad scripts testing.
         }, () -> {
             // script with three parameters
@@ -106,7 +108,7 @@ public final class ScriptParserTest {
         assertAll("parameter", () -> {
             // valid parameter
             var parameter = fromString("int $int0").parameter();
-            assertTrue(parameter instanceof AstParameter);
+            assertTrue(parameter instanceof ParameterSyntax);
             assertEquals(parameter.getType(), PrimitiveType.INT);
             assertEquals(parameter.getName().getText(), "int0");
         }, () -> {
@@ -137,34 +139,34 @@ public final class ScriptParserTest {
     void testSimpleExpression() {
         assertAll("simple expression", () -> {
             // string
-            assertTrue(fromString("\"myString\"").simpleExpression() instanceof AstLiteralString);
+            assertTrue(fromString("\"myString\"").simpleExpression() instanceof LiteralStringSyntax);
         }, () -> {
             // interpolated string.
-            assertTrue(fromString("\"my interpolated string <br>\"").simpleExpression() instanceof AstConcatenation);
+            assertTrue(fromString("\"my interpolated string <br>\"").simpleExpression() instanceof ConcatenationSyntax);
         }, () -> {
             // integer
-            assertTrue(fromString("123456").simpleExpression() instanceof AstLiteralInteger);
+            assertTrue(fromString("123456").simpleExpression() instanceof LiteralIntegerSyntax);
         }, () -> {
             // long
-            assertTrue(fromString("123456L").simpleExpression() instanceof AstLiteralLong);
+            assertTrue(fromString("123456L").simpleExpression() instanceof LiteralLongSyntax);
         }, () -> {
             // boolean.
-            assertTrue(fromString("true").simpleExpression() instanceof AstLiteralBool);
+            assertTrue(fromString("true").simpleExpression() instanceof LiteralBooleanSyntax);
         }, () -> {
             // local variable.
-            assertTrue(fromString("$local_var").simpleExpression() instanceof AstVariableExpression);
+            assertTrue(fromString("$local_var").simpleExpression() instanceof VariableExpressionSyntax);
         }, () -> {
             // local variable.
-            assertTrue(fromString("%global_var").simpleExpression() instanceof AstVariableExpression);
+            assertTrue(fromString("%global_var").simpleExpression() instanceof VariableExpressionSyntax);
         }, () -> {
             // constant.
-            assertTrue(fromString("^constant").simpleExpression() instanceof AstConstant);
+            assertTrue(fromString("^constant").simpleExpression() instanceof ConstantSyntax);
         }, () -> {
             // empty
             assertThrows(SyntaxError.class, () -> fromString("").simpleExpression());
         }, () -> {
             // expression in parenthesis.
-            assertTrue(fromString("(^constant)").simpleExpression() instanceof AstConstant);
+            assertTrue(fromString("(^constant)").simpleExpression() instanceof ConstantSyntax);
         }, () -> {
             // not expression
             assertThrows(SyntaxError.class, () -> fromString("if({});").simpleExpression());
@@ -176,15 +178,15 @@ public final class ScriptParserTest {
         assertAll("expression", () -> {
             // a basic binary operator.
             var expr = fromString("5 > 3").expression();
-            assertTrue(expr instanceof AstBinaryOperation);
-            var bin = (AstBinaryOperation) expr;
+            assertTrue(expr instanceof BinaryOperationSyntax);
+            var bin = (BinaryOperationSyntax) expr;
             assertEquals(bin.getOperator(), Operator.GREATER_THAN);
         }, () -> {
             // a bit more complex binary operator.
             var expr = fromString("5 > 3 ! true").expression();
-            assertTrue(expr instanceof AstBinaryOperation);
-            var bin = (AstBinaryOperation) expr;
-            assertTrue(bin.getLeft() instanceof AstBinaryOperation);
+            assertTrue(expr instanceof BinaryOperationSyntax);
+            var bin = (BinaryOperationSyntax) expr;
+            assertTrue(bin.getLeft() instanceof BinaryOperationSyntax);
             assertEquals(bin.getOperator(), Operator.NOT_EQUAL);
         });
     }
@@ -193,7 +195,7 @@ public final class ScriptParserTest {
     void testParExpression() {
         assertAll("par expression", () -> {
             // valid expression
-            assertTrue(fromString("(1234)").parExpression() instanceof AstLiteralInteger);
+            assertTrue(fromString("(1234)").parExpression() instanceof LiteralIntegerSyntax);
         }, () -> {
             // invalid expression 1
             assertThrows(SyntaxError.class, () -> fromString("(1234").parExpression());
@@ -250,9 +252,9 @@ public final class ScriptParserTest {
             assertEquals("mycommand", expr.getName().getText());
             assertEquals(3, expr.getArguments().length);
             assertFalse(expr.isAlternative());
-            assertTrue(expr.getArguments()[0] instanceof AstBinaryOperation);
-            assertTrue(expr.getArguments()[1] instanceof AstCall);
-            assertTrue(expr.getArguments()[2] instanceof AstLiteralString);
+            assertTrue(expr.getArguments()[0] instanceof BinaryOperationSyntax);
+            assertTrue(expr.getArguments()[1] instanceof CallSyntax);
+            assertTrue(expr.getArguments()[2] instanceof LiteralStringSyntax);
         });
     }
 
@@ -262,16 +264,16 @@ public final class ScriptParserTest {
             // valid calc par expression
             var expr = fromString("calc(1)").calc();
             assertNotNull(expr);
-            assertTrue(expr.getExpression() instanceof AstLiteralInteger);
+            assertTrue(expr.getExpression() instanceof LiteralIntegerSyntax);
         }, () -> {
             // valid double calc no par expression
             var parser = fromString("calc 1 = 5 calc 2 = 5");
             var expr1 = parser.calc();
             assertNotNull(expr1);
-            assertTrue(expr1.getExpression() instanceof AstBinaryOperation);
+            assertTrue(expr1.getExpression() instanceof BinaryOperationSyntax);
             var expr2 = parser.calc();
             assertNotNull(expr2);
-            assertTrue(expr2.getExpression() instanceof AstBinaryOperation);
+            assertTrue(expr2.getExpression() instanceof BinaryOperationSyntax);
         }, () -> {
             // expressionless no par calc
             var parser = fromString("calc ");
@@ -287,19 +289,19 @@ public final class ScriptParserTest {
     void testStatement() {
         assertAll("statement", () -> {
             // valid if statement
-            assertTrue(fromString("if(1234){}").statement() instanceof AstIfStatement);
+            assertTrue(fromString("if(1234){}").statement() instanceof IfStatementSyntax);
         }, () -> {
             // valid block statement
-            assertTrue(fromString("{}").statement() instanceof AstBlockStatement);
+            assertTrue(fromString("{}").statement() instanceof BlockStatementSyntax);
         }, () -> {
             // valid return statement
-            assertTrue(fromString("return(test);").statement() instanceof AstReturnStatement);
+            assertTrue(fromString("return(test);").statement() instanceof ReturnStatementSyntax);
         }, () -> {
             // valid variable define statement
-            assertTrue(fromString("def_boolean $mybool = true;").statement() instanceof AstVariableDeclaration);
+            assertTrue(fromString("def_boolean $mybool = true;").statement() instanceof VariableDeclarationSyntax);
         }, () -> {
             // valid variable initialise statement
-            assertTrue(fromString("$varinit = 5;").statement() instanceof AstVariableInitializer);
+            assertTrue(fromString("$varinit = 5;").statement() instanceof VariableInitializerSyntax);
         }, () -> {
             // empty statement
             assertThrows(SyntaxError.class, () -> fromString("").statement());
@@ -313,7 +315,7 @@ public final class ScriptParserTest {
     void testIfStatement() {
         assertAll("if statement", () -> {
             // valid if statement
-            assertTrue(fromString("if(1){}").ifStatement() instanceof AstIfStatement);
+            assertTrue(fromString("if(1){}").ifStatement() instanceof IfStatementSyntax);
         }, () -> {
             // no code statement
             assertThrows(SyntaxError.class, () -> fromString("if(2)").ifStatement());
@@ -327,7 +329,7 @@ public final class ScriptParserTest {
     void testIfElseStatement() {
         assertAll("if else statement", () -> {
             // valid if else statement.
-            assertTrue(fromString("if(1) {} else if(2) {}").ifStatement().getFalseStatement() instanceof AstIfStatement);
+            assertTrue(fromString("if(1) {} else if(2) {}").ifStatement().getFalseStatement() instanceof IfStatementSyntax);
         }, () -> {
             // missing false code statement.
             assertThrows(SyntaxError.class, () -> fromString("if (2) else").ifStatement());
@@ -338,7 +340,7 @@ public final class ScriptParserTest {
     void testWhileStatement() {
         assertAll("while statement", () -> {
             // valid while loop statement.
-            assertTrue(fromString("while (true) {}").whileStatement() instanceof AstWhileStatement);
+            assertTrue(fromString("while (true) {}").whileStatement() instanceof WhileStatementSyntax);
         }, () -> {
             // missing condition expression.
             assertThrows(SyntaxError.class, () -> fromString("while () {}").whileStatement());
@@ -355,7 +357,7 @@ public final class ScriptParserTest {
             var blockStatement = fromString("{if(1234){}}").blockStatement();
             assertNotNull(blockStatement);
             assertEquals(blockStatement.getStatements().length, 1);
-            assertTrue(blockStatement.getStatements()[0] instanceof AstIfStatement);
+            assertTrue(blockStatement.getStatements()[0] instanceof IfStatementSyntax);
         }, () -> {
             // empty block
             assertNotNull(fromString("{}").blockStatement());
@@ -373,12 +375,12 @@ public final class ScriptParserTest {
             assertNotNull(statement);
             assertTrue(statement.getStatements().length == 2);
             for (var ifStatement : statement.getStatements()) {
-                assertTrue(ifStatement instanceof AstIfStatement);
-                assertTrue(((AstIfStatement) ifStatement).getCondition() instanceof AstLiteralInteger);
+                assertTrue(ifStatement instanceof IfStatementSyntax);
+                assertTrue(((IfStatementSyntax) ifStatement).getCondition() instanceof LiteralIntegerSyntax);
             }
         }, () -> {
             // empty block
-            assertTrue(fromString("").unbracedBlockStatement() instanceof AstBlockStatement);
+            assertTrue(fromString("").unbracedBlockStatement() instanceof BlockStatementSyntax);
         });
     }
 
@@ -389,7 +391,7 @@ public final class ScriptParserTest {
             var returnStatement = fromString("return(\"am valid\");").returnStatement();
             assertNotNull(returnStatement);
             assertEquals(1, returnStatement.getExpressions().length);
-            assertTrue(returnStatement.getExpressions()[0] instanceof AstLiteralString);
+            assertTrue(returnStatement.getExpressions()[0] instanceof LiteralStringSyntax);
         }, () -> {
             // valid return multiple expressions
             var returnStatement = fromString("return(1,true,\"\");").returnStatement();
@@ -415,7 +417,7 @@ public final class ScriptParserTest {
             assertNotNull(variableDefine);
             assertEquals(variableDefine.getType(), PrimitiveType.BOOLEAN);
             assertEquals(variableDefine.getName().getText(), "test");
-            assertTrue(variableDefine.getExpression() instanceof AstLiteralBool);
+            assertTrue(variableDefine.getExpression() instanceof LiteralBooleanSyntax);
         }, () -> {
             // invalid variable scope.
             assertThrows(SyntaxError.class, () -> fromString("def_boolean %test = true;").variableDeclaration());
@@ -440,16 +442,16 @@ public final class ScriptParserTest {
             // valid local variable initialise.
             var variableInitialise = fromString("$test = true;").variableInitializer();
             assertNotNull(variableInitialise);
-            assertEquals(((AstScopedVariable) variableInitialise.getVariables()[0]).getScope(), VariableScope.LOCAL);
+            assertEquals(((ScopedVariableSyntax) variableInitialise.getVariables()[0]).getScope(), VariableScope.LOCAL);
             assertEquals(variableInitialise.getVariables()[0].getName().getText(), "test");
-            assertTrue(variableInitialise.getExpressions()[0] instanceof AstLiteralBool);
+            assertTrue(variableInitialise.getExpressions()[0] instanceof LiteralBooleanSyntax);
         }, () -> {
             // valid global variable initialise.
             var variableInitialise = fromString("%hello = 1234;").variableInitializer();
             assertNotNull(variableInitialise);
-            assertEquals(((AstScopedVariable) variableInitialise.getVariables()[0]).getScope(), VariableScope.GLOBAL);
+            assertEquals(((ScopedVariableSyntax) variableInitialise.getVariables()[0]).getScope(), VariableScope.GLOBAL);
             assertEquals(variableInitialise.getVariables()[0].getName().getText(), "hello");
-            assertTrue(variableInitialise.getExpressions()[0] instanceof AstLiteralInteger);
+            assertTrue(variableInitialise.getExpressions()[0] instanceof LiteralIntegerSyntax);
         }, () -> {
             // missing variable scope.
             assertThrows(SyntaxError.class, () -> fromString("noscope = 5;").variableInitializer());
@@ -484,18 +486,18 @@ public final class ScriptParserTest {
             assertEquals(7, _case.getKeys().length);
             for (var index = 0; index < values.length; index++) {
                 var expr = _case.getKeys()[index];
-                assertTrue(expr instanceof AstLiteralInteger);
-                assertEquals(values[index], ((AstLiteralInteger) expr).getValue().intValue());
+                assertTrue(expr instanceof LiteralIntegerSyntax);
+                assertEquals(values[index], ((LiteralIntegerSyntax) expr).getValue().intValue());
             }
             assertEquals(1, _case.getCode().getStatements().length);
-            assertTrue(_case.getCode().getStatements()[0] instanceof AstReturnStatement);
+            assertTrue(_case.getCode().getStatements()[0] instanceof ReturnStatementSyntax);
         }, () -> {
             // valid case default
             var _case = fromString("case default: return(true);").switchCase();
             assertNotNull(_case);
             assertTrue(_case.isDefault());
             assertEquals(1, _case.getCode().getStatements().length);
-            assertTrue(_case.getCode().getStatements()[0] instanceof AstReturnStatement);
+            assertTrue(_case.getCode().getStatements()[0] instanceof ReturnStatementSyntax);
         }, () -> {
             // empty case
             assertEquals(0, fromString("case 1:").switchCase().getCode().getStatements().length);
@@ -509,8 +511,8 @@ public final class ScriptParserTest {
     void testExpressionStatement() {
         assertAll("expression statement", () -> {
             var stmt = fromString("true;").statement();
-            assertTrue(stmt instanceof AstExpressionStatement);
-            assertTrue(((AstExpressionStatement) stmt).getExpression() instanceof AstLiteralBool);
+            assertTrue(stmt instanceof ExpressionStatementSyntax);
+            assertTrue(((ExpressionStatementSyntax) stmt).getExpression() instanceof LiteralBooleanSyntax);
         });
     }
 
@@ -586,8 +588,8 @@ public final class ScriptParserTest {
         assertEquals(fromString("\"my interpolated <br> text\"").concatString().getExpressions().length, 3);
         var nested = fromString("\"my nested interpolated string <\"<test>\">\"").concatString().getExpressions();
         assertEquals(nested.length, 2);
-        assertTrue(nested[0] instanceof AstLiteralString);
-        assertTrue(nested[1] instanceof AstConcatenation);
+        assertTrue(nested[0] instanceof LiteralStringSyntax);
+        assertTrue(nested[1] instanceof ConcatenationSyntax);
     }
 
     @Test
@@ -642,22 +644,22 @@ public final class ScriptParserTest {
         });
     }
 
-    public static ScriptParser fromString(String text) {
+    public static SyntaxParser fromString(String text) {
         try (var stream = new StringBufferInputStream(text)) {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            return new ScriptParser(environment, new ScriptSymbolTable(), lexer, "cs2");
+            return new SyntaxParser(environment, new ScriptSymbolTable(), lexer, "cs2");
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static ScriptParser fromResource(String name) {
+    public static SyntaxParser fromResource(String name) {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
             Tokenizer tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            return new ScriptParser(environment, new ScriptSymbolTable(), lexer, "cs2");
+            return new SyntaxParser(environment, new ScriptSymbolTable(), lexer, "cs2");
         } catch (IOException e) {
             e.printStackTrace();
             return null;

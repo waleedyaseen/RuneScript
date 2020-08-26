@@ -9,15 +9,16 @@ package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.ast.AstNodeBase;
-import me.waliedyassen.runescript.compiler.ast.AstParameter;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
-import me.waliedyassen.runescript.compiler.ast.stmt.*;
-import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
-import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxBase;
+import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
+import me.waliedyassen.runescript.compiler.syntax.expr.*;
+import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
+import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.*;
+import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.WhileStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
@@ -35,7 +36,7 @@ import java.util.HashSet;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class TypeChecking implements AstVisitor<Type, Type> {
+public final class TypeChecking implements SyntaxVisitor<Type, Type> {
 
     // TODO: return PrimitiveType.VOID should be changed to something else that would stop the execution of the type checking
     // for the parent nodes, just to skip the redundant type checking.
@@ -58,13 +59,13 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
     /**
      * The script which we are currently type checking.
      */
-    private AstScript script;
+    private ScriptSyntax script;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstScript script) {
+    public Type visit(ScriptSyntax script) {
         this.script = script;
         script.getCode().accept(this);
         return script.getType();
@@ -74,7 +75,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstParameter parameter) {
+    public Type visit(ParameterSyntax parameter) {
         return parameter.getType();
     }
 
@@ -82,7 +83,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstLiteralBool bool) {
+    public Type visit(LiteralBooleanSyntax bool) {
         return bool.setType(PrimitiveType.BOOLEAN);
     }
 
@@ -90,7 +91,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstLiteralInteger integer) {
+    public Type visit(LiteralIntegerSyntax integer) {
         return integer.setType(PrimitiveType.INT);
     }
 
@@ -98,7 +99,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstLiteralLong longInteger) {
+    public Type visit(LiteralLongSyntax longInteger) {
         return longInteger.setType(PrimitiveType.LONG);
     }
 
@@ -106,7 +107,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstLiteralString string) {
+    public Type visit(LiteralStringSyntax string) {
         if (symbolTable.lookupGraphic(string.getValue()) != null) {
             return string.setType(PrimitiveType.GRAPHIC);
         } else {
@@ -118,7 +119,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstLiteralCoordgrid coordgrid) {
+    public Type visit(LiteralCoordgridSyntax coordgrid) {
         return coordgrid.setType(PrimitiveType.COORDGRID);
     }
 
@@ -126,7 +127,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstConcatenation concatenation) {
+    public Type visit(ConcatenationSyntax concatenation) {
         for (var expr : concatenation.getExpressions()) {
             checkType(expr, PrimitiveType.STRING, expr.accept(this));
         }
@@ -137,13 +138,13 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstComponent component) {
+    public Type visit(ComponentSyntax component) {
         var interfaceInfo = symbolTable.lookupInterface(component.getParentInterface().getText());
         if (interfaceInfo == null) {
             checker.reportError(new SemanticError(component.getParentInterface(), String.format("Could not resolve interface with the name '%s'", component.getParentInterface().getText())));
         } else {
             component.getParentInterface().setType(PrimitiveType.INTERFACE);
-            if (!(component.getComponent() instanceof AstLiteralInteger) && interfaceInfo.lookupComponent(String.valueOf(component.getComponentName())) == null) {
+            if (!(component.getComponent() instanceof LiteralIntegerSyntax) && interfaceInfo.lookupComponent(String.valueOf(component.getComponentName())) == null) {
                 checker.reportError(new SemanticError(component.getParentInterface(), String.format("Could not resolve component with the name '%s' in '%s'", component.getComponentName(), component.getParentInterface().getText())));
             }
         }
@@ -154,7 +155,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstVariableExpression variableExpression) {
+    public Type visit(VariableExpressionSyntax variableExpression) {
         return variableExpression.getType();
     }
 
@@ -162,7 +163,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstArrayExpression arrayExpression) {
+    public Type visit(ArrayElementSyntax arrayExpression) {
         if (arrayExpression.getArray() == null) {
             return PrimitiveType.UNDEFINED;
         }
@@ -173,11 +174,11 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstHook hook) {
+    public Type visit(HookSyntax hook) {
         if (hookTriggerType == null) {
             checker.reportError(new SemanticError(hook, "Hooks are not allowed"));
         } else if (hook.getName() != null) {
-            var parentInfo = symbolTable.lookupCommand(((AstCommand) hook.getParent()).getName().getText());
+            var parentInfo = symbolTable.lookupCommand(((CommandSyntax) hook.getParent()).getName().getText());
             var scriptInfo = symbolTable.lookupScript(hookTriggerType, hook.getName().getText());
             if (scriptInfo == null) {
                 checker.reportError(new SemanticError(hook.getName(), String.format("Could not resolve %s script with the name '%s'", hookTriggerType.getRepresentation(), hook.getName().getText())));
@@ -207,7 +208,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstCall call) {
+    public Type visit(CallSyntax call) {
         var name = call.getName();
         var info = symbolTable.lookupScript(call.getTriggerType(), name.getText());
         if (info == null) {
@@ -229,7 +230,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * @param arguments
      *         the arguments that are used in the call.
      */
-    private void checkCallApplicable(AstNodeBase call, ScriptInfo info, AstExpression[] arguments) {
+    private void checkCallApplicable(SyntaxBase call, ScriptInfo info, ExpressionSyntax[] arguments) {
         var types = new Type[arguments.length];
         for (int index = 0; index < arguments.length; index++) {
             types[index] = arguments[index].accept(this);
@@ -259,7 +260,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstDynamic dynamic) {
+    public Type visit(DynamicSyntax dynamic) {
         // If the type was determined by the PreTypeChecking, we just use that type instead.
         if (dynamic.getType() != null) {
             return dynamic.getType();
@@ -288,7 +289,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstConstant constant) {
+    public Type visit(ConstantSyntax constant) {
         var name = constant.getName();
         var info = symbolTable.lookupConstant(name.getText());
         if (info == null) {
@@ -302,7 +303,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstCommand command) {
+    public Type visit(CommandSyntax command) {
         var name = command.getName();
         var info = symbolTable.lookupCommand(name.getText());
         if (info == null) {
@@ -326,7 +327,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstCalc calc) {
+    public Type visit(CalcSyntax calc) {
         var type = calc.getExpression().accept(this);
         checkType(calc.getExpression(), PrimitiveType.INT, type);
         return calc.setType(type);
@@ -336,7 +337,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstBinaryOperation binaryOperation) {
+    public Type visit(BinaryOperationSyntax binaryOperation) {
         var left = binaryOperation.getLeft().accept(this);
         var right = binaryOperation.getRight().accept(this);
         return binaryOperation.setType(checkOperator(binaryOperation, left, right, binaryOperation.getOperator()));
@@ -346,7 +347,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstVariableDeclaration variableDeclaration) {
+    public Type visit(VariableDeclarationSyntax variableDeclaration) {
         var expression = variableDeclaration.getExpression();
         if (expression == null) {
             if (variableDeclaration.getType().getDefaultValue() == null) {
@@ -362,7 +363,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstArrayDeclaration arrayDeclaration) {
+    public Type visit(ArrayDeclarationSyntax arrayDeclaration) {
         if (arrayDeclaration.getType().getStackType() != StackType.INT) {
             checker.reportError(new SemanticError(arrayDeclaration, "Arrays can only have a type that is derived from the int type"));
         }
@@ -374,7 +375,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstVariableInitializer variableInitializer) {
+    public Type visit(VariableInitializerSyntax variableInitializer) {
         var expressionTypes = new Type[variableInitializer.getExpressions().length];
         for (var index = 0; index < expressionTypes.length; index++) {
             expressionTypes[index] = variableInitializer.getExpressions()[index].accept(this);
@@ -395,7 +396,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstScopedVariable scopedVariable) {
+    public Type visit(ScopedVariableSyntax scopedVariable) {
         return scopedVariable.getType();
     }
 
@@ -403,7 +404,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstArrayVariable arrayVariable) {
+    public Type visit(ArrayVariableSyntax arrayVariable) {
         return arrayVariable.setType(arrayVariable.getArrayInfo() == null ? PrimitiveType.UNDEFINED : arrayVariable.getArrayInfo().getType());
     }
 
@@ -411,7 +412,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstSwitchStatement switchStatement) {
+    public Type visit(SwitchStatementSyntax switchStatement) {
         var type = switchStatement.getType();
         checkType(switchStatement.getCondition(), type, switchStatement.getCondition().accept(this));
         var defined_keys = new HashSet<Integer>();
@@ -442,13 +443,13 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      *
      * @return the integer value of that expression.
      */
-    private int resolveCaseKey(AstExpression expression) {
-        if (expression instanceof AstLiteralInteger) {
-            return ((AstLiteralInteger) expression).getValue();
-        } else if (expression instanceof AstLiteralBool) {
-            return ((AstLiteralBool) expression).getValue() ? 1 : 0;
-        } else if (expression instanceof AstConstant) {
-            var symbol = symbolTable.lookupConstant(((AstConstant) expression).getName().getText());
+    private int resolveCaseKey(ExpressionSyntax expression) {
+        if (expression instanceof LiteralIntegerSyntax) {
+            return ((LiteralIntegerSyntax) expression).getValue();
+        } else if (expression instanceof LiteralBooleanSyntax) {
+            return ((LiteralBooleanSyntax) expression).getValue() ? 1 : 0;
+        } else if (expression instanceof ConstantSyntax) {
+            var symbol = symbolTable.lookupConstant(((ConstantSyntax) expression).getName().getText());
             return (int) symbol.getValue();
         } /*else if (expression instanceof AstDynamic) {
             TODO: Re-eanble this
@@ -464,7 +465,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstSwitchCase switchCase) {
+    public Type visit(SwitchCaseSyntax switchCase) {
         switchCase.getCode().accept(this);
         return null;
     }
@@ -473,7 +474,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstIfStatement ifStatement) {
+    public Type visit(IfStatementSyntax ifStatement) {
         var condition = ifStatement.getCondition().accept(this);
         checkType(ifStatement.getCondition(), PrimitiveType.BOOLEAN, condition);
         ifStatement.getTrueStatement().accept(this);
@@ -487,7 +488,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstWhileStatement whileStatement) {
+    public Type visit(WhileStatementSyntax whileStatement) {
         var condition = whileStatement.getCondition().accept(this);
         checkType(whileStatement.getCondition(), PrimitiveType.BOOLEAN, condition);
         whileStatement.getCode().accept(this);
@@ -498,7 +499,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstExpressionStatement expressionStatement) {
+    public Type visit(ExpressionStatementSyntax expressionStatement) {
         return expressionStatement.getExpression().accept(this);
     }
 
@@ -506,7 +507,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstReturnStatement returnStatement) {
+    public Type visit(ReturnStatementSyntax returnStatement) {
         var expressions = returnStatement.getExpressions();
         Type type;
         switch (expressions.length) {
@@ -532,7 +533,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstBlockStatement blockStatement) {
+    public Type visit(BlockStatementSyntax blockStatement) {
         for (var statement : blockStatement.getStatements()) {
             statement.accept(this);
         }
@@ -554,7 +555,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      *
      * @return the output value type of the operator.
      */
-    private Type checkOperator(AstNodeBase node, Type left, Type right, Operator operator) {
+    private Type checkOperator(SyntaxBase node, Type left, Type right, Operator operator) {
         var applicable = false;
         if (operator.isEquality()) {
             if (left == PrimitiveType.BOOLEAN || left == PrimitiveType.INT || left == PrimitiveType.LONG) {
@@ -567,7 +568,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
         } else if (operator.isLogical()) {
             applicable = left == PrimitiveType.BOOLEAN && right == PrimitiveType.BOOLEAN;
         } else if (operator.isArithmetic()) {
-            if (node.selectParent(parent -> parent instanceof AstCalc) == null) {
+            if (node.selectParent(parent -> parent instanceof CalcSyntax) == null) {
                 checker.reportError(new SemanticError(node, "Arithmetic expressions are only allowed within a 'calc' expression"));
             }
             applicable = left == PrimitiveType.INT && right == PrimitiveType.INT;
@@ -591,7 +592,7 @@ public final class TypeChecking implements AstVisitor<Type, Type> {
      *
      * @return <code>true</code> if the type matches the expected otherwise <code>false</code>.
      */
-    private boolean checkType(AstNodeBase node, Type expected, Type actual) {
+    private boolean checkType(SyntaxBase node, Type expected, Type actual) {
         if (!expected.equals(actual)) {
             checker.reportError(new SemanticError(node, "Type mismatch: cannot convert from " + actual.getRepresentation() + " to " + expected.getRepresentation()));
             return false;

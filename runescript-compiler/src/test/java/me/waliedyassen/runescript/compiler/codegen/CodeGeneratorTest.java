@@ -18,7 +18,7 @@ import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.parser.ScriptParser;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
@@ -141,7 +141,7 @@ class CodeGeneratorTest {
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, new ScriptSymbolTable(), lexer, "cs2");
+            var parser = new SyntaxParser(environment, new ScriptSymbolTable(), lexer, "cs2");
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();
@@ -165,7 +165,7 @@ class CodeGeneratorTest {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
             var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new ScriptParser(environment, new ScriptSymbolTable(), lexer, "cs2");
+            var parser = new SyntaxParser(environment, new ScriptSymbolTable(), lexer, "cs2");
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();

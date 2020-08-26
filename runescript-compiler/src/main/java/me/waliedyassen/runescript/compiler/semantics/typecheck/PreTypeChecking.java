@@ -9,15 +9,15 @@ package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.ast.AstNode;
-import me.waliedyassen.runescript.compiler.ast.AstParameter;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstArrayDeclaration;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstBlockStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableDeclaration;
-import me.waliedyassen.runescript.compiler.ast.stmt.AstVariableInitializer;
-import me.waliedyassen.runescript.compiler.ast.visitor.AstTreeVisitor;
+import me.waliedyassen.runescript.compiler.syntax.Syntax;
+import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
+import me.waliedyassen.runescript.compiler.syntax.expr.*;
+import me.waliedyassen.runescript.compiler.syntax.stmt.ArrayDeclarationSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.BlockStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.VariableDeclarationSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.VariableInitializerSyntax;
+import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
@@ -41,7 +41,7 @@ import java.util.*;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class PreTypeChecking extends AstTreeVisitor {
+public final class PreTypeChecking extends SyntaxTreeVisitor {
 
     /**
      * The stack which holds all of the current scopes.
@@ -62,7 +62,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstScript script) {
+    public Void visit(ScriptSyntax script) {
         // create the annotations list.
         Map<String, Annotation> annotations;
         if (script.getAnnotations().size() > 0) {
@@ -98,13 +98,13 @@ public final class PreTypeChecking extends AstTreeVisitor {
                 reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow parameters", trigger.getRepresentation())));
             }
             // check if the trigger matches parameters types.
-            var actual = Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new);
+            var actual = Arrays.stream(script.getParameters()).map(ParameterSyntax::getType).toArray(Type[]::new);
             var expected = trigger.getArgumentTypes();
             if (expected != null && (actual.length != expected.length || !Arrays.equals(actual, expected))) {
                 reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires parameters of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(expected))));
             }
             // check if the script is already defined in the symbol table, and define it if it was not, or produce an error if it was a duplicate.
-            var name = AstExpression.extractNameText(script.getName());
+            var name = ExpressionSyntax.extractNameText(script.getName());
             var existing = symbolTable.lookupScript(trigger, name);
             if (existing != null) {
                 if (annotations.containsKey("id")) {
@@ -126,7 +126,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
                 if (annotations.containsKey("id")) {
                     predefinedId = annotations.get("id").getValue();
                 }
-                symbolTable.defineScript(annotations, trigger, name, script.getType(), Arrays.stream(script.getParameters()).map(AstParameter::getType).toArray(Type[]::new), predefinedId);
+                symbolTable.defineScript(annotations, trigger, name, script.getType(), Arrays.stream(script.getParameters()).map(ParameterSyntax::getType).toArray(Type[]::new), predefinedId);
             }
         }
         return super.visit(script);
@@ -140,7 +140,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstParameter parameter) {
+    public Void visit(ParameterSyntax parameter) {
         var type = parameter.getType();
         // check if the type is an array reference and declare the array if it is.
         if (type instanceof ArrayReference) {
@@ -156,7 +156,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstVariableDeclaration declaration) {
+    public Void visit(VariableDeclarationSyntax declaration) {
         var result = super.visit(declaration);
         var name = declaration.getName();
         var variable = resolveLocalVariable(name.getText());
@@ -172,13 +172,13 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstVariableInitializer variableInitializer) {
+    public Void visit(VariableInitializerSyntax variableInitializer) {
         var count = variableInitializer.getVariables().length;
         for (var index = 0; index < count; index++) {
             var variable = variableInitializer.getVariables()[index];
             var name = variable.getName().getText();
-            if (variable instanceof AstArrayVariable) {
-                var arrayVariable = (AstArrayVariable) variable;
+            if (variable instanceof ArrayVariableSyntax) {
+                var arrayVariable = (ArrayVariableSyntax) variable;
                 var arrayInfo = scopes.lastElement().getArray(name);
                 if (arrayInfo == null) {
                     reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to an array", name)));
@@ -186,7 +186,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
                     arrayVariable.setArrayInfo(arrayInfo);
                 }
             } else {
-                var scopedVariable = (AstScopedVariable) variable;
+                var scopedVariable = (ScopedVariableSyntax) variable;
                 scopedVariable.setType(checkVariableResolving(scopedVariable.getName(), scopedVariable.getScope(), name));
             }
         }
@@ -197,7 +197,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstVariableExpression variableExpression) {
+    public Void visit(VariableExpressionSyntax variableExpression) {
         var name = variableExpression.getName();
         variableExpression.setType(checkVariableResolving(name, variableExpression.getScope(), name.getText()));
         return super.visit(variableExpression);
@@ -215,7 +215,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      *
      * @return the type of the variable that we resolved or {@link PrimitiveType#UNDEFINED}.
      */
-    private Type checkVariableResolving(AstNode node, VariableScope scope, String name) {
+    private Type checkVariableResolving(Syntax node, VariableScope scope, String name) {
         switch (scope) {
             case LOCAL: {
                 var local = resolveLocalVariable(name);
@@ -252,7 +252,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstArrayDeclaration declaration) {
+    public Void visit(ArrayDeclarationSyntax declaration) {
         var name = declaration.getName();
         var array = scopes.lastElement().getArray(name.getText());
         if (array != null) {
@@ -268,7 +268,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstArrayExpression arrayExpression) {
+    public Void visit(ArrayElementSyntax arrayExpression) {
         var name = arrayExpression.getName();
         var array = scopes.lastElement().getArray(name.getText());
         if (array == null) {
@@ -283,7 +283,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstDynamic dynamic) {
+    public Void visit(DynamicSyntax dynamic) {
         var arrayInfo = scopes.lastElement().getArray(dynamic.getName().getText());
         if (arrayInfo != null) {
             dynamic.setType(new ArrayReference(arrayInfo.getType(), arrayInfo.getIndex()));
@@ -295,7 +295,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public void enter(AstBlockStatement blockStatement) {
+    public void enter(BlockStatementSyntax blockStatement) {
         var scope = scopes.lastElement().createChild();
         scopes.push(scope);
     }
@@ -304,7 +304,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public void exit(AstBlockStatement blockStatement) {
+    public void exit(BlockStatementSyntax blockStatement) {
         scopes.pop();
     }
 
@@ -312,7 +312,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public void enter(AstScript script) {
+    public void enter(ScriptSyntax script) {
         scopes.push(new Scope(null));
     }
 
@@ -320,7 +320,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public void exit(AstScript script) {
+    public void exit(ScriptSyntax script) {
         scopes.pop();
     }
 

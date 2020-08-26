@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.message.impl;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.message.CompilerMessage;
 
 /**
@@ -30,5 +30,5 @@ public final class SyntaxDoneMessage extends CompilerMessage {
     /**
      * The AST of the script that we parsed.
      */
-    private final AstScript script;
+    private final ScriptSyntax script;
 }

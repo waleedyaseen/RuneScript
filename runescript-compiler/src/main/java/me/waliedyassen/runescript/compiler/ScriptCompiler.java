@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler;
 import lombok.Getter;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
@@ -25,7 +25,7 @@ import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.parser.ScriptParser;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.util.Operator;
@@ -135,14 +135,14 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
      * @param extension
      *         the extension of the file containing the script.
      *
-     * @return a {@link List list} of the parsed {@link AstScript} objects.
+     * @return a {@link List list} of the parsed {@link ScriptSyntax} objects.
      */
-    private List<AstScript> parseSyntaxTree(ScriptSymbolTable symbolTable, byte[] data, String extension) throws IOException {
+    private List<ScriptSyntax> parseSyntaxTree(ScriptSymbolTable symbolTable, byte[] data, String extension) throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream(data));
         var tokenizer = new Tokenizer(lexicalTable, stream);
         var lexer = new Lexer(tokenizer);
-        var parser = new ScriptParser(environment, symbolTable, lexer, extension);
-        var scripts = new ArrayList<AstScript>();
+        var parser = new SyntaxParser(environment, symbolTable, lexer, extension);
+        var scripts = new ArrayList<ScriptSyntax>();
         while (lexer.remaining() > 0) {
             scripts.add(parser.script());
         }

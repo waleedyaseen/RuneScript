@@ -9,14 +9,15 @@ package me.waliedyassen.runescript.compiler.codegen;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.ast.AstParameter;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
-import me.waliedyassen.runescript.compiler.ast.expr.*;
-import me.waliedyassen.runescript.compiler.ast.expr.literal.*;
-import me.waliedyassen.runescript.compiler.ast.stmt.*;
-import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstIfStatement;
-import me.waliedyassen.runescript.compiler.ast.stmt.conditional.AstWhileStatement;
-import me.waliedyassen.runescript.compiler.ast.visitor.AstVisitor;
+import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
+import me.waliedyassen.runescript.compiler.syntax.expr.*;
+import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
+import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.*;
+import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.WhileStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockMap;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
@@ -54,7 +55,7 @@ import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class CodeGenerator implements AstVisitor<Instruction, Object> {
+public final class CodeGenerator implements SyntaxVisitor<Instruction, Object> {
 
     /**
      * The label generator used to generate any label for this code generator.
@@ -116,7 +117,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public BinaryScript visit(AstScript script) {
+    public BinaryScript visit(ScriptSyntax script) {
         // perform code generation on the script.
         pushContext(ContextType.SCRIPT);
         for (var parameter : script.getParameters()) {
@@ -127,7 +128,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         generateDefaultReturn(script.getType());
         popContext();
         // format the script name to be in the formal format.
-        var name = "[" + script.getTrigger().getText() + "," + AstExpression.extractNameText(script.getName()) + "]";
+        var name = "[" + script.getTrigger().getText() + "," + ExpressionSyntax.extractNameText(script.getName()) + "]";
         // put all of the blocks into a sorted map.
         var blocks = new LinkedHashMap<Label, Block>();
         for (var block : blockMap.getBlocks()) {
@@ -144,7 +145,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         // clean-up the junk after code generation is done.
         initialise();
         // return the generated script object.
-        var info = symbolTable.lookupScript(environment.lookupTrigger(script.getTrigger().getText()), AstExpression.extractNameText(script.getName()));
+        var info = symbolTable.lookupScript(environment.lookupTrigger(script.getTrigger().getText()), ExpressionSyntax.extractNameText(script.getName()));
         return new BinaryScript(script.getExtension(), name, blocks, parameters, variables, tables, info);
     }
 
@@ -155,15 +156,15 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      *         the return type of the script.
      */
     private void generateDefaultReturn(Type returnType) {
-        if (returnType == PrimitiveType.VOID) {
-            // NOOP
-        } else if (returnType instanceof TupleType) {
-            var flattened = ((TupleType) returnType).getFlattened();
-            for (var type : flattened) {
-                instruction(getConstantOpcode(type), type.getDefaultValue());
+        if (returnType != PrimitiveType.VOID) {
+            if (returnType instanceof TupleType) {
+                var flattened = ((TupleType) returnType).getFlattened();
+                for (var type : flattened) {
+                    instruction(getConstantOpcode(type), type.getDefaultValue());
+                }
+            } else {
+                instruction(getConstantOpcode(returnType), returnType.getDefaultValue());
             }
-        } else {
-            instruction(getConstantOpcode(returnType), returnType.getDefaultValue());
         }
         instruction(RETURN, 0);
     }
@@ -172,7 +173,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Local visit(AstParameter parameter) {
+    public Local visit(ParameterSyntax parameter) {
         return localMap.registerParameter(parameter.getName().getText(), parameter.getType());
     }
 
@@ -180,7 +181,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstLiteralBool bool) {
+    public Instruction visit(LiteralBooleanSyntax bool) {
         return instruction(CoreOpcode.PUSH_INT_CONSTANT, bool.getValue() ? 1 : 0);
     }
 
@@ -188,7 +189,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstLiteralInteger integer) {
+    public Instruction visit(LiteralIntegerSyntax integer) {
         return instruction(CoreOpcode.PUSH_INT_CONSTANT, integer.getValue());
     }
 
@@ -196,7 +197,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstLiteralLong longInteger) {
+    public Instruction visit(LiteralLongSyntax longInteger) {
         return instruction(CoreOpcode.PUSH_LONG_CONSTANT, longInteger.getValue());
     }
 
@@ -204,7 +205,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstLiteralString string) {
+    public Instruction visit(LiteralStringSyntax string) {
         if (string.getType() == PrimitiveType.GRAPHIC) {
             return instruction(PUSH_INT_CONSTANT, symbolTable.lookupGraphic(string.getValue()).getId());
         } else {
@@ -216,7 +217,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstLiteralCoordgrid coordgrid) {
+    public Instruction visit(LiteralCoordgridSyntax coordgrid) {
         return instruction(PUSH_INT_CONSTANT, coordgrid.getValue());
     }
 
@@ -224,7 +225,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstConcatenation concatenation) {
+    public Instruction visit(ConcatenationSyntax concatenation) {
         for (var expression : concatenation.getExpressions()) {
             expression.accept(this);
         }
@@ -235,10 +236,10 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstComponent component) {
+    public Instruction visit(ComponentSyntax component) {
         var interfaceInfo = symbolTable.lookupInterface(component.getParentInterface().getText());
         var parentId = interfaceInfo.getId();
-        var componentId = component.getComponent() instanceof AstLiteralInteger ? ((AstLiteralInteger) component.getComponent())
+        var componentId = component.getComponent() instanceof LiteralIntegerSyntax ? ((LiteralIntegerSyntax) component.getComponent())
                 .getValue() : interfaceInfo.lookupComponent(String.valueOf(component.getComponentName()));
         return instruction(PUSH_INT_CONSTANT, parentId << 16 | componentId);
     }
@@ -247,7 +248,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstVariableExpression variableExpression) {
+    public Instruction visit(VariableExpressionSyntax variableExpression) {
         var name = variableExpression.getName().getText();
         if (variableExpression.getScope() == VariableScope.LOCAL) {
             var local = localMap.lookup(name);
@@ -262,7 +263,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstArrayExpression arrayExpression) {
+    public Instruction visit(ArrayElementSyntax arrayExpression) {
         arrayExpression.getIndex().accept(this);
         return instruction(PUSH_ARRAY_INT, arrayExpression.getArray().getIndex());
     }
@@ -271,7 +272,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstHook hook) {
+    public Instruction visit(HookSyntax hook) {
         var signature = new StringBuilder();
         if (hook.getArguments() != null) {
             for (var index = 0; index < hook.getArguments().length; index++) {
@@ -300,7 +301,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstCall call) {
+    public Instruction visit(CallSyntax call) {
         for (var argument : call.getArguments()) {
             argument.accept(this);
         }
@@ -313,7 +314,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      */
     @Override
     @SuppressWarnings("RedundantCast")
-    public Instruction visit(AstDynamic dynamic) {
+    public Instruction visit(DynamicSyntax dynamic) {
         if (dynamic.getType() instanceof ArrayReference) {
             return instruction(PUSH_INT_CONSTANT, ((ArrayReference) dynamic.getType()).getIndex());
         } else {
@@ -344,7 +345,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * {@inheritDoc}
      */
-    public Instruction visit(AstConstant constant) {
+    public Instruction visit(ConstantSyntax constant) {
         var symbol = symbolTable.lookupConstant(constant.getName().getText());
         CoreOpcode opcode;
         switch (symbol.getType().getStackType()) {
@@ -366,7 +367,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * {@inheritDoc}
      */
-    public Instruction visit(AstCommand command) {
+    public Instruction visit(CommandSyntax command) {
         for (var argument : command.getArguments()) {
             argument.accept(this);
         }
@@ -376,7 +377,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
     /**
      * {@inheritDoc}
      */
-    public Instruction visit(AstCalc command) {
+    public Instruction visit(CalcSyntax command) {
         return command.getExpression().accept(this);
     }
 
@@ -398,7 +399,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstBinaryOperation binaryOperation) {
+    public Instruction visit(BinaryOperationSyntax binaryOperation) {
         if (!binaryOperation.getOperator().isArithmetic()) {
             throw new UnsupportedOperationException("You should not be doing this.");
         }
@@ -431,7 +432,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstVariableDeclaration variableDeclaration) {
+    public Instruction visit(VariableDeclarationSyntax variableDeclaration) {
         if (variableDeclaration.getExpression() != null) {
             variableDeclaration.getExpression().accept(this);
         } else {
@@ -446,7 +447,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstArrayDeclaration arrayDeclaration) {
+    public Instruction visit(ArrayDeclarationSyntax arrayDeclaration) {
         arrayDeclaration.getSize().accept(this);
         var array = arrayDeclaration.getArray();
         return instruction(DEFINE_ARRAY, (array.getIndex() << 16) | array.getType().getCode());
@@ -456,7 +457,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstVariableInitializer variableInitializer) {
+    public Instruction visit(VariableInitializerSyntax variableInitializer) {
         var count = variableInitializer.getExpressions().length;
         for (var index = 0; index < count; index++) {
             variableInitializer.getVariables()[index].accept(this);
@@ -464,11 +465,11 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
         }
         for (var index = count - 1; index >= 0; index--) {
             var variable = variableInitializer.getVariables()[index];
-            if (variable instanceof AstArrayVariable) {
-                var arrayVariable = (AstArrayVariable) variable;
+            if (variable instanceof ArrayVariableSyntax) {
+                var arrayVariable = (ArrayVariableSyntax) variable;
                 instruction(POP_ARRAY_INT, arrayVariable.getArrayInfo().getIndex());
             } else {
-                var scopedVariable = (AstScopedVariable) variable;
+                var scopedVariable = (ScopedVariableSyntax) variable;
                 Object operand;
                 PrimitiveType type;
                 if (scopedVariable.getScope() == VariableScope.LOCAL) {
@@ -489,7 +490,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstArrayVariable arrayVariable) {
+    public Instruction visit(ArrayVariableSyntax arrayVariable) {
         arrayVariable.getIndex().accept(this);
         return null;
     }
@@ -498,7 +499,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Instruction visit(AstScopedVariable scopedVariable) {
+    public Instruction visit(ScopedVariableSyntax scopedVariable) {
         return null;
     }
 
@@ -506,7 +507,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstSwitchStatement switchStatement) {
+    public Void visit(SwitchStatementSyntax switchStatement) {
         // grab the switch case nodes.
         var case_nodes = switchStatement.getCases();
         // create the switch cases.
@@ -544,7 +545,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstIfStatement ifStatement) {
+    public Void visit(IfStatementSyntax ifStatement) {
         // preserve the labels of this if statement for number order.
         var if_true_label = labelGenerator.generate("if_true");
         var if_else_label = labelGenerator.generate("if_else");
@@ -576,7 +577,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstWhileStatement whileStatement) {
+    public Void visit(WhileStatementSyntax whileStatement) {
         // preserve the labels of this while statement for the number order.
         var while_start_label = labelGenerator.generate("while_start");
         var while_true_label = labelGenerator.generate("while_true");
@@ -610,9 +611,9 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * @param branch_false
      *         the if-false block label.
      */
-    private void generateCondition(AstExpression condition, Block source_block, Label branch_true, Label branch_false) {
-        if (condition instanceof AstBinaryOperation) {
-            var binaryOperation = (AstBinaryOperation) condition;
+    private void generateCondition(ExpressionSyntax condition, Block source_block, Label branch_true, Label branch_false) {
+        if (condition instanceof BinaryOperationSyntax) {
+            var binaryOperation = (BinaryOperationSyntax) condition;
             var operator = binaryOperation.getOperator();
             if (operator.isEquality() || operator.isRelational()) {
                 CoreOpcode opcode;
@@ -676,7 +677,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstExpressionStatement expressionStatement) {
+    public Void visit(ExpressionStatementSyntax expressionStatement) {
         var expression = expressionStatement.getExpression();
         expression.accept(this);
         var pushes = resolvePushCount(expression.getType());
@@ -688,7 +689,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstReturnStatement returnStatement) {
+    public Void visit(ReturnStatementSyntax returnStatement) {
         for (var expression : returnStatement.getExpressions()) {
             expression.accept(this);
         }
@@ -700,7 +701,7 @@ public final class CodeGenerator implements AstVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(AstBlockStatement blockStatement) {
+    public Void visit(BlockStatementSyntax blockStatement) {
         for (var statement : blockStatement.getStatements()) {
             statement.accept(this);
         }

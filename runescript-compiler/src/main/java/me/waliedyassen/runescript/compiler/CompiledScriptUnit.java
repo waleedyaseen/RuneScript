@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.compiler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import me.waliedyassen.runescript.compiler.ast.AstScript;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 
 /**
@@ -26,7 +26,7 @@ public final class CompiledScriptUnit {
     /**
      * The AST script node of the compiled unit.
      */
-    private AstScript script;
+    private ScriptSyntax script;
 
     /**
      * The binary script of the compiled unit.

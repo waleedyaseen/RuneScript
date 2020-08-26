@@ -16,8 +16,8 @@ import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
-import me.waliedyassen.runescript.compiler.ast.AstParameter;
-import me.waliedyassen.runescript.compiler.ast.expr.AstExpression;
+import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
+import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
@@ -254,12 +254,12 @@ public final class Cache {
                 unit.setCrc(compiledFile.getCrc());
                 for (var compiledUnit : compiledFile.getUnits()) {
                     var scriptNode = compiledUnit.getScript();
-                    var scriptName = AstExpression.extractNameText(compiledUnit.getScript().getName());
+                    var scriptName = ExpressionSyntax.extractNameText(compiledUnit.getScript().getName());
                     var triggerName = compiledUnit.getScript().getTrigger().getText();
                     var info = new ScriptInfo(Collections.emptyMap(), scriptName,
                             project.getCompilerEnvironment().lookupTrigger(triggerName),
                             scriptNode.getType(),
-                            Arrays.stream(scriptNode.getParameters()).map(AstParameter::getType).toArray(Type[]::new),
+                            Arrays.stream(scriptNode.getParameters()).map(ParameterSyntax::getType).toArray(Type[]::new),
                             null);
                     unit.getScripts().add(info);
                     if (options.getOnUnitCompilation() != null) {

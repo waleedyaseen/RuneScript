@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.config.ast.AstConfig;
+import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.config.semantics.typecheck.TypeChecking;
@@ -43,14 +43,14 @@ public final class SemanticChecker {
     private final SymbolTable symbolTable;
 
     /**
-     * Executes the pre semantic checking for the specified {@link AstConfig configs}.
+     * Executes the pre semantic checking for the specified {@link ConfigSyntax configs}.
      *
      * @param configs
      *         the configs to perform the pre semantic checking on.
      * @param binding
      *         the binding to use for the type checking.
      */
-    public void executePre(Iterable<AstConfig> configs, ConfigBinding binding) {
+    public void executePre(Iterable<ConfigSyntax> configs, ConfigBinding binding) {
         var checker = new PreTypeChecking(this, symbolTable, binding);
         for (var config : configs) {
             config.accept(checker);
@@ -58,14 +58,14 @@ public final class SemanticChecker {
     }
 
     /**
-     * Executes the semantic checking for the specified {@link AstConfig configs}.
+     * Executes the semantic checking for the specified {@link ConfigSyntax configs}.
      *
      * @param configs
      *         the configs to perform the semantic checking on.
      * @param binding
      *         the binding to use for the type checking.
      */
-    public void execute(Iterable<AstConfig> configs, ConfigBinding binding) {
+    public void execute(Iterable<ConfigSyntax> configs, ConfigBinding binding) {
         var checker = new TypeChecking(this, symbolTable, binding);
         for (var config : configs) {
             config.accept(checker);

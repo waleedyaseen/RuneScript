@@ -11,8 +11,8 @@ package me.waliedyassen.runescript.config.semantics.typecheck;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.config.ast.AstConfig;
-import me.waliedyassen.runescript.config.ast.visitor.AstTreeVisitor;
+import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
+import me.waliedyassen.runescript.config.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
@@ -23,7 +23,7 @@ import me.waliedyassen.runescript.config.semantics.SemanticError;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class PreTypeChecking extends AstTreeVisitor {
+public final class PreTypeChecking extends SyntaxTreeVisitor {
 
     /**
      * The semantic checker which owns this type checker.
@@ -44,7 +44,7 @@ public final class PreTypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstConfig config) {
+    public Object visit(ConfigSyntax config) {
         config.setContentType(config.resolveContentType(binding));
         var info = table.lookupConfig(config.getName().getText());
         if (info != null) {

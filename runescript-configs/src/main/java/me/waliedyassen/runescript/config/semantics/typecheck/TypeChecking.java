@@ -11,12 +11,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.config.ast.AstConfig;
-import me.waliedyassen.runescript.config.ast.AstIdentifier;
-import me.waliedyassen.runescript.config.ast.AstNode;
-import me.waliedyassen.runescript.config.ast.AstProperty;
-import me.waliedyassen.runescript.config.ast.value.*;
-import me.waliedyassen.runescript.config.ast.visitor.AstTreeVisitor;
+import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
+import me.waliedyassen.runescript.config.syntax.IdentifierSyntax;
+import me.waliedyassen.runescript.config.syntax.Syntax;
+import me.waliedyassen.runescript.config.syntax.PropertySyntax;
+import me.waliedyassen.runescript.config.syntax.value.*;
+import me.waliedyassen.runescript.config.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
@@ -35,7 +35,7 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class TypeChecking extends AstTreeVisitor {
+public final class TypeChecking extends SyntaxTreeVisitor {
 
     /**
      * The semantic checker which owns this type checker.
@@ -59,7 +59,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstConfig config) {
+    public Object visit(ConfigSyntax config) {
         for (var property : config.getProperties()) {
             property.accept(this);
         }
@@ -82,13 +82,13 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstProperty property) {
+    public Object visit(PropertySyntax property) {
         var bindingProperty = binding.findProperty(property.getKey().getText());
         if (bindingProperty == null) {
             checker.reportError(new SemanticError(property.getKey(), "Unknown property: " + property.getKey().getText()));
             return null;
         }
-        var config = (AstConfig) property.getParent();
+        var config = (ConfigSyntax) property.getParent();
         if (bindingProperty instanceof ConfigBasicProperty) {
             performBasicChecks(config, property, bindingProperty);
         } else if (bindingProperty instanceof ConfigBasicDynamicProperty) {
@@ -115,7 +115,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * @param property
      *         the basic property that we want to type check.
      */
-    private void performBasicChecks(AstConfig config, AstProperty node, ConfigProperty property) {
+    private void performBasicChecks(ConfigSyntax config, PropertySyntax node, ConfigProperty property) {
         var components = property.getComponents();
         var values = node.getValues();
         if (components.length != values.length) {
@@ -138,7 +138,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * @param property
      *         the basic dynamic property that we want to type check.
      */
-    private void performBasicDynamicChecks(AstConfig config, AstProperty node, ConfigBasicDynamicProperty property) {
+    private void performBasicDynamicChecks(ConfigSyntax config, PropertySyntax node, ConfigBasicDynamicProperty property) {
         if (node.getValues().length != 1) {
             checker.reportError(new SemanticError(node, String.format("Components mismatch: expected %d component(s) but got %d component(s)", 1, node.getValues().length)));
             return;
@@ -161,7 +161,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * @param property
      *         the split array property that we want to type check.
      */
-    private void performSplitArrayChecks(AstConfig config, AstProperty node, ConfigSplitArrayProperty property) {
+    private void performSplitArrayChecks(ConfigSyntax config, PropertySyntax node, ConfigSplitArrayProperty property) {
         performBasicChecks(config, node, property);
     }
 
@@ -175,7 +175,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * @param property
      *         the param property that we want to type check.
      */
-    private void performParamChecks(AstConfig config, AstProperty node, ConfigParamProperty property) {
+    private void performParamChecks(ConfigSyntax config, PropertySyntax node, ConfigParamProperty property) {
         if (node.getValues().length != 2) {
             checker.reportError(new SemanticError(node, "Components mismatch: expected 2 component(s) but got " + node.getValues().length + " component(s)"));
             return;
@@ -184,7 +184,7 @@ public final class TypeChecking extends AstTreeVisitor {
         if (!performTypeCheck(paramRaw, PrimitiveType.PARAM, (PrimitiveType) paramRaw.accept(this))) {
             return;
         }
-        var paramInfo = table.lookupConfig(((AstValueConfig) paramRaw).getName().getText());
+        var paramInfo = table.lookupConfig(((ValueConfigSyntax) paramRaw).getName().getText());
         var valueRaw = node.getValues()[1];
         performTypeCheck(valueRaw, (PrimitiveType) paramInfo.getContentType(), (PrimitiveType) valueRaw.accept(this));
     }
@@ -200,7 +200,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * @param property
      *         the basic dynamic property that we want to type check.
      */
-    private void performMapChecks(AstConfig config, AstProperty node, ConfigMapProperty property) {
+    private void performMapChecks(ConfigSyntax config, PropertySyntax node, ConfigMapProperty property) {
         if (node.getValues().length != 2) {
             checker.reportError(new SemanticError(node, String.format("Components mismatch: expected %d component(s) but got %d component(s)", 2, node.getValues().length)));
             return;
@@ -230,14 +230,14 @@ public final class TypeChecking extends AstTreeVisitor {
      * @param rules
      *         the rules that we want to test against.
      */
-    private void performComponentCheck(AstConfig config, AstProperty node, PrimitiveType component, AstValue value, List<ConfigRule> rules) {
+    private void performComponentCheck(ConfigSyntax config, PropertySyntax node, PrimitiveType component, ValueSyntax value, List<ConfigRule> rules) {
         if (performTypeCheck(value, component, (PrimitiveType) value.accept(this))) {
             rules.forEach(rule -> rule.test(this, config, node, value));
         }
     }
 
     /**
-     * Performs a basic type mismatch check on the specified {@link AstValue value}
+     * Performs a basic type mismatch check on the specified {@link ValueSyntax value}
      *
      * @param node
      *         the node to error at if the type check fails.
@@ -248,7 +248,7 @@ public final class TypeChecking extends AstTreeVisitor {
      *
      * @return <code>true</code> if the type check passes otherwise <code>false</code>.
      */
-    private boolean performTypeCheck(AstNode node, PrimitiveType expected, PrimitiveType actual) {
+    private boolean performTypeCheck(Syntax node, PrimitiveType expected, PrimitiveType actual) {
         if (!expected.implicitEquals(actual)) {
             checker.reportError(new SemanticError(node, "Type mismatch: cannot convert from " + actual.getRepresentation() + " to " + expected.getRepresentation()));
             return false;
@@ -260,7 +260,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public PrimitiveType visit(AstValueString value) {
+    public PrimitiveType visit(ValueStringSyntax value) {
         var graphic = table.lookupGraphic(value.getText());
         if (graphic != null) {
             return PrimitiveType.GRAPHIC;
@@ -272,7 +272,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public PrimitiveType visit(AstValueInteger value) {
+    public PrimitiveType visit(ValueIntegerSyntax value) {
         return PrimitiveType.INT;
     }
 
@@ -280,7 +280,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public PrimitiveType visit(AstValueLong value) {
+    public PrimitiveType visit(ValueLongSyntax value) {
         return PrimitiveType.LONG;
     }
 
@@ -288,7 +288,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public PrimitiveType visit(AstValueBoolean value) {
+    public PrimitiveType visit(ValueBooleanSyntax value) {
         return PrimitiveType.BOOLEAN;
     }
 
@@ -296,7 +296,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public PrimitiveType visit(AstValueType value) {
+    public PrimitiveType visit(ValueTypeSyntax value) {
         return PrimitiveType.TYPE;
     }
 
@@ -304,7 +304,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstValueConstant value) {
+    public Type visit(ValueConstantSyntax value) {
         var constantInfo = table.lookupConstant(value.getName().getText());
         if (constantInfo == null) {
             checker.reportError(new SemanticError(value, String.format("%s cannot be resolved to a constant", value.getName().getText())));
@@ -317,7 +317,7 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(AstValueConfig value) {
+    public Type visit(ValueConfigSyntax value) {
         var configInfo = table.lookupConfig(value.getName().getText());
         if (configInfo == null) {
             checker.reportError(new SemanticError(value, String.format("%s cannot be resolved to a config", value.getName().getText())));
@@ -330,12 +330,12 @@ public final class TypeChecking extends AstTreeVisitor {
      * {@inheritDoc}
      */
     @Override
-    public Object visit(AstIdentifier identifier) {
+    public Object visit(IdentifierSyntax identifier) {
         return DEFAULT;
     }
 
     /**
-     * Attempts to infer a type property from the specified {@link AstConfig config} and has the specified {@code name}.
+     * Attempts to infer a type property from the specified {@link ConfigSyntax config} and has the specified {@code name}.
      *
      * @param config
      *         the configuration which contains the property.
@@ -346,16 +346,16 @@ public final class TypeChecking extends AstTreeVisitor {
      *
      * @return the {@link PrimitiveType} if it was inferred successfuly otherwise {@code null}
      */
-    private PrimitiveType inferTypeFromProperty(AstConfig config, AstProperty node, String name) {
+    private PrimitiveType inferTypeFromProperty(ConfigSyntax config, PropertySyntax node, String name) {
         var property = config.findProperty(name);
         if (property == null) {
             checker.reportError(new SemanticError(node, String.format("Property '%s' requires property '%s'", node.getKey().getText(), name)));
             return null;
         }
-        if (property.getValues().length != 1 || !(property.getValues()[0] instanceof AstValueType)) {
+        if (property.getValues().length != 1 || !(property.getValues()[0] instanceof ValueTypeSyntax)) {
             checker.reportError(new SemanticError(node, String.format("Cannot identify type in a required property: %s", name)));
             return null;
         }
-        return ((AstValueType) property.getValues()[0]).getType();
+        return ((ValueTypeSyntax) property.getValues()[0]).getType();
     }
 }

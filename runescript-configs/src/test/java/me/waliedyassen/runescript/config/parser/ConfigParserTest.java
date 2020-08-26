@@ -14,6 +14,7 @@ import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
+import me.waliedyassen.runescript.config.syntax.SyntaxParser;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.io.ByteArrayInputStream;
@@ -28,10 +29,10 @@ class ConfigParserTest {
         table = ConfigCompiler.createLexicalTable();
     }
 
-    private ConfigParser fromString(String source) throws IOException {
+    private SyntaxParser fromString(String source) throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream(source.getBytes()));
         var tokenizer = new Tokenizer(table, stream);
         var lexer = new Lexer(tokenizer);
-        return new ConfigParser(lexer);
+        return new SyntaxParser(lexer);
     }
 }

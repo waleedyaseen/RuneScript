@@ -22,7 +22,7 @@ import me.waliedyassen.runescript.config.codegen.CodeGenerator;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
-import me.waliedyassen.runescript.config.parser.ConfigParser;
+import me.waliedyassen.runescript.config.syntax.SyntaxParser;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.util.CollectorsEx;
@@ -89,7 +89,7 @@ public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
             try {
                 var tokenizer = new Tokenizer(lexicalTable, stream);
                 var lexer = new Lexer(tokenizer);
-                var parser = new ConfigParser(lexer);
+                var parser = new SyntaxParser(lexer);
                 var configs = parser.configs();
                 if (configs.length == 0) {
                     continue;

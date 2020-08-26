@@ -8,9 +8,9 @@
 package me.waliedyassen.runescript.config.var.rule;
 
 import lombok.var;
-import me.waliedyassen.runescript.config.ast.AstConfig;
-import me.waliedyassen.runescript.config.ast.AstProperty;
-import me.waliedyassen.runescript.config.ast.value.AstValue;
+import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
+import me.waliedyassen.runescript.config.syntax.PropertySyntax;
+import me.waliedyassen.runescript.config.syntax.value.ValueSyntax;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
 import me.waliedyassen.runescript.config.semantics.typecheck.TypeChecking;
 
@@ -29,7 +29,7 @@ public enum ConfigRules implements ConfigRule {
          * {@inheritDoc}
          */
         @Override
-        public void test(TypeChecking checking, AstConfig config, AstProperty property, AstValue value) {
+        public void test(TypeChecking checking, ConfigSyntax config, PropertySyntax property, ValueSyntax value) {
             var integer = ConfigRule.resolveInteger(checking, value);
             if (integer < 1) {
                 checking.getChecker().reportError(new SemanticError(value, "Expected a positive value for this component"));
@@ -51,7 +51,7 @@ public enum ConfigRules implements ConfigRule {
      * {@inheritDoc}
      */
     @Override
-    public void test(TypeChecking checking, AstConfig config, AstProperty property, AstValue value) {
+    public void test(TypeChecking checking, ConfigSyntax config, PropertySyntax property, ValueSyntax value) {
         // NOOP
     }
 }

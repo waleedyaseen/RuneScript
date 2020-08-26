@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.config.semantics;
 
 import me.waliedyassen.runescript.compiler.CompilerError;
-import me.waliedyassen.runescript.config.ast.AstNode;
+import me.waliedyassen.runescript.config.syntax.Syntax;
 
 /**
  * Represents a compiler error that occurred during the semantic analysis time.
@@ -25,7 +25,7 @@ public final class SemanticError extends CompilerError {
      * @param message
      *         the message describing why the error has occurred.
      */
-    public SemanticError(AstNode node, String message) {
+    public SemanticError(Syntax node, String message) {
         super(node.getRange(), message);
     }
 }
