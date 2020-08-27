@@ -45,7 +45,7 @@ public final class ScopedVariableSyntax extends VariableSyntax {
      * {@inheritDoc}
      */
     @Override
-    public <E, S> E accept(SyntaxVisitor<E, S> visitor) {
+    public <T> T accept(SyntaxVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

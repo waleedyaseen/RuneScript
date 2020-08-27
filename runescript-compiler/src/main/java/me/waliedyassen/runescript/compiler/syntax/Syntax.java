@@ -33,5 +33,5 @@ public abstract class Syntax extends SyntaxBase {
      *
      * @param visitor the visitor to accept.
      */
-    public abstract <E, S> Object accept(SyntaxVisitor<E, S> visitor);
+    public abstract <T> T accept(SyntaxVisitor<T> visitor);
 }

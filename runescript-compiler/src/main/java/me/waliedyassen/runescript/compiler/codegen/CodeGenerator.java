@@ -57,7 +57,7 @@ import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class CodeGenerator implements SyntaxVisitor<Instruction, Object> {
+public final class CodeGenerator implements SyntaxVisitor<Object> {
 
     /**
      * The start label of a while statement attribute name.
@@ -395,7 +395,8 @@ public final class CodeGenerator implements SyntaxVisitor<Instruction, Object> {
      * {@inheritDoc}
      */
     public Instruction visit(CalcSyntax command) {
-        return command.getExpression().accept(this);
+        command.getExpression().accept(this);
+        return null;
     }
 
     /**

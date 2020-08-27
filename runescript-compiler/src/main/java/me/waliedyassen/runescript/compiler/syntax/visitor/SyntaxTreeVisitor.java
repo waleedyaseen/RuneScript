@@ -22,7 +22,7 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax
  * Represents a {@link SyntaxVisitor} implementation that will visit every node in the AST tree while having access to when
  * each node has entered and when each node has left the visitor.
  */
-public abstract class SyntaxTreeVisitor implements SyntaxVisitor<Void, Void> {
+public abstract class SyntaxTreeVisitor implements SyntaxVisitor<Void> {
 
     /**
      * {@inheritDoc}

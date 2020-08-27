@@ -38,7 +38,7 @@ import java.util.HashSet;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class TypeChecking implements SyntaxVisitor<Type, Type> {
+public final class TypeChecking implements SyntaxVisitor<Type> {
 
     // TODO: return PrimitiveType.VOID should be changed to something else that would stop the execution of the type checking
     // for the parent nodes, just to skip the redundant type checking.

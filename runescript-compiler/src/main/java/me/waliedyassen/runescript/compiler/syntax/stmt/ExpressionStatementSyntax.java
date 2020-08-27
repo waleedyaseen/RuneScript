@@ -43,7 +43,7 @@ public final class ExpressionStatementSyntax extends StatementSyntax {
      * {@inheritDoc}
      */
     @Override
-    public <E, S> S accept(SyntaxVisitor<E, S> visitor) {
+    public <T> T accept(SyntaxVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

@@ -36,5 +36,5 @@ public abstract class StatementSyntax extends Syntax {
      * {@inheritDoc}
      */
     @Override
-    public abstract <E, S> S accept(SyntaxVisitor<E, S> visitor);
+    public abstract <T> T accept(SyntaxVisitor<T> visitor);
 }

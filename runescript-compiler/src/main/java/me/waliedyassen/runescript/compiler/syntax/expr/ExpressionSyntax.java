@@ -39,7 +39,7 @@ public abstract class ExpressionSyntax extends Syntax {
      * {@inheritDoc}
      */
     @Override
-    public abstract <E, S> E accept(SyntaxVisitor<E, S> visitor);
+    public abstract <T> T accept(SyntaxVisitor<T> visitor);
 
     /**
      * Sets the type of this expression.

@@ -31,7 +31,7 @@ public final class LiteralStringSyntax extends LiteralExpressionSyntax<String> {
      * {@inheritDoc}
      */
     @Override
-    public <E, S> E accept(SyntaxVisitor<E, S> visitor) {
+    public <T> T accept(SyntaxVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

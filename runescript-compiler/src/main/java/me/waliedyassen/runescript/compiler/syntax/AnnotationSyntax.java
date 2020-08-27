@@ -53,7 +53,7 @@ public final class AnnotationSyntax extends Syntax {
      * {@inheritDoc}
      */
     @Override
-    public <E, S> Object accept(SyntaxVisitor<E, S> visitor) {
+    public <T> T accept(SyntaxVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }

@@ -15,10 +15,10 @@ import me.waliedyassen.runescript.config.syntax.value.*;
 /**
  * Represents the Abstract-Syntax-Tree node visitor.
  *
- * @param <R>
+ * @param <T>
  *         the return type of the visit methods.
  */
-public interface SyntaxVisitor<R> {
+public interface SyntaxVisitor<T> {
 
     /**
      * Gets called when we have just visited an {@link ConfigSyntax} object.
@@ -28,7 +28,7 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(ConfigSyntax config);
+    T visit(ConfigSyntax config);
 
     /**
      * Gets called when we have just visited an {@link PropertySyntax} object.
@@ -38,7 +38,7 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(PropertySyntax property);
+    T visit(PropertySyntax property);
 
     /**
      * Gets called when we have just visited an {@link ValueStringSyntax} object.
@@ -48,7 +48,7 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(ValueStringSyntax value);
+    T visit(ValueStringSyntax value);
 
     /**
      * Gets called when we have just visited an {@link ValueIntegerSyntax} object.
@@ -58,7 +58,7 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(ValueIntegerSyntax value);
+    T visit(ValueIntegerSyntax value);
 
     /**
      * Gets called when we have just visited an {@link ValueLongSyntax} object.
@@ -68,7 +68,7 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(ValueLongSyntax value);
+    T visit(ValueLongSyntax value);
 
     /**
      * Gets called when we have just visited an {@link ValueBooleanSyntax} object.
@@ -78,7 +78,7 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(ValueBooleanSyntax value);
+    T visit(ValueBooleanSyntax value);
 
     /**
      * Gets called when we have just visited an {@link ValueTypeSyntax} object.
@@ -88,7 +88,7 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(ValueTypeSyntax value);
+    T visit(ValueTypeSyntax value);
 
     /**
      * Gets called when we have just visited an {@link ValueConstantSyntax} object.
@@ -98,7 +98,7 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(ValueConstantSyntax value);
+    T visit(ValueConstantSyntax value);
 
     /**
      * Gets called when we have just visited an {@link ValueConfigSyntax} object.
@@ -108,7 +108,7 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(ValueConfigSyntax value);
+    T visit(ValueConfigSyntax value);
 
     /**
      * Gets called when we have just visited an {@link IdentifierSyntax} object.
@@ -118,5 +118,5 @@ public interface SyntaxVisitor<R> {
      *
      * @return An object which is specified by the implementation.
      */
-    R visit(IdentifierSyntax identifier);
+    T visit(IdentifierSyntax identifier);
 }
