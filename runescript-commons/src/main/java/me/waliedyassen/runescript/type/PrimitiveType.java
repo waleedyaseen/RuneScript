@@ -203,7 +203,7 @@ public enum PrimitiveType implements Type {
     /**
      * The mapelement primitive type.
      */
-    MAPELEMENT('µ', "mapelement", StackType.INT, -1, TypeSerializer.SHORT),
+    MAPELEMENT('\u00B5', "mapelement", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The graphic primitive type.
