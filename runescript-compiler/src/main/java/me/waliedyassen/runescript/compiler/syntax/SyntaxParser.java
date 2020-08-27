@@ -10,14 +10,6 @@ package me.waliedyassen.runescript.compiler.syntax;
 import lombok.NonNull;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
-import me.waliedyassen.runescript.compiler.parser.ParserBase;
-import me.waliedyassen.runescript.compiler.parser.SyntaxError;
-import me.waliedyassen.runescript.compiler.syntax.expr.*;
-import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
-import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
-import me.waliedyassen.runescript.compiler.syntax.stmt.*;
-import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
-import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.LexerBase;
@@ -25,7 +17,17 @@ import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.parser.ParserBase;
+import me.waliedyassen.runescript.compiler.parser.SyntaxError;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
+import me.waliedyassen.runescript.compiler.syntax.expr.*;
+import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
+import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.*;
+import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.BreakStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
@@ -67,14 +69,10 @@ public final class SyntaxParser extends ParserBase<Kind> {
     /**
      * Constructs a new {@link SyntaxParser} type object instance.
      *
-     * @param environment
-     *         the environment of the compiler.
-     * @param symbolTable
-     *         the symbol table to use for checking hooks.
-     * @param lexer
-     *         the lexical parser to use for tokens.
-     * @param type
-     *         the scripts type that we are parsing.
+     * @param environment the environment of the compiler.
+     * @param symbolTable the symbol table to use for checking hooks.
+     * @param lexer       the lexical parser to use for tokens.
+     * @param type        the scripts type that we are parsing.
      */
     public SyntaxParser(@NonNull CompilerEnvironment environment, @NonNull ScriptSymbolTable symbolTable, @NonNull Lexer lexer, @NonNull String type) {
         super(lexer, Kind.EOF);
@@ -186,7 +184,6 @@ public final class SyntaxParser extends ParserBase<Kind> {
      * Attempts to parse an {@link ParameterSyntax} object node.
      *
      * @return the parsed {@link ParameterSyntax} object.
-     *
      * @see #parameter(int)
      */
     public ParameterSyntax parameter() {
@@ -196,9 +193,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
     /**
      * Attempts to parse an {@link ParameterSyntax} object node.
      *
-     * @param index
-     *         the current index of the parameter used for array references.
-     *
+     * @param index the current index of the parameter used for array references.
      * @return the parsed {@link ParameterSyntax} object.
      */
     public ParameterSyntax parameter(int index) {
@@ -247,9 +242,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
     /**
      * Attemps to parse a {@link ExpressionSyntax} tree with given lowest precedence allowed.
      *
-     * @param precedence
-     *         the lowest precedence that to be allowed in this tree.
-     *
+     * @param precedence the lowest precedence that to be allowed in this tree.
      * @return the parsed tree as a {@link ExpressionSyntax} object.
      */
     private ExpressionSyntax expression(int precedence) {
@@ -383,6 +376,10 @@ public final class SyntaxParser extends ParserBase<Kind> {
                 return ifStatement();
             case WHILE:
                 return whileStatement();
+            case CONTINUE:
+                return continueStatement();
+            case BREAK:
+                return breakStatement();
             case LBRACE:
                 return blockStatement();
             case RETURN:
@@ -414,7 +411,8 @@ public final class SyntaxParser extends ParserBase<Kind> {
     private boolean isStatement() {
         var kind = peekKind();
         // TODO: We can check for an EQUAL sign after the DOLLAR (kind == DOLLAR && peekKind(1) == EQUAL) to avoid errors.
-        return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR || kind == MOD || kind == SWITCH || isExpression();
+        return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR
+                || kind == MOD || kind == SWITCH || kind == CONTINUE || kind == BREAK || isExpression();
     }
 
     /**
@@ -442,6 +440,30 @@ public final class SyntaxParser extends ParserBase<Kind> {
         var expression = parExpression();
         var statement = statement();
         return new WhileStatementSyntax(popRange(), expression, statement);
+    }
+
+    /**
+     * Attempts to match the next token set to a while-statement rule.
+     *
+     * @return the matched {@link ContinueStatementSyntax} type object instance.
+     */
+    public ContinueStatementSyntax continueStatement() {
+        pushRange();
+        var token = consume(CONTINUE);
+        consume(SEMICOLON);
+        return new ContinueStatementSyntax(popRange(), token);
+    }
+
+    /**
+     * Attempts to match the next token set to an block-statement rule.
+     *
+     * @return the matched {@link BreakStatementSyntax} type object instance.
+     */
+    public BreakStatementSyntax breakStatement() {
+        pushRange();
+        var token = consume(BREAK);
+        consume(SEMICOLON);
+        return new BreakStatementSyntax(popRange(), token);
     }
 
     /**
@@ -939,11 +961,8 @@ public final class SyntaxParser extends ParserBase<Kind> {
      * Checks whether or not a hook should be parsed as an argument of the command with the specified
      * {@code name} and at the specified  {@code index}.
      *
-     * @param name
-     *         the name of the command which the argument is in.
-     * @param index
-     *         the index which the argument is located at in thecommand.
-     *
+     * @param name  the name of the command which the argument is in.
+     * @param index the index which the argument is located at in thecommand.
      * @return <code>true</code> if a hook should be parsed otherwise <code>false</code>.
      */
     private boolean isHookParameter(String name, int index) {
@@ -1022,9 +1041,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
     /**
      * Attempts to create a sub-lexer from the content of the specified {@link Token}.
      *
-     * @param token
-     *         the token which the content will be taken from.
-     *
+     * @param token the token which the content will be taken from.
      * @return the created {@link LexerBase} object.
      */
     private LexerBase<Kind> createLexerFromString(Token<Kind> token) {

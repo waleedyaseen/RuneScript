@@ -16,7 +16,7 @@ import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
 import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
-import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.WhileStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 
 /**
  * Represents a {@link SyntaxVisitor} implementation that will visit every node in the AST tree while having access to when

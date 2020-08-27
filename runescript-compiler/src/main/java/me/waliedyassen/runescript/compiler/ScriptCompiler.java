@@ -212,6 +212,8 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         table.registerKeyword("default", Kind.DEFAULT);
         table.registerKeyword("calc", Kind.CALC);
         table.registerKeyword("null", Kind.NULL);
+        table.registerKeyword("continue", Kind.CONTINUE);
+        table.registerKeyword("break", Kind.BREAK);
         for (var type : PrimitiveType.values()) {
             if (type.isReferencable()) {
                 table.registerKeyword(type.getRepresentation(), Kind.TYPE);

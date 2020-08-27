@@ -121,6 +121,15 @@ public enum Kind {
      */
     NULL,
 
+    /**
+     * The continue keyword token kind.
+     */
+    CONTINUE,
+
+    /**
+     * The break keyword token kind.
+     */
+    BREAK,
 
     // the separators chunk.
 

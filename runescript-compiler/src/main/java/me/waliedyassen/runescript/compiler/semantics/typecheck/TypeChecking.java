@@ -9,20 +9,22 @@ package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.syntax.SyntaxBase;
+import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
+import me.waliedyassen.runescript.compiler.semantics.SemanticError;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxBase;
 import me.waliedyassen.runescript.compiler.syntax.expr.*;
 import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
 import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
-import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.WhileStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.BreakStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
-import me.waliedyassen.runescript.compiler.semantics.SemanticError;
-import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
-import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.*;
@@ -223,12 +225,9 @@ public final class TypeChecking implements SyntaxVisitor<Type, Type> {
     /**
      * Checks whether or ont a script call is applicable.
      *
-     * @param call
-     *         the AST node object of the call.
-     * @param info
-     *         the information of the script we are calling.
-     * @param arguments
-     *         the arguments that are used in the call.
+     * @param call      the AST node object of the call.
+     * @param info      the information of the script we are calling.
+     * @param arguments the arguments that are used in the call.
      */
     private void checkCallApplicable(SyntaxBase call, ScriptInfo info, ExpressionSyntax[] arguments) {
         var types = new Type[arguments.length];
@@ -245,11 +244,8 @@ public final class TypeChecking implements SyntaxVisitor<Type, Type> {
     /**
      * Checks whether or not a script call is applicable.
      *
-     * @param expected
-     *         the expected arguments of the call.
-     * @param actual
-     *         the actual arguments of the call.
-     *
+     * @param expected the expected arguments of the call.
+     * @param actual   the actual arguments of the call.
      * @return <code>true</code> if it is applicable otherwise <code>false</code>.
      */
     private boolean isCallApplicable(Type[] expected, Type[] actual) {
@@ -438,9 +434,7 @@ public final class TypeChecking implements SyntaxVisitor<Type, Type> {
     /**
      * Resolves the specified case key expression integer value.
      *
-     * @param expression
-     *         the case key expression to resolve its value.
-     *
+     * @param expression the case key expression to resolve its value.
      * @return the integer value of that expression.
      */
     private int resolveCaseKey(ExpressionSyntax expression) {
@@ -499,6 +493,29 @@ public final class TypeChecking implements SyntaxVisitor<Type, Type> {
      * {@inheritDoc}
      */
     @Override
+    public Type visit(ContinueStatementSyntax continueStatementSyntax) {
+        var whileStatementSyntax = continueStatementSyntax.selectParent(syntax -> syntax instanceof WhileStatementSyntax);
+        if (whileStatementSyntax == null) {
+            checker.reportError(new SemanticError(continueStatementSyntax, "Continue statement is not allowed outside of a loop"));
+        }
+        return PrimitiveType.VOID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(BreakStatementSyntax breakStatementSyntax) {
+        var whileStatementSyntax = breakStatementSyntax.selectParent(syntax -> syntax instanceof WhileStatementSyntax);
+        if (whileStatementSyntax == null) {
+            checker.reportError(new SemanticError(breakStatementSyntax, "Break statement is not allowed outside of a loop"));
+        }
+        return PrimitiveType.VOID;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Type visit(ExpressionStatementSyntax expressionStatement) {
         return expressionStatement.getExpression().accept(this);
     }
@@ -544,15 +561,10 @@ public final class TypeChecking implements SyntaxVisitor<Type, Type> {
      * Checks if the specified {@link Operator operator} is applicable to the given {@link Type left} and {@link Type
      * right} hand sides, and if it is not applicable, it will report an error back to the {@link #checker}.
      *
-     * @param node
-     *         the node which requested this check.
-     * @param left
-     *         the left hand side type.
-     * @param right
-     *         the right hand side type.
-     * @param operator
-     *         the operator to check.
-     *
+     * @param node     the node which requested this check.
+     * @param left     the left hand side type.
+     * @param right    the right hand side type.
+     * @param operator the operator to check.
      * @return the output value type of the operator.
      */
     private Type checkOperator(SyntaxBase node, Type left, Type right, Operator operator) {
@@ -583,13 +595,9 @@ public final class TypeChecking implements SyntaxVisitor<Type, Type> {
      * Checks if the specified {@link Type expected type} matches the specified {@link Type actual type}, and if it does
      * not match, it will report an error back to the {@link #checker}.
      *
-     * @param node
-     *         the node which requested this check.
-     * @param expected
-     *         the expected type to match against.
-     * @param actual
-     *         the actual type to match.
-     *
+     * @param node     the node which requested this check.
+     * @param expected the expected type to match against.
+     * @param actual   the actual type to match.
      * @return <code>true</code> if the type matches the expected otherwise <code>false</code>.
      */
     private boolean checkType(SyntaxBase node, Type expected, Type actual) {

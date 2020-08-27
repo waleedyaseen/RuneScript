@@ -16,7 +16,9 @@ import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
 import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
-import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.WhileStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.BreakStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockMap;
@@ -56,6 +58,21 @@ import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
  */
 @RequiredArgsConstructor
 public final class CodeGenerator implements SyntaxVisitor<Instruction, Object> {
+
+    /**
+     * The start label of a while statement attribute name.
+     */
+    private static final String ATTR_START_LABEL = "cg_start_label";
+
+    /**
+     * The code label of a while statement attribute name.
+     */
+    private static final String ATTR_CODE_LABEL = "cg_code_label";
+
+    /**
+     * The end label of a while statement attribute name.
+     */
+    private static final String ATTR_END_LABEL = "cg_end_label";
 
     /**
      * The label generator used to generate any label for this code generator.
@@ -579,9 +596,9 @@ public final class CodeGenerator implements SyntaxVisitor<Instruction, Object> {
     @Override
     public Void visit(WhileStatementSyntax whileStatement) {
         // preserve the labels of this while statement for the number order.
-        var while_start_label = labelGenerator.generate("while_start");
-        var while_true_label = labelGenerator.generate("while_true");
-        var while_end_label = labelGenerator.generate("while_end");
+        var while_start_label = whileStatement.putAttribute(ATTR_START_LABEL, labelGenerator.generate("while_start"));
+        var while_true_label = whileStatement.putAttribute(ATTR_CODE_LABEL, labelGenerator.generate("while_true"));
+        var while_end_label = whileStatement.putAttribute(ATTR_END_LABEL, labelGenerator.generate("while_end"));
         // add a branch to the start block of the while.
         instruction(BRANCH, while_start_label);
         // generate the start block of the while statement.
@@ -596,6 +613,24 @@ public final class CodeGenerator implements SyntaxVisitor<Instruction, Object> {
         // generate the while end label.
         bind(generateBlock(while_end_label));
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(ContinueStatementSyntax continueStatementSyntax) {
+        var whileStatementSyntax = continueStatementSyntax.selectParent(syntax -> syntax instanceof WhileStatementSyntax);
+        return instruction(BRANCH, whileStatementSyntax.getAttribute(ATTR_START_LABEL));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(BreakStatementSyntax breakStatementSyntax) {
+        var whileStatementSyntax = breakStatementSyntax.selectParent(syntax -> syntax instanceof WhileStatementSyntax);
+        return instruction(BRANCH, whileStatementSyntax.getAttribute(ATTR_END_LABEL));
     }
 
     /**

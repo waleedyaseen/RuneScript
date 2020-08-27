@@ -15,7 +15,9 @@ import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
 import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
-import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.WhileStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.BreakStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 
 /**
  * Represents the base interface for an AST visitor.
@@ -362,6 +364,30 @@ public interface SyntaxVisitor<E, S> {
      * @return the implementation output object.
      */
     default S visit(WhileStatementSyntax whileStatement) {
+        return null;
+    }
+
+    /**
+     * Gets called when we have just visited an {@link ContinueStatementSyntax} node.
+     *
+     * @param continueStatementSyntax
+     *         the {@link ContinueStatementSyntax} node we have just visited.
+     *
+     * @return the implementation output object.
+     */
+    default S visit(ContinueStatementSyntax continueStatementSyntax) {
+        return null;
+    }
+
+    /**
+     * Gets called when we have just visited an {@link BreakStatementSyntax} node.
+     *
+     * @param breakStatementSyntax
+     *         the {@link BreakStatementSyntax} node we have just visited.
+     *
+     * @return the implementation output object.
+     */
+    default S visit(BreakStatementSyntax breakStatementSyntax) {
         return null;
     }
 

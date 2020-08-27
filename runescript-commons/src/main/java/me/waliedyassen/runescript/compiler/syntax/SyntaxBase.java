@@ -12,7 +12,9 @@ import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 /**
@@ -29,6 +31,11 @@ public abstract class SyntaxBase implements Element {
      */
     @Getter
     private final List<SyntaxBase> children = new ArrayList<>();
+
+    /**
+     * The attributes attached to the syntax.
+     */
+    private final Map<String, Object> attributes = new HashMap<>();
 
     /**
      * The node source code range.
@@ -115,5 +122,31 @@ public abstract class SyntaxBase implements Element {
             parent = parent.parent;
         }
         return null;
+    }
+
+    /**
+     * Returns the attribute that is stored in the attributes map under the specified
+     * {@code attributeName}.
+     *
+     * @param attributeName the name of the attribute that we want to retrieve.
+     * @param <T>           the type which the attribute will be casted to before returning.
+     * @return the attribute value casted to type {@link T} or {@code null} if nothing is present.
+     * @throws ClassCastException if the attribute cannot be casted to type {@link T}.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getAttribute(String attributeName) {
+        return (T) attributes.get(attributeName);
+    }
+
+    /**
+     * Adds a new attribute with the specified {@code value} to the attribute map.
+     *
+     * @param attributeName the name of the attribute to add.
+     * @param value         the value of the attribute to add.
+     * @param <T>           the type of the attribute we are adding.
+     */
+    public <T> T putAttribute(String attributeName, @NonNull T value) {
+        attributes.put(attributeName, value);
+        return value;
     }
 }
