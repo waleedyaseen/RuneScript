@@ -123,7 +123,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>${release.version}</version>
                 <configuration>
-                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
             <plugin>
