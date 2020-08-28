@@ -81,17 +81,22 @@ public enum PrimitiveType implements Type {
     /**
      * The var configuration type.
      */
-    VARBIT('\uffd3', "varbit", null, null, null),
+    VARBIT('\uffd4', "varbit", null, null, null),
 
     /**
      * The var client string configuration type.
      */
-    VARCSTR('\uffd3', "varcstr", null, null, null),
+    VARCSTR('\uffd5', "varcstr", null, null, null),
 
     /**
      * The var client integer configuration type.
      */
-    VARCINT('\uffd3', "varcint", null, null, null),
+    VARCINT('\uffd6', "varcint", null, null, null),
+
+    /**
+     * The null special type.
+     */
+    NULL('\uffd7', null, null, null, null),
 
     // All the types below are verified to be part of script var type.
 
@@ -270,9 +275,7 @@ public enum PrimitiveType implements Type {
     /**
      * Casts this type and the specified other type to a highest type then compares if they are equals.
      *
-     * @param other
-     *         the other type that we want to compare.
-     *
+     * @param other the other type that we want to compare.
      * @return <code>true</code> if they are equals otherwise <code>false</code>.
      */
     public boolean implicitEquals(PrimitiveType other) {
@@ -282,9 +285,7 @@ public enum PrimitiveType implements Type {
     /**
      * Casts the specified {@link PrimitiveType type} to a higher type.
      *
-     * @param type
-     *         the type that we want to cast to a higher type.
-     *
+     * @param type the type that we want to cast to a higher type.
      * @return the casted {@link PrimitiveType type} or the {@link PrimitiveType type} that was passed.
      */
     private PrimitiveType implicitCastToHigher(PrimitiveType type) {
@@ -374,9 +375,7 @@ public enum PrimitiveType implements Type {
     /**
      * Looks-up for the {@link PrimitiveType} with the textual representation.
      *
-     * @param representation
-     *         the textual representation of the {@link PrimitiveType}.
-     *
+     * @param representation the textual representation of the {@link PrimitiveType}.
      * @return the {@link PrimitiveType} if found otherwise {@code null}.
      */
     public static PrimitiveType forRepresentation(String representation) {
@@ -386,9 +385,7 @@ public enum PrimitiveType implements Type {
     /**
      * Returns the {@link PrimitiveType} with the specified {@code code}.
      *
-     * @param code
-     *         the code that we want it's associated primitive type.
-     *
+     * @param code the code that we want it's associated primitive type.
      * @return the {@link PrimitiveType} if found otherwise {@code null}.
      */
     public static PrimitiveType forCode(char code) {

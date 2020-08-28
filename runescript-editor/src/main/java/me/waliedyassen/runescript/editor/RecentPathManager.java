@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.editor.settings;
+package me.waliedyassen.runescript.editor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
@@ -29,7 +29,7 @@ import java.util.Map;
  */
 @Slf4j
 @RequiredArgsConstructor
-public final class Settings {
+public final class EditorSettings {
 
     /**
      * A map which acts like a cache for all of the last paths in directory and file chooser(s).

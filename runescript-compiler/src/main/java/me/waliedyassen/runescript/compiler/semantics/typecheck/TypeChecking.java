@@ -29,7 +29,6 @@ import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.*;
 
-import java.util.Arrays;
 import java.util.HashSet;
 
 /**
@@ -129,9 +128,17 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
      * {@inheritDoc}
      */
     @Override
+    public Type visit(LiteralNullSyntax literalNullSyntax) {
+        return literalNullSyntax.setType(PrimitiveType.NULL);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Type visit(ConcatenationSyntax concatenation) {
         for (var expr : concatenation.getExpressions()) {
-            checkType(expr, PrimitiveType.STRING, expr.accept(this));
+            isTypeApplicable(expr, PrimitiveType.STRING, expr.accept(this));
         }
         return concatenation.setType(PrimitiveType.STRING);
     }
@@ -195,7 +202,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
                         checker.reportError(new SemanticError(hook, String.format("Expected a transmit list of type '%s'", expected.getRepresentation())));
                     } else {
                         for (var transmit : transmits) {
-                            checkType(transmit, expected, transmit.accept(this));
+                            isTypeApplicable(transmit, expected, transmit.accept(this));
                         }
                     }
                 } else if (transmits.length != 0) {
@@ -234,22 +241,11 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
         for (int index = 0; index < arguments.length; index++) {
             types[index] = arguments[index].accept(this);
         }
-        var actual = TypeUtil.flatten(types);
-        var expected = info.getArguments();
-        if (!isCallApplicable(expected, actual)) {
-            checker.reportError(new SemanticError(call, String.format("The script %s(%s) is not applicable for the arguments (%s)", info.getName(), TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(expected))));
+        var actual = new TupleType(types);
+        var expected = new TupleType(info.getArguments());
+        if (!isTypeApplicable(call, expected, actual, false)) {
+            checker.reportError(new SemanticError(call, String.format("The script %s(%s) is not applicable for the arguments (%s)", info.getName(), expected.getRepresentation(), actual.getRepresentation())));
         }
-    }
-
-    /**
-     * Checks whether or not a script call is applicable.
-     *
-     * @param expected the expected arguments of the call.
-     * @param actual   the actual arguments of the call.
-     * @return <code>true</code> if it is applicable otherwise <code>false</code>.
-     */
-    private boolean isCallApplicable(Type[] expected, Type[] actual) {
-        return actual.length == expected.length && Arrays.equals(actual, expected);
     }
 
     /**
@@ -311,10 +307,10 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
         for (var index = 0; index < arguments.length; index++) {
             types[index] = arguments[index].accept(this);
         }
-        var expected = TypeUtil.flatten(types);
-        var actual = info.getArguments();
-        if (expected.length != actual.length || !Arrays.equals(expected, actual)) {
-            checker.reportError(new SemanticError(command, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(expected))));
+        var expected = new TupleType(info.getArguments());
+        var actual = new TupleType(types);
+        if (!isTypeApplicable(command, expected, actual, false)) {
+            checker.reportError(new SemanticError(command, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), actual.getRepresentation(), expected.getRepresentation())));
         }
         return command.setType(info.getType());
     }
@@ -325,7 +321,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
     @Override
     public Type visit(CalcSyntax calc) {
         var type = calc.getExpression().accept(this);
-        checkType(calc.getExpression(), PrimitiveType.INT, type);
+        isTypeApplicable(calc.getExpression(), PrimitiveType.INT, type);
         return calc.setType(type);
     }
 
@@ -351,7 +347,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
             }
             return null;
         }
-        checkType(expression, variableDeclaration.getType(), expression.accept(this));
+        isTypeApplicable(expression, variableDeclaration.getType(), expression.accept(this));
         return PrimitiveType.VOID;
     }
 
@@ -363,7 +359,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
         if (arrayDeclaration.getType().getStackType() != StackType.INT) {
             checker.reportError(new SemanticError(arrayDeclaration, "Arrays can only have a type that is derived from the int type"));
         }
-        checkType(arrayDeclaration.getSize(), PrimitiveType.INT, arrayDeclaration.getSize().accept(this));
+        isTypeApplicable(arrayDeclaration.getSize(), PrimitiveType.INT, arrayDeclaration.getSize().accept(this));
         return PrimitiveType.UNDEFINED;
     }
 
@@ -410,13 +406,13 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
     @Override
     public Type visit(SwitchStatementSyntax switchStatement) {
         var type = switchStatement.getType();
-        checkType(switchStatement.getCondition(), type, switchStatement.getCondition().accept(this));
+        isTypeApplicable(switchStatement.getCondition(), type, switchStatement.getCondition().accept(this));
         var defined_keys = new HashSet<Integer>();
         for (var switchCase : switchStatement.getCases()) {
             var resolvedKeys = new int[switchCase.getKeys().length];
             for (var index = 0; index < resolvedKeys.length; index++) {
                 var key = switchCase.getKeys()[index];
-                if (checkType(key, type, key.accept(this))) {
+                if (isTypeApplicable(key, type, key.accept(this))) {
                     int resolvedKey = resolveCaseKey(key);
                     if (!defined_keys.add(resolvedKey)) {
                         checker.reportError(new SemanticError(key, "Duplicate case"));
@@ -470,7 +466,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
     @Override
     public Type visit(IfStatementSyntax ifStatement) {
         var condition = ifStatement.getCondition().accept(this);
-        checkType(ifStatement.getCondition(), PrimitiveType.BOOLEAN, condition);
+        isTypeApplicable(ifStatement.getCondition(), PrimitiveType.BOOLEAN, condition);
         ifStatement.getTrueStatement().accept(this);
         if (ifStatement.getFalseStatement() != null) {
             ifStatement.getFalseStatement().accept(this);
@@ -484,7 +480,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
     @Override
     public Type visit(WhileStatementSyntax whileStatement) {
         var condition = whileStatement.getCondition().accept(this);
-        checkType(whileStatement.getCondition(), PrimitiveType.BOOLEAN, condition);
+        isTypeApplicable(whileStatement.getCondition(), PrimitiveType.BOOLEAN, condition);
         whileStatement.getCode().accept(this);
         return PrimitiveType.VOID;
     }
@@ -512,6 +508,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
         }
         return PrimitiveType.VOID;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -542,7 +539,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
                 type = new TupleType(types);
                 break;
         }
-        checkType(returnStatement, script.getType(), type);
+        isTypeApplicable(returnStatement, script.getType(), type);
         return type;
     }
 
@@ -571,7 +568,9 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
         var applicable = false;
         if (operator.isEquality()) {
             if (left == PrimitiveType.BOOLEAN || left == PrimitiveType.INT || left == PrimitiveType.LONG) {
-                applicable = left.equals(right);
+                applicable = isTypeApplicable(null, left, right, false);
+            } else if (right == PrimitiveType.BOOLEAN || right == PrimitiveType.INT || right == PrimitiveType.LONG) {
+                applicable = isTypeApplicable(null, right, left, false);
             }
         } else if (operator.isRelational()) {
             if (left == PrimitiveType.INT || left == PrimitiveType.LONG) {
@@ -600,11 +599,41 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
      * @param actual   the actual type to match.
      * @return <code>true</code> if the type matches the expected otherwise <code>false</code>.
      */
-    private boolean checkType(SyntaxBase node, Type expected, Type actual) {
-        if (!expected.equals(actual)) {
-            checker.reportError(new SemanticError(node, "Type mismatch: cannot convert from " + actual.getRepresentation() + " to " + expected.getRepresentation()));
-            return false;
-        }
-        return true;
+    private boolean isTypeApplicable(SyntaxBase node, Type expected, Type actual) {
+        return isTypeApplicable(node, expected, actual, true);
     }
+
+    /**
+     * Checks if the specified {@link Type expected type} matches the specified {@link Type actual type}, and if it does
+     * not match, it will report an error back to the {@link #checker}.
+     *
+     * @param node        the node which requested this check.
+     * @param expected    the expected type to match against.
+     * @param actual      the actual type to match.
+     * @param reportError whether or not to report and error i the call is not applicable.
+     * @return <code>true</code> if the type matches the expected otherwise <code>false</code>.
+     */
+    private boolean isTypeApplicable(SyntaxBase node, Type expected, Type actual, boolean reportError) {
+        Type[] expectedFlattened = expected instanceof TupleType ? ((TupleType) expected).getFlattened() : new Type[]{expected};
+        Type[] actualFlattened = actual instanceof TupleType ? ((TupleType) actual).getFlattened() : new Type[]{actual};
+        boolean applicable = true;
+        if (expectedFlattened.length != actualFlattened.length) {
+            applicable = false;
+        } else {
+            for (int index = 0; index < expectedFlattened.length; index++) {
+                Type expectedType = expectedFlattened[index];
+                Type actualType = actualFlattened[index];
+                if (actualType == PrimitiveType.NULL) {
+                    applicable &= expectedType != PrimitiveType.PARAM && expectedType.getStackType() == StackType.INT;
+                } else {
+                    applicable &= expectedType.equals(actualType);
+                }
+            }
+        }
+        if (!applicable && reportError) {
+            checker.reportError(new SemanticError(node, "Type mismatch: cannot convert from " + actual.getRepresentation() + " to " + expected.getRepresentation()));
+        }
+        return applicable;
+    }
+
 }

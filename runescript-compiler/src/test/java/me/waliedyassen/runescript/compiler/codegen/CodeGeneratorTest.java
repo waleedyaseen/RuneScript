@@ -13,16 +13,17 @@ import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
+import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
 import me.waliedyassen.runescript.type.Type;
@@ -62,6 +63,7 @@ class CodeGeneratorTest {
         checker = new SemanticChecker(environment, table, false);
         generator = new CodeGenerator(environment, table, map, ScriptParserTest.TestTriggerType.CLIENTSCRIPT);
         generator.initialise();
+        table.defineCommand(new BasicOpcode(0, false), "func_i_i", PrimitiveType.INT, new Type[]{PrimitiveType.INT}, false, null, false);
     }
 
     @Test
@@ -109,11 +111,12 @@ class CodeGeneratorTest {
 
     @Test
     void testDiscard() {
-        var script = fromString("[proc,test](int $parameter) calc($parameter);")[0];
+        var script = fromString("[proc,test](int $parameter) func_i_i($parameter);")[0];
         var block = script.getBlocks().get(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("parameter", PrimitiveType.INT));
-        assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.POP_INT_DISCARD, 0);
-        assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.RETURN, 0);
+        assertInstructionEquals(block.getInstructions().get(1), 0, false, 0);
+        assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.POP_INT_DISCARD, 0);
+        assertInstructionEquals(block.getInstructions().get(3), CoreOpcode.RETURN, 0);
     }
 
     @Test
@@ -136,6 +139,15 @@ class CodeGeneratorTest {
         assertEquals(opcode.isLargeOperand(), mapped.isLarge());
         assertEquals(operand, instruction.getOperand());
     }
+
+
+    void assertInstructionEquals(Instruction instruction, int code, boolean large, Object operand) {
+        var opcode = instruction.getOpcode();
+        assertEquals(code, opcode.getCode());
+        assertEquals(large, opcode.isLarge());
+        assertEquals(operand, instruction.getOperand());
+    }
+
 
     BinaryScript[] fromResource(String name) {
         try (var stream = getClass().getResourceAsStream(name)) {

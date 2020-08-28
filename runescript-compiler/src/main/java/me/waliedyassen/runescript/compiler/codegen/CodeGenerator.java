@@ -242,16 +242,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      */
     @Override
     public Instruction visit(LiteralNullSyntax literalNullSyntax) {
-        switch (literalNullSyntax.getType().getStackType()) {
-            case INT:
-                return instruction(PUSH_INT_CONSTANT, -1);
-            case STRING:
-                return instruction(PUSH_STRING_CONSTANT, "");
-            case LONG:
-                return instruction(PUSH_LONG_CONSTANT, -1L);
-            default:
-                throw new IllegalStateException("Unrecognised stack type: " + literalNullSyntax.getType().getStackType());
-        }
+        return instruction(PUSH_INT_CONSTANT, -1);
     }
 
     /**
