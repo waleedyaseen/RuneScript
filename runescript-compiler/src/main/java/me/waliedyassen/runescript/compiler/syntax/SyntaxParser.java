@@ -283,16 +283,18 @@ public final class SyntaxParser extends ParserBase<Kind> {
                 return parExpression();
             case INTEGER:
                 return integerNumber();
-            case COORDGRID:
-                return coordgrid();
-            case LONG:
-                return longNumber();
             case STRING:
                 return string();
-            case CONCATB:
-                return concatString();
+            case LONG:
+                return longNumber();
             case BOOL:
                 return bool();
+            case COORDGRID:
+                return coordgrid();
+            case NULL:
+                return literalNull();
+            case CONCATB:
+                return concatString();
             case DOLLAR:
                 if (peekKind(2) == LPAREN) {
                     return arrayVariable();
@@ -329,7 +331,33 @@ public final class SyntaxParser extends ParserBase<Kind> {
      */
     public boolean isExpression() {
         var kind = peekKind();
-        return kind == INTEGER || kind == LONG || kind == STRING || kind == CONCATB || kind == BOOL || kind == IDENTIFIER || kind == DOLLAR || kind == MOD || kind == CARET || kind == LPAREN || kind == DOT || kind == CALC || kind == NULL || isCall() || isComponent();
+        return kind == INTEGER
+                || kind == LONG
+                || kind == STRING
+                || kind == CONCATB
+                || kind == BOOL
+                || kind == IDENTIFIER
+                || kind == DOLLAR
+                || kind == MOD
+                || kind == CARET
+                || kind == LPAREN
+                || kind == DOT
+                || kind == CALC
+                || kind == NULL
+                || isCall()
+                || isComponent();
+    }
+
+    /**
+     * Checks whether or not the next token is a valid expression statement start.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isExpressionStatement() {
+        var kind = peekKind();
+        return kind == IDENTIFIER
+                || kind == DOT
+                || isCall();
     }
 
     /**
@@ -395,7 +423,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
             case SWITCH:
                 return switchStatement();
             default:
-                if (isExpression()) {
+                if (isExpressionStatement()) {
                     return expressionStatement();
                 } else {
                     throw createError(consume(), "Expecting a statement");
@@ -787,6 +815,17 @@ public final class SyntaxParser extends ParserBase<Kind> {
         pushRange();
         var token = consume(BOOL);
         return new LiteralBooleanSyntax(popRange(), Boolean.parseBoolean(token.getLexeme()));
+    }
+
+    /**
+     * Attempts to match the next token to an {@link LiteralNullSyntax} object instance.
+     *
+     * @return the parsed {@link LiteralNullSyntax} object.
+     */
+    public LiteralNullSyntax literalNull() {
+        pushRange();
+        var wordToken = consume(NULL);
+        return new LiteralNullSyntax(popRange(), wordToken);
     }
 
     /**

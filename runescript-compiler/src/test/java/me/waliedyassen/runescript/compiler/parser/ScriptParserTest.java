@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020 Walied K. Yassen, All rights reserved.
- *  
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,6 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
+import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.lexer.Lexer;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
+import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.syntax.expr.*;
@@ -23,12 +29,6 @@ import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
-import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
-import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
-import me.waliedyassen.runescript.compiler.lexer.Lexer;
-import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
@@ -509,11 +509,9 @@ public final class ScriptParserTest {
 
     @Test
     void testExpressionStatement() {
-        assertAll("expression statement", () -> {
-            var stmt = fromString("true;").statement();
-            assertTrue(stmt instanceof ExpressionStatementSyntax);
-            assertTrue(((ExpressionStatementSyntax) stmt).getExpression() instanceof LiteralBooleanSyntax);
-        });
+        var stmt = fromString(".command;").statement();
+        assertTrue(stmt instanceof ExpressionStatementSyntax);
+        assertTrue(((ExpressionStatementSyntax) stmt).getExpression() instanceof CommandSyntax);
     }
 
     @Test
