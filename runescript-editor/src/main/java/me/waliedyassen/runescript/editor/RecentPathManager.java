@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
-import me.waliedyassen.runescript.editor.RuneScriptEditor;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 
 import java.nio.file.Files;
@@ -23,13 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The settings container type for the RuneScript Editor.
+ * The recent paths container for the RuneScript Editor.
  *
  * @author Walied K. Yassen
  */
 @Slf4j
 @RequiredArgsConstructor
-public final class EditorSettings {
+public final class RecentPathManager {
 
     /**
      * A map which acts like a cache for all of the last paths in directory and file chooser(s).
@@ -38,25 +37,39 @@ public final class EditorSettings {
     private final Map<String, Path> pathsCache = new HashMap<>();
 
     /**
-     * The path of this settings file.
+     * The path of this recent paths file.
      */
     @Getter
     private final Path path;
 
     /**
+     * Attempts to load the settings data from the local disk.
+     */
+    public void load() {
+        JsonNode root;
+        try (var reader = Files.newBufferedReader(path)) {
+            root = JsonUtil.getMapper().readTree(reader);
+        } catch (Throwable e) {
+            log.error("Failed to read the settings file from the local disk: {}", path, e);
+            return;
+        }
+        if (root.has("paths-cache")) {
+            var object = root.get("paths-cache");
+            object.fields().forEachRemaining(entry -> pathsCache.put(entry.getKey(), Paths.get(entry.getValue().asText())));
+        }
+    }
+
+    /**
      * Attempts to save the settings data to the local disk.
      */
     public void save() {
-        // Create the root node of the settings.
         var root = JsonUtil.getMapper().createObjectNode();
-        // Serialise the pathsCache field.
         if (!pathsCache.isEmpty()) {
             var object = root.putObject("paths-cache");
             pathsCache.forEach((key, value) -> {
                 object.put(key, value.toString());
             });
         }
-        // WRite the settings to the local disk.
         try (var writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
             JsonUtil.getMapper().writerWithDefaultPrettyPrinter().writeValue(writer, root);
         } catch (Throwable e) {
@@ -65,31 +78,9 @@ public final class EditorSettings {
     }
 
     /**
-     * Attempts to load the settings data from the local disk.
-     */
-    public void load() {
-        // The root node of the settings.
-        JsonNode root;
-        // Read the root node of the settings.
-        try (var reader = Files.newBufferedReader(path)) {
-            root = JsonUtil.getMapper().readTree(reader);
-        } catch (Throwable e) {
-            log.error("Failed to read the settings file from the local disk: {}", path, e);
-            return;
-        }
-        // Load the paths cache if it is present.
-        if (root.has("paths-cache")) {
-            var object = root.get("paths-cache");
-            object.fields().forEachRemaining(entry -> pathsCache.put(entry.getKey(), Paths.get(entry.getValue().asText())));
-        }
-    }
-
-    /**
      * Gets the cached {@link Path} of the specified cache {@code key}.
      *
-     * @param key
-     *         the key of the cached path.
-     *
+     * @param key the key of the cached path.
      * @return the {@link Path} if found otherwise {@link RuneScriptEditor#getUserDirectory()}.
      */
     public Path getCachedPath(String key) {
@@ -99,10 +90,8 @@ public final class EditorSettings {
     /**
      * Sets the cached {@link Path} for the specified cache {@code key}.
      *
-     * @param key
-     *         the key of the cached path.
-     * @param path
-     *         the path to set for the cache.
+     * @param key  the key of the cached path.
+     * @param path the path to set for the cache.
      */
     public void setCachedPath(String key, Path path) {
         pathsCache.put(key, path);

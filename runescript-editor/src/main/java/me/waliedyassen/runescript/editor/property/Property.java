@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.editor.property;
 
 import lombok.AllArgsConstructor;
+import lombok.var;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +17,7 @@ import java.util.function.Consumer;
 /**
  * A property is basically value that can be listened to it's changes.
  *
- * @param <T>
- *         the type of of the value the property will hold.
- *
+ * @param <T> the type of of the value the property will hold.
  * @author Walied K. Yassen
  */
 @AllArgsConstructor
@@ -47,14 +46,24 @@ public abstract class Property<T> {
      * Updates the value of the property, if the value is the same as the current value, nothing will happen otherwise
      * all the listeners will be fired.
      *
-     * @param newValue
-     *         the new value to set for the property.
+     * @param newValue the new value to set for the property.
      */
     public void set(T newValue) {
         if (value == newValue) {
             return;
         }
-        fireListeners(value, value = newValue);
+        var oldValue = value;
+        setRaw(newValue);
+        fireListeners(oldValue, newValue);
+    }
+
+    /**
+     * Sets teh raw value of the property, this does not fire any listener that is currently listening to this property.
+     *
+     * @param newValue the new value to set for the property.
+     */
+    public void setRaw(T newValue) {
+        this.value = newValue;
     }
 
     /**
@@ -69,10 +78,8 @@ public abstract class Property<T> {
     /**
      * Fires all of the listeners.
      *
-     * @param oldValue
-     *         the old value of the property.
-     * @param newValue
-     *         the new value of the property.
+     * @param oldValue the old value of the property.
+     * @param newValue the new value of the property.
      */
     private void fireListeners(T oldValue, T newValue) {
         if (listeners.isEmpty()) {
@@ -85,8 +92,7 @@ public abstract class Property<T> {
      * Registers a new listener to this property. This is same as calling {@link #addListener(Consumer)} except that
      * this method calls the specified {@link Consumer listener} with the current value before registering it.
      *
-     * @param listener
-     *         the listener to call and register.
+     * @param listener the listener to call and register.
      */
     public void bind(Consumer<T> listener) {
         listener.accept(value);
@@ -96,8 +102,7 @@ public abstract class Property<T> {
     /**
      * Registers a new listener to this property.
      *
-     * @param listener
-     *         the {@link Consumer} which will be called with the new value upon a change in the property value.
+     * @param listener the {@link Consumer} which will be called with the new value upon a change in the property value.
      */
     public void addListener(Consumer<T> listener) {
         addListener(((property, oldValue, newValue) -> listener.accept(newValue)));
@@ -106,11 +111,8 @@ public abstract class Property<T> {
     /**
      * Registers a new {@link PropertyListener listener} to this property.
      *
-     * @param listener
-     *         the listener that we want to register to this property.
-     *
-     * @throws IllegalArgumentException
-     *         if the specified listener is already registered to this property.
+     * @param listener the listener that we want to register to this property.
+     * @throws IllegalArgumentException if the specified listener is already registered to this property.
      */
     public void addListener(PropertyListener<T> listener) {
         if (listeners.contains(listener)) {

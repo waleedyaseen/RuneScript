@@ -7,6 +7,7 @@
  */
 package me.waliedyassen.runescript.editor;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import me.waliedyassen.runescript.editor.resource.ResourceManager;
 
 import javax.swing.*;
@@ -27,22 +28,57 @@ public final class EditorIcons {
     /**
      * The icon of the folder node in the explorer tree.
      */
-    public static final Icon FILETYPE_FOLDER_ICON = ResourceManager.getInstance().loadIcon("/icons/tree/folder.png");
+    public static final Icon FILETYPE_FOLDER_ICON = pngIcon("tree/folder");
 
     /**
      * The icon of the file node in the explorer tree.
      */
-    public static final Icon FILETYPE_FILE_ICON = ResourceManager.getInstance().loadIcon("/icons/tree/file.png");
+    public static final Icon FILETYPE_FILE_ICON = pngIcon("tree/file");
 
     /**
      * The icon of the script node in the explorer tree.
      */
-    public static final Icon FILETYPE_SCRIPT_ICON = ResourceManager.getInstance().loadIcon("/icons/tree/script.png");
+    public static final Icon FILETYPE_SCRIPT_ICON = pngIcon("tree/script");
 
     /**
      * The icon of the config node in the explorer tree.
      */
-    public static final Icon FILETYPE_CONFIG_ICON = ResourceManager.getInstance().loadIcon("/icons/tree/config.png");
+    public static final Icon FILETYPE_CONFIG_ICON = pngIcon("tree/config");
+
+    /**
+     * The icon of the settings menu item.
+     */
+    public static final Icon SETTINGS = ideaIcon("settings");
+
+    /**
+     * Returns the {@code SVG} Intellij IDEA icon with the specified {@code name}.
+     *
+     * @param name the name of the icon.
+     * @return the {@link Icon} object.
+     */
+    private static Icon ideaIcon(String name) {
+        return svgIcon("idea/" + name);
+    }
+
+    /**
+     * Returns the {@code SVG} icon with the specified {@code name}.
+     *
+     * @param name the name of the icon.
+     * @return the {@link Icon} object.
+     */
+    private static Icon svgIcon(String name) {
+        return new FlatSVGIcon("icons/" + name + ".svg");
+    }
+
+    /**
+     * Returns the {@code PNG} icon with the specified {@code name}.
+     *
+     * @param name the name of the icon.
+     * @return the {@link Icon} object.
+     */
+    private static Icon pngIcon(String name) {
+        return ResourceManager.getInstance().loadIcon("/icons/" + name + ".png");
+    }
 
     private EditorIcons() {
         // NOOP

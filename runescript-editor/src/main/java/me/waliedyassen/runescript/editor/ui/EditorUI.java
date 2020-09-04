@@ -20,6 +20,7 @@ import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.errors.ErrorsView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.ProjectNode;
+import me.waliedyassen.runescript.editor.ui.settings.SettingsDialog;
 import me.waliedyassen.runescript.editor.ui.status.StatusBar;
 
 import javax.swing.*;
@@ -76,7 +77,6 @@ public final class EditorUI implements WindowListener {
      * Initialises the user-interface.
      */
     public void initialise() {
-        frame.setIconImage(EditorIcons.FAVICON);
         initialiseComponents();
         initialiseProperties();
         editor.getProjectManager().getCurrentProject().addListener(project -> {
@@ -105,10 +105,10 @@ public final class EditorUI implements WindowListener {
      * Initialises the main frame component.
      */
     private void initialiseFrame() {
+        frame.setIconImage(EditorIcons.FAVICON);
         frame.setPreferredSize(new Dimension(1270, 768));
         frame.setMinimumSize(new Dimension(600, 400));
         frame.addWindowListener(this);
-        //    frame.add(topUi, BorderLayout.NORTH);
     }
 
     /**
@@ -141,42 +141,58 @@ public final class EditorUI implements WindowListener {
         frame.setJMenuBar(bar);
         var fileMenu = new JMenu("File");
         {
-            var menuItem = new JMenuItem("Open");
-            menuItem.addActionListener((evt) -> {
-                if (!editor.getProjectManager().getCurrentProject().isEmpty()) {
-                    editor.getProjectManager().close();
-                }
-                var chooser = new JFileChooser(editor.getSettings().getCachedPath("open-project").toFile());
-                chooser.setDialogTitle("Choose a project directory");
-                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                if (chooser.showOpenDialog(frame) != JFileChooser.APPROVE_OPTION) {
-                    return;
-                }
-                var result = chooser.getSelectedFile().toPath();
-                editor.getSettings().setCachedPath("open-project", result);
-                editor.getProjectManager().open(result);
-            });
-            fileMenu.add(menuItem);
-            editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
-
-            menuItem = new JMenuItem("Close");
-            menuItem.addActionListener((evt) -> editor.getProjectManager().close());
-            fileMenu.add(menuItem);
-            editor.getProjectManager().getActiveProperty().bind(menuItem::setEnabled);
+            {
+                var menuItem = new JMenuItem("Open");
+                menuItem.addActionListener((evt) -> {
+                    if (!editor.getProjectManager().getCurrentProject().isEmpty()) {
+                        editor.getProjectManager().close();
+                    }
+                    var chooser = new JFileChooser(editor.getRecentPathManager().getCachedPath("open-project").toFile());
+                    chooser.setDialogTitle("Choose a project directory");
+                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    if (chooser.showOpenDialog(frame) != JFileChooser.APPROVE_OPTION) {
+                        return;
+                    }
+                    var result = chooser.getSelectedFile().toPath();
+                    editor.getRecentPathManager().setCachedPath("open-project", result);
+                    editor.getProjectManager().open(result);
+                });
+                fileMenu.add(menuItem);
+                editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
+            }
+            {
+                JMenuItem menuItem = new JMenuItem("Close");
+                menuItem.addActionListener((evt) -> editor.getProjectManager().close());
+                fileMenu.add(menuItem);
+                editor.getProjectManager().getActiveProperty().bind(menuItem::setEnabled);
+            }
             fileMenu.addSeparator();
-
-            menuItem = new JMenuItem("Create");
-            menuItem.addActionListener((evt) -> {
-                // TBI
-            });
-            fileMenu.add(menuItem);
-            editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
+            {
+                JMenuItem menuItem = new JMenuItem("Create");
+                menuItem.addActionListener(evt -> {
+                    // TBI
+                });
+                fileMenu.add(menuItem);
+                editor.getProjectManager().getInactiveProperty().bind(menuItem::setEnabled);
+            }
             fileMenu.addSeparator();
-
-            menuItem = new JMenuItem("Exit");
-            menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
-            menuItem.addActionListener((evt) -> windowClosing(null));
-            fileMenu.add(menuItem);
+            {
+                JMenuItem menuItem = new JMenuItem("Settings");
+                menuItem.setIcon(EditorIcons.SETTINGS);
+                menuItem.setAccelerator(KeyStroke.getKeyStroke("ctrl alt S"));
+                menuItem.addActionListener(evt -> {
+                    var dialog = new SettingsDialog(frame);
+                    dialog.setVisible(true);
+                });
+                fileMenu.add(menuItem);
+            }
+            fileMenu.addSeparator();
+            {
+                JMenuItem menuItem = new JMenuItem("Exit");
+                menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
+                menuItem.addActionListener(evt -> windowClosing(null));
+                fileMenu.add(menuItem);
+            }
 
         }
         bar.add(fileMenu);

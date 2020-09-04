@@ -20,7 +20,7 @@
         <dockingframes.version>1.1.1</dockingframes.version>
         <jackson.version>2.11.0</jackson.version>
         <rsta.version>3.1.1</rsta.version>
-        <flatlaf.version>0.39</flatlaf.version>
+        <flatlaf.version>0.41</flatlaf.version>
     </properties>
     <dependencies>
         <dependency>
@@ -51,6 +51,11 @@
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf-intellij-themes</artifactId>
+            <version>${flatlaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-extras</artifactId>
             <version>${flatlaf.version}</version>
         </dependency>
         <dependency>

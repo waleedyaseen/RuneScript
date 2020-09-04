@@ -216,8 +216,7 @@ public final class Project {
     /**
      * Constructs a new {@link Project} type object instance.
      *
-     * @param directory
-     *         the root directory path of the project.
+     * @param directory the root directory path of the project.
      */
     Project(Path directory) {
         this.directory = directory;
@@ -228,8 +227,7 @@ public final class Project {
     /**
      * Attempts to load the project information data from the local disk.
      *
-     * @throws IOException
-     *         if anything occurs during the loading procedure.
+     * @throws IOException if anything occurs during the loading procedure.
      */
     void loadData() throws IOException {
         // Read the node tree from the file.
@@ -239,21 +237,18 @@ public final class Project {
         }
         // Read the project general information.
         name = JsonUtil.getTextOrThrow(root, "name", "The project name cannot be null or empty");
-        loadBuildPath(root);
-        loadCompiler(root);
         supportsLongPrimitiveType = JsonUtil.getBooleanOrDefault(root, "supportsLongPrimitiveType", false);
         overrideSymbols = JsonUtil.getBooleanOrDefault(root, "overrideSymbols", false);
+        loadBuildPath(root);
+        loadCompiler(root);
         postLoad();
     }
 
     /**
      * Attempts to load the {@link BuildPath} object from the specified {@link JsonNode} root object.
      *
-     * @param root
-     *         the root node which contains the build path node.
-     *
-     * @throws IOException
-     *         if anything occurs during the loading procedure.
+     * @param root the root node which contains the build path node.
+     * @throws IOException if anything occurs during the loading procedure.
      */
     void loadBuildPath(JsonNode root) throws IOException {
         var object = JsonUtil.getObjectOrThrow(root, "build_path", "The build path object cannot be null");
@@ -266,8 +261,7 @@ public final class Project {
     /**
      * Loads the compiler configuration of the project.
      *
-     * @param root
-     *         the root node to load the configuration from.
+     * @param root the root node to load the configuration from.
      */
     void loadCompiler(JsonNode root) {
         var object = JsonUtil.getObjectOrThrow(root, "compiler", "The compiler object cannot be null");
@@ -769,8 +763,7 @@ public final class Project {
     /**
      * Updates the errors in the error view that belong to the specified {@link CacheUnit unit}.
      *
-     * @param unit
-     *         the cache unit to update the errors for.
+     * @param unit the cache unit to update the errors for.
      */
     public void updateErrors(CacheUnit unit) {
         var errorsView = Api.getApi().getUi().getErrorsView();
@@ -816,9 +809,7 @@ public final class Project {
      * Resolves the root .rs directory path and create it if it does not exist.
      *
      * @return the {@link Path} object of the .rs directory.
-     *
-     * @throws ProjectException
-     *         if the creation of the .rs directory failed.
+     * @throws ProjectException if the creation of the .rs directory failed.
      */
     private Path resolveRsPath() {
         var path = directory.resolve(".rs/");
@@ -835,8 +826,7 @@ public final class Project {
     /**
      * Saves the information data of the project to the local disk.
      *
-     * @throws IOException
-     *         if anything occurs during the saving procedure.
+     * @throws IOException if anything occurs during the saving procedure.
      */
     public void saveData() throws IOException {
         // Create the project root node.

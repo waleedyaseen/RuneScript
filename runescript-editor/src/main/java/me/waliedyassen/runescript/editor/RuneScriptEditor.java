@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.editor.project.ProjectManager;
-import me.waliedyassen.runescript.editor.settings.Settings;
+import me.waliedyassen.runescript.editor.settings.SettingsManager;
 import me.waliedyassen.runescript.editor.ui.EditorUI;
 import me.waliedyassen.runescript.editor.util.LafUtil;
 
@@ -45,7 +45,7 @@ public final class RuneScriptEditor {
      * The settings of the editor.
      */
     @Getter
-    private Settings settings;
+    private RecentPathManager recentPathManager;
 
     /**
      * The user-interface of the editor.
@@ -57,19 +57,19 @@ public final class RuneScriptEditor {
      * Initialises the RuneScript Editor.
      */
     private void initialise() {
-        initialiseSettings();
+        initialiseRecentPaths();
         initialiseUi();
     }
 
     /**
      * Initialises the editor settings.
      */
-    private void initialiseSettings() {
-        settings = new Settings(userDirectory.resolve("settings.json"));
-        if (Files.exists(settings.getPath())) {
-            settings.load();
+    private void initialiseRecentPaths() {
+        recentPathManager = new RecentPathManager(userDirectory.resolve("settings.json"));
+        if (Files.exists(recentPathManager.getPath())) {
+            recentPathManager.load();
         } else {
-            settings.save();
+            recentPathManager.save();
         }
     }
 
@@ -91,7 +91,7 @@ public final class RuneScriptEditor {
     /**
      * Initialises the editor user directory.
      */
-    private static void initialiseDirectory() {
+    public static void initialiseDirectory() {
         userDirectory = Paths.get(System.getProperty("user.home")).resolve(".runescript");
         if (!Files.exists(userDirectory)) {
             try {
@@ -125,12 +125,12 @@ public final class RuneScriptEditor {
      * The main entry point for each Java application, in this (our) application, we will start the RuneScript Editor
      * systems and display the user-interface for the user.
      *
-     * @param args
-     *         the command-line arguments that are passed to the application, currently ignored.
+     * @param args the command-line arguments that are passed to the application, currently ignored.
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             initialiseDirectory();
+            SettingsManager.initialize();
             initialiseLookAndFeel();
             initialiseSystem();
         });
