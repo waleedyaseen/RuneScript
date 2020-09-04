@@ -10,9 +10,9 @@
     <parent>
         <artifactId>runescript-parent</artifactId>
         <groupId>me.waliedyassen.runescript</groupId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>runescript-runtime</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
 </project>
