@@ -657,6 +657,9 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
                     case EQUAL:
                         opcode = CoreOpcode.BRANCH_EQUALS;
                         break;
+                    case NOT_EQUAL:
+                        opcode = CoreOpcode.BRANCH_NOT;
+                        break;
                     case LESS_THAN:
                         opcode = CoreOpcode.BRANCH_LESS_THAN;
                         break;
