@@ -931,7 +931,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
     public ConstantSyntax constant() {
         pushRange();
         consume(CARET);
-        var name = identifier();
+        var name = advancedIdentifier();
         return new ConstantSyntax(popRange(), name);
     }
 
