@@ -267,7 +267,7 @@ public final class ScriptParserTest {
             assertTrue(expr.getExpression() instanceof LiteralIntegerSyntax);
         }, () -> {
             // valid double calc no par expression
-            var parser = fromString("calc 1 = 5 calc 2 = 5");
+            var parser = fromString("calc(1 = 5) calc (2 = 5)");
             var expr1 = parser.calc();
             assertNotNull(expr1);
             assertTrue(expr1.getExpression() instanceof BinaryOperationSyntax);

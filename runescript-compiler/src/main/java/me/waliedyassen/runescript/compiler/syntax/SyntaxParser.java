@@ -1104,7 +1104,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
     public CalcSyntax calc() {
         pushRange();
         consume(CALC);
-        var expr = expression();
+        var expr = parExpression();
         return new CalcSyntax(popRange(), expr);
     }
 

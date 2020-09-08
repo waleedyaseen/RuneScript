@@ -332,7 +332,8 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
     public Type visit(BinaryOperationSyntax binaryOperation) {
         var left = binaryOperation.getLeft().accept(this);
         var right = binaryOperation.getRight().accept(this);
-        return binaryOperation.setType(checkOperator(binaryOperation, left, right, binaryOperation.getOperator()));
+        var type = checkOperator(binaryOperation, left, right, binaryOperation.getOperator());
+        return binaryOperation.setType(type);
     }
 
     /**
