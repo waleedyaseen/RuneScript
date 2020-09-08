@@ -209,7 +209,7 @@ public final class EditorUI implements WindowListener {
     }
 
     private JMenu buildCompileMenu() {
-        var menu = new JMenu("Compile");
+        var menu = new JMenu("Compiler");
         menu.setMnemonic('C');
         var activeProperty = Api.getApi().getProjectManager().getActiveProperty();
         {
@@ -235,6 +235,20 @@ public final class EditorUI implements WindowListener {
                         return;
                     }
                     property.get().getCache().pack(true);
+                });
+                activeProperty.bind(menuItem::setEnabled);
+                menu.add(menuItem);
+            }
+            menu.addSeparator();
+            {
+                var menuItem = new JMenuItem("Reload");
+                menuItem.setAccelerator(KeyStroke.getKeyStroke("F11"));
+                menuItem.addActionListener(evt -> {
+                    var property = Api.getApi().getProjectManager().getCurrentProject();
+                    if (property.isEmpty()) {
+                        return;
+                    }
+                    property.get().reloadCompiler();
                 });
                 activeProperty.bind(menuItem::setEnabled);
                 menu.add(menuItem);
