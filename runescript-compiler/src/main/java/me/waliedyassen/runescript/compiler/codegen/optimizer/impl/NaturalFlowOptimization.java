@@ -30,7 +30,7 @@ public final class NaturalFlowOptimization extends BlockOptimization {
         var instruction = block.last();
         if (instruction != null && optimizer.is(instruction, CoreOpcode.BRANCH)) {
             var label = (Label) instruction.getOperand();
-            if (script.isNextTo(block.getLabel(), label)) {
+            if (script.getBlockList().isNextTo(block.getLabel(), label)) {
                 block.remove(instruction);
                 return 1;
             }

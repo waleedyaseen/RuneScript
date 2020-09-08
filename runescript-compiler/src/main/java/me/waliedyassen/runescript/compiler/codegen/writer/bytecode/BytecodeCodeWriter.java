@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
+import me.waliedyassen.runescript.compiler.codegen.block.BlockList;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
@@ -53,7 +54,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
     @Override
     public BytecodeScript write(BinaryScript script) {
         // Build the address table of the blocks.
-        final var addressTable = buildAddressTable(script.getBlocks());
+        final var addressTable = buildAddressTable(script.getBlockList());
         // Build the index table of the local variables.
         final var localTable = buildLocalTable(script.getParameters(), script.getVariables());
         // Calculate the local variables and  parameters count.
@@ -66,8 +67,7 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
         //
         var switchTables = new LinkedList<Hashtable<Integer, Integer>>();
         final var instructions = new ArrayList<BytecodeInstruction>();
-        for (var label : script.getBlocks().keySet()) {
-            var $block = script.getBlocks().get(label);
+        for (var $block : script.getBlockList().getBlocks()) {
             for (var $instruction : $block.getInstructions()) {
                 var address = instructions.size();
                 var operand = $instruction.getOperand();
@@ -116,11 +116,8 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
     /**
      * Builds the index table of the specified local variables nad parameters.
      *
-     * @param parameters
-     *         the parameters to  build the index table for.
-     * @param variables
-     *         the local variables to build the index table for.
-     *
+     * @param parameters the parameters to  build the index table for.
+     * @param variables  the local variables to build the index table for.
      * @return the index table as a {@link Map} object.
      */
     private Map<Local, Integer> buildLocalTable(Map<StackType, List<Local>> parameters, Map<StackType, List<Local>> variables) {
@@ -152,17 +149,14 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
     /**
      * Builds the address table for the specified map of {@link Block blocks}.
      *
-     * @param blocks
-     *         the map of blocks to build the address table for.
-     *
+     * @param blocks the map of blocks to build the address table for.
      * @return the address table as a {@link Map} object.
      */
-    private Map<Label, Integer> buildAddressTable(Map<Label, Block> blocks) {
+    private Map<Label, Integer> buildAddressTable(BlockList blocks) {
         var table = new HashMap<Label, Integer>();
         var address = 0;
-        for (var label : blocks.keySet()) {
-            var block = blocks.get(label);
-            table.put(label, address);
+        for (var block : blocks.getBlocks()) {
+            table.put(block.getLabel(), address);
             address += block.getInstructions().size();
         }
         return table;

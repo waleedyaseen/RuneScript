@@ -43,6 +43,7 @@ class CodeGeneratorTest {
 
     CodeGenerator generator;
     SemanticChecker checker;
+    InstructionMap instructionMap;
     static CompilerEnvironment environment;
 
     @BeforeAll
@@ -56,20 +57,23 @@ class CodeGeneratorTest {
     @BeforeEach
     void setupGenerator() {
         var table = new ScriptSymbolTable();
-        var map = new InstructionMap();
+        instructionMap = new InstructionMap();
         for (var opcode : CoreOpcode.values()) {
-            map.registerCore(opcode, opcode.ordinal(), opcode.isLargeOperand());
+            instructionMap.registerCore(opcode, opcode.ordinal(), opcode.isLargeOperand());
         }
         checker = new SemanticChecker(environment, table, false);
-        generator = new CodeGenerator(environment, table, map, ScriptParserTest.TestTriggerType.CLIENTSCRIPT);
+        generator = new CodeGenerator(environment, table, instructionMap, ScriptParserTest.TestTriggerType.CLIENTSCRIPT);
         generator.initialise();
         table.defineCommand(new BasicOpcode(0, false), "func_i_i", PrimitiveType.INT, new Type[]{PrimitiveType.INT}, false, null, false);
+        table.defineCommand(new BasicOpcode(3100, false), "writeconsole", PrimitiveType.VOID, new Type[]{PrimitiveType.STRING}, false, null, false);
+        table.defineCommand(new BasicOpcode(3101, false), "tostring", PrimitiveType.STRING, new Type[]{PrimitiveType.INT}, false, null, false);
+
     }
 
     @Test
     void testLocalDefine() {
         var script = fromResource("local_01.rs2")[0];
-        var block = script.getBlocks().get(new Label(0, "entry_0"));
+        var block = script.getBlockList().getBlock(new Label(0, "entry_0"));
         assertEquals(4, script.getParameters().values().stream().mapToInt(Collection::size).sum());
         assertEquals(new Local("bool_param", PrimitiveType.BOOLEAN), script.getParameters().get(StackType.INT).get(0));
         assertEquals(new Local("int_param", PrimitiveType.INT), script.getParameters().get(StackType.INT).get(1));
@@ -92,7 +96,7 @@ class CodeGeneratorTest {
     @Test
     void testCalcPrecedence() {
         var script = fromString("[proc,test](int $parameter)(int) return(calc(1 + $parameter * 5));")[0];
-        var block = script.getBlocks().get(new Label(0, "entry_0"));
+        var block = script.getBlockList().getBlock(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 1);
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.PUSH_INT_LOCAL, new Local("parameter", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.PUSH_INT_CONSTANT, 5);
@@ -104,7 +108,7 @@ class CodeGeneratorTest {
     @Test
     void testCalcSimple() {
         var script = fromString("[proc,test](int $parameter)(int) return(calc($parameter));")[0];
-        var block = script.getBlocks().get(new Label(0, "entry_0"));
+        var block = script.getBlockList().getBlock(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("parameter", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(1), CoreOpcode.RETURN, 0);
     }
@@ -112,7 +116,7 @@ class CodeGeneratorTest {
     @Test
     void testDiscard() {
         var script = fromString("[proc,test](int $parameter) func_i_i($parameter);")[0];
-        var block = script.getBlocks().get(new Label(0, "entry_0"));
+        var block = script.getBlockList().getBlock(new Label(0, "entry_0"));
         assertInstructionEquals(block.getInstructions().get(0), CoreOpcode.PUSH_INT_LOCAL, new Local("parameter", PrimitiveType.INT));
         assertInstructionEquals(block.getInstructions().get(1), 0, false, 0);
         assertInstructionEquals(block.getInstructions().get(2), CoreOpcode.POP_INT_DISCARD, 0);
@@ -124,11 +128,11 @@ class CodeGeneratorTest {
         var scripts = fromString("[proc,my_proc](int $parameter) @my_label(0); [label,my_label](int $parameter) ~my_proc(0);");
         assertEquals(2, scripts.length);
         var first = scripts[0];
-        var first_block = first.getBlocks().get(new Label(0, "entry_0"));
+        var first_block = first.getBlockList().getBlock(new Label(0, "entry_0"));
         assertInstructionEquals(first_block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 0);
         assertInstructionEquals(first_block.getInstructions().get(1), CoreOpcode.JUMP_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_label", ScriptParserTest.TestTriggerType.LABEL, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}, null));
         var second = scripts[1];
-        var second_block = second.getBlocks().get(new Label(0, "entry_0"));
+        var second_block = second.getBlockList().getBlock(new Label(0, "entry_0"));
         assertInstructionEquals(second_block.getInstructions().get(0), CoreOpcode.PUSH_INT_CONSTANT, 0);
         assertInstructionEquals(second_block.getInstructions().get(1), CoreOpcode.GOSUB_WITH_PARAMS, new ScriptInfo(Collections.emptyMap(), "my_proc", ScriptParserTest.TestTriggerType.PROC, PrimitiveType.VOID, new Type[]{PrimitiveType.INT}, null));
     }

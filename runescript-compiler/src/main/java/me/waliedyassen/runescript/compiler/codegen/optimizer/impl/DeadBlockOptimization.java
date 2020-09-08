@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.codegen.optimizer.impl;
 
 import lombok.var;
+import me.waliedyassen.runescript.compiler.codegen.Instruction;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.BlockOptimization;
@@ -47,13 +48,13 @@ public final class DeadBlockOptimization extends BlockOptimization {
             }
         }
         super.run(optimizer, script);
-        for (var label : script.getBlocks().keySet()) {
+        for (var label : script.getBlockList().getLabels()) {
             var count = jumps.getOrDefault(label, 0);
             if (count < 1 && !label.isEntryLabel()) {
                 removing.add(label);
             }
         }
-        removing.forEach(script.getBlocks()::remove);
+        removing.forEach(script.getBlockList()::remove);
         return removing.size();
     }
 
@@ -62,11 +63,21 @@ public final class DeadBlockOptimization extends BlockOptimization {
      */
     @Override
     public int run(Optimizer optimizer, BinaryScript script, Block block) {
-        for (var instruction : block.getInstructions()) {
-            var operand = instruction.getOperand();
-            if (operand instanceof Label) {
-                var label = (Label) operand;
-                jumps.put(label, jumps.getOrDefault(label, 0) + 1);
+        List<Instruction> insns = block.getInstructions();
+        if (!insns.isEmpty()) {
+            for (var instruction : block.getInstructions()) {
+                var operand = instruction.getOperand();
+                if (operand instanceof Label) {
+                    var label = (Label) operand;
+                    jumps.put(label, jumps.getOrDefault(label, 0) + 1);
+                }
+            }
+            Instruction last = block.last();
+            if (last == null || !optimizer.isFlow(last)) {
+                Label next = script.getBlockList().getNext(block.getLabel());
+                if (next != null) {
+                    jumps.put(next, jumps.getOrDefault(next, 0) + 1);
+                }
             }
         }
         return 0;

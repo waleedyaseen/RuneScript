@@ -24,10 +24,8 @@ public abstract class BlockOptimization extends Optimization {
     @Override
     public int run(Optimizer optimizer, BinaryScript script) {
         var units = 0;
-        // TODO: We might run into concurrent modification issues if we try to modify
-        // the script whilst we are still running a block optimisation.
-        for (var label : script.getBlocks().keySet()) {
-            units += run(optimizer, script, script.getBlocks().get(label));
+        for (var block : script.getBlockList().getBlocks()) {
+            units += run(optimizer, script, block);
         }
         return units;
     }
@@ -35,13 +33,9 @@ public abstract class BlockOptimization extends Optimization {
     /**
      * Runs the optimization on the specified {@link Block}.
      *
-     * @param optimizer
-     *         the optimizer which is running this optimization.
-     * @param script
-     *         the script which the block is located in.
-     * @param block
-     *         the block to run on.
-     *
+     * @param optimizer the optimizer which is running this optimization.
+     * @param script    the script which the block is located in.
+     * @param block     the block to run on.
      * @return the amount of blocks that has been optimised.
      */
     public abstract int run(Optimizer optimizer, BinaryScript script, Block block);
