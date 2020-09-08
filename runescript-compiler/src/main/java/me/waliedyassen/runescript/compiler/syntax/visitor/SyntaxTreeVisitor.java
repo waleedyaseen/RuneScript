@@ -16,6 +16,7 @@ import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
 import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.DoWhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 
 /**
@@ -806,6 +807,36 @@ public abstract class SyntaxTreeVisitor implements SyntaxVisitor<Void> {
      *         the node we have just entered.
      */
     public void exit(WhileStatementSyntax whileStatement) {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Void visit(DoWhileStatementSyntax doWhileStatementSyntax) {
+        enter(doWhileStatementSyntax);
+        doWhileStatementSyntax.getCode().accept(this);
+        doWhileStatementSyntax.getCondition().accept(this);
+        exit(doWhileStatementSyntax);
+        return null;
+    }
+
+    /**
+     * Gets called when we have just entered an {@link DoWhileStatementSyntax} node.
+     *
+     * @param doWhileStatementSyntax
+     *         the node we have just entered.
+     */
+    public void enter(DoWhileStatementSyntax doWhileStatementSyntax) {
+    }
+
+    /**
+     * Gets called when we have just left an {@link DoWhileStatementSyntax} node.
+     *
+     * @param doWhileStatementSyntax
+     *         the node we have just entered.
+     */
+    public void exit(DoWhileStatementSyntax doWhileStatementSyntax) {
     }
 
     /**

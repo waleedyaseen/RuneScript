@@ -77,6 +77,11 @@ public enum Kind {
     WHILE,
 
     /**
+     * The 'do' keyword token kind.
+     */
+    DO,
+
+    /**
      * The 'return' keyword token kind.
      */
     RETURN,

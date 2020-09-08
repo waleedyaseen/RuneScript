@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler.codegen;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
+import me.waliedyassen.runescript.compiler.codegen.block.BlockList;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockMap;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.context.Context;
@@ -34,6 +35,7 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.BreakStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.DoWhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
@@ -147,9 +149,9 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         // format the script name to be in the formal format.
         var name = "[" + script.getTrigger().getText() + "," + ExpressionSyntax.extractNameText(script.getName()) + "]";
         // put all of the blocks into a sorted map.
-        var blocks = new LinkedHashMap<Label, Block>();
+        var blocks = new BlockList();
         for (var block : blockMap.getBlocks()) {
-            blocks.put(block.getLabel(), block);
+            blocks.add(block);
         }
         // clone the local variables and parameter maps.
         var parameters = new HashMap<>(localMap.getParameters());
@@ -616,6 +618,21 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         // generate the while statement jump to start instruction.
         instruction(BRANCH, while_start_label);
         // generate the while end label.
+        bind(generateBlock(while_end_label));
+        return null;
+    }
+
+    @Override
+    public Object visit(DoWhileStatementSyntax doWhileStatementSyntax) {
+        var while_true_label = doWhileStatementSyntax.putAttribute(ATTR_CODE_LABEL, labelGenerator.generate("do_while_true"));
+        var while_start_label = doWhileStatementSyntax.putAttribute(ATTR_START_LABEL, labelGenerator.generate("do_while_cond"));
+        var while_end_label = doWhileStatementSyntax.putAttribute(ATTR_END_LABEL, labelGenerator.generate("do_while_end"));
+        instruction(BRANCH, while_true_label);
+        bind(generateBlock(while_true_label));
+        doWhileStatementSyntax.getCode().accept(this);
+        instruction(BRANCH, while_start_label);
+        var condition = bind(generateBlock(while_start_label));
+        generateCondition(doWhileStatementSyntax.getCondition(), condition, while_true_label, while_end_label);
         bind(generateBlock(while_end_label));
         return null;
     }

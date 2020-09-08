@@ -27,6 +27,7 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.BreakStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.DoWhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
@@ -404,6 +405,8 @@ public final class SyntaxParser extends ParserBase<Kind> {
                 return ifStatement();
             case WHILE:
                 return whileStatement();
+            case DO:
+                return doWhileStatement();
             case CONTINUE:
                 return continueStatement();
             case BREAK:
@@ -439,7 +442,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
     private boolean isStatement() {
         var kind = peekKind();
         // TODO: We can check for an EQUAL sign after the DOLLAR (kind == DOLLAR && peekKind(1) == EQUAL) to avoid errors.
-        return kind == IF || kind == WHILE || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR
+        return kind == IF || kind == WHILE || kind == DO || kind == LBRACE || kind == RETURN || kind == DEFINE || kind == DOLLAR
                 || kind == MOD || kind == SWITCH || kind == CONTINUE || kind == BREAK || isExpression();
     }
 
@@ -468,6 +471,21 @@ public final class SyntaxParser extends ParserBase<Kind> {
         var expression = parExpression();
         var statement = statement();
         return new WhileStatementSyntax(popRange(), expression, statement);
+    }
+
+    /**
+     * Attempts to match the next token set to a while-statement rule.
+     *
+     * @return the matched {@link DoWhileStatementSyntax} type object instance.
+     */
+    public DoWhileStatementSyntax doWhileStatement() {
+        pushRange();
+        consume(DO);
+        var code = blockStatement();
+        consume(WHILE);
+        var expression = parExpression();
+        consume(SEMICOLON);
+        return new DoWhileStatementSyntax(popRange(), code, expression);
     }
 
     /**
@@ -853,6 +871,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
         switch (kind) {
             case IF:
             case ELSE:
+            case DO:
             case WHILE:
             case RETURN:
             case SWITCH:
@@ -879,7 +898,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
      */
     private boolean isAdvancedIdentifier() {
         var kind = peekKind();
-        return kind == IF || kind == ELSE || kind == WHILE || kind == RETURN || kind == SWITCH || kind == CASE || kind == DEFAULT || kind == CALC || kind == IDENTIFIER || kind == BOOL || kind == INTEGER || kind == LONG || kind == TYPE;
+        return kind == IF || kind == ELSE || kind == DO || kind == WHILE || kind == RETURN || kind == SWITCH || kind == CASE || kind == DEFAULT || kind == CALC || kind == IDENTIFIER || kind == BOOL || kind == INTEGER || kind == LONG || kind == TYPE;
     }
 
     /**

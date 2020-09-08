@@ -207,6 +207,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         table.registerKeyword("if", Kind.IF);
         table.registerKeyword("else", Kind.ELSE);
         table.registerKeyword("while", Kind.WHILE);
+        table.registerKeyword("do", Kind.DO);
         table.registerKeyword("return", Kind.RETURN);
         table.registerKeyword("case", Kind.CASE);
         table.registerKeyword("default", Kind.DEFAULT);

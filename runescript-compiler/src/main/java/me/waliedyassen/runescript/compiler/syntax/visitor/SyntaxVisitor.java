@@ -17,6 +17,7 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.BreakStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.DoWhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 
 /**
@@ -314,6 +315,16 @@ public interface SyntaxVisitor<T> {
      * @return the implementation output object.
      */
     default T visit(WhileStatementSyntax whileStatement) {
+        return null;
+    }
+
+    /**
+     * Gets called when we have just visited an {@link DoWhileStatementSyntax} node.
+     *
+     * @param doWhileStatementSyntax the {@link DoWhileStatementSyntax} node we have just visited.
+     * @return the implementation output object.
+     */
+    default T visit(DoWhileStatementSyntax doWhileStatementSyntax) {
         return null;
     }
 

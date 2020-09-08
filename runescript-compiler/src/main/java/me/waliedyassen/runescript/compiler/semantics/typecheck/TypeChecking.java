@@ -23,6 +23,7 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.BreakStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.loop.DoWhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.util.Operator;
@@ -486,6 +487,16 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
         return PrimitiveType.VOID;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Type visit(DoWhileStatementSyntax doWhileStatementSyntax) {
+        doWhileStatementSyntax.getCode().accept(this);
+        var condition = doWhileStatementSyntax.getCondition().accept(this);
+        isTypeApplicable(doWhileStatementSyntax.getCondition(), PrimitiveType.BOOLEAN, condition);
+        return PrimitiveType.VOID;
+    }
     /**
      * {@inheritDoc}
      */
