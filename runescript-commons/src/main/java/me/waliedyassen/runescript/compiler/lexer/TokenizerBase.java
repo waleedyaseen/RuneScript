@@ -7,12 +7,21 @@
  */
 package me.waliedyassen.runescript.compiler.lexer;
 
+import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
+
 /**
  * Represents a lexical parser tokenizer base class.
  *
  * @author Walied K. Yassen
  */
+@RequiredArgsConstructor
 public abstract class TokenizerBase {
+
+    /**
+     * The error reporter we will use to report erroneous input.
+     */
+    protected final ErrorReporter errorReporter;
 
     /**
      * Checks whether or not the specified character can be used as the identifier's starting character.

@@ -11,6 +11,7 @@ import lombok.NonNull;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.LexerBase;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
@@ -63,6 +64,11 @@ public final class SyntaxParser extends ParserBase<Kind> {
     private final CompilerEnvironment environment;
 
     /**
+     *
+     */
+    private final ErrorReporter errorReporter;
+
+    /**
      * The scripts type that we are parsing.
      */
     private final String type;
@@ -70,15 +76,21 @@ public final class SyntaxParser extends ParserBase<Kind> {
     /**
      * Constructs a new {@link SyntaxParser} type object instance.
      *
-     * @param environment the environment of the compiler.
-     * @param symbolTable the symbol table to use for checking hooks.
-     * @param lexer       the lexical parser to use for tokens.
-     * @param type        the scripts type that we are parsing.
+     * @param environment   the environment of the compiler.
+     * @param symbolTable   the symbol table to use for checking hooks.
+     * @param errorReporter the error reporter we will use for reporting back errors.
+     * @param lexer         the lexical parser to use for tokens.
+     * @param type          the scripts type that we are parsing.
      */
-    public SyntaxParser(@NonNull CompilerEnvironment environment, @NonNull ScriptSymbolTable symbolTable, @NonNull Lexer lexer, @NonNull String type) {
+    public SyntaxParser(@NonNull CompilerEnvironment environment,
+                        @NonNull ScriptSymbolTable symbolTable,
+                        @NonNull ErrorReporter errorReporter,
+                        @NonNull Lexer lexer,
+                        @NonNull String type) {
         super(lexer, Kind.EOF);
         this.environment = environment;
         this.symbolTable = symbolTable;
+        this.errorReporter = errorReporter;
         this.type = type;
     }
 
@@ -1068,7 +1080,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
             var line = token.getRange().getStart().getLine();
             var column = token.getRange().getStart().getColumn();
             var stream = new BufferedCharStream(new ByteArrayInputStream(lexeme), line, column);
-            var tokenizer = new Tokenizer(((Lexer) lexer()).getLexicalTable(), stream);
+            var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream);
             return new Lexer(tokenizer);
         } catch (IOException e) {
             throw new IllegalStateException("Should not happen");

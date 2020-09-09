@@ -11,6 +11,7 @@ import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
+import me.waliedyassen.runescript.config.error.ThrowingErrorReporter;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
@@ -31,7 +32,7 @@ class ConfigParserTest {
 
     private SyntaxParser fromString(String source) throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream(source.getBytes()));
-        var tokenizer = new Tokenizer(table, stream);
+        var tokenizer = new Tokenizer(new ThrowingErrorReporter() ,table, stream);
         var lexer = new Lexer(tokenizer);
         return new SyntaxParser(lexer);
     }

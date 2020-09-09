@@ -12,6 +12,7 @@ import lombok.var;
 import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.TokenizerBase;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
@@ -29,18 +30,7 @@ import static me.waliedyassen.runescript.config.lexer.token.Kind.*;
  *
  * @author Walied K. Yassen
  */
-@RequiredArgsConstructor
 public final class Tokenizer extends TokenizerBase {
-
-    /**
-     * The lexical symbols table.
-     */
-    private final LexicalTable<Kind> table;
-
-    /**
-     * The characters stream this lexer will take data from.
-     */
-    private final CharStream stream;
 
     /**
      * The current lexeme content builder.
@@ -53,6 +43,16 @@ public final class Tokenizer extends TokenizerBase {
     private final List<String> lines = new ArrayList<>();
 
     /**
+     * The lexical symbols table.
+     */
+    private final LexicalTable<Kind> table;
+
+    /**
+     * The characters stream this lexer will take data from.
+     */
+    private final CharStream stream;
+
+    /**
      * The current mode of the lexer.
      */
     private Mode mode = Mode.NONE;
@@ -61,6 +61,19 @@ public final class Tokenizer extends TokenizerBase {
      * The current character position.
      */
     private LineColumn position;
+
+    /**
+     * Constructs a new {@link Tokenizer} type object instance.
+     *
+     * @param errorReporter the error report to use for reporting erroneous input.
+     * @param table         the lexical table of the tokenizer.
+     * @param stream        the input characters stream.
+     */
+    public Tokenizer(ErrorReporter errorReporter, LexicalTable<Kind> table, CharStream stream) {
+        super(errorReporter);
+        this.table = table;
+        this.stream = stream;
+    }
 
     /**
      * Attempts to parse the next rule {@link Token} from the characters stream.
@@ -114,7 +127,7 @@ public final class Tokenizer extends TokenizerBase {
                     } else if (table.isSeparator(current)) {
                         return createToken(table.lookupSeparator(current), Character.toString(current));
                     } else {
-                        throwError("Unexpected character: " + current);
+                        addLexicalError("Unexpected character: " + current);
                     }
                     break;
                 case IDENTIFIER:
@@ -129,7 +142,8 @@ public final class Tokenizer extends TokenizerBase {
                     break;
                 case STRING_LITERAL:
                     if (current == NULL || current == '\n') {
-                        throwError("String literal is not properly closed by a double-quote");
+                        addLexicalError("String literal is not properly closed by a double-quote");
+                        return createToken(STRING, builder.toString());
                     } else if (current == '\\') {
                         stream.take();
                         switch (next) {
@@ -158,7 +172,7 @@ public final class Tokenizer extends TokenizerBase {
                                 builder.append('>');
                                 break;
                             default:
-                                throwError("Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\\\ \\< \\>)");
+                                addLexicalError("Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\\\ \\< \\>)");
                         }
                     } else if (current == '\"') {
                         return createToken(STRING, builder.toString());
@@ -207,7 +221,13 @@ public final class Tokenizer extends TokenizerBase {
                     break;
                 case MULTI_COMMENT:
                     if (current == NULL) {
-                        throwError("Unexpected end of comment");
+                        var line = trimComment(builder.toString(), true);
+                        if (line.length() > 0) {
+                            lines.add(line);
+                        }
+                        resetBuilder();
+                        addLexicalError("Unexpected end of comment");
+                        return createToken(COMMENT, String.join("\n", lines));
                     } else if (current == '\n') {
                         var line = trimComment(builder.toString(), true);
                         // ignores the header line if it was empty.
@@ -234,9 +254,7 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * Creates a new {@link Token} object with the specified {@code kind}.
      *
-     * @param kind
-     *         the kind of the token.
-     *
+     * @param kind the kind of the token.
      * @return the created {@link Token} object instance.
      */
     private Token<Kind> createToken(Kind kind) {
@@ -246,11 +264,8 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * Creates a new {@link Token} object with the specified {@code kind} and {@code lexeme}.
      *
-     * @param kind
-     *         the kind of the token.
-     * @param lexeme
-     *         the lexeme of the token.
-     *
+     * @param kind   the kind of the token.
+     * @param lexeme the lexeme of the token.
      * @return the created {@link Token} object instance.
      */
     private Token<Kind> createToken(Kind kind, String lexeme) {
@@ -278,7 +293,6 @@ public final class Tokenizer extends TokenizerBase {
      * Creates a {@link Range} object starting at the marked start position and ending at the current position.
      *
      * @return the created {@link Range} object.
-     *
      * @see #mark()
      */
     public Range range() {
@@ -288,22 +302,18 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * Creates and throws a parser error ranging from the marked position to the current position.
      *
-     * @param message
-     *         the error message of why the error has occurred.
+     * @param message the error message of why the error has occurred.
      */
-    private void throwError(String message) {
-        throw new LexicalError(range(), message);
+    private void addLexicalError(String message) {
+        errorReporter.addError(new LexicalError(range(), message));
     }
 
     /**
      * Trims the comment from any decoration they have, whether it was the line start decoration character or it was a
      * redundant whitespace.
      *
-     * @param line
-     *         the comment line.
-     * @param trimStar
-     *         whether to trim the decorative star or not.
-     *
+     * @param line     the comment line.
+     * @param trimStar whether to trim the decorative star or not.
      * @return the trimmed comment line content.
      */
     private static String trimComment(String line, boolean trimStar) {

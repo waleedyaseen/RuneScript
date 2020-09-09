@@ -17,6 +17,8 @@ import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
+import me.waliedyassen.runescript.compiler.error.ThrowingErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
@@ -155,9 +157,9 @@ class CodeGeneratorTest {
 
     BinaryScript[] fromResource(String name) {
         try (var stream = getClass().getResourceAsStream(name)) {
-            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new SyntaxParser(environment, new ScriptSymbolTable(), lexer, "cs2");
+            var parser = new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();
@@ -179,9 +181,9 @@ class CodeGeneratorTest {
 
     BinaryScript[] fromString(String text) {
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
-            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new SyntaxParser(environment, new ScriptSymbolTable(), lexer, "cs2");
+            var parser = new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();

@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler;
 import lombok.Getter;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
@@ -95,14 +96,10 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
     /**
      * Constructs a new {@link ScriptCompiler} type object instance.
      *
-     * @param environment
-     *         the environment of the compiler.
-     * @param instructionMap
-     *         the instruction map to use for this compiler.
-     * @param codeWriter
-     *         the code writer to use for the compiler.
-     * @param allowOverride
-     *         whether or not the compiler should override the symbols.
+     * @param environment    the environment of the compiler.
+     * @param instructionMap the instruction map to use for this compiler.
+     * @param codeWriter     the code writer to use for the compiler.
+     * @param allowOverride  whether or not the compiler should override the symbols.
      */
     private ScriptCompiler(CompilerEnvironment environment,
                            InstructionMap instructionMap,
@@ -128,20 +125,16 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
     /**
      * Parses the Abstract Syntax Tree of the specified source file data.
      *
-     * @param symbolTable
-     *         the symbol table to use for parsing.
-     * @param data
-     *         the source file data in bytes.
-     * @param extension
-     *         the extension of the file containing the script.
-     *
+     * @param symbolTable the symbol table to use for parsing.
+     * @param data        the source file data in bytes.
+     * @param extension   the extension of the file containing the script.
      * @return a {@link List list} of the parsed {@link ScriptSyntax} objects.
      */
-    private List<ScriptSyntax> parseSyntaxTree(ScriptSymbolTable symbolTable, byte[] data, String extension) throws IOException {
+    private List<ScriptSyntax> parseSyntaxTree(ScriptSymbolTable symbolTable, ErrorReporter errorReporter, byte[] data, String extension) throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream(data));
-        var tokenizer = new Tokenizer(lexicalTable, stream);
+        var tokenizer = new Tokenizer(errorReporter, lexicalTable, stream);
         var lexer = new Lexer(tokenizer);
-        var parser = new SyntaxParser(environment, symbolTable, lexer, extension);
+        var parser = new SyntaxParser(environment, symbolTable, errorReporter, lexer, extension);
         var scripts = new ArrayList<ScriptSyntax>();
         while (lexer.remaining() > 0) {
             scripts.add(parser.script());
@@ -157,8 +150,9 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         var symbolTable = this.symbolTable.createSubTable();
         var output = new Output<CompiledScriptUnit>();
         for (var sourceFile : input.getSourceFiles()) {
+            var errorReporter = new ErrorReporter();
             try {
-                var scripts = parseSyntaxTree(symbolTable, sourceFile.getContent(), sourceFile.getExtension());
+                var scripts = parseSyntaxTree(symbolTable, errorReporter, sourceFile.getContent(), sourceFile.getExtension());
                 for (var script : scripts) {
                     var compiledUnit = new CompiledScriptUnit();
                     compiledUnit.setScript(script);
@@ -167,6 +161,9 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
             } catch (CompilerError error) {
                 output.addError(sourceFile, error);
             }
+            errorReporter.getErrors().forEach(error -> {
+                output.addError(sourceFile, error);
+            });
         }
         var checker = new SemanticChecker(environment, symbolTable, allowOverride);
         for (var compiledFile : output.getFiles().values()) {
@@ -306,9 +303,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         /**
          * Sets the environment object we are going to use for the compiler.
          *
-         * @param environment
-         *         the environment object to set.
-         *
+         * @param environment the environment object to set.
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withEnvironment(CompilerEnvironment environment) {
@@ -319,9 +314,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         /**
          * Sets the instruction map object we are going to use for the compiler.
          *
-         * @param instructionMap
-         *         the instruction map object to set.
-         *
+         * @param instructionMap the instruction map object to set.
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withInstructionMap(InstructionMap instructionMap) {
@@ -332,9 +325,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         /**
          * Sets the symbol table object we are going to use for the compiler.
          *
-         * @param symbolTable
-         *         the symbol table object to set.
-         *
+         * @param symbolTable the symbol table object to set.
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withSymbolTable(ScriptSymbolTable symbolTable) {
@@ -346,10 +337,8 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         /**
          * Sets whether or not the compiler that we are going to build should support the long primitive type.
          *
-         * @param supportsLongPrimitiveType
-         *         <code>true</code> if it supports the long primitive type otherwise
-         *         <code>false</code>.
-         *
+         * @param supportsLongPrimitiveType <code>true</code> if it supports the long primitive type otherwise
+         *                                  <code>false</code>.
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withSupportsLongPrimitiveType(boolean supportsLongPrimitiveType) {
@@ -360,9 +349,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         /**
          * Sets the id provider that we are going to use for the compiler.
          *
-         * @param idProvider
-         *         the id provider of the compiler.
-         *
+         * @param idProvider the id provider of the compiler.
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withIdProvider(IDManager idProvider) {
@@ -374,9 +361,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
          * Sets whether or not the compiler that we are going to build should override the symbols in the symbol
          * table.
          *
-         * @param overrideSymbols
-         *         whether or not we should override symbols.
-         *
+         * @param overrideSymbols whether or not we should override symbols.
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withOverrideSymbols(boolean overrideSymbols) {
@@ -387,9 +372,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         /**
          * Sets the code writer that we are going to use for the compiler.
          *
-         * @param codeWriter
-         *         the code writer of the compiler.
-         *
+         * @param codeWriter the code writer of the compiler.
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withCodeWriter(CodeWriter<?> codeWriter) {
@@ -401,9 +384,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
          * Builds the {@link ScriptCompiler} object with the details configured in the builder.
          *
          * @return the built {@link ScriptCompiler} object.
-         *
-         * @throws IllegalStateException
-         *         if one or more of the configuration is invalid or missing.
+         * @throws IllegalStateException if one or more of the configuration is invalid or missing.
          */
         public ScriptCompiler build() {
             if (instructionMap == null) {

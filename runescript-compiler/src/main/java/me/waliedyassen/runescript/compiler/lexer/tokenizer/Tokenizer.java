@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.var;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.TokenizerBase;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
@@ -59,7 +60,8 @@ public final class Tokenizer extends TokenizerBase {
      * @param table  the lexical table to use for the tokenizer.
      * @param stream the source code stream of the tokenizer.
      */
-    public Tokenizer(LexicalTable<Kind> table, CharStream stream) {
+    public Tokenizer(ErrorReporter errorReporter, LexicalTable<Kind> table, CharStream stream) {
+        super(errorReporter);
         this.table = table;
         this.stream = stream;
         state = State.emptyState(State.StateKind.REGULAR, stream.position());
@@ -148,7 +150,7 @@ public final class Tokenizer extends TokenizerBase {
                                     stream.rollback(1);
                                 }
                             }
-                            throwError("Unexpected character: " + current);
+                            addLexicalError("Unexpected character: " + current);
                         }
                     }
                     break;
@@ -165,7 +167,15 @@ public final class Tokenizer extends TokenizerBase {
                 case STRING_LITERAL:
                 case ISTRING_LITERAL:
                     if (current == NULL || current == '\n') {
-                        throwError("String literal is not properly closed by a double-quote");
+                        addLexicalError("String literal is not properly closed by a double-quote");
+                        if (state.mode == Mode.ISTRING_LITERAL) {
+                            if (builder.length() > 0) {
+                                feed(createToken(CONCATE));
+                            } else {
+                                return createToken(CONCATE);
+                            }
+                        }
+                        return createToken(STRING, builder.toString());
                     } else if (current == '\\') {
                         stream.take();
                         switch (next) {
@@ -194,7 +204,7 @@ public final class Tokenizer extends TokenizerBase {
                                 builder.append('>');
                                 break;
                             default:
-                                throwError("Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\\\ \\< \\>)");
+                                addLexicalError("Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\\\ \\< \\>)");
                                 break;
                         }
                     } else if (current == '\"') {
@@ -265,7 +275,13 @@ public final class Tokenizer extends TokenizerBase {
                     break;
                 case MULTI_COMMENT:
                     if (current == NULL) {
-                        throwError("Unexpected end of comment");
+                        var line = trimComment(builder.toString(), true);
+                        if (line.length() > 0) {
+                            state.lines.add(line);
+                        }
+                        resetBuilder();
+                        addLexicalError("Unexpected end of comment");
+                        return createToken(COMMENT, String.join("\n", state.lines));
                     } else if (current == '\n') {
                         var line = trimComment(builder.toString(), true);
                         // ignores the header line if it was empty.
@@ -376,8 +392,8 @@ public final class Tokenizer extends TokenizerBase {
      *
      * @param message the error message of why the error has occurred.
      */
-    private void throwError(String message) {
-        throw new LexicalError(range(), message);
+    private void addLexicalError(String message) {
+        errorReporter.addError(new LexicalError(range(), message));
     }
 
     /**

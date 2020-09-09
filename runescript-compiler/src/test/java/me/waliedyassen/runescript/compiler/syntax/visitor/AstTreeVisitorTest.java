@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020 Walied K. Yassen, All rights reserved.
- *  
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -11,6 +11,7 @@ import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.error.ThrowingErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
@@ -426,9 +427,9 @@ class AstTreeVisitorTest {
 
     public static SyntaxParser fromString(String text) {
         try (var stream = new StringBufferInputStream(text)) {
-            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            return new SyntaxParser(environment, new ScriptSymbolTable(), lexer, "cs2");
+            return new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -437,9 +438,9 @@ class AstTreeVisitorTest {
 
     public static SyntaxParser fromResource(String name) {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
-            Tokenizer tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
+            Tokenizer tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            return new SyntaxParser(environment, new ScriptSymbolTable(), lexer, "cs2");
+            return new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
         } catch (IOException e) {
             e.printStackTrace();
             return null;

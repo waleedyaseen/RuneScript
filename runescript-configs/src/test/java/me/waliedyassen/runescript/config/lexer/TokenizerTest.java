@@ -13,6 +13,7 @@ import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
+import me.waliedyassen.runescript.config.error.ThrowingErrorReporter;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -106,6 +107,6 @@ class TokenizerTest {
 
     static Tokenizer fromString(String source) throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream(source.getBytes()));
-        return new Tokenizer(table, stream);
+        return new Tokenizer(new ThrowingErrorReporter(), table, stream);
     }
 }

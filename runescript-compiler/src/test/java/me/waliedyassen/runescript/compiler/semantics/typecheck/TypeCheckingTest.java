@@ -11,9 +11,12 @@ import lombok.Data;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
+import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
+import me.waliedyassen.runescript.compiler.error.ThrowingErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
@@ -148,9 +151,9 @@ class TypeCheckingTest {
         checker.getSymbolTable().getScripts().clear();
         checker.getErrors().clear();
         try (var stream = getClass().getResourceAsStream(name)) {
-            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new SyntaxParser(environment, checker.getSymbolTable(), lexer, "cs2");
+            var parser = new SyntaxParser(environment, checker.getSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();
@@ -166,9 +169,9 @@ class TypeCheckingTest {
         checker.getSymbolTable().getScripts().clear();
         checker.getErrors().clear();
         try (var stream = new ByteArrayInputStream(text.getBytes())) {
-            var tokenizer = new Tokenizer(ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
+            var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new SyntaxParser(environment, checker.getSymbolTable(), lexer, "cs2");
+            var parser = new SyntaxParser(environment, checker.getSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();
