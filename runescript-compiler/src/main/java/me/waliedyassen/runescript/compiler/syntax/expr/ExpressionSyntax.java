@@ -51,18 +51,4 @@ public abstract class ExpressionSyntax extends Syntax {
         this.type = type;
         return type;
     }
-
-    /**
-     * Returns the text of the specified name {@link ExpressionSyntax}.
-     *
-     * @param name the name expression.
-     * @return the name of the script.
-     */
-    public static String extractNameText(ExpressionSyntax name) {
-        // TODO: Allow `:` in identifiers
-        if (name instanceof ComponentSyntax) {
-            return ((ComponentSyntax) name).getParentInterface().getText() + ":" + ((ComponentSyntax) name).getComponentName();
-        }
-        return ((IdentifierSyntax) name).getText();
-    }
 }

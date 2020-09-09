@@ -10,20 +10,20 @@ package me.waliedyassen.runescript.compiler.syntax.visitor;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
+import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.lexer.Lexer;
+import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
+import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.syntax.expr.*;
 import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
 import me.waliedyassen.runescript.compiler.syntax.expr.op.BinaryOperationSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.*;
 import me.waliedyassen.runescript.compiler.syntax.stmt.conditional.IfStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
-import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
-import me.waliedyassen.runescript.compiler.lexer.Lexer;
-import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
-import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
-import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,7 +88,6 @@ class AstTreeVisitorTest {
         final Counter literalString = new Counter();
         final Counter literalCoordgrid = new Counter();
         final Counter concatenation = new Counter();
-        final Counter component = new Counter();
         final Counter variableExpression = new Counter();
         final Counter call = new Counter();
         final Counter dynamic = new Counter();
@@ -113,7 +112,6 @@ class AstTreeVisitorTest {
             literalLong.reset();
             literalString.reset();
             literalCoordgrid.reset();
-            component.reset();
             concatenation.reset();
             variableExpression.reset();
             call.reset();
@@ -226,18 +224,6 @@ class AstTreeVisitorTest {
         public void exit(ConcatenationSyntax concatenation) {
             super.exit(concatenation);
             this.concatenation.numExits++;
-        }
-
-        @Override
-        public void enter(ComponentSyntax component) {
-            super.enter(component);
-            this.component.numEnters++;
-        }
-
-        @Override
-        public void exit(ComponentSyntax component) {
-            super.exit(component);
-            this.component.numExits++;
         }
 
         @Override

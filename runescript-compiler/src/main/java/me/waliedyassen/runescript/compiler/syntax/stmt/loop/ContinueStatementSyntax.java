@@ -25,17 +25,25 @@ public final class ContinueStatementSyntax extends StatementSyntax {
      * The control keyword token.
      */
     @Getter
-    private final Token<Kind> controlToken;
+    private final Token<Kind> control;
+
+    /**
+     * The semicolon token.
+     */
+    @Getter
+    private final Token<Kind> semicolon;
 
     /**
      * Construct a new {@link ContinueStatementSyntax} type object instance.
      *
-     * @param range        the node source code range.
-     * @param controlToken the control keyword token.
+     * @param range     the node source code range.
+     * @param control   the control keyword token.
+     * @param semicolon the semicolon token.
      */
-    public ContinueStatementSyntax(Range range, Token<Kind> controlToken) {
+    public ContinueStatementSyntax(Range range, Token<Kind> control, Token<Kind> semicolon) {
         super(range);
-        this.controlToken = controlToken;
+        this.control = control;
+        this.semicolon = semicolon;
     }
 
     /**

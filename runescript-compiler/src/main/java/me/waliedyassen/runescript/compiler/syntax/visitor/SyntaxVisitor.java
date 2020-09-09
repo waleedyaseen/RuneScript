@@ -119,16 +119,6 @@ public interface SyntaxVisitor<T> {
     }
 
     /**
-     * Gets called when we have just visited an {@link ComponentSyntax} node.
-     *
-     * @param string the {@link ComponentSyntax} node we have just visited.
-     * @return the implementation output object.
-     */
-    default T visit(ComponentSyntax string) {
-        return null;
-    }
-
-    /**
      * Gets called when we have just visited an {@link ConcatenationSyntax} node.
      *
      * @param concatenation the {@link ConcatenationSyntax} node we have just visited.

@@ -49,7 +49,7 @@ public final class ScriptSyntax extends SyntaxBase {
      * The name of the script.
      */
     @Getter
-    private final ExpressionSyntax name;
+    private final IdentifierSyntax name;
 
     /**
      * The parameters list of the script..
@@ -89,7 +89,7 @@ public final class ScriptSyntax extends SyntaxBase {
      * @param code
      *         the script code statement.
      */
-    public ScriptSyntax(Range range, String extension, List<AnnotationSyntax> annotations, IdentifierSyntax trigger, ExpressionSyntax name, ParameterSyntax[] parameters, Type type, BlockStatementSyntax code) {
+    public ScriptSyntax(Range range, String extension, List<AnnotationSyntax> annotations, IdentifierSyntax trigger, IdentifierSyntax name, ParameterSyntax[] parameters, Type type, BlockStatementSyntax code) {
         super(range);
         this.extension = extension;
         this.annotations = addChild(annotations);
@@ -130,6 +130,6 @@ public final class ScriptSyntax extends SyntaxBase {
      * @return the full name of the script.
      */
     public String getFullName() {
-        return String.format("[%s,%s]", trigger.getText(), ExpressionSyntax.extractNameText(name));
+        return String.format("[%s,%s]", trigger.getText(), name.getText());
     }
 }

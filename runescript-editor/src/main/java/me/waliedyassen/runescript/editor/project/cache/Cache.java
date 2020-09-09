@@ -254,7 +254,7 @@ public final class Cache {
                 unit.setCrc(compiledFile.getCrc());
                 for (var compiledUnit : compiledFile.getUnits()) {
                     var scriptNode = compiledUnit.getScript();
-                    var scriptName = ExpressionSyntax.extractNameText(compiledUnit.getScript().getName());
+                    var scriptName = compiledUnit.getScript().getName().getText();
                     var triggerName = compiledUnit.getScript().getTrigger().getText();
                     var info = new ScriptInfo(Collections.emptyMap(), scriptName,
                             project.getCompilerEnvironment().lookupTrigger(triggerName),

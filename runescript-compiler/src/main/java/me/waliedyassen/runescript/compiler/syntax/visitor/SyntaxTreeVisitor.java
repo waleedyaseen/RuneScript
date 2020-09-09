@@ -259,34 +259,6 @@ public abstract class SyntaxTreeVisitor implements SyntaxVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
-    public Void visit(ComponentSyntax component) {
-        enter(component);
-        exit(component);
-        return null;
-    }
-
-    /**
-     * Gets called when we have just entered an {@link LiteralStringSyntax} node.
-     *
-     * @param component
-     *         the node we have just entered.
-     */
-    public void enter(ComponentSyntax component) {
-    }
-
-    /**
-     * Gets called when we have just left an {@link LiteralStringSyntax} node.
-     *
-     * @param component
-     *         the node we have just entered.
-     */
-    public void exit(ComponentSyntax component) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Void visit(ConcatenationSyntax concatenation) {
         enter(concatenation);
         for (var expression : concatenation.getExpressions()) {

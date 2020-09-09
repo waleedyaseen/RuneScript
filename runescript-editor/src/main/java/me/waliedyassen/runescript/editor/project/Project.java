@@ -20,7 +20,6 @@ import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableDomain;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
@@ -458,18 +457,17 @@ public final class Project {
                 try (var config = CommentedFileConfig.of(path.toFile())) {
                     config.load();
                     for (var entry : config.entrySet()) {
-                        var value = (CommentedConfig) entry.getValue();
-                        var id = value.getInt("id");
-                        var name = value.contains("name") ? value.<String>get("name") : entry.getKey();
-                        var contentType = value.contains("contentType") ? PrimitiveType.valueOf(value.get("contentType")) : null;
-                        if (type == PrimitiveType.GRAPHIC) {
-                            symbolTable.defineGraphic(name, id);
+                        var value = entry.getValue();
+                        if (value instanceof Integer) {
+                            defineConfig(type, (Integer) value, entry.getKey(), null);
+                        } else if (value instanceof CommentedConfig) {
+                            var commentedConfig = (CommentedConfig) value;
+                            var id = commentedConfig.getInt("id");
+                            var name = commentedConfig.contains("name") ? commentedConfig.<String>get("name") : entry.getKey();
+                            var contentType = commentedConfig.contains("contentType") ? PrimitiveType.valueOf(commentedConfig.get("contentType")) : null;
+                            defineConfig(type, id, name, contentType);
                         } else {
-                            var info = symbolTable.defineConfig(name, type, contentType);
-                            info.setPredefinedId(id);
-                            if (type == PrimitiveType.INTERFACE) {
-                                symbolTable.defineInterface(name, id);
-                            }
+                            throw new IllegalArgumentException("Invalid preloaded config value: " + value.getClass().getName());
                         }
                     }
                 }
@@ -477,6 +475,15 @@ public final class Project {
                 log.error("An error occurred while loading the configuration file for type: {} and path: {}", type, pathRaw, e);
             }
         });
+    }
+
+    private void defineConfig(PrimitiveType type, int id, String name, PrimitiveType contentType) {
+        if (type == PrimitiveType.GRAPHIC) {
+            symbolTable.defineGraphic(name, id);
+        } else {
+            var info = symbolTable.defineConfig(name, type, contentType);
+            info.setPredefinedId(id);
+        }
     }
 
     /**

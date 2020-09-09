@@ -148,23 +148,6 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
      * {@inheritDoc}
      */
     @Override
-    public Type visit(ComponentSyntax component) {
-        var interfaceInfo = symbolTable.lookupInterface(component.getParentInterface().getText());
-        if (interfaceInfo == null) {
-            checker.reportError(new SemanticError(component.getParentInterface(), String.format("Could not resolve interface with the name '%s'", component.getParentInterface().getText())));
-        } else {
-            component.getParentInterface().setType(PrimitiveType.INTERFACE);
-            if (!(component.getComponent() instanceof LiteralIntegerSyntax) && interfaceInfo.lookupComponent(String.valueOf(component.getComponentName())) == null) {
-                checker.reportError(new SemanticError(component.getParentInterface(), String.format("Could not resolve component with the name '%s' in '%s'", component.getComponentName(), component.getParentInterface().getText())));
-            }
-        }
-        return component.setType(PrimitiveType.COMPONENT);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Type visit(VariableExpressionSyntax variableExpression) {
         return variableExpression.getType();
     }

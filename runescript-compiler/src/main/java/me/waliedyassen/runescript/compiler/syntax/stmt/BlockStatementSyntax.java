@@ -32,7 +32,7 @@ public final class BlockStatementSyntax extends StatementSyntax {
      * @param statements
      *         the array of statements.
      */
-    public BlockStatementSyntax(Range range, StatementSyntax... statements) {
+    public BlockStatementSyntax(Range range, StatementSyntax[] statements) {
         super(range);
         this.statements = addChild(statements);
     }

@@ -14,18 +14,18 @@ if (false) {
 
 }
 switch_int($local0) {
-    case 0,1,2,3,4,5:
+    case 0,1,2,3,4,5 :
         $string1 = "Less than 5";
-    case 6,7,8,9:
+    case 6,7,8,9 :
         $string1 = "More than 5";
-    case default:
+    case default :
         $string1 = "Not a single digit";
 }
 def_string $string2;
 switch_int($local0) {
-     case 0,1,2,3,4,5:
+     case 0,1,2,3,4,5 :
          $string2 = "Less than 5";
-     case 6,7,8,9:
+     case 6,7,8,9 :
          $string2 = "More than 5";
  }
 while ($int0 > 0) {

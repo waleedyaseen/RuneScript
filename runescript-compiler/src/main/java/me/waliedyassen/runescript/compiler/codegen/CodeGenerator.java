@@ -147,7 +147,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         generateDefaultReturn(script.getType());
         popContext();
         // format the script name to be in the formal format.
-        var name = "[" + script.getTrigger().getText() + "," + ExpressionSyntax.extractNameText(script.getName()) + "]";
+        var name = "[" + script.getTrigger().getText() + "," + script.getName() + "]";
         // put all of the blocks into a sorted map.
         var blocks = new BlockList();
         for (var block : blockMap.getBlocks()) {
@@ -164,7 +164,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         // clean-up the junk after code generation is done.
         initialise();
         // return the generated script object.
-        var info = symbolTable.lookupScript(environment.lookupTrigger(script.getTrigger().getText()), ExpressionSyntax.extractNameText(script.getName()));
+        var info = symbolTable.lookupScript(environment.lookupTrigger(script.getTrigger().getText()), script.getName().getText());
         return new BinaryScript(script.getExtension(), name, blocks, parameters, variables, tables, info);
     }
 
@@ -256,18 +256,6 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             expression.accept(this);
         }
         return instruction(CoreOpcode.JOIN_STRING, concatenation.getExpressions().length);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Instruction visit(ComponentSyntax component) {
-        var interfaceInfo = symbolTable.lookupInterface(component.getParentInterface().getText());
-        var parentId = interfaceInfo.getId();
-        var componentId = component.getComponent() instanceof LiteralIntegerSyntax ? ((LiteralIntegerSyntax) component.getComponent())
-                .getValue() : interfaceInfo.lookupComponent(String.valueOf(component.getComponentName()));
-        return instruction(PUSH_INT_CONSTANT, parentId << 16 | componentId);
     }
 
     /**

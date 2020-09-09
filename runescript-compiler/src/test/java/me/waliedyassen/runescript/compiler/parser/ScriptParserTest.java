@@ -468,7 +468,7 @@ public final class ScriptParserTest {
     void testSwitchStatement() {
         assertAll("switch statement", () -> {
             // valid switch statement with only one emptycase
-            var _switch = fromString("switch_int($test){case 1,2,3,4,5: return(true); case default: return(false);}").switchStatement();
+            var _switch = fromString("switch_int($test){case 1,2,3,4,5 : return(true); case default : return(false);}").switchStatement();
             assertNotNull(_switch);
             assertNotNull(_switch.getDefaultCase());
             assertEquals(1, _switch.getCases().length);
@@ -480,7 +480,7 @@ public final class ScriptParserTest {
     void testSwitchCase() {
         assertAll("switch case", () -> {
             // valid multiple expressions case
-            var _case = fromString("case 0,1,2,3,4,5,6: return(true);").switchCase();
+            var _case = fromString("case 0,1,2,3,4,5,6 : return(true);").switchCase();
             var values = new int[]{0, 1, 2, 3, 4, 5, 6};
             assertNotNull(_case);
             assertEquals(7, _case.getKeys().length);
@@ -493,14 +493,14 @@ public final class ScriptParserTest {
             assertTrue(_case.getCode().getStatements()[0] instanceof ReturnStatementSyntax);
         }, () -> {
             // valid case default
-            var _case = fromString("case default: return(true);").switchCase();
+            var _case = fromString("case default : return(true);").switchCase();
             assertNotNull(_case);
             assertTrue(_case.isDefault());
             assertEquals(1, _case.getCode().getStatements().length);
             assertTrue(_case.getCode().getStatements()[0] instanceof ReturnStatementSyntax);
         }, () -> {
             // empty case
-            assertEquals(0, fromString("case 1:").switchCase().getCode().getStatements().length);
+            assertEquals(0, fromString("case 1 :").switchCase().getCode().getStatements().length);
         }, () -> {
             // missing case expression
             assertThrows(SyntaxError.class, () -> fromString("case :").switchCase());

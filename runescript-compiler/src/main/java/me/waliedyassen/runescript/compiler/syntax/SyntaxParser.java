@@ -137,13 +137,9 @@ public final class SyntaxParser extends ParserBase<Kind> {
      *
      * @return the parsed {@link ExpressionSyntax} object node.
      */
-    private ExpressionSyntax scriptName() {
-        if (isComponent()) {
-            return component();
-        }
+    private IdentifierSyntax scriptName() {
         return advancedIdentifier();
     }
-
 
     /**
      * Attempts to parse an {@link AnnotationSyntax} object node.
@@ -313,8 +309,6 @@ public final class SyntaxParser extends ParserBase<Kind> {
                 if (isAdvancedIdentifier()) {
                     if (peekKind(1) == LPAREN) {
                         return command();
-                    } else if (isComponent()) {
-                        return component();
                     }
                     return dynamic();
                 } else if (isCall()) {
@@ -345,8 +339,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
                 || kind == DOT
                 || kind == CALC
                 || kind == NULL
-                || isCall()
-                || isComponent();
+                || isCall();
     }
 
     /**
@@ -359,15 +352,6 @@ public final class SyntaxParser extends ParserBase<Kind> {
         return kind == IDENTIFIER
                 || kind == DOT
                 || isCall();
-    }
-
-    /**
-     * Checks whether or not the next token set matches a component expression.
-     *
-     * @return <code>true</code> if it does otherwise <code>false</code.>
-     */
-    public boolean isComponent() {
-        return isAdvancedIdentifier() && peekKind(1) == COLON && (peekKind(2) == IDENTIFIER || peekKind(2) == INTEGER);
     }
 
     /**
@@ -496,8 +480,8 @@ public final class SyntaxParser extends ParserBase<Kind> {
     public ContinueStatementSyntax continueStatement() {
         pushRange();
         var token = consume(CONTINUE);
-        consume(SEMICOLON);
-        return new ContinueStatementSyntax(popRange(), token);
+        var semicolon = consume(SEMICOLON);
+        return new ContinueStatementSyntax(popRange(), token, semicolon);
     }
 
     /**
@@ -508,8 +492,8 @@ public final class SyntaxParser extends ParserBase<Kind> {
     public BreakStatementSyntax breakStatement() {
         pushRange();
         var token = consume(BREAK);
-        consume(SEMICOLON);
-        return new BreakStatementSyntax(popRange(), token);
+        var semicolon = consume(SEMICOLON);
+        return new BreakStatementSyntax(popRange(), token, semicolon);
     }
 
     /**
@@ -519,9 +503,9 @@ public final class SyntaxParser extends ParserBase<Kind> {
      */
     public BlockStatementSyntax blockStatement() {
         pushRange();
-        consume(LBRACE);
+        var leftBrace = consume(LBRACE);
         var statements = statementsList();
-        consume(RBRACE);
+        var rBrace = consume(RBRACE);
         return new BlockStatementSyntax(popRange(), statements);
     }
 
@@ -1032,30 +1016,6 @@ public final class SyntaxParser extends ParserBase<Kind> {
             return false;
         }
         return type.getArguments()[index] == PrimitiveType.HOOK && (peekKind() == STRING || peekKind() == NULL);
-    }
-
-    /**
-     * Attempts to match the next set of token(s) to an {@link ComponentSyntax}.
-     *
-     * @return the parsed {@link ComponentSyntax} object.
-     */
-    public ComponentSyntax component() {
-        // TODO: Switch to advancedIdentifier
-        pushRange();
-        var parent = identifier();
-        consume(COLON);
-        ExpressionSyntax component;
-        switch (peekKind()) {
-            case IDENTIFIER:
-                component = identifier();
-                break;
-            case INTEGER:
-                component = integerNumber();
-                break;
-            default:
-                throw createError(popRange(), "Expected a component name or id");
-        }
-        return new ComponentSyntax(popRange(), parent, component);
     }
 
     /**

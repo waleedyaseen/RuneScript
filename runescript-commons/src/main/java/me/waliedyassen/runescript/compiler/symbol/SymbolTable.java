@@ -45,12 +45,6 @@ public class SymbolTable {
     private final Map<String, ConfigInfo> configs = new HashMap<>();
 
     /**
-     * The defined components map.
-     */
-    @Getter
-    private final Map<String, InterfaceInfo> interfaces = new HashMap<>();
-
-    /**
      * The defined graphics map.
      */
     @Getter
@@ -184,37 +178,6 @@ public class SymbolTable {
                 return config;
         }
         return null;
-    }
-
-    /**
-     * Defines a new interface symbol in this table.
-     *
-     * @param name
-     *         the name of the interface.
-     * @param id
-     *         the id of the interface.
-     */
-    public void defineInterface(String name, int id) {
-        if (lookupInterface(name) != null) {
-            throw new IllegalArgumentException("The constant '" + name + "' is already defined.");
-        }
-        interfaces.put(name, new InterfaceInfo(name, id));
-    }
-
-    /**
-     * Looks-up for the {@link InterfaceInfo} with the specified {@code name}.
-     *
-     * @param name
-     *         the name of the interface.
-     *
-     * @return the {@link InterfaceInfo} if it was present otherwise {@code null}.
-     */
-    public InterfaceInfo lookupInterface(String name) {
-        var info = interfaces.get(name);
-        if (info == null && parent != null) {
-            info = parent.lookupInterface(name);
-        }
-        return info;
     }
 
     /**

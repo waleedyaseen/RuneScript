@@ -104,7 +104,7 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
                 reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires parameters of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(expected))));
             }
             // check if the script is already defined in the symbol table, and define it if it was not, or produce an error if it was a duplicate.
-            var name = ExpressionSyntax.extractNameText(script.getName());
+            var name = script.getName().getText();
             var existing = symbolTable.lookupScript(trigger, name);
             if (existing != null) {
                 if (annotations.containsKey("id")) {
