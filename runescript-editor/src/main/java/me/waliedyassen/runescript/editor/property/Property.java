@@ -26,7 +26,7 @@ public abstract class Property<T> {
     /**
      * The listeners which are currently listening for changes to this property.
      */
-    private final List<PropertyListener<T>> listeners = new ArrayList<>();
+    private final List<PropertyChangeListener<T>> propertyChange = new ArrayList<>();
 
     /**
      * The current value of the property.
@@ -54,7 +54,7 @@ public abstract class Property<T> {
         }
         var oldValue = value;
         setRaw(newValue);
-        fireListeners(oldValue, newValue);
+        firePropertyChange(oldValue, newValue);
     }
 
     /**
@@ -76,16 +76,17 @@ public abstract class Property<T> {
     }
 
     /**
-     * Fires all of the listeners.
+     * Fires all of the property change listeners that are currently listening
+     * to this property.
      *
      * @param oldValue the old value of the property.
      * @param newValue the new value of the property.
      */
-    private void fireListeners(T oldValue, T newValue) {
-        if (listeners.isEmpty()) {
+    private void firePropertyChange(T oldValue, T newValue) {
+        if (propertyChange.isEmpty()) {
             return;
         }
-        listeners.forEach(listener -> listener.invoke(this, oldValue, newValue));
+        propertyChange.forEach(listener -> listener.propertyChanged(this, oldValue, newValue));
     }
 
     /**
@@ -109,15 +110,15 @@ public abstract class Property<T> {
     }
 
     /**
-     * Registers a new {@link PropertyListener listener} to this property.
+     * Registers a new {@link PropertyChangeListener listener} to this property.
      *
      * @param listener the listener that we want to register to this property.
      * @throws IllegalArgumentException if the specified listener is already registered to this property.
      */
-    public void addListener(PropertyListener<T> listener) {
-        if (listeners.contains(listener)) {
+    public void addListener(PropertyChangeListener<T> listener) {
+        if (propertyChange.contains(listener)) {
             throw new IllegalArgumentException("The specified listener is already registered to this property.");
         }
-        listeners.add(listener);
+        propertyChange.add(listener);
     }
 }

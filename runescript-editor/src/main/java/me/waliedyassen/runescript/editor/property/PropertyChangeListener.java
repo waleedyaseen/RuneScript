@@ -14,7 +14,7 @@ package me.waliedyassen.runescript.editor.property;
  *         the type of value the property or properties hold.
  */
 @FunctionalInterface
-public interface PropertyListener<T> {
+public interface PropertyChangeListener<T> {
 
     /**
      * Invokes the listener. This will get called when a value is set and is different than the old value in a specific
@@ -27,5 +27,5 @@ public interface PropertyListener<T> {
      * @param newValue
      *         the new value of the property.
      */
-    void invoke(Property<T> property, T oldValue, T newValue);
+    void propertyChanged(Property<T> property, T oldValue, T newValue);
 }
