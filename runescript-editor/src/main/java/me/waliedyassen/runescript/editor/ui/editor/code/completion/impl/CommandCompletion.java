@@ -39,7 +39,7 @@ public final class CommandCompletion extends FunctionCompletion implements CodeC
         var parameters = new ArrayList<Parameter>(commandInfo.getArguments().length);
         for (var index = 0; index < commandInfo.getArguments().length; index++) {
             var argument = commandInfo.getArguments()[index];
-            var parameter = new Parameter(argument.getRepresentation(), "$arg" + (index + 1));
+            var parameter = new Parameter(argument, "$arg" + (index + 1), index == commandInfo.getArguments().length - 1);
             parameter.setDescription("");
             parameters.add(parameter);
         }

@@ -15,8 +15,11 @@ import me.waliedyassen.runescript.editor.ui.editor.code.completion.cache.AutoCom
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.CodeCompletion;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.CommandCompletion;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.KeywordCompletion;
+import me.waliedyassen.runescript.editor.ui.editor.code.completion.parameter.CodeParameterCompletionProvider;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.ParameterChoicesProvider;
+import org.fife.ui.autocomplete.ParameterizedCompletion;
 
 import javax.swing.text.JTextComponent;
 import java.awt.*;
@@ -42,6 +45,7 @@ public final class CodeCompletionProvider extends DefaultCompletionProvider {
      * Constructs a new {@link CodeCompletion} type object instance.
      */
     public CodeCompletionProvider() {
+        setParameterChoicesProvider(new CodeParameterCompletionProvider(this));
         setParameterizedCompletionParams('(', ", ", ')');
         setAutoActivationRules(true, null);
         refreshCache();

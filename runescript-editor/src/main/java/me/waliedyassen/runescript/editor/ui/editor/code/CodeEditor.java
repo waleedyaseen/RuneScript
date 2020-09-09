@@ -12,6 +12,7 @@ import lombok.var;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.file.impl.ConfigFileType;
+import me.waliedyassen.runescript.editor.file.impl.ScriptFileType;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.CodeCompletionProvider;
 import me.waliedyassen.runescript.editor.ui.editor.code.folder.CodeFolder;
 import me.waliedyassen.runescript.editor.ui.editor.code.parser.ParserManager;
@@ -49,10 +50,8 @@ public final class CodeEditor extends FileEditor {
     /**
      * Constructs a new {@link CodeEditor} type object instance.
      *
-     * @param fileType
-     *         the type of the file we are editing.
-     * @param path
-     *         the path of the file we are editing.
+     * @param fileType the type of the file we are editing.
+     * @param path     the path of the file we are editing.
      */
     public CodeEditor(FileType fileType, Path path) {
         super(fileType, path);
@@ -76,6 +75,9 @@ public final class CodeEditor extends FileEditor {
      */
     private void installAutoComplete() {
         var autoCompletion = new AutoCompletion(new CodeCompletionProvider());
+        if (fileType instanceof ScriptFileType) {
+            autoCompletion.setParameterAssistanceEnabled(true);
+        }
         autoCompletion.install(textArea);
     }
 
