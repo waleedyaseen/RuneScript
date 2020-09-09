@@ -245,7 +245,7 @@ public final class ProjectEditor extends Editor<Path> {
          * Constructs a new {@link ProjectEditorUI} type object instance.
          */
         public ProjectEditorUI() {
-            super(new MigLayout("", "[grow]", "[][][grow]"));
+            super(new MigLayout("", "[grow]", "[][][]"));
             var optionsPanel = new JPanel(new MigLayout());
             optionsPanel.setBorder(BorderFactory.createTitledBorder("Options"));
             {
@@ -254,7 +254,7 @@ public final class ProjectEditor extends Editor<Path> {
                 optionsPanel.add(new JLabel("Override symbols:"));
                 optionsPanel.add(overrideSymbolsCheckBox);
             }
-            add(optionsPanel, "grow, wrap");
+            add(optionsPanel, "growx");
             initSymbolsPanel();
             initBindingsPanel();
         }
@@ -280,7 +280,7 @@ public final class ProjectEditor extends Editor<Path> {
 
             var scrollPane = new JScrollPane(symbolPanel);
             scrollPane.setBorder(BorderFactory.createTitledBorder("Symbol"));
-            add(scrollPane, "growx, wrap");
+            add(scrollPane, "growx");
         }
 
         private void initBindingsPanel() {
@@ -298,7 +298,7 @@ public final class ProjectEditor extends Editor<Path> {
 
             var scrollPane = new JScrollPane(bindingPanel);
             scrollPane.setBorder(BorderFactory.createTitledBorder("Binding"));
-            add(scrollPane, "growx, wrap");
+            add(scrollPane, "growx");
         }
 
         /**

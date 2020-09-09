@@ -49,6 +49,8 @@ public final class EditorIcons {
      * The icon of the settings menu item.
      */
     public static final Icon SETTINGS = ideaIcon("settings");
+    public static final Icon CLOSE_BUTTON = ideaIcon("close") ;
+    public static final Icon CLOSE_BUTTON_HOVER = ideaIcon("close_hovered") ;
 
     /**
      * Returns the {@code SVG} Intellij IDEA icon with the specified {@code name}.

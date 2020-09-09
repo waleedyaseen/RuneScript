@@ -66,7 +66,6 @@ public final class CodeEditor extends FileEditor {
         textArea.setWrapStyleWord(false);
         new CodeTheme(textArea).apply(textArea);
         ParserManager.installCodeParser(this);
-        textArea.setPopupMenu(null);
         installAutoComplete();
     }
 

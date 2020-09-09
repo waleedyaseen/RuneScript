@@ -50,18 +50,15 @@ public final class CodeParameterCompletionProvider implements ParameterChoicesPr
     @Override
     public List<Completion> getParameterChoices(JTextComponent tc, Parameter param) {
         var script = getScriptAtOffset(tc, tc.getCaretPosition());
-        System.out.println(script);
         if (script == null) {
             return Collections.emptyList();
         }
-        System.out.println(script.getFullName());
         var completions = new ArrayList<Completion>();
         addParameters(completions, param, script.getParameters());
         return completions;
     }
 
     private void addParameters(List<Completion> completions, Parameter requested, ParameterSyntax[] parameters) {
-        System.out.println(parameters.length);
         for (ParameterSyntax parameter : parameters) {
             if (Objects.equals(parameter.getType(), requested.getTypeObject())) {
                 completions.add(new BasicCompletion(provider, "$" + parameter.getName().getText()));

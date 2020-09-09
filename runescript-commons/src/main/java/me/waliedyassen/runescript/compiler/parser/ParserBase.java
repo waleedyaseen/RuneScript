@@ -52,6 +52,16 @@ public abstract class ParserBase<K> {
     protected final K eofKind;
 
     /**
+     * Creates an empty {@link Range} object at the current parsing position.
+     *
+     * @return the created {@link Range} object.
+     */
+    protected Range emptyRange() {
+        pushRange();
+        return popRange();
+    }
+
+    /**
      * Takes the next {@link Token} object and checks whether or not its {@linkplain K kind} matches the specified
      * {@linkplain K kind}.
      *

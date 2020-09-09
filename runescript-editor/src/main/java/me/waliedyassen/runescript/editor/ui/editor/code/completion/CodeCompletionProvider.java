@@ -52,7 +52,6 @@ public final class CodeCompletionProvider extends DefaultCompletionProvider {
         setListCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                System.out.println("RENDERING");
                 return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             }
         });

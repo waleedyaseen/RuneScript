@@ -440,16 +440,6 @@ public final class SyntaxParser extends ParserBase<Kind> {
     }
 
     /**
-     * Creates an empty {@link Range} object at the current parsing position.
-     *
-     * @return the created {@link Range} object.
-     */
-    private Range emptyRange() {
-        pushRange();
-        return popRange();
-    }
-
-    /**
      * Checks whether or not the next token is a valid statement start.
      *
      * @return <code>true</code> if it is otherwise <code>false</code>.
