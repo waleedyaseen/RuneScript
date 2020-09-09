@@ -89,7 +89,7 @@ public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
                 var errorReporter = new ErrorReporter();
                 var tokenizer = new Tokenizer(errorReporter, lexicalTable, stream);
                 var lexer = new Lexer(tokenizer);
-                var parser = new SyntaxParser(lexer);
+                var parser = new SyntaxParser(errorReporter, lexer);
                 var configs = parser.configs();
                 errorReporter.getErrors().forEach(error -> output.addError(sourceFile, error));
                 if (configs.length == 0) {

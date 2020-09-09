@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.LexerBase;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
@@ -36,6 +37,11 @@ public abstract class ParserBase<K> {
     protected final Stack<LexerBase<K>> lexerStack = new Stack<>();
 
     /**
+     * The error reporter of the parser.
+     */
+    protected final ErrorReporter errorReporter;
+
+    /**
      * The main lexer which we are using to parse tokens for the grammar.
      */
     private final LexerBase<K> lexer;
@@ -54,13 +60,15 @@ public abstract class ParserBase<K> {
      * @throws SyntaxError if the next token does not match the expected token.
      */
     protected Token<K> consume(K expected) {
-        var token = consume();
+        var token = peek();
         var kind = token == null ? eofKind : token.getKind();
         var range = token != null && token.getRange() != null ? token.getRange() : lexer.getStartRange();
-        if (kind != expected) {
-            throw createError(range, "Unexpected rule: " + kind + ", expected: " + expected);
+        if (kind == expected) {
+            consume();
+            return token;
         }
-        return token;
+        errorReporter.addError(createError(range, "Unexpected rule: " + kind + ", expected: " + expected));
+        return new ErrorToken<K>(range, expected);
     }
 
     /**

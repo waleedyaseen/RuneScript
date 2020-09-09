@@ -63,9 +63,8 @@ public final class CodeParameterCompletionProvider implements ParameterChoicesPr
     private void addParameters(List<Completion> completions, Parameter requested, ParameterSyntax[] parameters) {
         System.out.println(parameters.length);
         for (ParameterSyntax parameter : parameters) {
-            if (Objects.equals(parameter.getType(), requested.getType())) {
-                System.out.println(parameter.getType());
-                completions.add(new BasicCompletion(provider, "$" + parameter.getName()));
+            if (Objects.equals(parameter.getType(), requested.getTypeObject())) {
+                completions.add(new BasicCompletion(provider, "$" + parameter.getName().getText()));
             }
         }
     }

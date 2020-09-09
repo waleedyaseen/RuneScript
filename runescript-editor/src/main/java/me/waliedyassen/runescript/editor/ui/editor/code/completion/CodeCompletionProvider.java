@@ -23,6 +23,7 @@ import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ParameterChoicesProvider;
 import org.fife.ui.autocomplete.ParameterizedCompletion;
 
+import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.util.List;
@@ -48,6 +49,13 @@ public final class CodeCompletionProvider extends DefaultCompletionProvider {
      */
     public CodeCompletionProvider() {
         setParameterChoicesProvider(new CodeParameterCompletionProvider(this));
+        setListCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                System.out.println("RENDERING");
+                return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            }
+        });
         setParameterizedCompletionParams('(', ", ", ')');
         setAutoActivationRules(true, null);
         refreshCache();

@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.config.syntax;
 
 import lombok.var;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.parser.ParserBase;
 import me.waliedyassen.runescript.config.syntax.value.*;
 import me.waliedyassen.runescript.config.lexer.Lexer;
@@ -28,11 +29,11 @@ public final class SyntaxParser extends ParserBase<Kind> {
     /**
      * Constructs a new {@link SyntaxParser} type object instance.
      *
-     * @param lexer
-     *         the lexical parser to use for tokens.
+     * @param errorReporter the error reporter of the syntax parser.
+     * @param lexer         the lexical parser to use for tokens.
      */
-    public SyntaxParser(Lexer lexer) {
-        super(lexer, EOF);
+    public SyntaxParser(ErrorReporter errorReporter, Lexer lexer) {
+        super(errorReporter, lexer, EOF);
     }
 
     /**

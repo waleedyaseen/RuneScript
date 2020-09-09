@@ -34,6 +34,6 @@ class ConfigParserTest {
         var stream = new BufferedCharStream(new ByteArrayInputStream(source.getBytes()));
         var tokenizer = new Tokenizer(new ThrowingErrorReporter() ,table, stream);
         var lexer = new Lexer(tokenizer);
-        return new SyntaxParser(lexer);
+        return new SyntaxParser(new ThrowingErrorReporter(), lexer);
     }
 }

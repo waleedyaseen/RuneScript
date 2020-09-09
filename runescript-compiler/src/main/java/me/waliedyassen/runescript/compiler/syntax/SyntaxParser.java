@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.NonNull;
 import lombok.var;
+import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
@@ -18,6 +19,7 @@ import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.parser.ErrorToken;
 import me.waliedyassen.runescript.compiler.parser.ParserBase;
 import me.waliedyassen.runescript.compiler.parser.SyntaxError;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
@@ -64,11 +66,6 @@ public final class SyntaxParser extends ParserBase<Kind> {
     private final CompilerEnvironment environment;
 
     /**
-     *
-     */
-    private final ErrorReporter errorReporter;
-
-    /**
      * The scripts type that we are parsing.
      */
     private final String type;
@@ -87,10 +84,9 @@ public final class SyntaxParser extends ParserBase<Kind> {
                         @NonNull ErrorReporter errorReporter,
                         @NonNull Lexer lexer,
                         @NonNull String type) {
-        super(lexer, Kind.EOF);
+        super(errorReporter, lexer, Kind.EOF);
         this.environment = environment;
         this.symbolTable = symbolTable;
-        this.errorReporter = errorReporter;
         this.type = type;
     }
 
@@ -425,9 +421,32 @@ public final class SyntaxParser extends ParserBase<Kind> {
                 if (isExpressionStatement()) {
                     return expressionStatement();
                 } else {
-                    throw createError(consume(), "Expecting a statement");
+                    errorReporter.addError(createError(peek(), "Expecting a statement"));
+                    return errorStatement();
                 }
         }
+    }
+
+    /**
+     * Creates a new {@link ErrorStatementSyntax} object using the current parsing token.
+     *
+     * @return the created {@link ErrorStatementSyntax} object.
+     */
+    private ErrorStatementSyntax errorStatement() {
+        pushRange();
+        var token = consume();
+        var semicolon = peekKind() == SEMICOLON ? consume() : new ErrorToken<>(emptyRange(), SEMICOLON);
+        return new ErrorStatementSyntax(popRange(), token, semicolon);
+    }
+
+    /**
+     * Creates an empty {@link Range} object at the current parsing position.
+     *
+     * @return the created {@link Range} object.
+     */
+    private Range emptyRange() {
+        pushRange();
+        return popRange();
     }
 
     /**
