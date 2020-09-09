@@ -17,6 +17,7 @@ import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
 import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
@@ -72,8 +73,7 @@ public final class Cache {
     /**
      * Constructs a new {@link Cache} type object instance.
      *
-     * @param project
-     *         the project which owns this cache.
+     * @param project the project which owns this cache.
      */
     public Cache(Project project) {
         this.project = project;
@@ -83,11 +83,8 @@ public final class Cache {
     /**
      * Reads the content of the cache from the specified {@link DataInputStream stream}.
      *
-     * @param stream
-     *         the stream to read the content of the cache from.
-     *
-     * @throws IOException
-     *         if anything occurs while reading the data from the stream.
+     * @param stream the stream to read the content of the cache from.
+     * @throws IOException if anything occurs while reading the data from the stream.
      */
     public void deserialize(DataInputStream stream) throws IOException {
         var unitsCount = stream.readInt();
@@ -101,11 +98,8 @@ public final class Cache {
     /**
      * Writes the content of the cache to the specified {@link DataOutputStream stream}.
      *
-     * @param stream
-     *         the stream to write the content of the cache to.
-     *
-     * @throws IOException
-     *         if anything occurs while writing the data to the stream.
+     * @param stream the stream to write the content of the cache to.
+     * @throws IOException if anything occurs while writing the data to the stream.
      */
     public void serialize(DataOutputStream stream) throws IOException {
         stream.writeInt(units.size());
@@ -129,8 +123,7 @@ public final class Cache {
      * Collects all of the changes of the compilable files in the source directory and compiles
      * the affected files.
      *
-     * @throws IOException
-     *         if anything occurs accessing the files on the local disk.
+     * @throws IOException if anything occurs accessing the files on the local disk.
      */
     public void diff() throws IOException {
         var paths = Files.walk(project.getBuildPath().getSourceDirectory())
@@ -165,8 +158,7 @@ public final class Cache {
     /**
      * Re-compiles the content of the file at the specified {@link Path relative path}.
      *
-     * @param path
-     *         the path of the file to recompile relative to the source directory of the project.
+     * @param path the path of the file to recompile relative to the source directory of the project.
      */
     @SneakyThrows
     public void recompile(Path path) {
@@ -176,33 +168,34 @@ public final class Cache {
     /**
      * Re-compiles the content of the file at the specified {@link Path relative path}.
      *
-     * @param path
-     *         the relative path of the file that we want to recompile.
+     * @param path the relative path of the file that we want to recompile.
+     * @return the result object of the compile call.
      */
     @SneakyThrows
-    public void recompile(Path path, byte[] content) {
-        recompile(Collections.singletonList(Pair.of(path, content)));
+    public CompileResult recompile(Path path, byte[] content) {
+        return recompile(Collections.singletonList(Pair.of(path, content)));
     }
 
     /**
      * Re-compiles the specified list of files.
      *
-     * @param files
-     *         the list of files that we want to recompile.
+     * @param files the list of files that we want to recompile.
+     * @return the result object of the compile call.
      */
     @SneakyThrows
-    private void recompile(List<Pair<Path, byte[]>> files) {
-        recompile(files, DEFAULT_OPTIONS);
+    private CompileResult recompile(List<Pair<Path, byte[]>> files) {
+        return recompile(files, DEFAULT_OPTIONS);
     }
 
     /**
      * Re-compiles the specified list of files.
      *
-     * @param files
-     *         the list of files that we want to recompile.
+     * @param files the list of files that we want to recompile.
+     * @return the result object of the compile call.
      */
     @SneakyThrows
-    private void recompile(List<Pair<Path, byte[]>> files, CompileOptions options) {
+    private CompileResult recompile(List<Pair<Path, byte[]>> files, CompileOptions options) {
+        var result = new CompileResult();
         var configInput = options.createInput();
         var scriptInput = options.createInput();
         for (var pair : files) {
@@ -253,6 +246,7 @@ public final class Cache {
                 var unit = units.get(normalizedPath);
                 unit.setCrc(compiledFile.getCrc());
                 for (var compiledUnit : compiledFile.getUnits()) {
+                    result.getScriptSyntax().add(compiledUnit.getScript());
                     var scriptNode = compiledUnit.getScript();
                     var scriptName = compiledUnit.getScript().getName().getText();
                     var triggerName = compiledUnit.getScript().getTrigger().getText();
@@ -277,6 +271,7 @@ public final class Cache {
         if (dirty) {
             markCacheDirty();
         }
+        return result;
     }
 
     /**
@@ -339,9 +334,7 @@ public final class Cache {
     /**
      * Creates a new {@link CacheUnit} object for the specified {@link Path relative path}.
      *
-     * @param relativePath
-     *         the relative path of the cache unit.
-     *
+     * @param relativePath the relative path of the cache unit.
      * @return the created {@link CacheUnit} object.
      */
     private CacheUnit createCacheUnit(Path relativePath) {

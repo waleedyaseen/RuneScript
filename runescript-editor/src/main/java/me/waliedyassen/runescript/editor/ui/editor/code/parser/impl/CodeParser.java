@@ -7,10 +7,12 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor.code.parser.impl;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.commons.document.LineColumn;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
 import me.waliedyassen.runescript.editor.ui.editor.code.parser.notice.ErrorNotice;
@@ -42,6 +44,12 @@ public final class CodeParser extends AbstractParser {
     private final CodeEditor codeEditor;
 
     /**
+     * The last parsed scripts by this parser.
+     */
+    @Getter
+    private ScriptSyntax[] scripts;
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -52,7 +60,8 @@ public final class CodeParser extends AbstractParser {
         parseResult.clearNotices();
         parseResult.setParsedLines(0, textArea.getLineCount() - 1);
         var start = System.currentTimeMillis();
-        project.getCache().recompile(codeEditor.getKey(), textArea.getText().getBytes());
+        var result = project.getCache().recompile(codeEditor.getKey(), textArea.getText().getBytes());
+        scripts = result.getScriptSyntax().toArray(new ScriptSyntax[0]);
         parseResult.setParseTime(System.currentTimeMillis() - start);
         var unit = project.getCache().getUnits().get(errorsPath);
         for (var error : unit.getErrors()) {
@@ -71,8 +80,7 @@ public final class CodeParser extends AbstractParser {
     /**
      * Calculates and returns the start offset for the specified {@link LineColumn} object.
      *
-     * @param lineColumn
-     *         the object which contains the line and column information.
+     * @param lineColumn the object which contains the line and column information.
      */
     private int getOffset(LineColumn lineColumn) throws BadLocationException {
         return codeEditor.getTextArea().getLineStartOffset(lineColumn.getLine() - 1) + lineColumn.getColumn() - 1;
