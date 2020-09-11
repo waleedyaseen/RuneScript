@@ -304,6 +304,14 @@ public final class TypeChecking extends SyntaxTreeVisitor {
      * {@inheritDoc}
      */
     @Override
+    public PrimitiveType visit(ValueCoordgridSyntax valueCoordgridSyntax) {
+        return PrimitiveType.COORDGRID;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Type visit(ValueConstantSyntax value) {
         var constantInfo = table.lookupConstant(value.getName().getText());
         if (constantInfo == null) {

@@ -111,6 +111,16 @@ public interface SyntaxVisitor<T> {
     T visit(ValueConfigSyntax value);
 
     /**
+     * Gets called when we have just visited an {@link ValueCoordgridSyntax} object.
+     *
+     * @param value
+     *         the object we have just visited.
+     *
+     * @return An object which is specified by the implementation.
+     */
+    T visit(ValueCoordgridSyntax value);
+
+    /**
      * Gets called when we have just visited an {@link IdentifierSyntax} object.
      *
      * @param identifier

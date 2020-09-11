@@ -109,6 +109,14 @@ public abstract class SyntaxTreeVisitor implements SyntaxVisitor<Object> {
      * {@inheritDoc}
      */
     @Override
+    public Object visit(ValueCoordgridSyntax valueCoordgridSyntax) {
+        return DEFAULT;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Object visit(IdentifierSyntax identifier) {
         return DEFAULT;
     }

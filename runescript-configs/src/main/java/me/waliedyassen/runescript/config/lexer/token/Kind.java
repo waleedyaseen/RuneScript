@@ -70,6 +70,11 @@ public enum Kind {
     TYPE,
 
     /**
+     * The coordgrid ltieral token kind.
+     */
+    COORDGRID,
+
+    /**
      * The comment token kind.
      */
     COMMENT,

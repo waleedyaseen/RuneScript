@@ -29,6 +29,7 @@ import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.StackType;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * The code generator for the configuration compiler.
@@ -274,6 +275,14 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
     @Override
     public PrimitiveType visit(ValueTypeSyntax value) {
         return value.getType();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Integer visit(ValueCoordgridSyntax valueCoordgridSyntax) {
+        return valueCoordgridSyntax.getValue();
     }
 
     /**

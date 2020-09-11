@@ -256,7 +256,11 @@ public final class Tokenizer extends TokenizerBase {
                     if (Character.isDigit(current) || current == '_') {
                         builder.append(current);
                         stream.mark();
-                    } else {
+                    } else if (isIdentifierPart(current)) {
+                        builder.append(current);
+                        state.mode = Mode.IDENTIFIER;
+                        stream.mark();
+                    }else {
                         var kind = coordgrid ? COORDGRID : INTEGER;
                         if (!coordgrid && (current == 'L' || current == 'l')) {
                             kind = LONG;

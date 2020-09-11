@@ -195,16 +195,21 @@ public final class Tokenizer extends TokenizerBase {
                     }
                     break;
                 case NUMBER_LITERAL:
-                    if (Character.isDigit(current)) {
+                case COORDGRID_LITERAL:
+                    if (mode == Mode.NUMBER_LITERAL && current == '_') {
+                        mode = Mode.COORDGRID_LITERAL;
+                    }
+                    var coordgrid = mode == Mode.COORDGRID_LITERAL;
+                    if (Character.isDigit(current) || current == '_') {
                         builder.append(current);
                         stream.mark();
-                    } else if (Character.toLowerCase(current) != 'l' && isIdentifierPart(current)) {
+                    } else if (isIdentifierPart(current)) {
                         builder.append(current);
                         mode = Mode.IDENTIFIER;
                         stream.mark();
                     } else {
-                        var kind = INTEGER;
-                        if (Character.toLowerCase(current) == 'l') {
+                        var kind = coordgrid ? COORDGRID : INTEGER;
+                        if (!coordgrid && (current == 'L' || current == 'l')) {
                             kind = LONG;
                         } else if (current != NULL) {
                             stream.reset();
@@ -363,6 +368,11 @@ public final class Tokenizer extends TokenizerBase {
          * Indicates that the parser is currently parsing a number literal.
          */
         NUMBER_LITERAL,
+
+        /**
+         * Indicates that the parser is currently parsing a coord literal.
+         */
+        COORDGRID_LITERAL,
 
         /**
          * Indicates that the parser is currently parsing a hexadecimal literal.

@@ -133,6 +133,8 @@ public final class SyntaxParser extends ParserBase<Kind> {
                 return valueConstant();
             case IDENTIFIER:
                 return valueConfig();
+            case COORDGRID:
+                return valueCoordgrid();
             default:
                 addError(consume(), "Expected a property value");
                 return errorValueSyntax();
@@ -159,6 +161,44 @@ public final class SyntaxParser extends ParserBase<Kind> {
         return new ValueConfigSyntax(popRange(), name);
     }
 
+    /**
+     * Attempts to parse an {@link ValueCoordgridSyntax} object from the next sequence of tokens.
+     *
+     * @return the parsed {@link ValueCoordgridSyntax} object.
+     */
+    private ValueCoordgridSyntax valueCoordgrid() {
+        pushRange();
+        var token = consume(COORDGRID);
+        var parts = token.getLexeme().split("_");
+        if (parts.length != 5) {
+            throw createError(popRange(), "Expected 5 components for literal of type coordgrid");
+        }
+        var parsed = new int[parts.length];
+        for (var index = 0; index < parts.length; index++) {
+            try {
+                parsed[index] = Integer.parseInt(parts[index]);
+            } catch (NumberFormatException e) {
+                throw createError(token, "The literal " + token.getLexeme() + " of type coordgrid is out of range");
+            }
+        }
+        if (parsed[0] < 0 || parsed[0] > 3) {
+            throw createError(token, "Expected the level component value to be between [0-3] inclusively");
+        }
+        if (parsed[1] < 0 || parsed[1] > 127) {
+            throw createError(token, "Expected the square-x component value to be between [0-127] inclusively");
+        }
+        if (parsed[2] < 0 || parsed[2] > 255) {
+            throw createError(token, "Expected the square-y component value to be between [0-255] inclusively");
+        }
+        if (parsed[3] < 0 || parsed[3] > 63) {
+            throw createError(token, "Expected the tile-x component value to be between [0-63] inclusively");
+        }
+        if (parsed[4] < 0 || parsed[4] > 63) {
+            throw createError(token, "Expected the tile-y component value to be between [0-63] inclusively");
+        }
+        var packed = parsed[0] << 28 | parsed[1] << 20 | parsed[2] << 14 | parsed[3] << 6 | parsed[4];
+        return new ValueCoordgridSyntax(popRange(), packed);
+    }
     /**
      * Attempts to parse an {@link ValueStringSyntax} object from the next sequence of tokens.
      *
