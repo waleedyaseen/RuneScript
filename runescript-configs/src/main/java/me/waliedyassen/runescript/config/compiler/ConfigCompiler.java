@@ -107,12 +107,18 @@ public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
         var mapped = output.getCompiledFiles().stream().collect(groupingBy(Function.identity(), CollectorsEx.flatMapping(file -> file.getUnits().stream().map(CompiledConfigUnit::getConfig), toList())));
         var checker = new SemanticChecker(symbolTable);
         for (var entry : mapped.entrySet()) {
+            if (entry.getKey().getErrors().size() > 0) {
+                continue;
+            }
             var binding = bindings.get(entry.getKey().getExtension());
             checker.executePre(entry.getValue(), binding);
             entry.getKey().getErrors().addAll(checker.getErrors());
             checker.getErrors().clear();
         }
         for (var entry : mapped.entrySet()) {
+            if (entry.getKey().getErrors().size() > 0) {
+                continue;
+            }
             var binding = bindings.get(entry.getKey().getExtension());
             checker.execute(entry.getValue(), binding);
             entry.getKey().getErrors().addAll(checker.getErrors());
@@ -120,6 +126,9 @@ public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
         }
         if (input.isRunCodeGeneration()) {
             for (var entry : mapped.keySet()) {
+                if (entry.getErrors().size() > 0) {
+                    continue;
+                }
                 var binding = bindings.get(entry.getExtension());
                 var codeGen = new CodeGenerator(idProvider, symbolTable, binding);
                 for (var unit : entry.getUnits()) {

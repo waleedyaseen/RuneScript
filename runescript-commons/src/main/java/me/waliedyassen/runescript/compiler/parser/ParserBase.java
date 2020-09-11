@@ -196,11 +196,8 @@ public abstract class ParserBase<K> {
      * @param token   the token which the error has occurred at.
      * @param message the error message describing why the error has occurred.
      */
-    protected void throwError(Token<K> token, String message) {
-        var error = createError(token, message);
-        var stackTrace = error.getStackTrace();
-        error.setStackTrace(Arrays.copyOfRange(stackTrace, 2, stackTrace.length));
-        throw error;
+    protected void addError(Token<K> token, String message) {
+        errorReporter.addError(createError(token, message));
     }
 
     /**
@@ -222,7 +219,7 @@ public abstract class ParserBase<K> {
      * @return the created {@link SyntaxError} object.
      */
     protected SyntaxError createError(Token<K> token, String message) {
-        return new SyntaxError(token == null ? null : token.getRange(), message);
+        return new SyntaxError(token == null ? emptyRange() : token.getRange(), message);
     }
 
     /**

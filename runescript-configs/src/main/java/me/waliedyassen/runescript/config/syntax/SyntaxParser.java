@@ -134,9 +134,18 @@ public final class SyntaxParser extends ParserBase<Kind> {
             case IDENTIFIER:
                 return valueConfig();
             default:
-                throwError(consume(), "Expected a property value");
-                return null;
+                addError(consume(), "Expected a property value");
+                return errorValueSyntax();
         }
+    }
+
+    /**
+     * Returns a newly created {@link ErrorValueSyntax} object.
+     *
+     * @return the created {@link ErrorValueSyntax} object.
+     */
+    private ErrorValueSyntax errorValueSyntax() {
+        return new ErrorValueSyntax(emptyRange());
     }
 
     /**
