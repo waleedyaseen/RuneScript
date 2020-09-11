@@ -480,6 +480,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
         isTypeApplicable(doWhileStatementSyntax.getCondition(), PrimitiveType.BOOLEAN, condition);
         return PrimitiveType.VOID;
     }
+
     /**
      * {@inheritDoc}
      */
@@ -562,11 +563,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
     private Type checkOperator(SyntaxBase node, Type left, Type right, Operator operator) {
         var applicable = false;
         if (operator.isEquality()) {
-            if (left == PrimitiveType.BOOLEAN || left == PrimitiveType.INT || left == PrimitiveType.LONG) {
-                applicable = isTypeApplicable(null, left, right, false);
-            } else if (right == PrimitiveType.BOOLEAN || right == PrimitiveType.INT || right == PrimitiveType.LONG) {
-                applicable = isTypeApplicable(null, right, left, false);
-            }
+            applicable = isTypeApplicable(null, left, right, false);
         } else if (operator.isRelational()) {
             if (left == PrimitiveType.INT || left == PrimitiveType.LONG) {
                 applicable = left.equals(right);
@@ -618,11 +615,7 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
             for (int index = 0; index < expectedFlattened.length; index++) {
                 Type expectedType = expectedFlattened[index];
                 Type actualType = actualFlattened[index];
-                if (actualType == PrimitiveType.NULL) {
-                    applicable &= expectedType != PrimitiveType.PARAM && expectedType.getStackType() == StackType.INT;
-                } else {
-                    applicable &= expectedType.equals(actualType);
-                }
+                applicable &= isTypeCompatible(expectedType, actualType);
             }
         }
         if (!applicable && reportError) {
@@ -631,4 +624,19 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
         return applicable;
     }
 
+    /**
+     * Checks whether or not the two given types are compatible.
+     *
+     * @param first  the first type to check.
+     * @param second the second type to check.
+     * @return <code>true</code> they are otherwise <code>false</code>.
+     */
+    private boolean isTypeCompatible(Type first, Type second) {
+        if (first == PrimitiveType.NULL || second == PrimitiveType.NULL) {
+            Type other = first == PrimitiveType.NULL ? second : first;
+            return other instanceof PrimitiveType && ((PrimitiveType) other).isNullable();
+        } else {
+            return first.equals(second);
+        }
+    }
 }

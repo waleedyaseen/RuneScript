@@ -372,6 +372,25 @@ public enum PrimitiveType implements Type {
         }
     }
 
+
+    /**
+     * Checks whether or not this type is nullable.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isNullable() {
+        if (stackType != StackType.INT) {
+            return false;
+        }
+        switch (this) {
+            case NULL:
+            case PARAM:
+                return false;
+            default:
+                return true;
+        }
+    }
+
     /**
      * Looks-up for the {@link PrimitiveType} with the textual representation.
      *

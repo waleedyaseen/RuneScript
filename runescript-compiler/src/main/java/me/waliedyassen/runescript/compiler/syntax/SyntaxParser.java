@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.NonNull;
 import lombok.var;
-import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
@@ -206,7 +205,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
         var array = peekKind() == ARRAY_TYPE;
         var type = array ? arrayType() : primitiveType();
         if (!type.isDeclarable()) {
-            throwError(lexer().previous(), "Illegal type: " + type.getRepresentation());
+            addError(lexer().previous(), "Illegal type: " + type.getRepresentation());
         }
         consume(DOLLAR);
         var name = identifier();
@@ -1053,7 +1052,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
             try {
                 pushLexer(createLexerFromString(rawString));
             } catch (SyntaxError | LexicalError e) {
-                throwError(rawString, e.getMessage());
+                addError(rawString, e.getMessage());
             }
             var name = identifier();
             var arguments = new ArrayList<ExpressionSyntax>();
