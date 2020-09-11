@@ -435,7 +435,9 @@ public final class Project {
                 var alternative = value.getOrElse("alternative", false);
                 var hook = value.getOrElse("hook", false);
                 var hookType = value.contains("hooktype") ? PrimitiveType.valueOf(value.get("hooktype")) : null;
-                symbolTable.defineCommand(new BasicOpcode(opcode, false), name, type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0], arguments, hook, hookType, alternative);
+                var tag = value.getOrElse("tag", (String)null);
+                var returnTypes = type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0];
+                symbolTable.defineCommand(new BasicOpcode(opcode, false), name, returnTypes, arguments, hook, hookType, alternative, tag);
             }
         }
     }

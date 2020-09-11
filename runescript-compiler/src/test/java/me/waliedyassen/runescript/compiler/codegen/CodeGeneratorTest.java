@@ -66,9 +66,9 @@ class CodeGeneratorTest {
         checker = new SemanticChecker(environment, table, false);
         generator = new CodeGenerator(environment, table, instructionMap, ScriptParserTest.TestTriggerType.CLIENTSCRIPT);
         generator.initialise();
-        table.defineCommand(new BasicOpcode(0, false), "func_i_i", PrimitiveType.INT, new Type[]{PrimitiveType.INT}, false, null, false);
-        table.defineCommand(new BasicOpcode(3100, false), "writeconsole", PrimitiveType.VOID, new Type[]{PrimitiveType.STRING}, false, null, false);
-        table.defineCommand(new BasicOpcode(3101, false), "tostring", PrimitiveType.STRING, new Type[]{PrimitiveType.INT}, false, null, false);
+        table.defineCommand(new BasicOpcode(0, false), "func_i_i", PrimitiveType.INT, new Type[]{PrimitiveType.INT}, false, null, false, null);
+        table.defineCommand(new BasicOpcode(3100, false), "writeconsole", PrimitiveType.VOID, new Type[]{PrimitiveType.STRING}, false, null, false, null);
+        table.defineCommand(new BasicOpcode(3101, false), "tostring", PrimitiveType.STRING, new Type[]{PrimitiveType.INT}, false, null, false, null);
 
     }
 

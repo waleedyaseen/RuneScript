@@ -73,12 +73,14 @@ public final class ScriptSymbolTable extends SymbolTable {
      *         the type of transmits the hook must have if the hook is present.
      * @param alternative
      *         whether or not this command supports alternative calls.
+     * @param tag
+     *         the tag of the command.
      */
-    public void defineCommand(Opcode opcode, String name, Type type, Type[] arguments, boolean hook, Type hookType, boolean alternative) {
+    public void defineCommand(Opcode opcode, String name, Type type, Type[] arguments, boolean hook, Type hookType, boolean alternative, String tag) {
         if (lookupCommand(name) != null) {
             throw new IllegalArgumentException("The command '" + name + "' is already defined.");
         }
-        commands.put(name, new CommandInfo(opcode, name, type, arguments, hook, hookType, alternative));
+        commands.put(name, new CommandInfo(opcode, name, type, arguments, hook, hookType, alternative, tag));
     }
 
     /**

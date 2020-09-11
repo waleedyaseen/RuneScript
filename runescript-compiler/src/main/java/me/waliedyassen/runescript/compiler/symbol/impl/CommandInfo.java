@@ -24,6 +24,11 @@ import me.waliedyassen.runescript.type.Type;
 public final class CommandInfo extends Symbol {
 
     /**
+     * A tag which indicates this command information is for the "enum" command.
+     */
+    public static final String ENUM_TAG = "enum";
+
+    /**
      * The opcode of this command.
      */
     @Getter
@@ -64,4 +69,19 @@ public final class CommandInfo extends Symbol {
      */
     @Getter
     private final boolean alternative;
+
+    /**
+     * The tag of the command, used to distinguish special commands like <code>enum</code> or <code>x_param</code>.
+     */
+    @Getter
+    private final String tag;
+
+    /**
+     * Checks whether or not this command information is for the enum command.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isEnum() {
+        return ENUM_TAG.equals(tag);
+    }
 }

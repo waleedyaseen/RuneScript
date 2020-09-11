@@ -351,6 +351,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
                 || kind == DOT
                 || kind == CALC
                 || kind == NULL
+                || kind == TYPE
                 || isCall();
     }
 
