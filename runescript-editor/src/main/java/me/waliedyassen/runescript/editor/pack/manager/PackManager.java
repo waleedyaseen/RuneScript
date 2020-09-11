@@ -27,9 +27,9 @@ import java.util.Map;
 public final class PackManager {
 
     /**
-     * The cached {@link Pack} objects by their associated extensions.
+     * The cached {@link Pack} objects by their associated names.
      */
-    private final Map<String, Pack> packByExtension = new HashMap<>();
+    private final Map<String, Pack> packs = new HashMap<>();
 
     /**
      * The {@link Pack} object provider.
@@ -39,8 +39,8 @@ public final class PackManager {
     /**
      * Attempts to pack the specified {@code data} for the file with the specified {@link Path path}.
      *
-     * @param extension
-     *         the extension which the unit is contained in.
+     * @param packName
+     *         the pack name which the unit is contained in.
      * @param id
      *         the id of the entity we are packing.
      * @param name
@@ -48,30 +48,30 @@ public final class PackManager {
      * @param data
      *         the encoded data of the file to pack.
      */
-    public void pack(String extension, int id, String name, byte[] data) {
-        var pack = getPack(extension);
+    public void pack(String packName, int id, String name, byte[] data) {
+        var pack = getPack(packName);
         if (pack == null) {
-            throw new IllegalArgumentException("Could not find a suitable packer for the specified file path extension");
+            throw new IllegalArgumentException("Could not find a suitable packer for the specified name");
         }
         pack.pack(new PackFile(id, name, data));
     }
 
     /**
-     * Returns the {@link Pack} for the specified {@code extension}.
+     * Returns the {@link Pack} for the specified {@code name}.
      *
-     * @param extension
-     *         the extension to grab the pack object for.
+     * @param name
+     *         the pack name to grab the pack object for.
      *
      * @return the {@link Pack} object if found or {@code null} if failed to create after not finding.
      */
-    private Pack getPack(String extension) {
-        var pack = packByExtension.get(extension);
+    private Pack getPack(String name) {
+        var pack = packs.get(name);
         if (pack != null) {
             return pack;
         }
-        pack = provider.create(extension);
+        pack = provider.create(name);
         if (pack != null) {
-            packByExtension.put(extension, pack);
+            packs.put(name, pack);
         }
         return pack;
     }

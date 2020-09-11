@@ -56,7 +56,6 @@ public interface IDManager {
      */
     int findScript(String name, String extension) throws IllegalArgumentException;
 
-
     /**
      * Attempts to find the id for the config with the specified {@code name} and {@link Type type}.
      *

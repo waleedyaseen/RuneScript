@@ -147,7 +147,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         generateDefaultReturn(script.getType());
         popContext();
         // format the script name to be in the formal format.
-        var name = "[" + script.getTrigger().getText() + "," + script.getName() + "]";
+        var name = String.format("[%s,%s]", script.getTrigger().getText(), script.getName().getText());
         // put all of the blocks into a sorted map.
         var blocks = new BlockList();
         for (var block : blockMap.getBlocks()) {

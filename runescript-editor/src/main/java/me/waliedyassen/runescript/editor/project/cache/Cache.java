@@ -41,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static me.waliedyassen.runescript.editor.project.Project.getPackName;
+
 /**
  * A cache system that is for a specific project.
  *
@@ -318,7 +320,7 @@ public final class Cache {
             var type = configUnit.getBinding().getGroup().getType();
             var name = configUnit.getBinaryConfig().getName();
             var id = project.getIdManager().findConfig(type, name);
-            project.getPackManager().pack(type.getRepresentation(), id, name, configUnit.getBinaryConfig().serialize());
+            project.getPackManager().pack(getPackName(type.getRepresentation()), id, name, configUnit.getBinaryConfig().serialize());
         }
         var writer = new BytecodeCodeWriter(project.getIdManager(), project.isSupportsLongPrimitiveType());
         for (var scriptUnit : scriptUnits) {
@@ -326,7 +328,7 @@ public final class Cache {
             var name = scriptUnit.getBinaryScript().getName();
             var id = project.getIdManager().findScript(name, binaryScript.getExtension());
             var serialised = writer.write(binaryScript).encode();
-            project.getPackManager().pack(binaryScript.getExtension(), id, name, serialised);
+            project.getPackManager().pack(getPackName(binaryScript.getExtension()), id, name, serialised);
         }
         return true;
     }

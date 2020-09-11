@@ -745,8 +745,8 @@ public final class Project {
                 log.error("An error occurred while loading the project cache", e);
             }
         } else {
-            index.create("serverscript");
-            index.create("clientscript").setCursor(10000);
+            index.create(getPackName("rs2"));
+            index.create(getPackName("cs2")).setCursor(10000);
             saveIndex();
         }
     }
@@ -776,10 +776,12 @@ public final class Project {
         var errorsView = Api.getApi().getUi().getErrorsView();
         var path = unit.getNameWithPath();
         errorsView.removeErrorForPath(path);
-        for (var cachedError : unit.getErrors()) {
-            var line = cachedError.getRange().getStart().getLine();
-            var column = cachedError.getRange().getStart().getColumn();
-            errorsView.addError(path, line, column, cachedError.getMessage());
+        if (unit.getErrors() != null && unit.getErrors().isEmpty()) {
+            for (var cachedError : unit.getErrors()) {
+                var line = cachedError.getRange().getStart().getLine();
+                var column = cachedError.getRange().getStart().getColumn();
+                errorsView.addError(path, line, column, cachedError.getMessage());
+            }
         }
     }
 
@@ -900,6 +902,28 @@ public final class Project {
     }
 
     /**
+     * Returns the pack database name for the file with the specified {@code extension}.
+     *
+     * @param extension the extension of the file the pack database name is for.
+     * @return the name of the pack database.
+     * @throws IllegalArgumentException if we failed to find a pack database name for the given extension.
+     */
+    public static String getPackName(String extension) {
+        switch (extension) {
+            case "cs2":
+                return "clientscript";
+            case "rs2":
+                return "serverscript";
+            default:
+                PrimitiveType type = PrimitiveType.forRepresentation(extension);
+                if (type != null && type.isConfigType()) {
+                    return "config-" + type.getRepresentation();
+                }
+                throw new IllegalArgumentException("Failed to find a pack database name for extension: " + extension);
+        }
+    }
+
+    /**
      * Represents {@link IDManager} implementation for projects.
      *
      * @author Walied K. Yassen
@@ -917,7 +941,7 @@ public final class Project {
          */
         @Override
         public int findOrCreateScript(String name, String extension) {
-            var index = project.index.getOrCreate(extension.endsWith("cs2") ? "clientscript" : "serverscript");
+            var index = project.index.getOrCreate(getPackName(extension));
             return index.findOrCreate(name);
         }
 
@@ -936,7 +960,7 @@ public final class Project {
                 }
                 return config.getPredefinedId();
             }
-            var index = project.index.getOrCreate("config-" + type.getRepresentation());
+            var index = project.index.getOrCreate(getPackName(type.getRepresentation()));
             return index.findOrCreate(name);
         }
 
@@ -945,7 +969,7 @@ public final class Project {
          */
         @Override
         public int findScript(String name, String extension) throws IllegalArgumentException {
-            var index = project.index.get(extension.endsWith("cs2") ? "clientscript" : "serverscript");
+            var index = project.index.get(getPackName(extension));
             var id = index.find(name);
             if (id == null) {
                 throw new IllegalArgumentException("Failed to find an id for script with name: " + name);
@@ -966,7 +990,7 @@ public final class Project {
                     }
                     return config.getPredefinedId();
                 }
-                var index = project.index.get("config-" + type.getRepresentation());
+                var index = project.index.get(getPackName(type.getRepresentation()));
                 if (index != null) {
                     var id = index.find(name);
                     if (id != null) {

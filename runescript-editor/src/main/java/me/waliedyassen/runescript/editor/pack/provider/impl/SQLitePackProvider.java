@@ -31,13 +31,7 @@ public final class SQLitePackProvider implements PackProvider {
      * {@inheritDoc}
      */
     @Override
-    public Pack create(String extension) {
-        if (extension.contentEquals("rs2")) {
-            return new SQLitePack(path.resolve("serverscripts.db").toAbsolutePath().toString());
-        }
-        if (extension.contentEquals("cs2")) {
-            return new SQLitePack(path.resolve("clientscripts.db").toAbsolutePath().toString());
-        }
-        return null;
+    public Pack create(String packName) {
+        return new SQLitePack(path.resolve(packName + ".db").toAbsolutePath().toString());
     }
 }

@@ -17,10 +17,10 @@ import me.waliedyassen.runescript.editor.pack.Pack;
 public interface PackProvider {
 
     /**
-     * Creates a new {@link Pack} object for the specified {@code extension}.
+     * Creates a new {@link Pack} object for the specified {@code packName}.
      *
-     * @param extension the extension to create the {@link Pack} object for.
-     * @return the craeted {@link Pack} object or {@code null} if we failed to identify the extension.
+     * @param packName the pack database name to create the {@link Pack} object for.
+     * @return the created {@link Pack} object or {@code null} if we failed to open one.
      */
-    Pack create(String extension);
+    Pack create(String packName);
 }
