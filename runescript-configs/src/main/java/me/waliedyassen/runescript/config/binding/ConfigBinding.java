@@ -46,20 +46,6 @@ public final class ConfigBinding {
     private final ConfigGroup group;
 
     /**
-     * Whether or not this configuration binding allows param property.
-     */
-    @Getter
-    @Setter
-    private boolean allowParamProperty;
-
-    /**
-     * Whether or not this configuration binding allow transmit property.
-     */
-    @Getter
-    @Setter
-    private boolean allowTransmitProperty;
-
-    /**
      * The name of the content type property.
      */
     @Getter

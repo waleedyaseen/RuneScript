@@ -617,9 +617,6 @@ public final class Project {
                     config.load();
                     var binding = new ConfigBinding(() -> type);
                     configsCompiler.registerBinding(type.getRepresentation(), binding);
-                    binding.setAllowParamProperty(config.getOrElse("config.allow_param_property", false));
-                    binding.setAllowTransmitProperty(config.getOrElse("config.allow_transmit_property", false));
-                    binding.setContentTypeProperty(config.contains("config.content_type_property") ? config.get("config.content_type_property") : null);
                     for (var entry : config.entrySet()) {
                         if (entry.getKey().contentEquals("config")) {
                             continue;
@@ -680,14 +677,19 @@ public final class Project {
                             }
                         }
                     }
-                    if (binding.getContentTypeProperty() != null) {
+                    var contentTypeProperty = config.contains("config.content_type_property") ? config.<String>get("config.content_type_property") : null;
+                    if (contentTypeProperty != null) {
+                        binding.setContentTypeProperty(contentTypeProperty);
                         var prop = binding.findProperty(binding.getContentTypeProperty());
                         if (prop == null || prop.getComponents().length != 1 || prop.getComponents()[0] != PrimitiveType.TYPE) {
                             throw new IllegalArgumentException("Malformed content type property: " + binding.getContentTypeProperty());
                         }
                     }
-                    if (binding.isAllowParamProperty()) {
+                    if (config.getOrElse("config.add_param_property", false)) {
                         binding.addProperty("param", new ConfigParamProperty("param", 249));
+                    }
+                    if (config.getOrElse("config.add_transmit_property", false)) {
+                        binding.addBasicProperty("transmit", 250, false, new PrimitiveType[]{PrimitiveType.BOOLEAN}, new List[]{Collections.emptyList()});
                     }
                 }
             } catch (Throwable e) {
