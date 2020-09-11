@@ -158,7 +158,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
         consume(HASH);
         var name = identifier();
         consume(COLON);
-        var value = integerNumber();
+        var value = literalInteger();
         return new AnnotationSyntax(popRange(), name, value);
     }
 
@@ -286,17 +286,22 @@ public final class SyntaxParser extends ParserBase<Kind> {
             case LPAREN:
                 return parExpression();
             case INTEGER:
-                return integerNumber();
+                return literalInteger();
             case STRING:
-                return string();
+                return literalString();
             case LONG:
-                return longNumber();
+                return literalLong();
             case BOOL:
-                return bool();
+                return literalBool();
             case COORDGRID:
-                return coordgrid();
+                return literalCoord();
             case NULL:
                 return literalNull();
+            case TYPE:
+                if (peekKind(1) == LPAREN) {
+                    return command();
+                }
+                return literalType();
             case CONCATB:
                 return concatString();
             case DOLLAR:
@@ -725,7 +730,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
      *
      * @return the parsed {@link LiteralIntegerSyntax} object.
      */
-    public LiteralIntegerSyntax integerNumber() {
+    public LiteralIntegerSyntax literalInteger() {
         pushRange();
         var token = consume(INTEGER);
         try {
@@ -746,7 +751,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
      *
      * @return the parsed {@link LiteralCoordgridSyntax} object.
      */
-    public LiteralCoordgridSyntax coordgrid() {
+    public LiteralCoordgridSyntax literalCoord() {
         pushRange();
         var token = consume(COORDGRID);
         var parts = token.getLexeme().split("_");
@@ -785,7 +790,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
      *
      * @return the parsed {@link LiteralLongSyntax} object.
      */
-    public LiteralLongSyntax longNumber() {
+    public LiteralLongSyntax literalLong() {
         pushRange();
         var token = consume(LONG);
         try {
@@ -806,7 +811,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
      *
      * @return the parsed {@link LiteralStringSyntax} object.
      */
-    public LiteralStringSyntax string() {
+    public LiteralStringSyntax literalString() {
         pushRange();
         var token = consume(STRING);
         return new LiteralStringSyntax(popRange(), token.getLexeme());
@@ -833,7 +838,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
      *
      * @return the parsed {@link LiteralBooleanSyntax} object.
      */
-    public LiteralBooleanSyntax bool() {
+    public LiteralBooleanSyntax literalBool() {
         pushRange();
         var token = consume(BOOL);
         return new LiteralBooleanSyntax(popRange(), Boolean.parseBoolean(token.getLexeme()));
@@ -848,6 +853,17 @@ public final class SyntaxParser extends ParserBase<Kind> {
         pushRange();
         var wordToken = consume(NULL);
         return new LiteralNullSyntax(popRange(), wordToken);
+    }
+
+    /**
+     * Attempts to match the next token to an {@link LiteralTypeSyntax} object instance.
+     *
+     * @return the parsed {@link LiteralTypeSyntax} object.
+     */
+    public LiteralTypeSyntax literalType() {
+        pushRange();
+        var type = consume(TYPE);
+        return new LiteralTypeSyntax(popRange(), PrimitiveType.forRepresentation(type.getLexeme()));
     }
 
     /**

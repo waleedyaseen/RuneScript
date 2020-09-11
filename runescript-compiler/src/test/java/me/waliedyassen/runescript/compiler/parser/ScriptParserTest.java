@@ -14,7 +14,6 @@ import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
-import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.error.ThrowingErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
@@ -520,13 +519,13 @@ public final class ScriptParserTest {
     void testInt() {
         assertAll("int", () -> {
             // non-signed integer.
-            assertEquals(fromString("881251628").integerNumber().getValue().intValue(), 881251628);
+            assertEquals(fromString("881251628").literalInteger().getValue().intValue(), 881251628);
         }, () -> {
             // negative signed integer.
-            assertEquals(fromString("-1040462968").integerNumber().getValue().intValue(), -1040462968);
+            assertEquals(fromString("-1040462968").literalInteger().getValue().intValue(), -1040462968);
         }, () -> {
             // positive signed integer.
-            assertEquals(fromString("1035471165").integerNumber().getValue().intValue(), 1035471165);
+            assertEquals(fromString("1035471165").literalInteger().getValue().intValue(), 1035471165);
         });
     }
 
@@ -534,13 +533,13 @@ public final class ScriptParserTest {
     void testIntRange() {
         assertAll("int range", () -> {
             // integer underflow
-            assertThrows(SyntaxError.class, () -> fromString("-2147483649").integerNumber());
+            assertThrows(SyntaxError.class, () -> fromString("-2147483649").literalInteger());
         }, () -> {
             // integer overflow
-            assertThrows(SyntaxError.class, () -> fromString("2147483648").integerNumber());
+            assertThrows(SyntaxError.class, () -> fromString("2147483648").literalInteger());
         }, () -> {
             // within range
-            assertEquals(fromString("1785498889").integerNumber().getValue().intValue(), 1785498889);
+            assertEquals(fromString("1785498889").literalInteger().getValue().intValue(), 1785498889);
         });
     }
 
@@ -548,19 +547,19 @@ public final class ScriptParserTest {
     void testLong() {
         assertAll("long", () -> {
             // lower case long identifier
-            assertEquals(fromString("4327430278518173700l").longNumber().getValue().longValue(), 4327430278518173700l);
+            assertEquals(fromString("4327430278518173700l").literalLong().getValue().longValue(), 4327430278518173700l);
         }, () -> {
             // upper case long identifier
-            assertEquals(fromString("5837188049693458000L").longNumber().getValue().longValue(), 5837188049693458000L);
+            assertEquals(fromString("5837188049693458000L").literalLong().getValue().longValue(), 5837188049693458000L);
         }, () -> {
             // non-signed long.
-            assertEquals(fromString("6883184492006257000L").longNumber().getValue().longValue(), 6883184492006257000L);
+            assertEquals(fromString("6883184492006257000L").literalLong().getValue().longValue(), 6883184492006257000L);
         }, () -> {
             // negative signed long.
-            assertEquals(fromString("-7226522914666815000L").longNumber().getValue().longValue(), -7226522914666815000L);
+            assertEquals(fromString("-7226522914666815000L").literalLong().getValue().longValue(), -7226522914666815000L);
         }, () -> {
             // positive signed long.
-            assertEquals(fromString("+4809541778570648000L").longNumber().getValue().longValue(), +4809541778570648000L);
+            assertEquals(fromString("+4809541778570648000L").literalLong().getValue().longValue(), +4809541778570648000L);
         });
     }
 
@@ -568,19 +567,19 @@ public final class ScriptParserTest {
     void testLongRange() {
         assertAll("long range", () -> {
             // long underflow
-            assertThrows(SyntaxError.class, () -> fromString("-9223372036854775809L").longNumber());
+            assertThrows(SyntaxError.class, () -> fromString("-9223372036854775809L").literalLong());
         }, () -> {
             // long overflow
-            assertThrows(SyntaxError.class, () -> fromString("9223372036854775808L").longNumber());
+            assertThrows(SyntaxError.class, () -> fromString("9223372036854775808L").literalLong());
         }, () -> {
             // within range
-            assertEquals(fromString("8490600559331033000L").longNumber().getValue().longValue(), 8490600559331033000L);
+            assertEquals(fromString("8490600559331033000L").literalLong().getValue().longValue(), 8490600559331033000L);
         });
     }
 
     @Test
     void testString() {
-        assertEquals(fromString("\"my test string\"").string().getValue(), "my test string");
+        assertEquals(fromString("\"my test string\"").literalString().getValue(), "my test string");
     }
 
     @Test
@@ -596,11 +595,11 @@ public final class ScriptParserTest {
     void testBool() {
         assertAll("boolean", () -> {
             // valid boolean
-            assertTrue(fromString("true").bool().getValue());
-            assertFalse(fromString("false").bool().getValue());
+            assertTrue(fromString("true").literalBool().getValue());
+            assertFalse(fromString("false").literalBool().getValue());
         }, () -> {
             // invalid boolean
-            assertThrows(SyntaxError.class, () -> fromString("tru").bool());
+            assertThrows(SyntaxError.class, () -> fromString("tru").literalBool());
         });
     }
 

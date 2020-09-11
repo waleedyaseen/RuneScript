@@ -119,6 +119,16 @@ public interface SyntaxVisitor<T> {
     }
 
     /**
+     * Gets called when we have just visited an {@link LiteralTypeSyntax} node.
+     *
+     * @param literalTypeSyntax the {@link LiteralTypeSyntax} node we have just visited.
+     * @return the implementation output object.
+     */
+    default T visit(LiteralTypeSyntax literalTypeSyntax) {
+        return null;
+    }
+
+    /**
      * Gets called when we have just visited an {@link ConcatenationSyntax} node.
      *
      * @param concatenation the {@link ConcatenationSyntax} node we have just visited.

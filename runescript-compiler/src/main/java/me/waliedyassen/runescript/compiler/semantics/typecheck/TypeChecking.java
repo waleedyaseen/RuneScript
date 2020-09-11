@@ -137,6 +137,14 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
      * {@inheritDoc}
      */
     @Override
+    public Type visit(LiteralTypeSyntax literalTypeSyntax) {
+        return literalTypeSyntax.setType(PrimitiveType.TYPE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Type visit(ConcatenationSyntax concatenation) {
         for (var expr : concatenation.getExpressions()) {
             isTypeApplicable(expr, PrimitiveType.STRING, expr.accept(this));

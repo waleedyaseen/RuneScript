@@ -251,6 +251,14 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * {@inheritDoc}
      */
     @Override
+    public Instruction visit(LiteralTypeSyntax literalTypeSyntax) {
+        return instruction(PUSH_INT_CONSTANT, literalTypeSyntax.getType().getCode());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Instruction visit(ConcatenationSyntax concatenation) {
         for (var expression : concatenation.getExpressions()) {
             expression.accept(this);
