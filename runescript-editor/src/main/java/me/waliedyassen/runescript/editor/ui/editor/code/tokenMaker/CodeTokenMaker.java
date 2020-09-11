@@ -140,7 +140,9 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
                     }
                     break;
                 case STRING_LITERAL:
-                    if (ch == '\"') {
+                    if (ch == '\\') {
+                        pos++;
+                    } else if (ch == '\"') {
                         popAddToken(text, pos);
                     } else if (!configuration && ch == '<') {
                         addToken(text, pos - 1);
@@ -233,10 +235,8 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
     /**
      * Pushes a temporary token context into the temporary token contexts stack.
      *
-     * @param type
-     *         the type of the token that we want to push.
-     * @param start
-     *         the start position of the token that we want to push.
+     * @param type  the type of the token that we want to push.
+     * @param start the start position of the token that we want to push.
      */
     private void pushToken(int type, int start) {
         temporaryTokens.push(new TemporaryToken(type, start));
@@ -245,8 +245,7 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
     /**
      * Changes the type of the token that is currently at the top of the temporary token contexts stack.
      *
-     * @param type
-     *         the new token type to set for the token.
+     * @param type the new token type to set for the token.
      */
     private void changeTokenType(int type) {
         var tokenType = temporaryTokens.pop();
@@ -256,8 +255,7 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
     /**
      * Changes the start position of the token that is currently at the top of the temporary token contexts stack.
      *
-     * @param start
-     *         the new token start position to set for the token.
+     * @param start the new token start position to set for the token.
      */
     private void changeTokenStart(int start) {
         var tokenType = temporaryTokens.pop();
@@ -267,10 +265,8 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
     /**
      * Adds a new token to the token map while removing the token context from the stack.
      *
-     * @param text
-     *         the text which we want to grab the token content from.
-     * @param end
-     *         the end of the token text in the document.
+     * @param text the text which we want to grab the token content from.
+     * @param end  the end of the token text in the document.
      */
     public void popAddToken(Segment text, int end) {
         var temporaryToken = temporaryTokens.pop();
@@ -280,10 +276,8 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
     /**
      * Adds a new token to the token map without removing the token context from the stack.
      *
-     * @param text
-     *         the text which we want to grab the token content from.
-     * @param end
-     *         the end of the token text in the document.
+     * @param text the text which we want to grab the token content from.
+     * @param end  the end of the token text in the document.
      */
     public void addToken(Segment text, int end) {
         var temporaryToken = temporaryTokens.peek();
@@ -293,14 +287,10 @@ public final class CodeTokenMaker extends AbstractTokenMaker {
     /**
      * Adds a new token without altering the temporary token contexts stack.
      *
-     * @param text
-     *         the the text which we want to grab the token content from.
-     * @param tokenStart
-     *         the start offset the token text.
-     * @param tokenEnd
-     *         the end offset of the token text.
-     * @param tokenType
-     *         the type of the token we want to add.
+     * @param text       the the text which we want to grab the token content from.
+     * @param tokenStart the start offset the token text.
+     * @param tokenEnd   the end offset of the token text.
+     * @param tokenType  the type of the token we want to add.
      */
     public void addToken(Segment text, int tokenStart, int tokenEnd, int tokenType) {
         addToken(text, tokenStart, tokenEnd, tokenType, this.offset + tokenStart);
