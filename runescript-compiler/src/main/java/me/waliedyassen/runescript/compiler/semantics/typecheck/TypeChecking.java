@@ -344,6 +344,16 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
                 var literal = (LiteralTypeSyntax) actual[1];
                 return literal.getValue();
             }
+        } else if (info.isParam()) {
+            if (actual.length > 1 && actual[1] instanceof DynamicSyntax) {
+                // argument 1 is "param"
+                var literal = (DynamicSyntax) actual[1];
+                var configInfo = symbolTable.lookupConfig(literal.getName().getText());
+                if (configInfo != null && configInfo.getContentType() != null) {
+                    return configInfo.getContentType();
+                }
+                return PrimitiveType.UNDEFINED;
+            }
         }
         return info.getType();
     }

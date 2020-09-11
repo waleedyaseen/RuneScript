@@ -29,6 +29,11 @@ public final class CommandInfo extends Symbol {
     public static final String ENUM_TAG = "enum";
 
     /**
+     * A tag which indicates this command information is for the "x_param" command.
+     */
+    public static final String PARAM_TAG = "param";
+
+    /**
      * The opcode of this command.
      */
     @Getter
@@ -83,5 +88,14 @@ public final class CommandInfo extends Symbol {
      */
     public boolean isEnum() {
         return ENUM_TAG.equals(tag);
+    }
+
+    /**
+     * Checks whether or not this command information is for the param commands.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isParam() {
+        return PARAM_TAG.equals(tag);
     }
 }
