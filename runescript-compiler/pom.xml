@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>me.waliedyassen.runescript</groupId>
 		<artifactId>runescript-parent</artifactId>
-		<version>0.4-SNAPSHOT</version>
+		<version>0.4</version>
 	</parent>
 	<artifactId>runescript-compiler</artifactId>
 	<name>RuneScript Compiler</name>

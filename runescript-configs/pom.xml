@@ -10,16 +10,16 @@
     <parent>
         <artifactId>runescript-parent</artifactId>
         <groupId>me.waliedyassen.runescript</groupId>
-        <version>0.4-SNAPSHOT</version>
+        <version>0.4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>runescript-configs</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.4</version>
     <dependencies>
         <dependency>
             <groupId>me.waliedyassen.runescript</groupId>
             <artifactId>runescript-commons</artifactId>
-            <version>0.4-SNAPSHOT</version>
+            <version>0.4</version>
         </dependency>
     </dependencies>
 </project>
