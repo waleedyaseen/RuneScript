@@ -213,6 +213,13 @@ public final class Project {
     private final Map<PrimitiveType, String> bindingsPath;
 
     /**
+     * The pack type of the project.
+     */
+    @Getter
+    @Setter
+    private PackType packType;
+
+    /**
      * Constructs a new {@link Project} type object instance.
      *
      * @param directory the root directory path of the project.
@@ -263,19 +270,20 @@ public final class Project {
      * @param root the root node to load the configuration from.
      */
     void loadCompiler(JsonNode root) {
-        var object = JsonUtil.getObjectOrThrow(root, "compiler", "The compiler object cannot be null");
-        instructionsPath = JsonUtil.getTextOrThrow(object, "instructions", "The instructions map cannot be null");
-        triggersPath = JsonUtil.getTextOrThrow(object, "triggers", "The triggers cannot be null");
-        commandsPath = JsonUtil.getTextOrThrow(object, "commands", "The commands cannot be null");
-        runtimeConstantsPath = object.has("runtimeConstants") ? object.get("runtimeConstants").textValue() : "";
-        predefinedScriptsPath = object.has("scripts") ? object.get("scripts").textValue() : "";
-        predefinedConstantsPath = object.has("constants") ? object.get("constants").textValue() : "";
+        var compiler = JsonUtil.getObjectOrThrow(root, "compiler", "The compiler object cannot be null");
+        instructionsPath = JsonUtil.getTextOrThrow(compiler, "instructions", "The instructions map cannot be null");
+        triggersPath = JsonUtil.getTextOrThrow(compiler, "triggers", "The triggers cannot be null");
+        commandsPath = JsonUtil.getTextOrThrow(compiler, "commands", "The commands cannot be null");
+        runtimeConstantsPath = compiler.has("runtimeConstants") ? compiler.get("runtimeConstants").textValue() : "";
+        predefinedScriptsPath = compiler.has("scripts") ? compiler.get("scripts").textValue() : "";
+        predefinedConstantsPath = compiler.has("constants") ? compiler.get("constants").textValue() : "";
+        packType = compiler.has("packType") ? PackType.valueOf(compiler.get("packType").textValue()) : PackType.SQLITE;
         configsPath.clear();
         for (var type : PrimitiveType.values()) {
             if (!ProjectEditor.isPredefinable(type)) {
                 continue;
             }
-            var node = object.get("config_" + type.getRepresentation());
+            var node = compiler.get("config_" + type.getRepresentation());
             if (node == null) {
                 continue;
             }
@@ -286,11 +294,17 @@ public final class Project {
             if (!type.isConfigType()) {
                 continue;
             }
-            var node = object.get("binding_" + type.getRepresentation());
+            var node = compiler.get("binding_" + type.getRepresentation());
             if (node == null) {
                 continue;
             }
             bindingsPath.put(type, node.textValue());
+        }
+        var packer = root.get("packer");
+        if (packer != null) {
+            packType = PackType.valueOf(packer.get("type").textValue());
+        } else {
+            packType = PackType.FLATFILE;
         }
         reloadCompiler();
     }
@@ -435,7 +449,7 @@ public final class Project {
                 var alternative = value.getOrElse("alternative", false);
                 var hook = value.getOrElse("hook", false);
                 var hookType = value.contains("hooktype") ? PrimitiveType.valueOf(value.get("hooktype")) : null;
-                var tag = value.getOrElse("tag", (String)null);
+                var tag = value.getOrElse("tag", (String) null);
                 var returnTypes = type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0];
                 symbolTable.defineCommand(new BasicOpcode(opcode, false), name, returnTypes, arguments, hook, hookType, alternative, tag);
             }
@@ -704,7 +718,7 @@ public final class Project {
      * Gets called after the project has been loaded.
      */
     private void postLoad() {
-        packManager = new PackManager(new SQLitePackProvider(buildPath.getPackDirectory().toAbsolutePath()));
+        packManager = new PackManager(packType.newInstance(buildPath.getPackDirectory().toAbsolutePath()));
         vfs = new VFS(directory);
         loadIndex();
         loadCache();
@@ -879,6 +893,9 @@ public final class Project {
         }
         root.put("supportsLongPrimitiveType", supportsLongPrimitiveType);
         root.put("overrideSymbols", overrideSymbols);
+        // Serialise the pack information.
+        var packer = root.putObject("packer");
+        packer.put("type", packType.name());
         // Write the serialised data into the project file.
         JsonUtil.getMapper().writerWithDefaultPrettyPrinter().writeValue(findProjectFile().toFile(), root);
         // Save the cache of the project to the local disk.

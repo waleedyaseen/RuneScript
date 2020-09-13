@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.file.impl.ProjectFileType;
+import me.waliedyassen.runescript.editor.project.PackType;
 import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
 import me.waliedyassen.runescript.type.PrimitiveType;
@@ -80,6 +81,7 @@ public final class ProjectEditor extends Editor<Path> {
                 field.setText(path);
             }
         });
+        viewComponent.packTypeComboBox.setSelectedItem(project.getPackType());
     }
 
     /**
@@ -95,6 +97,7 @@ public final class ProjectEditor extends Editor<Path> {
         project.setPredefinedConstantsPath(viewComponent.predefinedConstantsField.getText());
         project.setSupportsLongPrimitiveType(viewComponent.supportsLongTypeCheckBox.isSelected());
         project.setOverrideSymbols(viewComponent.overrideSymbolsCheckBox.isSelected());
+        project.setPackType((PackType) viewComponent.packTypeComboBox.getSelectedItem());
         project.getConfigsPath().clear();
         project.getConfigsPath().putAll(getConfigPathMap());
         project.getBindingsPath().clear();
@@ -156,6 +159,7 @@ public final class ProjectEditor extends Editor<Path> {
         modified |= !getBindingPathMap().equals(project.getBindingsPath());
         modified |= project.isSupportsLongPrimitiveType() != viewComponent.supportsLongTypeCheckBox.isSelected();
         modified |= project.isOverrideSymbols() != viewComponent.overrideSymbolsCheckBox.isSelected();
+        modified |= project.getPackType() != viewComponent.packTypeComboBox.getSelectedItem();
         return modified;
     }
 
@@ -242,6 +246,11 @@ public final class ProjectEditor extends Editor<Path> {
         private final Map<PrimitiveType, JTextField> configBindings = new HashMap<>();
 
         /**
+         * A combo box that holds all of the possible pack type to use.
+         */
+        private final JComboBox<PackType> packTypeComboBox = new JComboBox<>(PackType.values());
+
+        /**
          * Constructs a new {@link ProjectEditorUI} type object instance.
          */
         public ProjectEditorUI() {
@@ -253,8 +262,10 @@ public final class ProjectEditor extends Editor<Path> {
                 optionsPanel.add(supportsLongTypeCheckBox);
                 optionsPanel.add(new JLabel("Override symbols:"));
                 optionsPanel.add(overrideSymbolsCheckBox);
+                optionsPanel.add(new JLabel("Pack Type:"));
+                optionsPanel.add(packTypeComboBox);
             }
-            add(optionsPanel, "growx");
+            add(optionsPanel, "growx,wrap");
             initSymbolsPanel();
             initBindingsPanel();
         }
@@ -280,7 +291,7 @@ public final class ProjectEditor extends Editor<Path> {
 
             var scrollPane = new JScrollPane(symbolPanel);
             scrollPane.setBorder(BorderFactory.createTitledBorder("Symbol"));
-            add(scrollPane, "growx");
+            add(scrollPane, "growx,wrap");
         }
 
         private void initBindingsPanel() {
@@ -298,7 +309,7 @@ public final class ProjectEditor extends Editor<Path> {
 
             var scrollPane = new JScrollPane(bindingPanel);
             scrollPane.setBorder(BorderFactory.createTitledBorder("Binding"));
-            add(scrollPane, "growx");
+            add(scrollPane, "growx,wrap");
         }
 
         /**
