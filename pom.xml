@@ -9,7 +9,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.waliedyassen.runescript</groupId>
     <artifactId>runescript-parent</artifactId>
-    <version>0.4</version>
+    <version>0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>RuneScript</name>
     <properties>
@@ -34,7 +34,7 @@
         <url>https://github.com/waliedyassen/RuneScript</url>
         <connection>scm:git:git://github.com/waliedyassen/RuneScript</connection>
         <developerConnection>scm:git:git@github.com:waliedyassen/RuneScript</developerConnection>
-        <tag>0.4</tag>
+        <tag>HEAD</tag>
     </scm>
     <dependencies>
         <dependency>
