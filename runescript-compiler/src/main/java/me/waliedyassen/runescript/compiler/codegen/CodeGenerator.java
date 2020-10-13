@@ -252,7 +252,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      */
     @Override
     public Instruction visit(LiteralTypeSyntax literalTypeSyntax) {
-        return instruction(PUSH_INT_CONSTANT, literalTypeSyntax.getType().getCode());
+        return instruction(PUSH_INT_CONSTANT, (int)literalTypeSyntax.getType().getCode());
     }
 
     /**
