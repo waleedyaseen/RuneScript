@@ -20,7 +20,7 @@
         <dockingframes.version>1.1.1</dockingframes.version>
         <jackson.version>2.11.0</jackson.version>
         <rsta.version>3.1.1</rsta.version>
-        <flatlaf.version>0.41</flatlaf.version>
+        <flatlaf.version>0.43</flatlaf.version>
     </properties>
     <dependencies>
         <dependency>
