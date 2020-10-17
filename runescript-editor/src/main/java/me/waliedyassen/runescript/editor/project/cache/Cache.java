@@ -17,12 +17,10 @@ import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
-import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
-import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
-import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
+import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
 import me.waliedyassen.runescript.config.compiler.CompiledConfigUnit;
 import me.waliedyassen.runescript.editor.file.FileTypeManager;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
@@ -235,7 +233,7 @@ public final class Cache {
                 }
                 unit.defineSymbols(project.getSymbolTable());
                 for (var error : compiledFile.getErrors()) {
-                    unit.getErrors().add(new CachedError(error.getRange(), error.getMessage()));
+                    unit.getErrors().add(new CachedError(error.getRange(), new LineColumn(1, 1), error.getMessage()));
                 }
                 project.updateErrors(unit);
             }

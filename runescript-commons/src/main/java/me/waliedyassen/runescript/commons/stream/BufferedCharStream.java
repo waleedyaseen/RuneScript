@@ -99,6 +99,7 @@ public final class BufferedCharStream implements CharStream {
             throw new IllegalStateException("The stream has no marker set");
         }
         pos = mark;
+        mark = -1;
     }
 
     /**

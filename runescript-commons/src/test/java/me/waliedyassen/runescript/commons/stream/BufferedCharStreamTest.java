@@ -42,7 +42,9 @@ class BufferedCharStreamTest {
     @Test
     void testLineFeed() throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream("\r\n\r".getBytes()));
+        assertEquals('\r', stream.take());
         assertEquals('\n', stream.take());
+        assertEquals('\r', stream.take());
         assertEquals(CharStream.NULL, stream.take());
     }
 
@@ -63,27 +65,27 @@ class BufferedCharStreamTest {
     void testRollback() throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream("abcdef\t\r\nabcdef".getBytes()));
         assertEquals('a', stream.peek());
-        assertEquals(new LineColumn(1, 1), stream.position());
+        assertEquals(0, stream.position());
         for (int index = 0; index < 3; index++) {
             stream.take();
         }
-        assertEquals(new LineColumn(1, 4), stream.position());
+        assertEquals(3, stream.position());
         stream.rollback(3);
-        assertEquals(new LineColumn(1, 1), stream.position());
+        assertEquals(0, stream.position());
         assertEquals('a', stream.peek());
         for (int index = 0; index < 14; index++) {
             stream.take();
         }
-        assertEquals(new LineColumn(2, 7), stream.position());
+        assertEquals(14, stream.position());
         stream.rollback(7);
-        assertEquals(new LineColumn(1, 9), stream.position());
+        assertEquals(7, stream.position());
         stream = new BufferedCharStream(new ByteArrayInputStream("\r\na\r\n\tb".getBytes()));
         for (int index = 0; index < 5; index++) {
             stream.take();
         }
-        assertEquals(new LineColumn(3, 6), stream.position());
+        assertEquals(5, stream.position());
         stream.rollback(3);
-        assertEquals(new LineColumn(2, 2), stream.position());
+        assertEquals(2, stream.position());
     }
 
     @Test
@@ -97,20 +99,18 @@ class BufferedCharStreamTest {
     @Test
     void testPosition() throws IOException {
         var stream = new BufferedCharStream(new ByteArrayInputStream("abc\n\ta".getBytes()));
-        assertEquals(new LineColumn(1, 1), stream.position());
+        assertEquals(0, stream.position());
         stream.take();
-        assertEquals(new LineColumn(1, 2), stream.position());
+        assertEquals(1, stream.position());
         stream.take();
-        assertEquals(new LineColumn(1, 3), stream.position());
+        assertEquals(2, stream.position());
         stream.take();
-        assertEquals(new LineColumn(1, 4), stream.position());
+        assertEquals(3, stream.position());
         stream.take();
-        assertEquals(new LineColumn(2, 1), stream.position());
+        assertEquals(4, stream.position());
         stream.take();
-        assertEquals(new LineColumn(2, 5), stream.position());
+        assertEquals(5, stream.position());
         stream.take();
-        assertEquals(new LineColumn(2, 6), stream.position());
-        stream.take();
-        assertEquals(new LineColumn(2, 6), stream.position());
+        assertEquals(6, stream.position());
     }
 }

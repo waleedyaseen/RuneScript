@@ -49,7 +49,6 @@ public final class Range {
         add(ranges);
     }
 
-
     /**
      * Performs {@link #add(Range)} for each of the given {@code ranges}.
      *

@@ -8,6 +8,7 @@
 
 package me.waliedyassen.runescript.commons.document;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,6 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RangeTest {
 
     Range range;
+
+    @BeforeEach
+    void prepareRange() {
+        range = new Range(1,5);
+    }
 
     @Test
     void testClone() {
