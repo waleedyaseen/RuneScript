@@ -22,43 +22,38 @@ import lombok.var;
 public final class Range {
 
     /**
-     * The range start position.
+     * The start position of the range in a document.
      */
     @Getter
-    private LineColumn start;
+    private int start;
 
     /**
-     * The range end position.
+     * The width of the range in characters.
      */
     @Getter
-    private LineColumn end;
+    private int width;
 
     /**
      * Constructs a new {@link Range} type object instance.
      */
     public Range() {
-        this(LineColumn.MAX, LineColumn.MIN);
+        this(Integer.MAX_VALUE, 0);
     }
 
     /**
-     * Updates this position {@link Range} to include the specified {@linkplain LineColumn position}.
+     * Constructs a new {@link Range} type object instance.
      *
-     * @param position
-     *         the position which we will update this {@link Range} object to include.
+     * @param ranges the ranges which will be combined into one range.
      */
-    public void add(LineColumn position) {
-        if (position.isLesserThan(start)) {
-            start = position;
-        } else if (position.isGreaterThan(end)) {
-            end = position;
-        }
+    public Range(Range... ranges) {
+        add(ranges);
     }
+
 
     /**
      * Performs {@link #add(Range)} for each of the given {@code ranges}.
      *
-     * @param ranges
-     *         the ranges to perform for.
+     * @param ranges the ranges to perform for.
      */
     public void add(Range... ranges) {
         for (var range : ranges) {
@@ -69,25 +64,31 @@ public final class Range {
     /**
      * Updates this position {@link Range} to include the specified {@linkplain Range range}.
      *
-     * @param range
-     *         the range which we wil update this {@link Range} object to include.
+     * @param range the range which we wil update this {@link Range} object to include.
      */
     public void add(Range range) {
-        add(range.getStart());
-        add(range.getEnd());
+        if (range.width == 0) {
+            return;
+        }
+        if (width == 0) {
+            start = range.start;
+            width = range.width;
+        } else {
+            int _start = Math.min(start, range.start);
+            width = Math.max(start + width, range.start + range.width) - _start;
+            start = _start;
+        }
     }
 
     /**
      * Checks whether or not the specified {@linkplain LineColumn position} is within this position {@link Range} or
      * not.
      *
-     * @param position
-     *         the position to check whether is it within this position range or not.
-     *
+     * @param position the position to check whether is it within this position range or not.
      * @return <code>true</code> if the specified position is within this range otherwise <code>false</code>.
      */
-    public boolean contains(LineColumn position) {
-        return position.isGreaterThan(start) && position.isLesserThan(end);
+    public boolean contains(int position) {
+        return position >= start && position < start + width;
     }
 
     /**
@@ -95,6 +96,6 @@ public final class Range {
      */
     @Override
     public Range clone() {
-        return new Range(start.clone(), end.clone());
+        return new Range(start, width);
     }
 }

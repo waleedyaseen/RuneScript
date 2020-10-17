@@ -49,7 +49,7 @@ public final class BinaryOperationSyntax extends ExpressionSyntax {
      *         the operation right side expression.
      */
     public BinaryOperationSyntax(ExpressionSyntax left, Operator operator, ExpressionSyntax right) {
-        super(new Range(left.getRange().getStart(), right.getRange().getEnd()));
+        super(new Range(left.getRange(), right.getRange()));
         this.left = addChild(left);
         this.operator = operator;
         this.right = addChild(right);

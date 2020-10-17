@@ -60,7 +60,7 @@ public final class Tokenizer extends TokenizerBase {
     /**
      * The current character position.
      */
-    private LineColumn position;
+    private int position;
 
     /**
      * Constructs a new {@link Tokenizer} type object instance.

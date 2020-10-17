@@ -44,11 +44,6 @@ public final class ErrorsView extends JPanel implements ActionSource {
     private final JTable table = new JTable(model);
 
     /**
-     *
-     */
-    private final Map<String, List<CompilerError>> errors = new HashMap<>();
-
-    /**
      * Constructs a new {@link ErrorsView} type object instance.
      */
     public ErrorsView() {

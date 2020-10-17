@@ -66,10 +66,8 @@ public final class CodeParser extends AbstractParser {
         var unit = project.getCache().getUnits().get(errorsPath);
         for (var error : unit.getErrors()) {
             try {
-                var line = error.getRange().getStart().getLine();
-                var startOffset = getOffset(error.getRange().getStart());
-                var endOffset = getOffset(error.getRange().getEnd());
-                parseResult.addNotice(new ErrorNotice(this, error.getMessage(), line, startOffset, endOffset));
+                var line = textArea.getLineOfOffset(error.getRange().getStart());
+                parseResult.addNotice(new ErrorNotice(this, error.getMessage(), line, error.getRange().getStart(), error.getRange().getWidth()));
             } catch (Throwable e) {
                 log.warn("An error occurred while adding the compiling errors to the result", e);
             }

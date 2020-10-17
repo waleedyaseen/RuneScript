@@ -13,6 +13,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.commons.Pair;
+import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
@@ -264,7 +265,7 @@ public final class Cache {
                 }
                 unit.defineSymbols(project.getSymbolTable());
                 for (var error : compiledFile.getErrors()) {
-                    unit.getErrors().add(new CachedError(error.getRange(), error.getMessage()));
+                    unit.getErrors().add(new CachedError(error.getRange(), new LineColumn(1, 1), error.getMessage()));
                 }
                 project.updateErrors(unit);
             }

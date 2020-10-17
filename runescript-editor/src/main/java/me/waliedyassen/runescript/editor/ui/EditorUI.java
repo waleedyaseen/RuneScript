@@ -118,7 +118,6 @@ public final class EditorUI implements WindowListener {
         var control = new CControl(frame);
         frame.add(control.getContentArea());
         var grid = new CGrid(control);
-
         var explorerArea = new DefaultSingleCDockable(ExplorerView.DOCK_ID, "Explorer", explorerView);
         var editorArea = new DefaultSingleCDockable(EditorView.DOCK_ID, "Editor", this.editorView);
         var errorsArea = new DefaultSingleCDockable(ErrorsView.DOCK_ID, "Errors", errorsView);

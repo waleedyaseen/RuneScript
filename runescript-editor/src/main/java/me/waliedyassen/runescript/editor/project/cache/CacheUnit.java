@@ -117,10 +117,10 @@ public final class CacheUnit {
         stream.writeInt(packCrc);
         stream.writeShort(errors.size());
         for (var error : errors) {
-            stream.writeInt(error.getRange().getStart().getLine());
-            stream.writeInt(error.getRange().getStart().getColumn());
-            stream.writeInt(error.getRange().getEnd().getLine());
-            stream.writeInt(error.getRange().getEnd().getColumn());
+            stream.writeInt(error.getRange().getStart());
+            stream.writeInt(error.getRange().getWidth());
+            stream.writeInt(error.getStart().getLine());
+            stream.writeInt(error.getStart().getColumn());
             stream.writeUTF(error.getMessage());
         }
         stream.writeShort(scripts.size());
@@ -163,9 +163,7 @@ public final class CacheUnit {
         packCrc = stream.readInt();
         var errorsCount = stream.readUnsignedShort();
         for (var index = 0; index < errorsCount; index++) {
-            var start = new LineColumn(stream.readInt(), stream.readInt());
-            var end = new LineColumn(stream.readInt(), stream.readInt());
-            errors.add(new CachedError(new Range(start, end), stream.readUTF()));
+            errors.add(new CachedError(new Range(stream.readInt(), stream.readInt()), new LineColumn(stream.readInt(), stream.readInt()), stream.readUTF()));
         }
         var scriptsCount = stream.readUnsignedShort();
         for (var index = 0; index < scriptsCount; index++) {

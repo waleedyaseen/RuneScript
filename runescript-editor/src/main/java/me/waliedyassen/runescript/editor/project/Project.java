@@ -26,7 +26,6 @@ import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
 import me.waliedyassen.runescript.config.var.ConfigParamProperty;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
-import me.waliedyassen.runescript.editor.pack.provider.impl.SQLitePackProvider;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
 import me.waliedyassen.runescript.editor.project.cache.Cache;
 import me.waliedyassen.runescript.editor.project.cache.CacheUnit;
@@ -778,9 +777,7 @@ public final class Project {
         for (var unit : cache.getUnits().values()) {
             var path = unit.getNameWithPath();
             for (var cachedError : unit.getErrors()) {
-                var line = cachedError.getRange().getStart().getLine();
-                var column = cachedError.getRange().getStart().getColumn();
-                errorsView.addError(path, line, column, cachedError.getMessage());
+                errorsView.addError(path, 0, 0, cachedError.getMessage());
             }
         }
     }
@@ -794,12 +791,12 @@ public final class Project {
         var errorsView = Api.getApi().getUi().getErrorsView();
         var path = unit.getNameWithPath();
         errorsView.removeErrorForPath(path);
-        if (unit.getErrors() != null && unit.getErrors().isEmpty()) {
-            for (var cachedError : unit.getErrors()) {
-                var line = cachedError.getRange().getStart().getLine();
-                var column = cachedError.getRange().getStart().getColumn();
-                errorsView.addError(path, line, column, cachedError.getMessage());
-            }
+        if (unit.getErrors().isEmpty()) {
+            return;
+        }
+        for (var cachedError : unit.getErrors()) {
+            System.out.println("Adding error: " + cachedError);
+            errorsView.addError(path, 0, 0, cachedError.getMessage());
         }
     }
 

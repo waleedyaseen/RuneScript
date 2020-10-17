@@ -67,7 +67,7 @@ public interface CharStream {
     /**
      * Gets the current position within the document.
      *
-     * @return the current position as {@link LineColumn} object.
+     * @return the current position.
      */
-    LineColumn position();
+    int position();
 }

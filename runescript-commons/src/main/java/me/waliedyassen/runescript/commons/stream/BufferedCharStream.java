@@ -7,9 +7,6 @@
  */
 package me.waliedyassen.runescript.commons.stream;
 
-import lombok.var;
-import me.waliedyassen.runescript.commons.document.LineColumn;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -22,80 +19,46 @@ import java.io.InputStream;
 public final class BufferedCharStream implements CharStream {
 
     /**
-     * The default tab size, how many spaces the special tab character advaces the column pointer.
-     */
-    private static final int DEFAULT_TABSIZE = 4;
-
-    /**
      * The characters buffer data.
      */
     private final char[] buffer;
 
     /**
-     * The tab size for position calculations.
-     */
-    private final int tabSize;
-
-    /**
-     * The characters buffer position.
+     * The current position.
      */
     private int pos;
 
     /**
-     * The current line witOOFhin the document.
+     * The marked position within the buffer.
      */
-    private int line;
-
-    /**
-     * The current column within the document.
-     */
-    private int column;
-
-    /**
-     * The marked position.
-     */
-    private int m_pos = -1, m_line = -1, m_column = -1;
+    private int mark;
 
     /**
      * Constructs a new {@link BufferedCharStream} type object instance.
      *
-     * @param stream the source code input stream.
-     * @throws IOException if anything occurs while reading the data from the specified {@link InputStream}.
+     * @param stream the stream which we are going to retrieve the char data from.
+     * @throws IOException if anything occurs while retrieving the char data from the specified stream.
      */
     public BufferedCharStream(InputStream stream) throws IOException {
-        this(stream, 1, 1);
+        this(stream, 0);
     }
 
     /**
      * Constructs a new {@link BufferedCharStream} type object instance.
      *
-     * @param stream the source code input stream.
-     * @param line   the initial line to start counting from.
-     * @param column the initial column to start counting from.
-     * @throws IOException if anything occurs while reading the data from the specified {@link InputStream}.
+     * @param stream the stream which we are going to retrieve the char data from.
+     * @param pos    the initial position within the buffer.
+     * @throws IOException if anything occurs while retrieving the char data from the specified stream.
      */
-    public BufferedCharStream(InputStream stream, int line, int column) throws IOException {
-        this(stream, DEFAULT_TABSIZE);
-        this.line = line;
-        this.column = column;
-    }
-
-    /**
-     * Constructs a new {@link BufferedCharStream} type object instance.
-     *
-     * @param stream  the source code input stream.
-     * @param tabSize the tab size, reprsents how many spaces should we increase the column pointer by after the tab special
-     *                character.
-     * @throws IOException if anything occurs while reading the data from the specified {@link InputStream}.
-     */
-    private BufferedCharStream(InputStream stream, int tabSize) throws IOException {
-        this.tabSize = tabSize;
-        // TODO: Always change to LF when parsing and ignore the CR.
+    private BufferedCharStream(InputStream stream, int pos) throws IOException {
+        this.pos = pos;
         buffer = new char[stream.available()];
         for (int index = 0; index < buffer.length; index++) {
             buffer[index] = (char) stream.read();
         }
     }
+
+    // TODO: Add support for passing char[] to the constructor
 
     /**
      * {@inheritDoc}
@@ -105,21 +68,7 @@ public final class BufferedCharStream implements CharStream {
         if (pos >= buffer.length) {
             return NULL;
         }
-        if (peek() == '\r') {
-            if (++pos >= buffer.length) {
-                return NULL;
-            }
-        }
-        char ch = buffer[pos++];
-        if (ch == '\n') {
-            line++;
-            column = 1;
-        } else if (ch == '\t') {
-            column += tabSize - (column - 1) % tabSize;
-        } else {
-            column++;
-        }
-        return ch;
+        return buffer[pos++];
     }
 
     /**
@@ -138,9 +87,7 @@ public final class BufferedCharStream implements CharStream {
      */
     @Override
     public void mark() {
-        m_pos = pos;
-        m_line = line;
-        m_column = column;
+        mark = pos;
     }
 
     /**
@@ -148,13 +95,10 @@ public final class BufferedCharStream implements CharStream {
      */
     @Override
     public void reset() {
-        if (m_pos == -1) {
+        if (mark == -1) {
             throw new IllegalStateException("The stream has no marker set");
         }
-        pos = m_pos;
-        line = m_line;
-        column = m_column;
-        m_pos = m_line = m_column = -1;
+        pos = mark;
     }
 
     /**
@@ -162,49 +106,10 @@ public final class BufferedCharStream implements CharStream {
      */
     @Override
     public void rollback(int count) {
-        while (count-- > 0) {
-            if (!hasRemaining()) {
-                pos--;
-            } else {
-                var ch = buffer[--pos];
-                if (ch == '\n') {
-                    count++;
-                } else if (ch == '\r') {
-                    line--;
-                    column = calculateLineColumn();
-                } else if (ch == '\t') {
-                    column -= tabSize - (column - 1) % tabSize;
-                } else {
-                    column--;
-                }
-            }
+        pos -= count;
+        if (pos < 0) {
+            pos = 0;
         }
-    }
-
-    /**
-     * Calculates the current line column offset.
-     *
-     * @return teh current line column offset.
-     */
-    private int calculateLineColumn() {
-        var start = this.pos;
-        var end = this.pos;
-        do {
-            var ch = buffer[--start];
-            if (ch == '\n') {
-                break;
-            }
-        } while (start > 0);
-        var column = 0;
-        for (var index = start; index < end; index++) {
-            var ch = buffer[index];
-            if (ch == '\t') {
-                column += tabSize - (column - 1) % tabSize;
-            } else {
-                column++;
-            }
-        }
-        return column;
     }
 
     /**
@@ -219,7 +124,7 @@ public final class BufferedCharStream implements CharStream {
      * {@inheritDoc}
      */
     @Override
-    public LineColumn position() {
-        return new LineColumn(line, column);
+    public int position() {
+        return pos;
     }
 }

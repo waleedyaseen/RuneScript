@@ -43,7 +43,7 @@ final class State {
      * The current character position within the document
      */
     @NonNull
-    LineColumn position;
+    int position;
 
     /**
      * The current parsing mode, tells what we are currently parsing.
@@ -62,7 +62,7 @@ final class State {
      * @param position the inital position of the state.
      * @return the created {@link State} object instance.
      */
-    static State emptyState(StateKind kind, LineColumn position) {
+    static State emptyState(StateKind kind, int position) {
         return new State(kind, position);
     }
 

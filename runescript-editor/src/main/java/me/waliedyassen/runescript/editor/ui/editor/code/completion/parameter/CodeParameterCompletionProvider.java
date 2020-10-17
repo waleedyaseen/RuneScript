@@ -72,18 +72,8 @@ public final class CodeParameterCompletionProvider implements ParameterChoicesPr
         if (parser == null || parser.getScripts() == null || parser.getScripts().length == 0) {
             return null;
         }
-        var line = 0;
-        var column = 0;
-        try {
-            line = textArea.getLineOfOffset(offset);
-            column = offset - textArea.getLineStartOffset(line);
-        } catch (BadLocationException e) {
-            log.error("Failed to convert the caret offset to a line number", e);
-            return null;
-        }
-        var lc = new LineColumn(line, column);
         for (var script : parser.getScripts()) {
-            if (script.getRange().contains(lc)) {
+            if (script.getRange().contains(offset)) {
                 return script;
             }
         }

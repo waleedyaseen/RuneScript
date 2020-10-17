@@ -55,15 +55,34 @@ public final class Tokenizer extends TokenizerBase {
     private State state;
 
     /**
+     *
+     */
+    private int positionOffset;
+
+    /**
      * Constructs a new {@link Tokenizer} type object instance.
      *
-     * @param table  the lexical table to use for the tokenizer.
-     * @param stream the source code stream of the tokenizer.
+     * @param errorReporter the error report of the tokenizer.
+     * @param table         the lexical table to use for the tokenizer.
+     * @param stream        the source code stream of the tokenizer.
      */
     public Tokenizer(ErrorReporter errorReporter, LexicalTable<Kind> table, CharStream stream) {
+        this(errorReporter, table, stream, 0);
+    }
+
+    /**
+     * Constructs a new {@link Tokenizer} type object instance.
+     *
+     * @param errorReporter  the error report of the tokenizer.
+     * @param table          the lexical table to use for the tokenizer.
+     * @param stream         the source code stream of the tokenizer.
+     * @param positionOffset the offset of the position.
+     */
+    public Tokenizer(ErrorReporter errorReporter, LexicalTable<Kind> table, CharStream stream, int positionOffset) {
         super(errorReporter);
         this.table = table;
         this.stream = stream;
+        this.positionOffset = positionOffset;
         state = State.emptyState(State.StateKind.REGULAR, stream.position());
     }
 
@@ -79,7 +98,7 @@ public final class Tokenizer extends TokenizerBase {
         }
         // grab some vars from the state for ease of access.
         final var builder = state.builder;
-        final var state_kind = state.kind;
+        final var stateKind = state.kind;
         // the character queue of the parser.
         char current, next;
         // keep parsing until we have a something to return.
@@ -127,7 +146,7 @@ public final class Tokenizer extends TokenizerBase {
                         } else if (table.isSeparator(current)) {
                             return createToken(table.lookupSeparator(current), Character.toString(current));
                         } else {
-                            if (state_kind == State.StateKind.INTERPOLATION && current == '>') {
+                            if (stateKind == State.StateKind.INTERPOLATION && current == '>') {
                                 popState();
                                 state.mode = Mode.ISTRING_LITERAL;
                                 continue;
@@ -368,7 +387,7 @@ public final class Tokenizer extends TokenizerBase {
      * @see #mark()
      */
     public Range range() {
-        return new Range(state.position, stream.position());
+        return new Range(positionOffset + state.position, positionOffset + stream.position() - state.position);
     }
 
     /**

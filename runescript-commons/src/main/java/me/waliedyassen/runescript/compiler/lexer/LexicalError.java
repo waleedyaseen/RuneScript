@@ -29,6 +29,6 @@ public final class LexicalError extends CompilerError {
      * @param message a message describing why the error has occurred.
      */
     public LexicalError(Range range, String message) {
-        super(range, message + " at line: " + range.getStart().getLine() + ", column: " + range.getStart().getColumn());
+        super(range, message + " at offset:" + range.getStart());
     }
 }

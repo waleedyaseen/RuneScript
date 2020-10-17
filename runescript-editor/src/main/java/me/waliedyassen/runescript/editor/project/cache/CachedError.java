@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**
@@ -24,6 +25,12 @@ public final class CachedError {
      */
     @Getter
     private final Range range;
+
+    /**
+     * The start position of the error.
+     */
+    @Getter
+    private final LineColumn start;
 
     /**
      * The message of the error.

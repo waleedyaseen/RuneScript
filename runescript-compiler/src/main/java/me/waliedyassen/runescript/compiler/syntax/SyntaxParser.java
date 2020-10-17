@@ -1052,6 +1052,9 @@ public final class SyntaxParser extends ParserBase<Kind> {
         if (!type.isHook()) {
             return false;
         }
+        if (index >= type.getArguments().length) {
+            return false;
+        }
         return type.getArguments()[index] == PrimitiveType.HOOK && (peekKind() == STRING || peekKind() == NULL);
     }
 
@@ -1102,10 +1105,8 @@ public final class SyntaxParser extends ParserBase<Kind> {
     private LexerBase<Kind> createLexerFromString(Token<Kind> token) {
         try {
             var lexeme = token.getLexeme().getBytes();
-            var line = token.getRange().getStart().getLine();
-            var column = token.getRange().getStart().getColumn();
-            var stream = new BufferedCharStream(new ByteArrayInputStream(lexeme), line, column);
-            var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream);
+            var stream = new BufferedCharStream(new ByteArrayInputStream(lexeme));
+            var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream, token.getRange().getStart());
             return new Lexer(tokenizer);
         } catch (IOException e) {
             throw new IllegalStateException("Should not happen");
