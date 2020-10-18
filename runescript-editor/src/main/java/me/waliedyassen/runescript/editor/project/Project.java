@@ -795,7 +795,6 @@ public final class Project {
             return;
         }
         for (var cachedError : unit.getErrors()) {
-            System.out.println("Adding error: " + cachedError);
             errorsView.addError(path, 0, 0, cachedError.getMessage());
         }
     }

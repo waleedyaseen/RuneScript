@@ -1103,14 +1103,9 @@ public final class SyntaxParser extends ParserBase<Kind> {
      * @return the created {@link LexerBase} object.
      */
     private LexerBase<Kind> createLexerFromString(Token<Kind> token) {
-        try {
-            var lexeme = token.getLexeme().getBytes();
-            var stream = new BufferedCharStream(new ByteArrayInputStream(lexeme));
-            var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream, token.getRange().getStart());
-            return new Lexer(tokenizer);
-        } catch (IOException e) {
-            throw new IllegalStateException("Should not happen");
-        }
+        var stream = new BufferedCharStream(token.getLexeme().toCharArray());
+        var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream, token.getRange().getStart());
+        return new Lexer(tokenizer);
     }
 
     /**

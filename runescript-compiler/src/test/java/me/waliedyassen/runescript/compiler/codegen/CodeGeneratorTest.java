@@ -17,7 +17,6 @@ import me.waliedyassen.runescript.compiler.codegen.opcode.BasicOpcode;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
-import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.error.ThrowingErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
@@ -33,7 +32,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -180,27 +178,22 @@ class CodeGeneratorTest {
     }
 
     BinaryScript[] fromString(String text) {
-        try (var stream = new ByteArrayInputStream(text.getBytes())) {
-            var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
-            var lexer = new Lexer(tokenizer);
-            var parser = new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
-            var scripts = new ArrayList<CompiledScriptUnit>();
-            do {
-                var unit = new CompiledScriptUnit();
-                unit.setScript(parser.script());
-                scripts.add(unit);
-            } while (lexer.remaining() > 0);
-            checker.executePre(scripts);
-            checker.execute(scripts);
-            checker.getErrors().forEach(System.out::println);
-            var parsed = new BinaryScript[scripts.size()];
-            for (var index = 0; index < parsed.length; index++) {
-                parsed[index] = generator.visit(scripts.get(index).getScript());
-            }
-            return parsed;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+        var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(text.toCharArray()));
+        var lexer = new Lexer(tokenizer);
+        var parser = new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
+        var scripts = new ArrayList<CompiledScriptUnit>();
+        do {
+            var unit = new CompiledScriptUnit();
+            unit.setScript(parser.script());
+            scripts.add(unit);
+        } while (lexer.remaining() > 0);
+        checker.executePre(scripts);
+        checker.execute(scripts);
+        checker.getErrors().forEach(System.out::println);
+        var parsed = new BinaryScript[scripts.size()];
+        for (var index = 0; index < parsed.length; index++) {
+            parsed[index] = generator.visit(scripts.get(index).getScript());
         }
+        return parsed;
     }
 }

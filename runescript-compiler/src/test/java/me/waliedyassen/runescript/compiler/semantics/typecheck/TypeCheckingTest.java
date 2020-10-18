@@ -11,26 +11,23 @@ import lombok.Data;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
-import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
-import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.error.ThrowingErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.parser.ScriptParserTest;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -168,19 +165,17 @@ class TypeCheckingTest {
     void checkString(String text) throws IOException {
         checker.getSymbolTable().getScripts().clear();
         checker.getErrors().clear();
-        try (var stream = new ByteArrayInputStream(text.getBytes())) {
-            var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
-            var lexer = new Lexer(tokenizer);
-            var parser = new SyntaxParser(environment, checker.getSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
-            var scripts = new ArrayList<CompiledScriptUnit>();
-            do {
-                var unit = new CompiledScriptUnit();
-                unit.setScript(parser.script());
-                scripts.add(unit);
-            } while (lexer.remaining() > 0);
-            checker.executePre(scripts);
-            checker.execute(scripts);
-        }
+        var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(text.toCharArray()));
+        var lexer = new Lexer(tokenizer);
+        var parser = new SyntaxParser(environment, checker.getSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
+        var scripts = new ArrayList<CompiledScriptUnit>();
+        do {
+            var unit = new CompiledScriptUnit();
+            unit.setScript(parser.script());
+            scripts.add(unit);
+        } while (lexer.remaining() > 0);
+        checker.executePre(scripts);
+        checker.execute(scripts);
     }
 
     @Data

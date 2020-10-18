@@ -30,7 +30,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.StringBufferInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -426,14 +425,9 @@ class AstTreeVisitorTest {
     }
 
     public static SyntaxParser fromString(String text) {
-        try (var stream = new StringBufferInputStream(text)) {
-            var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
-            var lexer = new Lexer(tokenizer);
-            return new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(text.toCharArray()));
+        var lexer = new Lexer(tokenizer);
+        return new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
     }
 
     public static SyntaxParser fromResource(String name) {

@@ -18,9 +18,6 @@ import me.waliedyassen.runescript.config.lexer.token.Kind;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -34,7 +31,7 @@ class TokenizerTest {
     }
 
     @Test
-    void testIdentifier() throws IOException {
+    void testIdentifier(){
         var lexer = fromString("id id2 id3 4id");
         assertEquals(Kind.IDENTIFIER, lexer.parse().getKind());
         assertEquals("id2", lexer.parse().getLexeme());
@@ -43,7 +40,7 @@ class TokenizerTest {
     }
 
     @Test
-    void testString() throws IOException {
+    void testString(){
         var lexer = fromString("\"\"\"Hello from the Lexer\"\"Unclosed string");
         assertEquals(Kind.STRING, lexer.parse().getKind());
         assertEquals("Hello from the Lexer", lexer.parse().getLexeme());
@@ -54,7 +51,7 @@ class TokenizerTest {
     }
 
     @Test
-    void testNumber() throws IOException {
+    void testNumber(){
         var lexer = fromString("1 2l 12345 54321L");
         assertEquals(Kind.INTEGER, lexer.parse().getKind());
         assertEquals(Kind.LONG, lexer.parse().getKind());
@@ -64,28 +61,28 @@ class TokenizerTest {
     }
 
     @Test
-    void testEof() throws IOException {
+    void testEof(){
         var lexer = fromString("\r\n\t ");
         assertEquals(Kind.EOF, lexer.parse().getKind());
         assertEquals(Kind.EOF, lexer.parse().getKind());
     }
 
     @Test
-    void testLineComment() throws IOException {
+    void testLineComment(){
         assertEquals(Kind.COMMENT, fromString("//test").parse().getKind());
         assertEquals("line comment #1", fromString("// line comment #1\r\n").parse().getLexeme());
         assertEquals("line comment #2", fromString("//line comment #2").parse().getLexeme());
     }
 
     @Test
-    void testMultiLineComment() throws IOException {
+    void testMultiLineComment(){
         assertEquals(Kind.COMMENT, fromString("/* test */").parse().getKind());
         assertEquals("the first line\nthe second line", fromString("/* the first line \r\n*the second line */").parse().getLexeme());
         assertThrows(LexicalError.class, () -> fromString("/* unclosed comment").parse());
     }
 
     @Test
-    void testSeparators() throws IOException {
+    void testSeparators(){
         var text = new StringBuilder();
         for (var ch : table.getSeparators().keySet()) {
             text.append(ch);
@@ -105,8 +102,8 @@ class TokenizerTest {
         assertThrows(LexicalError.class, () -> fromString("()").parse());
     }
 
-    static Tokenizer fromString(String source) throws IOException {
-        var stream = new BufferedCharStream(new ByteArrayInputStream(source.getBytes()));
+    static Tokenizer fromString(String source) {
+        var stream = new BufferedCharStream(source.toCharArray());
         return new Tokenizer(new ThrowingErrorReporter(), table, stream);
     }
 }

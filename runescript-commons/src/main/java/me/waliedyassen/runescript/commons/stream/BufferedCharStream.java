@@ -7,8 +7,11 @@
  */
 package me.waliedyassen.runescript.commons.stream;
 
+import lombok.var;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * Represents a buffered character stream, it reads all the data from {@link InputStream} and then caches the data into
@@ -40,25 +43,18 @@ public final class BufferedCharStream implements CharStream {
      * @throws IOException if anything occurs while retrieving the char data from the specified stream.
      */
     public BufferedCharStream(InputStream stream) throws IOException {
-        this(stream, 0);
+        this(readAllChars(stream));
     }
 
     /**
      * Constructs a new {@link BufferedCharStream} type object instance.
      *
-     * @param stream the stream which we are going to retrieve the char data from.
-     * @param pos    the initial position within the buffer.
-     * @throws IOException if anything occurs while retrieving the char data from the specified stream.
+     * @param buffer the characters buffer we are going to be taking from.
      */
-    private BufferedCharStream(InputStream stream, int pos) throws IOException {
-        this.pos = pos;
-        buffer = new char[stream.available()];
-        for (int index = 0; index < buffer.length; index++) {
-            buffer[index] = (char) stream.read();
-        }
+    public BufferedCharStream(char[] buffer) {
+        this.buffer = buffer;
+        mark = -1;
     }
-
-    // TODO: Add support for passing char[] to the constructor
 
     /**
      * {@inheritDoc}
@@ -127,5 +123,23 @@ public final class BufferedCharStream implements CharStream {
     @Override
     public int position() {
         return pos;
+    }
+
+    /**
+     * Reads all of the content of the specified {@link InputStream stream} into a character array.
+     *
+     * @param stream the stream to read all of it's content.
+     * @return the characters array that we read.
+     * @throws IOException if anything occurs while reading from the input stream.
+     */
+    private static char[] readAllChars(InputStream stream) throws IOException {
+        var buffer = new char[stream.available()];
+        try (var reader = new InputStreamReader(stream)) {
+            if (reader.read(buffer) != buffer.length) {
+                // TODO: Change to another solution, but this should work fine for now.
+                throw new IllegalStateException("Failed to read the input stream fully");
+            }
+        }
+        return buffer;
     }
 }

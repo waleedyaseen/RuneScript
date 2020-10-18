@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2020 Walied K. Yassen, All rights reserved.
- *  
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,9 +14,6 @@ import me.waliedyassen.runescript.compiler.error.ThrowingErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.io.StringBufferInputStream;
 
 import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -153,12 +150,6 @@ class TokenizerTest {
     }
 
     private Tokenizer fromString(String text) {
-        try (var stream = new StringBufferInputStream(text)) {
-            return new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
-        } catch (IOException e) {
-            // won't happen anyways
-            e.printStackTrace();
-            return null;
-        }
+        return new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(text.toCharArray()));
     }
 }
