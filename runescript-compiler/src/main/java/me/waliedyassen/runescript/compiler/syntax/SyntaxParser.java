@@ -352,6 +352,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
                 || kind == STRING
                 || kind == CONCATB
                 || kind == BOOL
+                || kind == COORDGRID
                 || kind == IDENTIFIER
                 || kind == DOLLAR
                 || kind == MOD

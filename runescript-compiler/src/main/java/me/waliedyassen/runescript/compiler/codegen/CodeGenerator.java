@@ -48,7 +48,6 @@ import me.waliedyassen.runescript.type.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Stack;
 
 import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
@@ -195,6 +194,9 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         return localMap.registerParameter(parameter.getName().getText(), parameter.getType());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Object visit(ParExpressionSyntax syntax) {
         return syntax.getExpression().accept(this);
@@ -257,7 +259,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      */
     @Override
     public Instruction visit(LiteralTypeSyntax literalTypeSyntax) {
-        return instruction(PUSH_INT_CONSTANT, (int)literalTypeSyntax.getType().getCode());
+        return instruction(PUSH_INT_CONSTANT, (int) literalTypeSyntax.getType().getCode());
     }
 
     /**
@@ -667,6 +669,10 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @param branch_false the if-false block label.
      */
     private void generateCondition(ExpressionSyntax condition, Block source_block, Label branch_true, Label branch_false) {
+        if (condition instanceof ParExpressionSyntax) {
+            // TODO: Do this property, an example case where this breaks would be if ((a=b))
+            condition = ((ParExpressionSyntax) condition).getExpression();
+        }
         if (condition instanceof BinaryOperationSyntax) {
             var binaryOperation = (BinaryOperationSyntax) condition;
             var operator = binaryOperation.getOperator();
