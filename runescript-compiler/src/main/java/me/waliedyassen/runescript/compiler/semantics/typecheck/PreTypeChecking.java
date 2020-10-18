@@ -235,6 +235,8 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
                     case VARCSTR:
                         return PrimitiveType.STRING;
                     case VAR:
+                    case VARCINT:
+                    case VARBIT:
                         if (config.getContentType() == null) {
                             throw new IllegalStateException("Expected content type to be present");
                         }

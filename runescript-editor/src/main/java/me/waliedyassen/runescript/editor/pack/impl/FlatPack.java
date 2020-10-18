@@ -39,7 +39,6 @@ public final class FlatPack implements Pack {
     @SneakyThrows
     @Override
     public void pack(PackFile file) {
-        System.out.println("Packing");
         var path = this.path.resolve(String.format("%d-%s", file.getId(), file.getName()));
         Files.write(path, file.getData(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
