@@ -13,7 +13,6 @@ import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.BlockStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.type.Type;
 
 import java.util.List;
 
@@ -24,7 +23,7 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 @EqualsAndHashCode(callSuper = true)
-public final class ScriptSyntax extends SyntaxBase {
+public final class ScriptSyntax extends Syntax {
 
     /**
      * The extension of the file containing the script.
@@ -57,12 +56,6 @@ public final class ScriptSyntax extends SyntaxBase {
     private final ParameterSyntax[] parameters;
 
     /**
-     * The return type of the script.
-     */
-    @Getter
-    private final Type type;
-
-    /**
      * The code block of the script.
      */
     @Getter
@@ -83,19 +76,16 @@ public final class ScriptSyntax extends SyntaxBase {
      *         the script name.
      * @param parameters
      *         the script parameters.
-     * @param type
-     *         the script type.
      * @param code
      *         the script code statement.
      */
-    public ScriptSyntax(Range range, String extension, List<AnnotationSyntax> annotations, IdentifierSyntax trigger, IdentifierSyntax name, ParameterSyntax[] parameters, Type type, BlockStatementSyntax code) {
+    public ScriptSyntax(Range range, String extension, List<AnnotationSyntax> annotations, IdentifierSyntax trigger, IdentifierSyntax name, ParameterSyntax[] parameters, BlockStatementSyntax code) {
         super(range);
         this.extension = extension;
         this.annotations = addChild(annotations);
         this.trigger = addChild(trigger);
         this.name = addChild(name);
         this.parameters = addChild(parameters);
-        this.type = type;
         this.code = addChild(code);
     }
 

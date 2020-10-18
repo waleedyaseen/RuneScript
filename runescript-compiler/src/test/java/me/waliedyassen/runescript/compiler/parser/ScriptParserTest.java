@@ -109,7 +109,6 @@ public final class ScriptParserTest {
             // valid parameter
             var parameter = fromString("int $int0").parameter();
             assertTrue(parameter instanceof ParameterSyntax);
-            assertEquals(parameter.getType(), PrimitiveType.INT);
             assertEquals(parameter.getName().getText(), "int0");
         }, () -> {
             // invalid parameter name
@@ -125,10 +124,8 @@ public final class ScriptParserTest {
         }, () -> {
             // valid array reference parameter
             var parameter = fromString("intarray $array0").parameter();
-            assertTrue(parameter.getType() instanceof ArrayReference);
-            var reference = (ArrayReference) parameter.getType();
-            assertEquals(PrimitiveType.INT, reference.getType());
-            assertEquals(0, reference.getIndex());
+            assertEquals(Kind.ARRAY_TYPE, parameter.getTypeToken().getKind());
+            assertEquals(0, parameter.getIndex());
         }, () -> {
             // invalid array reference type
             assertThrows(SyntaxError.class, () -> fromString("voidarray $array0").parameter());
@@ -411,7 +408,6 @@ public final class ScriptParserTest {
             // valid variable declaration.
             var variableDefine = fromString("def_boolean $test = true;").variableDeclaration();
             assertNotNull(variableDefine);
-            assertEquals(variableDefine.getType(), PrimitiveType.BOOLEAN);
             assertEquals(variableDefine.getName().getText(), "test");
             assertTrue(variableDefine.getExpression() instanceof LiteralBooleanSyntax);
         }, () -> {

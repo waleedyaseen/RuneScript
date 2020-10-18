@@ -149,4 +149,13 @@ public abstract class SyntaxBase implements Element {
         attributes.put(attributeName, value);
         return value;
     }
+
+    /**
+     * Removes the attribute with the specified attribute name from the attributes map.
+     *
+     * @param attributeName the attribute name to remove from the attributes map.
+     */
+    public void removeAttribute(String attributeName) {
+        attributes.remove(attributeName);
+    }
 }

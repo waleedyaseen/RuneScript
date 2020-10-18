@@ -133,7 +133,10 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         // we will allow empty scripts for now.
         var code = unbracedBlockStatement();
         // return the parsed script.
-        return new ScriptSyntax(popRange(), this.type, annotations, trigger, name, parameters.toArray(new ParameterSyntax[0]), type, code);
+        var node = new ScriptSyntax(popRange(), this.type, annotations, trigger, name, parameters.toArray(new ParameterSyntax[0]), code);
+        node.setType(type); // TODO: Store raw types
+        System.out.println(type);
+        return node;
     }
 
     /**
@@ -199,14 +202,10 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public ParameterSyntax parameter(int index) {
         pushRange();
-        var array = peekKind() == ARRAY_TYPE;
-        var type = array ? arrayType() : primitiveType();
-        if (!type.isDeclarable()) {
-            addError(lexer().previous(), "Illegal type: " + type.getRepresentation());
-        }
+        var typeToken = consume(peekKind() == ARRAY_TYPE ? ARRAY_TYPE : TYPE);
         var dollarToken = consume(DOLLAR);
         var name = identifier();
-        return new ParameterSyntax(popRange(), dollarToken, array ? new ArrayReference(type, index) : type, name);
+        return new ParameterSyntax(popRange(), dollarToken, typeToken, name, index);
     }
 
     /**
@@ -673,8 +672,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public SwitchStatementSyntax switchStatement() {
         pushRange();
-        var token = consume(SWITCH);
-        var type = PrimitiveType.forRepresentation(token.getLexeme().substring(7));
+        var switchToken = consume(SWITCH);
         var condition = parExpression();
         var cases = new ArrayList<SwitchCaseSyntax>();
         var defaultCase = (SwitchCaseSyntax) null;
@@ -690,7 +688,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
                 cases.add(_case);
             }
         }
-        return new SwitchStatementSyntax(popRange(), type, condition, cases.toArray(new SwitchCaseSyntax[0]), defaultCase);
+        return new SwitchStatementSyntax(popRange(), switchToken, condition, cases.toArray(new SwitchCaseSyntax[0]), defaultCase);
     }
 
     /**

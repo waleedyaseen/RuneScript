@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
+import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
@@ -159,10 +160,13 @@ class TypeCheckingTest {
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
+            for (CompilerError error : checker.getErrors()) {
+                error.printStackTrace();
+            }
         }
     }
 
-    void checkString(String text) throws IOException {
+    void checkString(String text) {
         checker.getSymbolTable().getScripts().clear();
         checker.getErrors().clear();
         var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(text.toCharArray()));
@@ -176,6 +180,9 @@ class TypeCheckingTest {
         } while (lexer.remaining() > 0);
         checker.executePre(scripts);
         checker.execute(scripts);
+        for (CompilerError error : checker.getErrors()) {
+            error.printStackTrace();
+        }
     }
 
     @Data

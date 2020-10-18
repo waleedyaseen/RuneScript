@@ -88,11 +88,4 @@ public final class ArrayDeclarationSyntax extends StatementSyntax {
     public <T> T accept(SyntaxVisitor<T> visitor) {
         return visitor.visit(this);
     }
-
-    /**
-     * @return
-     */
-    public PrimitiveType getType() {
-        return PrimitiveType.forRepresentation(defineToken.getLexeme().substring("def_".length()));
-    }
 }

@@ -9,9 +9,9 @@ package me.waliedyassen.runescript.compiler.syntax.stmt;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.type.PrimitiveType;
 
 /**
  * Represents an AST switch statement.
@@ -21,10 +21,10 @@ import me.waliedyassen.runescript.type.PrimitiveType;
 public final class SwitchStatementSyntax extends StatementSyntax {
 
     /**
-     * The type of the switch statement.
+     * The token of the switch keyword.
      */
     @Getter
-    private final PrimitiveType type;
+    private final SyntaxToken switchToken;
 
     /**
      * The condition of the switch statement.
@@ -47,20 +47,15 @@ public final class SwitchStatementSyntax extends StatementSyntax {
     /**
      * Constructs a new {@link SwitchStatementSyntax} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param type
-     *         the switch statement type.
-     * @param condition
-     *         the switch statement condition.
-     * @param cases
-     *         the switch statement member cases
-     * @param defaultCase
-     *         the switch statement default case
+     * @param range       the node source code range.
+     * @param switchToken the token of the "switch" keyword.
+     * @param condition   the switch statement condition.
+     * @param cases       the switch statement member cases
+     * @param defaultCase the switch statement default case
      */
-    public SwitchStatementSyntax(Range range, PrimitiveType type, ExpressionSyntax condition, SwitchCaseSyntax[] cases, SwitchCaseSyntax defaultCase) {
+    public SwitchStatementSyntax(Range range, SyntaxToken switchToken, ExpressionSyntax condition, SwitchCaseSyntax[] cases, SwitchCaseSyntax defaultCase) {
         super(range);
-        this.type = type;
+        this.switchToken = switchToken;
         this.condition = addChild(condition);
         this.cases = addChild(cases);
         this.defaultCase = defaultCase != null ? addChild(defaultCase) : null;

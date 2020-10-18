@@ -70,13 +70,4 @@ public final class VariableDeclarationSyntax extends StatementSyntax {
     public <T> T accept(SyntaxVisitor<T> visitor) {
         return visitor.visit(this);
     }
-
-    /**
-     * Attempts to resolve the {@link PrimitiveType type} from the define keyword.
-     *
-     * @return the resolved {@link PrimitiveType} enum constant.
-     */
-    public PrimitiveType getType() {
-        return PrimitiveType.forRepresentation(defineToken.getLexeme().substring("def_".length()));
-    }
 }

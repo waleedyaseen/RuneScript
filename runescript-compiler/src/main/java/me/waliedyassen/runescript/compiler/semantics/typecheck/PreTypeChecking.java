@@ -9,22 +9,23 @@ package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.syntax.Syntax;
-import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
-import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
-import me.waliedyassen.runescript.compiler.syntax.expr.*;
-import me.waliedyassen.runescript.compiler.syntax.stmt.ArrayDeclarationSyntax;
-import me.waliedyassen.runescript.compiler.syntax.stmt.BlockStatementSyntax;
-import me.waliedyassen.runescript.compiler.syntax.stmt.VariableDeclarationSyntax;
-import me.waliedyassen.runescript.compiler.syntax.stmt.VariableInitializerSyntax;
-import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
+import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.semantics.scope.Scope;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
+import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
+import me.waliedyassen.runescript.compiler.syntax.Syntax;
+import me.waliedyassen.runescript.compiler.syntax.expr.*;
+import me.waliedyassen.runescript.compiler.syntax.stmt.ArrayDeclarationSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.BlockStatementSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.VariableDeclarationSyntax;
+import me.waliedyassen.runescript.compiler.syntax.stmt.VariableInitializerSyntax;
+import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.type.PrimitiveType;
@@ -81,6 +82,10 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
         // resolve the script trigger type.
         var triggerName = script.getTrigger();
         var trigger = checker.getEnvironment().lookupTrigger(triggerName.getText());
+        scopes.push(new Scope(null));
+        for (var parameter : script.getParameters()) {
+            parameter.accept(this);
+        }
         // check if the script trigger type is a valid trigger type, if not produce and error.
         if (trigger == null) {
             reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
@@ -126,10 +131,12 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
                 if (annotations.containsKey("id")) {
                     predefinedId = annotations.get("id").getValue();
                 }
-                symbolTable.defineScript(annotations, trigger, name, script.getType(), Arrays.stream(script.getParameters()).map(ParameterSyntax::getType).toArray(Type[]::new), predefinedId);
+                symbolTable.defineScript(annotations, trigger, name, script.getType(), actual, predefinedId);
             }
         }
-        return super.visit(script);
+        script.getCode().accept(this);
+        scopes.pop();
+        return null;
     }
 
     private void reportError(SemanticError semanticError) {
@@ -141,10 +148,19 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
      */
     @Override
     public Void visit(ParameterSyntax parameter) {
-        var type = parameter.getType();
+        var typeRaw = parameter.getTypeToken().getLexeme();
+        if (parameter.getTypeToken().getKind() == Kind.ARRAY_TYPE) {
+            var type = PrimitiveType.forRepresentation(typeRaw.substring(0, typeRaw.length() - "array".length()));
+            parameter.setType(new ArrayReference(type, parameter.getIndex()));
+        } else {
+            parameter.setType(PrimitiveType.forRepresentation(typeRaw));
+            if (!(parameter.getType() instanceof PrimitiveType) || !((PrimitiveType) parameter.getType()).isDeclarable()) {
+                reportError(new SemanticError(parameter, "Illegal type: " + typeRaw));
+            }
+        }
         // check if the type is an array reference and declare the array if it is.
-        if (type instanceof ArrayReference) {
-            var reference = (ArrayReference) type;
+        if (parameter.getType() instanceof ArrayReference) {
+            var reference = (ArrayReference) parameter.getType();
             scopes.lastElement().declareArray(reference.getIndex(), parameter.getName().getText(), reference.getType());
         } else {
             scopes.lastElement().declareLocalVariable(parameter.getName().getText(), parameter.getType());
@@ -159,6 +175,8 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
     public Void visit(VariableDeclarationSyntax declaration) {
         var result = super.visit(declaration);
         var name = declaration.getName();
+        var typeRaw = declaration.getDefineToken().getLexeme();
+        declaration.setType(PrimitiveType.forRepresentation(typeRaw.substring("def_".length())));
         var variable = resolveLocalVariable(name.getText());
         if (variable != null) {
             reportError(new SemanticError(name, String.format("Duplicate local variable %s", name.getText())));
@@ -206,13 +224,9 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
     /**
      * Attempts to resolve the variable with the specified name.
      *
-     * @param node
-     *         the node to throw the errors at when the resolve fails.
-     * @param scope
-     *         the scope of the variable we are trying to resolve.
-     * @param name
-     *         the name of the variable we are trying to resolve.
-     *
+     * @param node  the node to throw the errors at when the resolve fails.
+     * @param scope the scope of the variable we are trying to resolve.
+     * @param name  the name of the variable we are trying to resolve.
      * @return the type of the variable that we resolved or {@link PrimitiveType#UNDEFINED}.
      */
     private Type checkVariableResolving(Syntax node, VariableScope scope, String name) {
@@ -255,12 +269,15 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
      */
     @Override
     public Void visit(ArrayDeclarationSyntax declaration) {
+        var typeRaw = declaration.getDefineToken().getLexeme();
+        var type = PrimitiveType.forRepresentation(typeRaw.substring("def_".length()));
         var name = declaration.getName();
         var array = scopes.lastElement().getArray(name.getText());
+        declaration.setType(type);
         if (array != null) {
             reportError(new SemanticError(name, String.format("Duplicate array %s", name.getText())));
         } else {
-            array = scopes.lastElement().declareArray(name.getText(), declaration.getType());
+            array = scopes.lastElement().declareArray(name.getText(), type);
             declaration.setArray(array);
         }
         return super.visit(declaration);
@@ -311,27 +328,9 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void enter(ScriptSyntax script) {
-        scopes.push(new Scope(null));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exit(ScriptSyntax script) {
-        scopes.pop();
-    }
-
-    /**
      * Resolves the local variable with the specified {@code name}.
      *
-     * @param name
-     *         the name of the local variable that we want to resolve.
-     *
+     * @param name the name of the local variable that we want to resolve.
      * @return the {@link VariableInfo} of the name.
      */
     private Local resolveLocalVariable(String name) {

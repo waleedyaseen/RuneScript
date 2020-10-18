@@ -11,7 +11,6 @@ import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents a parameter AST node.
@@ -29,7 +28,7 @@ public final class ParameterSyntax extends Syntax {
      * The type of the parameter.
      */
     @Getter
-    private final Type type;
+    private final SyntaxToken typeToken;
 
     /**
      * The name of the parameter.
@@ -38,17 +37,24 @@ public final class ParameterSyntax extends Syntax {
     private final IdentifierSyntax name;
 
     /**
+     * The index of the parameter.
+     */
+    @Getter
+    private final int index;
+
+    /**
      * Construct a new {@link ScriptSyntax} type object instance.
      *
      * @param range       the node source range.
      * @param dollarToken the token of the dollar symbol.
-     * @param type        the type of the parameter.
+     * @param typeToken        the type of the parameter.
      * @param name        the name of the parameter.
      */
-    public ParameterSyntax(Range range, SyntaxToken dollarToken, Type type, IdentifierSyntax name) {
+    public ParameterSyntax(Range range, SyntaxToken dollarToken, SyntaxToken typeToken, IdentifierSyntax name, int index) {
         super(range);
         this.dollarToken = dollarToken;
-        this.type = type;
+        this.typeToken = typeToken;
+        this.index = index;
         this.name = addChild(name);
     }
 

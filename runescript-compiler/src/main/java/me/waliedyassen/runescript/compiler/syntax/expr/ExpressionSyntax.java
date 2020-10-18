@@ -7,11 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
-import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.syntax.Syntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents an expression node, all the language expressions must be subclasses of this class.
@@ -19,12 +17,6 @@ import me.waliedyassen.runescript.type.Type;
  * @author Walied K. Yassen
  */
 public abstract class ExpressionSyntax extends Syntax {
-
-    /**
-     * The type of the expression.
-     */
-    @Getter
-    private Type type;
 
     /**
      * Constructs a new {@link ExpressionSyntax} type object instance.
@@ -40,15 +32,4 @@ public abstract class ExpressionSyntax extends Syntax {
      */
     @Override
     public abstract <T> T accept(SyntaxVisitor<T> visitor);
-
-    /**
-     * Sets the type of this expression.
-     *
-     * @param type the new type of the expression.
-     * @return the {@link Type} object that was passed to this method.
-     */
-    public Type setType(Type type) {
-        this.type = type;
-        return type;
-    }
 }

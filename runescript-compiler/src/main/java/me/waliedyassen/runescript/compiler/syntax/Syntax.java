@@ -8,8 +8,11 @@
 package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.EqualsAndHashCode;
+import lombok.var;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
+import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.Type;
 
 /**
  * Represents the smallest unit in the Abstract Syntax Tree (AST).
@@ -34,4 +37,41 @@ public abstract class Syntax extends SyntaxBase {
      * @param visitor the visitor to accept.
      */
     public abstract <T> T accept(SyntaxVisitor<T> visitor);
+
+    /**
+     * Returns the type that is assigned to the syntax node or {@link PrimitiveType#UNDEFINED} if none is
+     * currently assigned.
+     *
+     * @return the type that is assigned to the syntax node
+     */
+    public final Type getType() {
+        var type = getAttribute("type");
+        if (type == null) {
+            return PrimitiveType.UNDEFINED;
+        }
+        return (Type) type;
+    }
+
+    /**
+     * Sets the type of this syntax node.
+     *
+     * @param type the type to assign to this syntax node.
+     */
+    public final void setType(Type type) {
+        if (type == null) {
+            removeAttribute("type");
+        } else {
+            putAttribute("type", type);
+        }
+    }
+
+    /**
+     * Checks whether or not this syntax node has type assigned to it. This does not care if the type is
+     * undefined or not, it simply checks if the a type attribute is present in the attributes map.
+     *
+     * @return <code>true</code> if there is a type assigned otherwise <code>false</code>.
+     */
+    public final boolean hasType() {
+        return getAttribute("type") != null;
+    }
 }

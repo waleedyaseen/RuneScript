@@ -461,7 +461,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             instruction(opcode, variableDeclaration.getType().getDefaultValue());
         }
         var local = localMap.registerVariable(variableDeclaration.getName().getText(), variableDeclaration.getType());
-        return instruction(getPopVariableOpcode(VariableScope.LOCAL, variableDeclaration.getType()), local);
+        return instruction(getPopVariableOpcode(VariableScope.LOCAL, (PrimitiveType) variableDeclaration.getType()), local);
     }
 
     /**
