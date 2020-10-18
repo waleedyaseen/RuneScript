@@ -460,14 +460,16 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     public IfStatementSyntax ifStatement() {
         pushRange();
         var ifKeyword = consume(IF);
-        var expression = parExpression();
+        var leftParenToken = consume(LPAREN);
+        var expression = expression();
+        var rightParenToken = consume(RPAREN);
         var trueStatement = statement();
         if (peekKind() == ELSE) {
             var elseKeyword = consume(ELSE);
             var falseStatement = statement();
-            return new IfStatementSyntax(popRange(), ifKeyword, elseKeyword, expression, trueStatement, falseStatement);
+            return new IfStatementSyntax(popRange(), ifKeyword, leftParenToken, rightParenToken, elseKeyword, expression, trueStatement, falseStatement);
         } else {
-            return new IfStatementSyntax(popRange(), ifKeyword, null, expression, trueStatement, null);
+            return new IfStatementSyntax(popRange(), ifKeyword, leftParenToken, rightParenToken, null, expression, trueStatement, null);
         }
     }
 
@@ -479,9 +481,11 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     public WhileStatementSyntax whileStatement() {
         pushRange();
         var whileToken = consume(WHILE);
-        var expression = parExpression();
+        var leftParenToken = consume(LPAREN);
+        var expression = expression();
+        var rightParenToken = consume(RPAREN);
         var statement = statement();
-        return new WhileStatementSyntax(popRange(), whileToken, expression, statement);
+        return new WhileStatementSyntax(popRange(), whileToken, leftParenToken, rightParenToken, expression, statement);
     }
 
     /**

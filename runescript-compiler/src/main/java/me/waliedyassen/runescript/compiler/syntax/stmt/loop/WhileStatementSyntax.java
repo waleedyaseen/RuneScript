@@ -28,6 +28,18 @@ public final class WhileStatementSyntax extends StatementSyntax {
     private final SyntaxToken whileToken;
 
     /**
+     * The token of the left parenthesis.
+     */
+    @Getter
+    private final SyntaxToken leftParenToken;
+
+    /**
+     * The token of the right parenthesis.
+     */
+    @Getter
+    private final SyntaxToken rightParenToken;
+
+    /**
      * The condition of the while loop.
      */
     @Getter
@@ -42,14 +54,18 @@ public final class WhileStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link StatementSyntax} type object instance.
      *
-     * @param range     the node source code range.
-     * @param whileToken     the token of the "while" keyword.
-     * @param condition the condition of the while loop.
-     * @param code      the code statement of the while loop.
+     * @param range           the node source code range.
+     * @param whileToken      the token of the "while" keyword.
+     * @param leftParenToken  the token of the left parenthesis.
+     * @param rightParenToken the token of the right parenthesis.
+     * @param condition       the condition of the while loop.
+     * @param code            the code statement of the while loop.
      */
-    public WhileStatementSyntax(Range range, SyntaxToken whileToken, ExpressionSyntax condition, StatementSyntax code) {
+    public WhileStatementSyntax(Range range, SyntaxToken whileToken, SyntaxToken leftParenToken, SyntaxToken rightParenToken, ExpressionSyntax condition, StatementSyntax code) {
         super(range);
         this.whileToken = whileToken;
+        this.leftParenToken = leftParenToken;
+        this.rightParenToken = rightParenToken;
         this.condition = addChild(condition);
         this.code = addChild(code);
     }

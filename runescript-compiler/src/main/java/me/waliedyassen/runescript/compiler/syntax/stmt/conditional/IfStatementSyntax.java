@@ -34,6 +34,18 @@ public final class IfStatementSyntax extends StatementSyntax {
     private final SyntaxToken elseToken;
 
     /**
+     * The token of the left parenthesis.
+     */
+    @Getter
+    private final SyntaxToken leftParenToken;
+
+    /**
+     * The token of the right parenthesis.
+     */
+    @Getter
+    private final SyntaxToken rightParenToken;
+
+    /**
      * The if statement condition expression.
      */
     @Getter
@@ -54,17 +66,21 @@ public final class IfStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link IfStatementSyntax} type object instance.
      *
-     * @param range          the node source code range.
-     * @param ifToken        if token of the "if" keyword.
-     * @param elseToken      the toke nof the "else" keyword.
-     * @param condition      the condition of the if statement.
-     * @param trueStatement  the true code statement of the if statement.
-     * @param falseStatement the false code statement of the if statement.
+     * @param range           the node source code range.
+     * @param ifToken         if token of the "if" keyword.
+     * @param leftParenToken  the token of the left parenthesis.
+     * @param rightParenToken the token of the right parenthesis.
+     * @param elseToken       the toke nof the "else" keyword.
+     * @param condition       the condition of the if statement.
+     * @param trueStatement   the true code statement of the if statement.
+     * @param falseStatement  the false code statement of the if statement.
      */
-    public IfStatementSyntax(Range range, SyntaxToken ifToken, SyntaxToken elseToken, ExpressionSyntax condition, StatementSyntax trueStatement, StatementSyntax falseStatement) {
+    public IfStatementSyntax(Range range, SyntaxToken ifToken, SyntaxToken leftParenToken, SyntaxToken rightParenToken, SyntaxToken elseToken, ExpressionSyntax condition, StatementSyntax trueStatement, StatementSyntax falseStatement) {
         super(range);
         this.ifToken = ifToken;
         this.elseToken = elseToken;
+        this.leftParenToken = leftParenToken;
+        this.rightParenToken = rightParenToken;
         this.condition = addChild(condition);
         this.trueStatement = addChild(trueStatement);
         this.falseStatement = falseStatement != null ? addChild(falseStatement) : null;

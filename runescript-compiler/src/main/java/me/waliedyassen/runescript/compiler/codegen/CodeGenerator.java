@@ -13,8 +13,6 @@ import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockList;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockMap;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
-import me.waliedyassen.runescript.compiler.codegen.context.Context;
-import me.waliedyassen.runescript.compiler.codegen.context.ContextType;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.local.LocalMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
@@ -48,7 +46,6 @@ import me.waliedyassen.runescript.type.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Stack;
 
 import static me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode.*;
 
@@ -96,11 +93,6 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
     private final SwitchMap switchMap = new SwitchMap();
 
     /**
-     * The current block we are working on.
-     */
-    private final Stack<Context> contexts = new Stack<>();
-
-    /**
      * The environment we are going to use to lookup triggers.
      */
     private final CompilerEnvironment environment;
@@ -121,6 +113,11 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
     private final TriggerType hookTriggerType;
 
     /**
+     * The block we are currently generating.
+     */
+    private Block block;
+
+    /**
      * Initialises the code generator and reset its state.
      */
     public void initialise() {
@@ -128,7 +125,6 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         blockMap.reset();
         localMap.reset();
         switchMap.reset();
-        contexts.clear();
     }
 
     /**
@@ -137,14 +133,12 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
     @Override
     public BinaryScript visit(ScriptSyntax script) {
         // perform code generation on the script.
-        pushContext(ContextType.SCRIPT);
         for (var parameter : script.getParameters()) {
             parameter.accept(this);
         }
         bind(generateBlock("entry"));
         script.getCode().accept(this);
         generateDefaultReturn(script.getType());
-        popContext();
         // format the script name to be in the formal format.
         var name = String.format("[%s,%s]", script.getTrigger().getText(), script.getName().getText());
         // put all of the blocks into a sorted map.
@@ -460,7 +454,6 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      */
     @Override
     public Instruction visit(VariableDeclarationSyntax variableDeclaration) {
-        var type = variableDeclaration.getType();
         if (variableDeclaration.getExpression() != null) {
             variableDeclaration.getExpression().accept(this);
         } else {
@@ -468,7 +461,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             instruction(opcode, variableDeclaration.getType().getDefaultValue());
         }
         var local = localMap.registerVariable(variableDeclaration.getName().getText(), variableDeclaration.getType());
-        return instruction(getPopVariableOpcode(VariableScope.LOCAL, (PrimitiveType) variableDeclaration.getType()), local);
+        return instruction(getPopVariableOpcode(VariableScope.LOCAL, variableDeclaration.getType()), local);
     }
 
     /**
@@ -581,7 +574,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         // store whether we have an else statement or not.
         var has_else = ifStatement.getFalseStatement() != null;
         // grab the parent block of the if statement.
-        var source_block = context().getBlock();
+        var source_block = block;
         // generate the condition of the if statement.
         generateCondition(ifStatement.getCondition(), source_block, if_true_label, has_else ? if_else_label : if_end_label);
         // generate the if-true block of the statement
@@ -669,10 +662,6 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @param branch_false the if-false block label.
      */
     private void generateCondition(ExpressionSyntax condition, Block source_block, Label branch_true, Label branch_false) {
-        if (condition instanceof ParExpressionSyntax) {
-            // TODO: Do this property, an example case where this breaks would be if ((a=b))
-            condition = ((ParExpressionSyntax) condition).getExpression();
-        }
         if (condition instanceof BinaryOperationSyntax) {
             var binaryOperation = (BinaryOperationSyntax) condition;
             var operator = binaryOperation.getOperator();
@@ -843,7 +832,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(CoreOpcode opcode, Object operand) {
-        return instruction(context().getBlock(), opcode, operand);
+        return instruction(block, opcode, operand);
     }
 
     /**
@@ -870,7 +859,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @return the created {@link Instruction} object.
      */
     private Instruction instruction(Opcode opcode, Object operand) {
-        return instruction(context().getBlock(), opcode, operand);
+        return instruction(block, opcode, operand);
     }
 
     /**
@@ -906,7 +895,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @return the block that was passed to the method.
      */
     private Block bind(Block block) {
-        context().setBlock(block);
+        this.block = block;
         return block;
     }
 
@@ -942,37 +931,6 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
     private Label generateLabel(String name) {
         return labelGenerator.generate(name);
     }
-
-    /**
-     * Gets the current active {@link Context} object.
-     *
-     * @return the active {@link Context} object.
-     */
-    public Context context() {
-        return contexts.lastElement();
-    }
-
-    /**
-     * Creates a new {@link Context} object and pushes it into the stack.
-     *
-     * @param type the type of the context.
-     * @return the created {@link Context} object.
-     */
-    public Context pushContext(ContextType type) {
-        var context = new Context(type);
-        contexts.push(context);
-        return context;
-    }
-
-    /**
-     * Pops the last context from the stack.
-     *
-     * @return the popped {@link Context} object.
-     */
-    public Context popContext() {
-        return contexts.pop();
-    }
-
 
     /**
      * Returns the push core opcode for a variable with the specified {@link VariableScope scope} and {@link PrimitiveType type}.
