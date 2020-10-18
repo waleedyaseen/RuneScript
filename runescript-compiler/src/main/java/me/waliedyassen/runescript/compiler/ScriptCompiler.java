@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.compiler;
 import lombok.Getter;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
+import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.ConstantFoldingOptimization;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
@@ -120,6 +121,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
         optimizer.register(new NaturalFlowOptimization());
         optimizer.register(new DeadBranchOptimization());
         optimizer.register(new DeadBlockOptimization());
+        optimizer.register(new ConstantFoldingOptimization());
     }
 
     /**

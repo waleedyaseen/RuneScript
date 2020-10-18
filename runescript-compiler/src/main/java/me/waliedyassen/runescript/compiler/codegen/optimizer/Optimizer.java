@@ -13,7 +13,6 @@ import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.Instruction;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.opcode.CoreOpcode;
-import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 
 import java.util.ArrayList;
@@ -62,8 +61,7 @@ public final class Optimizer {
      * optimizations until there is nothing left to to optimize, the amount of times it will re-run is not known or
      * predictable.
      *
-     * @param script
-     *         the script to run the optimizations on.
+     * @param script the script to run the optimizations on.
      */
     public void run(BinaryScript script) {
         var count = 0;
@@ -79,21 +77,31 @@ public final class Optimizer {
     /**
      * Registers the specified {@link Optimization optimization} into this optimizer.
      *
-     * @param optimization
-     *         the optimization to register.
+     * @param optimization the optimization to register.
      */
     public void register(@NonNull Optimization optimization) {
         optimizations.add(optimization);
     }
 
     /**
+     * Transforms the specified {@link Instruction} which is basically changing the opcode and the operand
+     * of the specified instruction to different ones.
+     *
+     * @param instruction the instruction that we want to transform.
+     * @param opcode      the new opcode to set for the instruction.
+     * @param operand     the new operand to set for the instruction.
+     */
+    public void transform(Instruction instruction, CoreOpcode opcode, Object operand) {
+        @NonNull var mapped = instructionMap.lookup(opcode);
+        instruction.setOpcode(mapped);
+        instruction.setOperand(operand);
+    }
+
+    /**
      * Checks whether or not if the given {@link Instruction instruction } has the specified {@link CoreOpcode opcode}.
      *
-     * @param instruction
-     *         the instruction to check if it has the opcode.
-     * @param opcode
-     *         the opcode to check against the instruction.
-     *
+     * @param instruction the instruction to check if it has the opcode.
+     * @param opcode      the opcode to check against the instruction.
      * @return <code>true</code> if the instruction's opcode and the given opcode matches otherwise <code>false</code>.
      */
     public boolean is(@NonNull Instruction instruction, @NonNull CoreOpcode opcode) {

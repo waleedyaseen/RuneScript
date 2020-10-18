@@ -7,10 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.codegen;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 
@@ -27,18 +24,32 @@ public final class Instruction {
      * The opcode of this instruction.
      */
     @Getter
-    private final Opcode opcode;
+    @Setter
+    @NonNull
+    private Opcode opcode;
 
     /**
      * The operand of the instruction.
      */
     @Getter
-    private final Object operand;
+    @Setter
+    @NonNull
+    private Object operand;
 
     /**
      * The owner block of this instruction.
      */
-    @Getter @Setter
+    @Getter
+    @Setter
     @ToString.Exclude
     protected Block owner;
+
+    /**
+     * Returns the operand casted to an integer value.
+     *
+     * @return the integer value of the operand.
+     */
+    public int intOperand() {
+        return ((Number) operand).intValue();
+    }
 }
