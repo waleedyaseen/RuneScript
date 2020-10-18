@@ -7,9 +7,7 @@
  */
 package me.waliedyassen.runescript.config.lexer;
 
-import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
@@ -17,7 +15,9 @@ import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.TokenizerBase;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.lexer.token.TokenFactory;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
+import me.waliedyassen.runescript.config.lexer.token.SyntaxToken;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import static me.waliedyassen.runescript.config.lexer.token.Kind.*;
  *
  * @author Walied K. Yassen
  */
-public final class Tokenizer extends TokenizerBase {
+public final class Tokenizer extends TokenizerBase<Kind, SyntaxToken> {
 
     /**
      * The current lexeme content builder.
@@ -70,17 +70,16 @@ public final class Tokenizer extends TokenizerBase {
      * @param stream        the input characters stream.
      */
     public Tokenizer(ErrorReporter errorReporter, LexicalTable<Kind> table, CharStream stream) {
-        super(errorReporter);
+        super(errorReporter, new SyntaxTokenFactory());
         this.table = table;
         this.stream = stream;
     }
 
     /**
-     * Attempts to parse the next rule {@link Token} from the characters stream.
-     *
-     * @return the parsed {@link Token} object.
+     * {@inheritDoc}
      */
-    public Token<Kind> parse() {
+    @Override
+    public SyntaxToken parse() {
         // the character queue of the parser.
         char current, next;
         // keep parsing until we have a something to return.
@@ -263,7 +262,7 @@ public final class Tokenizer extends TokenizerBase {
      * @param kind the kind of the token.
      * @return the created {@link Token} object instance.
      */
-    private Token<Kind> createToken(Kind kind) {
+    private SyntaxToken createToken(Kind kind) {
         return createToken(kind, "");
     }
 
@@ -274,9 +273,9 @@ public final class Tokenizer extends TokenizerBase {
      * @param lexeme the lexeme of the token.
      * @return the created {@link Token} object instance.
      */
-    private Token<Kind> createToken(Kind kind, String lexeme) {
+    private SyntaxToken createToken(Kind kind, String lexeme) {
         mode = Mode.NONE;
-        return new Token<>(kind, range(), lexeme);
+        return tokenFactory.createToken(range(), kind, lexeme);
     }
 
     /**
@@ -389,5 +388,30 @@ public final class Tokenizer extends TokenizerBase {
          * Indicates that the parser is currently parsing a multi-line comment.
          */
         MULTI_COMMENT
+    }
+
+
+    /**
+     * A {@link TokenFactory} implementation that creates a {@link SyntaxToken} objects.
+     *
+     * @author Walied K. Yassen
+     */
+    private static final class SyntaxTokenFactory implements TokenFactory<Kind, SyntaxToken> {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public SyntaxToken createToken(Range range, Kind kind, String lexeme) {
+            return new SyntaxToken(kind, range, lexeme);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public SyntaxToken createErrorToken(Range range, Kind kind, String lexeme) {
+            return new SyntaxToken(kind, range, lexeme);
+        }
     }
 }

@@ -23,12 +23,12 @@ import java.util.List;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public abstract class LexerBase<K> {
+public abstract class LexerBase<K, T extends Token<K>> {
 
     /**
      * The list of the {@linkplain Token}s that are availabe to this lexer.
      */
-    protected final List<Token<K>> tokens = new ArrayList<>();
+    protected final List<T> tokens = new ArrayList<>();
 
     /**
      * The start range of the lexer.
@@ -46,7 +46,7 @@ public abstract class LexerBase<K> {
      *
      * @return the {@link Token} object if it was present otherwise {@code null}.
      */
-    public Token<K> take() {
+    public T take() {
         if (index >= tokens.size()) {
             return null;
         }
@@ -54,11 +54,11 @@ public abstract class LexerBase<K> {
     }
 
     /**
-     * Gets the {@link Token} object at the current pointer index without incrementing the pointer index.
+     * Gets the {@link T} object at the current pointer index without incrementing the pointer index.
      *
-     * @return the {@link Token} object if it was present otherwise {@code null}.
+     * @return the {@link T} object if it was present otherwise {@code null}.
      */
-    public Token<K> peek() {
+    public T peek() {
         if (index >= tokens.size()) {
             return null;
         }
@@ -66,11 +66,11 @@ public abstract class LexerBase<K> {
     }
 
     /**
-     * Gets the previous {@link Token token} to the current token.
+     * Gets the previous {@link T token} to the current token.
      *
-     * @return the previous {@link Token} object.
+     * @return the previous {@link T} object.
      */
-    public Token<K> previous() {
+    public T previous() {
         return tokens.get(index - 1);
     }
 
@@ -80,7 +80,7 @@ public abstract class LexerBase<K> {
      * @param n the distance which the token is located at from the current index.
      * @return the {@link Token} if it was present otherwise {@code null}.
      */
-    public Token<K> lookahead(int n) {
+    public T lookahead(int n) {
         if (index + n >= tokens.size()) {
             return null;
         }
@@ -92,7 +92,7 @@ public abstract class LexerBase<K> {
      *
      * @return the last {@link Token}.
      */
-    public Token<K> last() {
+    public T last() {
         if (tokens.isEmpty()) {
             return null;
         }
@@ -106,17 +106,5 @@ public abstract class LexerBase<K> {
      */
     public int remaining() {
         return tokens.size() - index;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Range previousRange() {
-        var previous = previous();
-        if (previous != null) {
-            return previous.getRange();
-        }
-        return startRange;
     }
 }

@@ -9,6 +9,8 @@ package me.waliedyassen.runescript.compiler.lexer;
 
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
+import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.lexer.token.TokenFactory;
 
 /**
  * Represents a lexical parser tokenizer base class.
@@ -16,12 +18,24 @@ import me.waliedyassen.runescript.compiler.error.ErrorReporter;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public abstract class TokenizerBase {
+public abstract class TokenizerBase<K, T extends Token<K>> {
 
     /**
      * The error reporter we will use to report erroneous input.
      */
     protected final ErrorReporter errorReporter;
+
+    /**
+     * A factory class that is responsible for creating new {@link T} objects.
+     */
+    protected final TokenFactory<K, T> tokenFactory;
+
+    /**
+     * Tokenizes the next sequence of characters into a meaningful {@link T} object.
+     *
+     * @return the {@link T} object or {@code null} if none could be tokenized.
+     */
+    public abstract T parse();
 
     /**
      * Checks whether or not the specified character can be used as the identifier's starting character.

@@ -13,13 +13,15 @@ import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
+import me.waliedyassen.runescript.compiler.syntax.Syntax;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 
 /**
  * Represents the script parser {@link LexerBase} implementation.
  *
  * @author Walied K. Yassen
  */
-public final class Lexer extends LexerBase<Kind> {
+public final class Lexer extends LexerBase<Kind, SyntaxToken> {
 
     /**
      * The lexical table which the lexer is using.

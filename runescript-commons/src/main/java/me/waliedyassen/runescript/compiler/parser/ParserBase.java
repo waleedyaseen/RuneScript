@@ -15,7 +15,6 @@ import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.LexerBase;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
-import java.util.Arrays;
 import java.util.Stack;
 
 /**
@@ -24,7 +23,7 @@ import java.util.Stack;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public abstract class ParserBase<K> {
+public abstract class ParserBase<K, T extends Token<K>> {
 
     /**
      * The {@link Range} object stack. It is used to calculate the nested {@link Range}s.
@@ -34,7 +33,7 @@ public abstract class ParserBase<K> {
     /**
      * A stack wh8ich contains all of the sub-lexer objects.
      */
-    protected final Stack<LexerBase<K>> lexerStack = new Stack<>();
+    protected final Stack<LexerBase<K, T>> lexerStack = new Stack<>();
 
     /**
      * The error reporter of the parser.
@@ -44,11 +43,12 @@ public abstract class ParserBase<K> {
     /**
      * The main lexer which we are using to parse tokens for the grammar.
      */
-    private final LexerBase<K> lexer;
+    private final LexerBase<K, T> lexer;
 
     /**
      * The End of File token kind (only used for returning EOF when no token is present).
      */
+    // TODO: Move this to TokenFactory instead
     protected final K eofKind;
 
     /**
@@ -62,14 +62,14 @@ public abstract class ParserBase<K> {
     }
 
     /**
-     * Takes the next {@link Token} object and checks whether or not its {@linkplain K kind} matches the specified
+     * Takes the next {@link T} object and checks whether or not its {@linkplain K kind} matches the specified
      * {@linkplain K kind}.
      *
      * @param expected the expected token kind.
-     * @return the expected {@link Token} object.
+     * @return the expected {@link T} object.
      * @throws SyntaxError if the next token does not match the expected token.
      */
-    protected Token<K> consume(K expected) {
+    protected T consume(K expected) {
         var token = peek();
         var kind = token == null ? eofKind : token.getKind();
         var range = token != null && token.getRange() != null ? token.getRange() : lexer.getStartRange();
@@ -77,12 +77,13 @@ public abstract class ParserBase<K> {
             consume();
             return token;
         }
-        errorReporter.addError(createError(range, "Unexpected rule: " + kind + ", expected: " + expected));
-        return new ErrorToken<K>(range, expected);
+        var error = createError(range, "Unexpected rule: " + kind + ", expected: " + expected);
+        errorReporter.addError(error);
+        throw error; // TODO: Should never throw errors like this, should report and continue.
     }
 
     /**
-     * Takes the next {@link Token} object and checks whether or not it's {@linkplain K kind} matches the specified
+     * Takes the next {@link T} object and checks whether or not it's {@linkplain K kind} matches the specified
      * {@linkplain K kind}.
      *
      * @param expected the expected token kind.
@@ -100,7 +101,7 @@ public abstract class ParserBase<K> {
     }
 
     /**
-     * Takes the next {@link Token} object from the lexer and return it's kind.
+     * Takes the next {@link T} object from the lexer and return it's kind.
      *
      * @return the token {@link K kind}
      */
@@ -113,12 +114,12 @@ public abstract class ParserBase<K> {
     }
 
     /**
-     * Takes the next {@link Token} object without advancing the lexer cursor.
+     * Takes the next {@link T} object without advancing the lexer cursor.
      *
-     * @return the next {@link Token} object or {@code null}.
+     * @return the next {@link T} object or {@code null}.
      * @see LexerBase#peek()
      */
-    protected Token<K> peek() {
+    protected T peek() {
         return lexer().peek();
     }
 
@@ -145,12 +146,12 @@ public abstract class ParserBase<K> {
     }
 
     /**
-     * Takes the next {@link Token} object from the lexer.
+     * Takes the next {@link T} object from the lexer.
      *
-     * @return the next {@link Token} object or {@code null}.
+     * @return the next {@link T} object or {@code null}.
      * @see LexerBase#take()
      */
-    protected Token<K> consume() {
+    protected T consume() {
         var token = lexer().take();
         appendRange(token);
         return token;
@@ -196,7 +197,7 @@ public abstract class ParserBase<K> {
      * @param token   the token which the error has occurred at.
      * @param message the error message describing why the error has occurred.
      */
-    protected void addError(Token<K> token, String message) {
+    protected void addError(T token, String message) {
         errorReporter.addError(createError(token, message));
     }
 
@@ -218,7 +219,7 @@ public abstract class ParserBase<K> {
      * @param message the error message describing why the error has occurred
      * @return the created {@link SyntaxError} object.
      */
-    protected SyntaxError createError(Token<K> token, String message) {
+    protected SyntaxError createError(T token, String message) {
         return new SyntaxError(token == null ? emptyRange() : token.getRange(), message);
     }
 
@@ -227,7 +228,7 @@ public abstract class ParserBase<K> {
      *
      * @param lexer the lexer object that we want to push into the lexer stack.
      */
-    protected void pushLexer(LexerBase<K> lexer) {
+    protected void pushLexer(LexerBase<K, T> lexer) {
         lexerStack.push(lexer);
     }
 
@@ -243,7 +244,7 @@ public abstract class ParserBase<K> {
      *
      * @return the {@link LexerBase} object we are currently using.
      */
-    protected LexerBase<K> lexer() {
+    protected LexerBase<K, T> lexer() {
         return lexerStack.isEmpty() ? lexer : lexerStack.peek();
     }
 }

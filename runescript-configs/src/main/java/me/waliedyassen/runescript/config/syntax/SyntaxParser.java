@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.config.syntax;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.parser.ParserBase;
+import me.waliedyassen.runescript.config.lexer.token.SyntaxToken;
 import me.waliedyassen.runescript.config.syntax.value.*;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
@@ -24,7 +25,7 @@ import static me.waliedyassen.runescript.config.lexer.token.Kind.*;
  *
  * @author Walied K. Yassen
  */
-public final class SyntaxParser extends ParserBase<Kind> {
+public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
 
     /**
      * Constructs a new {@link SyntaxParser} type object instance.

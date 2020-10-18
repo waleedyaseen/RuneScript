@@ -17,6 +17,8 @@ import me.waliedyassen.runescript.compiler.lexer.TokenizerBase;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.lexer.token.TokenFactory;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 
 import java.util.ArrayList;
 import java.util.Stack;
@@ -29,7 +31,7 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
  *
  * @author Walied K. Yassen
  */
-public final class Tokenizer extends TokenizerBase {
+public final class Tokenizer extends TokenizerBase<Kind, SyntaxToken> {
 
     // TODO: Interpolated strings proper range creation.
 
@@ -55,9 +57,9 @@ public final class Tokenizer extends TokenizerBase {
     private State state;
 
     /**
-     *
+     * An offset to add to each of the produced ranges.
      */
-    private int positionOffset;
+    private final int positionOffset;
 
     /**
      * Constructs a new {@link Tokenizer} type object instance.
@@ -79,7 +81,7 @@ public final class Tokenizer extends TokenizerBase {
      * @param positionOffset the offset of the position.
      */
     public Tokenizer(ErrorReporter errorReporter, LexicalTable<Kind> table, CharStream stream, int positionOffset) {
-        super(errorReporter);
+        super(errorReporter, new SyntaxTokenFactory());
         this.table = table;
         this.stream = stream;
         this.positionOffset = positionOffset;
@@ -87,11 +89,10 @@ public final class Tokenizer extends TokenizerBase {
     }
 
     /**
-     * Tokenizes the next sequence of characters into some meaningful {@link Token} object.
-     *
-     * @return the {@link Token} object or {@code null} if none could be tokenized.
+     * {@inheritDoc}
      */
-    public Token<Kind> parse() {
+    @Override
+    public SyntaxToken parse() {
         // check whether or not we have any fallback tokens.
         if (!state.fallback.isEmpty()) {
             return state.fallback.removeFirst();
@@ -336,7 +337,7 @@ public final class Tokenizer extends TokenizerBase {
      * @return the created {@link Token} object instance.
      * @see #createToken(Kind, String)
      */
-    private Token<Kind> createToken(Kind kind) {
+    private SyntaxToken createToken(Kind kind) {
         return createToken(kind, "");
     }
 
@@ -350,9 +351,9 @@ public final class Tokenizer extends TokenizerBase {
      * @param lexeme the lexeme of the token.
      * @return the created {@link Token} object instance.
      */
-    private Token<Kind> createToken(Kind kind, String lexeme) {
+    private SyntaxToken createToken(Kind kind, String lexeme) {
         state.mode = Mode.NONE;
-        return new Token<>(kind, range(), lexeme);
+        return tokenFactory.createToken(range(), kind, lexeme);
     }
 
     /**
@@ -360,7 +361,7 @@ public final class Tokenizer extends TokenizerBase {
      *
      * @param token the {@link Token token} object to add.
      */
-    private void feed(Token<Kind> token) {
+    private void feed(SyntaxToken token) {
         state.fallback.addLast(token);
     }
 
@@ -449,5 +450,29 @@ public final class Tokenizer extends TokenizerBase {
             }
         }
         return line.substring(start, end);
+    }
+
+    /**
+     * A {@link TokenFactory} implementation that creates a {@link SyntaxToken} objects.
+     *
+     * @author Walied K. Yassen
+     */
+    private static final class SyntaxTokenFactory implements TokenFactory<Kind, SyntaxToken> {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public SyntaxToken createToken(Range range, Kind kind, String lexeme) {
+            return new SyntaxToken(kind, range, lexeme);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public SyntaxToken createErrorToken(Range range, Kind kind, String lexeme) {
+            return new SyntaxToken(kind, range, lexeme);
+        }
     }
 }

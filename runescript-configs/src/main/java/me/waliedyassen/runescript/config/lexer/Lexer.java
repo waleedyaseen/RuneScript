@@ -11,13 +11,14 @@ import lombok.var;
 import me.waliedyassen.runescript.compiler.lexer.LexerBase;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
+import me.waliedyassen.runescript.config.lexer.token.SyntaxToken;
 
 /**
  * Represents the configuration parser {@link LexerBase} implementation.
  *
  * @author Walied K. Yassen
  */
-public final class Lexer extends LexerBase<Kind> {
+public final class Lexer extends LexerBase<Kind, SyntaxToken> {
 
     /**
      * Constructs a new {@link Lexer} type object instance.

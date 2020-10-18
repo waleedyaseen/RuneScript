@@ -18,7 +18,6 @@ import me.waliedyassen.runescript.compiler.lexer.LexicalError;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.parser.ErrorToken;
 import me.waliedyassen.runescript.compiler.parser.ParserBase;
 import me.waliedyassen.runescript.compiler.parser.SyntaxError;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
@@ -38,8 +37,6 @@ import me.waliedyassen.runescript.type.PrimitiveType;
 import me.waliedyassen.runescript.type.TupleType;
 import me.waliedyassen.runescript.type.Type;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +47,7 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
  *
  * @author Walied K. Yassen
  */
-public final class SyntaxParser extends ParserBase<Kind> {
+public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
 
     // TODO: Detailed documentation
 
@@ -440,7 +437,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
     private ErrorStatementSyntax errorStatement() {
         pushRange();
         var token = consume();
-        var semicolon = peekKind() == SEMICOLON ? consume() : new ErrorToken<>(emptyRange(), SEMICOLON);
+        var semicolon = peekKind() == SEMICOLON ? consume(SEMICOLON) : null;
         return new ErrorStatementSyntax(popRange(), token, semicolon);
     }
 
@@ -1102,7 +1099,7 @@ public final class SyntaxParser extends ParserBase<Kind> {
      * @param token the token which the content will be taken from.
      * @return the created {@link LexerBase} object.
      */
-    private LexerBase<Kind> createLexerFromString(Token<Kind> token) {
+    private LexerBase<Kind, SyntaxToken> createLexerFromString(SyntaxToken token) {
         var stream = new BufferedCharStream(token.getLexeme().toCharArray());
         var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream, token.getRange().getStart());
         return new Lexer(tokenizer);
