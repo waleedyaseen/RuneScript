@@ -195,6 +195,11 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         return localMap.registerParameter(parameter.getName().getText(), parameter.getType());
     }
 
+    @Override
+    public Object visit(ParExpressionSyntax syntax) {
+        return syntax.getExpression().accept(this);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -453,6 +458,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      */
     @Override
     public Instruction visit(VariableDeclarationSyntax variableDeclaration) {
+        var type = variableDeclaration.getType();
         if (variableDeclaration.getExpression() != null) {
             variableDeclaration.getExpression().accept(this);
         } else {

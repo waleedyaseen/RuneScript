@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.stmt;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
@@ -19,6 +20,18 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 public final class BlockStatementSyntax extends StatementSyntax {
 
     /**
+     * The left brace token of the block.
+     */
+    @Getter
+    private final SyntaxToken leftBraceToken;
+
+    /**
+     * The right brace token of the block.
+     */
+    @Getter
+    private final SyntaxToken rightBraceToken;
+
+    /**
      * The child statements in this block.
      */
     @Getter
@@ -27,16 +40,17 @@ public final class BlockStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link BlockStatementSyntax} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param statements
-     *         the array of statements.
+     * @param range           the node source code range.
+     * @param leftBraceToken  the left brace token of the block.
+     * @param rightBraceToken the right brace token of the block.
+     * @param statements      the array of statements.
      */
-    public BlockStatementSyntax(Range range, StatementSyntax[] statements) {
+    public BlockStatementSyntax(Range range, SyntaxToken leftBraceToken, SyntaxToken rightBraceToken, StatementSyntax[] statements) {
         super(range);
+        this.leftBraceToken = leftBraceToken;
+        this.rightBraceToken = rightBraceToken;
         this.statements = addChild(statements);
     }
-
 
     /**
      * {@inheritDoc}

@@ -152,11 +152,11 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     private AnnotationSyntax annotation() {
         pushRange();
-        consume(HASH);
+        var hashToken = consume(HASH);
         var name = identifier();
-        consume(COLON);
+        var colonToken = consume(COLON);
         var value = literalInteger();
-        return new AnnotationSyntax(popRange(), name, value);
+        return new AnnotationSyntax(popRange(), hashToken, colonToken, name, value);
     }
 
     /**
@@ -204,9 +204,9 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         if (!type.isDeclarable()) {
             addError(lexer().previous(), "Illegal type: " + type.getRepresentation());
         }
-        consume(DOLLAR);
+        var dollarToken = consume(DOLLAR);
         var name = identifier();
-        return new ParameterSyntax(popRange(), array ? new ArrayReference(type, index) : type, name);
+        return new ParameterSyntax(popRange(), dollarToken, array ? new ArrayReference(type, index) : type, name);
     }
 
     /**
@@ -272,7 +272,6 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         }
     }
 
-
     /**
      * Attempts to parse a simple expression rule.
      *
@@ -329,6 +328,19 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     }
 
     /**
+     * Attempts to match the next token set to any valid {@link StatementSyntax} types.
+     *
+     * @return the matched {@link StatementSyntax} type object instance.
+     */
+    public ParExpressionSyntax parExpression() {
+        pushRange();
+        var leftParenToken = consume(LPAREN);
+        var expression = expression();
+        var rightParenToken = consume(RPAREN);
+        return new ParExpressionSyntax(popRange(), leftParenToken, rightParenToken, expression);
+    }
+
+    /**
      * Checks whether or not the next token is a valid expression start.
      *
      * @return <code>true</code> if it is otherwise <code>false</code>.
@@ -371,20 +383,6 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     private boolean isCall() {
         return environment.lookupTrigger(peekKind()) != null;
-    }
-
-    /**
-     * Attempts to parse an {@link ExpressionSyntax} that is surrounded with parenthesis. The return value is equal to
-     * calling {@link #expression()} method, the only difference in this method that it checks for parenthesis before
-     * and after the expression and consumes them.
-     *
-     * @return the parsed {@link ExpressionSyntax} object.
-     */
-    public ExpressionSyntax parExpression() {
-        consume(LPAREN);
-        var expression = expression();
-        consume(RPAREN);
-        return expression;
     }
 
     /**
@@ -460,11 +458,16 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public IfStatementSyntax ifStatement() {
         pushRange();
-        consume(IF);
+        var ifKeyword = consume(IF);
         var expression = parExpression();
         var trueStatement = statement();
-        var falseStatement = consumeIf(ELSE) ? statement() : null;
-        return new IfStatementSyntax(popRange(), expression, trueStatement, falseStatement);
+        if (peekKind() == ELSE) {
+            var elseKeyword = consume(ELSE);
+            var falseStatement = statement();
+            return new IfStatementSyntax(popRange(), ifKeyword, elseKeyword, expression, trueStatement, falseStatement);
+        } else {
+            return new IfStatementSyntax(popRange(), ifKeyword, null, expression, trueStatement, null);
+        }
     }
 
     /**
@@ -474,10 +477,10 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public WhileStatementSyntax whileStatement() {
         pushRange();
-        consume(WHILE);
+        var whileToken = consume(WHILE);
         var expression = parExpression();
         var statement = statement();
-        return new WhileStatementSyntax(popRange(), expression, statement);
+        return new WhileStatementSyntax(popRange(), whileToken, expression, statement);
     }
 
     /**
@@ -487,12 +490,12 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public DoWhileStatementSyntax doWhileStatement() {
         pushRange();
-        consume(DO);
+        var doToken = consume(DO);
         var code = blockStatement();
-        consume(WHILE);
+        var whileToken = consume(WHILE);
         var expression = parExpression();
-        consume(SEMICOLON);
-        return new DoWhileStatementSyntax(popRange(), code, expression);
+        var semicolonToken = consume(SEMICOLON);
+        return new DoWhileStatementSyntax(popRange(), doToken, whileToken, semicolonToken, code, expression);
     }
 
     /**
@@ -502,9 +505,9 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public ContinueStatementSyntax continueStatement() {
         pushRange();
-        var token = consume(CONTINUE);
-        var semicolon = consume(SEMICOLON);
-        return new ContinueStatementSyntax(popRange(), token, semicolon);
+        var controlToken = consume(CONTINUE);
+        var semicolonToken = consume(SEMICOLON);
+        return new ContinueStatementSyntax(popRange(), controlToken, semicolonToken);
     }
 
     /**
@@ -514,9 +517,9 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public BreakStatementSyntax breakStatement() {
         pushRange();
-        var token = consume(BREAK);
-        var semicolon = consume(SEMICOLON);
-        return new BreakStatementSyntax(popRange(), token, semicolon);
+        var controlToken = consume(BREAK);
+        var semicolonToken = consume(SEMICOLON);
+        return new BreakStatementSyntax(popRange(), controlToken, semicolonToken);
     }
 
     /**
@@ -526,10 +529,10 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public BlockStatementSyntax blockStatement() {
         pushRange();
-        var leftBrace = consume(LBRACE);
+        var leftBraceToken = consume(LBRACE);
         var statements = statementsList();
-        var rBrace = consume(RBRACE);
-        return new BlockStatementSyntax(popRange(), statements);
+        var rightBraceToken = consume(RBRACE);
+        return new BlockStatementSyntax(popRange(), leftBraceToken, rightBraceToken, statements);
     }
 
     /**
@@ -541,7 +544,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     public BlockStatementSyntax unbracedBlockStatement() {
         pushRange();
         var statements = statementsList();
-        return new BlockStatementSyntax(popRange(), statements);
+        return new BlockStatementSyntax(popRange(), null, null, statements);
     }
 
     /**
@@ -564,7 +567,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public ReturnStatementSyntax returnStatement() {
         pushRange();
-        consume(RETURN);
+        var returnToken = consume(RETURN);
         var expressions = new ArrayList<ExpressionSyntax>();
         if (consumeIf(LPAREN)) {
             if (isExpression()) {
@@ -574,8 +577,8 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
             }
             consume(RPAREN);
         }
-        consume(SEMICOLON);
-        return new ReturnStatementSyntax(popRange(), expressions.toArray(new ExpressionSyntax[0]));
+        var semicolonToken = consume(SEMICOLON);
+        return new ReturnStatementSyntax(popRange(), returnToken, semicolonToken, expressions.toArray(new ExpressionSyntax[0]));
     }
 
     /**
@@ -585,11 +588,8 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public VariableDeclarationSyntax variableDeclaration() {
         pushRange();
-        var token = consume(DEFINE);
-        var type = PrimitiveType.forRepresentation(token.getLexeme().substring(4));
-        if (!consumeIf(DOLLAR)) {
-            throw createError(consume(), "Expecting a local variable name");
-        }
+        var defineToken = consume(DEFINE);
+        var dollarSign = consume(DOLLAR);
         var name = identifier();
         ExpressionSyntax expression;
         if (consumeIf(EQUALS)) {
@@ -598,7 +598,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
             expression = null;
         }
         consume(SEMICOLON);
-        return new VariableDeclarationSyntax(popRange(), type, name, expression);
+        return new VariableDeclarationSyntax(popRange(), defineToken, dollarSign, name, expression);
     }
 
     /**
@@ -608,15 +608,12 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public ArrayDeclarationSyntax arrayDeclaration() {
         pushRange();
-        var token = consume(DEFINE);
-        var type = PrimitiveType.forRepresentation(token.getLexeme().substring(4));
-        if (!consumeIf(DOLLAR)) {
-            throw createError(consume(), "Expecting an array name");
-        }
+        var defineToken = consume(DEFINE);
+        var dollarToken = consume(DOLLAR);
         var name = identifier();
         var size = parExpression();
-        consume(SEMICOLON);
-        return new ArrayDeclarationSyntax(popRange(), type, name, size);
+        var semicolonToken = consume(SEMICOLON);
+        return new ArrayDeclarationSyntax(popRange(), defineToken, dollarToken, semicolonToken, name, size);
     }
 
     /**
@@ -719,8 +716,8 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     private ExpressionStatementSyntax expressionStatement() {
         pushRange();
         var expr = expression();
-        consume(SEMICOLON);
-        return new ExpressionStatementSyntax(popRange(), expr);
+        var semicolonToken = consume(SEMICOLON);
+        return new ExpressionStatementSyntax(popRange(), semicolonToken, expr);
     }
 
     /**
@@ -872,7 +869,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     public IdentifierSyntax identifier() {
         pushRange();
         var text = consume(IDENTIFIER);
-        return new IdentifierSyntax(popRange(), text.getLexeme());
+        return new IdentifierSyntax(popRange(), text);
     }
 
     /**
@@ -884,7 +881,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     private IdentifierSyntax advancedIdentifier() {
         // TODO: Maybe checked advanced identifier based on symbol table names.
         pushRange();
-        String text;
+        SyntaxToken token;
         var kind = peekKind();
         switch (kind) {
             case IF:
@@ -901,12 +898,12 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
             case INTEGER:
             case LONG:
             case TYPE:
-                text = consume().getLexeme();
+                token = consume();
                 break;
             default:
                 throw createError(popRange(), "Expected an identifier but got: " + kind());
         }
-        return new IdentifierSyntax(popRange(), text);
+        return new IdentifierSyntax(popRange(), token);
     }
 
     /**
@@ -967,9 +964,9 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     public ConstantSyntax constant() {
         pushRange();
-        consume(CARET);
+        var caretToken = consume(CARET);
         var name = advancedIdentifier();
-        return new ConstantSyntax(popRange(), name);
+        return new ConstantSyntax(popRange(), caretToken, name);
     }
 
     /**

@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
@@ -19,22 +20,20 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 public final class IdentifierSyntax extends ExpressionSyntax {
 
     /**
-     * The identifier text content.
+     * The token of the identifier.
      */
     @Getter
-    private final String text;
+    private final SyntaxToken token;
 
     /**
      * Constructs a new {@link IdentifierSyntax} type object instance.
      *
-     * @param range
-     *         the identifier source code range.
-     * @param text
-     *         the identifier text content.
+     * @param range the identifier source code range.
+     * @param token the token of the identifier.
      */
-    public IdentifierSyntax(Range range, String text) {
+    public IdentifierSyntax(Range range, SyntaxToken token) {
         super(range);
-        this.text = text;
+        this.token = token;
     }
 
     /**
@@ -43,5 +42,14 @@ public final class IdentifierSyntax extends ExpressionSyntax {
     @Override
     public <T> T accept(SyntaxVisitor<T> visitor) {
         return null;
+    }
+
+    /**
+     * Returns the text of the identifier.
+     *
+     * @return the text of the identifier.
+     */
+    public String getText() {
+        return token.getLexeme();
     }
 }

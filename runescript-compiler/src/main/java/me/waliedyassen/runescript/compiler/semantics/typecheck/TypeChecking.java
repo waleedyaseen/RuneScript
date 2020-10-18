@@ -87,6 +87,14 @@ public final class TypeChecking implements SyntaxVisitor<Type> {
      * {@inheritDoc}
      */
     @Override
+    public Type visit(ParExpressionSyntax syntax) {
+        return syntax.getExpression().accept(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Type visit(LiteralBooleanSyntax bool) {
         return bool.setType(PrimitiveType.BOOLEAN);
     }

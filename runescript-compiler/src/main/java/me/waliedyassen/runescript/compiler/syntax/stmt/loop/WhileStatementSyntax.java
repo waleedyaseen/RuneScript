@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.stmt.loop;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.StatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
@@ -19,6 +20,12 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
  * @author Walied K. Yassen
  */
 public final class WhileStatementSyntax extends StatementSyntax {
+
+    /**
+     * The token of the "while" keyword.
+     */
+    @Getter
+    private final SyntaxToken whileToken;
 
     /**
      * The condition of the while loop.
@@ -35,15 +42,14 @@ public final class WhileStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link StatementSyntax} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param condition
-     *         the condition of the while loop.
-     * @param code
-     *         the code statement of the while loop.
+     * @param range     the node source code range.
+     * @param whileToken     the token of the "while" keyword.
+     * @param condition the condition of the while loop.
+     * @param code      the code statement of the while loop.
      */
-    public WhileStatementSyntax(Range range, ExpressionSyntax condition, StatementSyntax code) {
+    public WhileStatementSyntax(Range range, SyntaxToken whileToken, ExpressionSyntax condition, StatementSyntax code) {
         super(range);
+        this.whileToken = whileToken;
         this.condition = addChild(condition);
         this.code = addChild(code);
     }

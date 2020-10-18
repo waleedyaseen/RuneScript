@@ -21,6 +21,11 @@ import me.waliedyassen.runescript.type.Type;
 public final class ParameterSyntax extends Syntax {
 
     /**
+     * The token of the dollar symbol.
+     */
+    private final SyntaxToken dollarToken;
+
+    /**
      * The type of the parameter.
      */
     @Getter
@@ -35,15 +40,14 @@ public final class ParameterSyntax extends Syntax {
     /**
      * Construct a new {@link ScriptSyntax} type object instance.
      *
-     * @param range
-     *         the node source range.
-     * @param type
-     *         the type of the parameter.
-     * @param name
-     *         the name of the parameter.
+     * @param range       the node source range.
+     * @param dollarToken the token of the dollar symbol.
+     * @param type        the type of the parameter.
+     * @param name        the name of the parameter.
      */
-    public ParameterSyntax(Range range, Type type, IdentifierSyntax name) {
+    public ParameterSyntax(Range range, SyntaxToken dollarToken, Type type, IdentifierSyntax name) {
         super(range);
+        this.dollarToken = dollarToken;
         this.type = type;
         this.name = addChild(name);
     }

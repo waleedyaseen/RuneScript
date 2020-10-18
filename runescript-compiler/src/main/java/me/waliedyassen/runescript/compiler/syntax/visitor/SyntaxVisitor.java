@@ -59,6 +59,16 @@ public interface SyntaxVisitor<T> {
     }
 
     /**
+     * Gets called when we have just visited an {@link ParExpressionSyntax} node.
+     *
+     * @param syntax the {@link ParExpressionSyntax} node we have just visited.
+     * @return the implementation output object.
+     */
+    default T visit(ParExpressionSyntax syntax) {
+        return null;
+    }
+
+    /**
      * Gets called when we have just visited an {@link LiteralBooleanSyntax} node.
      *
      * @param bool the {@link LiteralBooleanSyntax} node we have just visited.

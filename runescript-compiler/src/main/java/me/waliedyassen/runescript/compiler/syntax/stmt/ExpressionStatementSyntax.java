@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.stmt;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -20,6 +21,12 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 public final class ExpressionStatementSyntax extends StatementSyntax {
 
     /**
+     * The token of the semicolon.
+     */
+    @Getter
+    private final SyntaxToken semicolonToken;
+
+    /**
      * the expression of the statement.
      */
     @Getter
@@ -28,16 +35,15 @@ public final class ExpressionStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link StatementSyntax} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param expression
-     *         the statement expression.
+     * @param range          the node source code range.
+     * @param semicolonToken the token of the semicolon.
+     * @param expression     the statement expression.
      */
-    public ExpressionStatementSyntax(Range range, ExpressionSyntax expression) {
+    public ExpressionStatementSyntax(Range range, SyntaxToken semicolonToken, ExpressionSyntax expression) {
         super(range);
+        this.semicolonToken = semicolonToken;
         this.expression = addChild(expression);
     }
-
 
     /**
      * {@inheritDoc}

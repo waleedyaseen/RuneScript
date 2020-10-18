@@ -119,6 +119,36 @@ public abstract class SyntaxTreeVisitor implements SyntaxVisitor<Void> {
      * {@inheritDoc}
      */
     @Override
+    public Void visit(ParExpressionSyntax syntax) {
+        enter(syntax);
+        syntax.getExpression().accept(this);
+        exit(syntax);
+        return null;
+    }
+
+    /**
+     * Gets called when we have just entered an {@link ParExpressionSyntax} node.
+     *
+     * @param syntax
+     *         the node we have just entered.
+     */
+    public void enter(ParExpressionSyntax syntax) {
+    }
+
+    /**
+     * Gets called when we have just left an {@link ParExpressionSyntax} node.
+     *
+     * @param syntax
+     *         the node we have just entered.
+     */
+    public void exit(ParExpressionSyntax syntax) {
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Void visit(LiteralBooleanSyntax bool) {
         enter(bool);
         exit(bool);

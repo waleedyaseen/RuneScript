@@ -9,8 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.stmt.loop;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.stmt.StatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -22,28 +21,28 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 public final class BreakStatementSyntax extends StatementSyntax {
 
     /**
-     * The control keyword token.
+     * The token of the control keyword.
      */
     @Getter
-    private final Token<Kind> control;
+    private final SyntaxToken controlToken;
 
     /**
-     * The semicolon token.
+     * The token of the semicolon.
      */
     @Getter
-    private final Token<Kind> semicolon;
+    private final SyntaxToken semicolonToken;
 
     /**
      * Construct a new {@link BreakStatementSyntax} type object instance.
      *
-     * @param range     the node source code range.
-     * @param control   the control keyword token.
-     * @param semicolon the semicolon token.
+     * @param range          the node source code range.
+     * @param controlToken   the token of the control keyword.
+     * @param semicolonToken the token of the semicolon.
      */
-    public BreakStatementSyntax(Range range, Token<Kind> control, Token<Kind> semicolon) {
+    public BreakStatementSyntax(Range range, SyntaxToken controlToken, SyntaxToken semicolonToken) {
         super(range);
-        this.control = control;
-        this.semicolon = semicolon;
+        this.controlToken = controlToken;
+        this.semicolonToken = semicolonToken;
     }
 
     /**

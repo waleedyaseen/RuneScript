@@ -166,7 +166,7 @@ public final class ScriptParserTest {
             assertThrows(SyntaxError.class, () -> fromString("").simpleExpression());
         }, () -> {
             // expression in parenthesis.
-            assertTrue(fromString("(^constant)").simpleExpression() instanceof ConstantSyntax);
+            assertTrue(fromString("(^constant)").simpleExpression() instanceof ParExpressionSyntax);
         }, () -> {
             // not expression
             assertThrows(SyntaxError.class, () -> fromString("if({});").simpleExpression());
@@ -195,7 +195,7 @@ public final class ScriptParserTest {
     void testParExpression() {
         assertAll("par expression", () -> {
             // valid expression
-            assertTrue(fromString("(1234)").parExpression() instanceof LiteralIntegerSyntax);
+            assertTrue(fromString("(1234)").parExpression().getExpression() instanceof LiteralIntegerSyntax);
         }, () -> {
             // invalid expression 1
             assertThrows(SyntaxError.class, () -> fromString("(1234").parExpression());
@@ -264,16 +264,16 @@ public final class ScriptParserTest {
             // valid calc par expression
             var expr = fromString("calc(1)").calc();
             assertNotNull(expr);
-            assertTrue(expr.getExpression() instanceof LiteralIntegerSyntax);
+            assertTrue(expr.getExpression().getExpression() instanceof LiteralIntegerSyntax);
         }, () -> {
             // valid double calc no par expression
             var parser = fromString("calc(1 = 5) calc (2 = 5)");
             var expr1 = parser.calc();
             assertNotNull(expr1);
-            assertTrue(expr1.getExpression() instanceof BinaryOperationSyntax);
+            assertTrue(expr1.getExpression().getExpression() instanceof BinaryOperationSyntax);
             var expr2 = parser.calc();
             assertNotNull(expr2);
-            assertTrue(expr2.getExpression() instanceof BinaryOperationSyntax);
+            assertTrue(expr2.getExpression().getExpression() instanceof BinaryOperationSyntax);
         }, () -> {
             // expressionless no par calc
             var parser = fromString("calc ");
@@ -373,14 +373,10 @@ public final class ScriptParserTest {
             // meaningful block
             var statement = fromString("if(1){}if(2){}").unbracedBlockStatement();
             assertNotNull(statement);
-            assertTrue(statement.getStatements().length == 2);
-            for (var ifStatement : statement.getStatements()) {
-                assertTrue(ifStatement instanceof IfStatementSyntax);
-                assertTrue(((IfStatementSyntax) ifStatement).getCondition() instanceof LiteralIntegerSyntax);
-            }
+            assertEquals(2, statement.getStatements().length);
         }, () -> {
             // empty block
-            assertTrue(fromString("").unbracedBlockStatement() instanceof BlockStatementSyntax);
+            assertEquals(BlockStatementSyntax.class, fromString("").unbracedBlockStatement().getClass());
         });
     }
 

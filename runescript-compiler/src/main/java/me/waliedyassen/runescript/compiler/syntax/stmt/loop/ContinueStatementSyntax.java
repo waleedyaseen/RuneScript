@@ -9,8 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.stmt.loop;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.stmt.StatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -22,27 +21,27 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 public final class ContinueStatementSyntax extends StatementSyntax {
 
     /**
-     * The control keyword token.
+     * The toke nof the control keyword.
      */
     @Getter
-    private final Token<Kind> control;
+    private final SyntaxToken controlToken;
 
     /**
-     * The semicolon token.
+     * The token of the semicolon.
      */
     @Getter
-    private final Token<Kind> semicolon;
+    private final SyntaxToken semicolon;
 
     /**
      * Construct a new {@link ContinueStatementSyntax} type object instance.
      *
-     * @param range     the node source code range.
-     * @param control   the control keyword token.
-     * @param semicolon the semicolon token.
+     * @param range        the node source code range.
+     * @param controlToken the token of the control keyword.
+     * @param semicolon    the token of the semicolon.
      */
-    public ContinueStatementSyntax(Range range, Token<Kind> control, Token<Kind> semicolon) {
+    public ContinueStatementSyntax(Range range, SyntaxToken controlToken, SyntaxToken semicolon) {
         super(range);
-        this.control = control;
+        this.controlToken = controlToken;
         this.semicolon = semicolon;
     }
 

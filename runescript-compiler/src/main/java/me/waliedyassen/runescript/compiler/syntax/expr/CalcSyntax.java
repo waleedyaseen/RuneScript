@@ -22,7 +22,7 @@ public final class CalcSyntax extends ExpressionSyntax {
      * The expression of the calc.
      */
     @Getter
-    private final ExpressionSyntax expression;
+    private final ParExpressionSyntax expression;
 
     /**
      * Constructs a new {@link ExpressionSyntax} type object instance.
@@ -30,7 +30,7 @@ public final class CalcSyntax extends ExpressionSyntax {
      * @param range
      *         the expression source code range.
      */
-    public CalcSyntax(Range range, ExpressionSyntax expression) {
+    public CalcSyntax(Range range, ParExpressionSyntax expression) {
         super(range);
         this.expression = addChild(expression);
     }

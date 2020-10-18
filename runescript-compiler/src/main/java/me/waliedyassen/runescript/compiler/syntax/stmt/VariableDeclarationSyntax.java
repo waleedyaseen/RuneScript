@@ -9,10 +9,11 @@ package me.waliedyassen.runescript.compiler.syntax.stmt;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.PrimitiveType;
 
 /**
  * Represents a variable define (or declaration) statement.
@@ -22,10 +23,16 @@ import me.waliedyassen.runescript.type.Type;
 public final class VariableDeclarationSyntax extends StatementSyntax {
 
     /**
-     * The variable type.
+     * The token of the define keyword.
      */
     @Getter
-    private final Type type;
+    private final SyntaxToken defineToken;
+
+    /**
+     * The token of the dollar sign.
+     */
+    @Getter
+    private final SyntaxToken dollarToken;
 
     /**
      * The variable name.
@@ -42,18 +49,16 @@ public final class VariableDeclarationSyntax extends StatementSyntax {
     /**
      * Construct a new {@link VariableDeclarationSyntax} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param type
-     *         the type of the variable.
-     * @param name
-     *         the name of the variable.
-     * @param expression
-     *         the initializer expression of the variable.
+     * @param range       the node source code range.
+     * @param defineToken the token of the define keyword.
+     * @param dollarToken the toke nof the dollar sign.
+     * @param name        the name of the variable.
+     * @param expression  the initializer expression of the variable.
      */
-    public VariableDeclarationSyntax(Range range, Type type, IdentifierSyntax name, ExpressionSyntax expression) {
+    public VariableDeclarationSyntax(Range range, SyntaxToken defineToken, SyntaxToken dollarToken, IdentifierSyntax name, ExpressionSyntax expression) {
         super(range);
-        this.type = type;
+        this.defineToken = defineToken;
+        this.dollarToken = dollarToken;
         this.name = addChild(name);
         this.expression = expression != null ? addChild(expression) : null;
     }
@@ -64,5 +69,14 @@ public final class VariableDeclarationSyntax extends StatementSyntax {
     @Override
     public <T> T accept(SyntaxVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    /**
+     * Attempts to resolve the {@link PrimitiveType type} from the define keyword.
+     *
+     * @return the resolved {@link PrimitiveType} enum constant.
+     */
+    public PrimitiveType getType() {
+        return PrimitiveType.forRepresentation(defineToken.getLexeme().substring("def_".length()));
     }
 }

@@ -22,6 +22,18 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 public final class AnnotationSyntax extends Syntax {
 
     /**
+     * The token of the hash symbol.
+     */
+    @Getter
+    private final SyntaxToken hashToken;
+
+    /**
+     * The token of the colon symbol.
+     */
+    @Getter
+    private final SyntaxToken colonToken;
+
+    /**
      * The name of the annotation.
      */
     @Getter
@@ -36,15 +48,16 @@ public final class AnnotationSyntax extends Syntax {
     /**
      * Constructs a new {@link AnnotationSyntax} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param name
-     *         the name of the annotation.
-     * @param value
-     *         the value of the annotation.
+     * @param range      the node source code range.
+     * @param hashToken  the token of the hash symbol.
+     * @param colonToken the token of the colon symbol.
+     * @param name       the name of the annotation.
+     * @param value      the value of the annotation.
      */
-    public AnnotationSyntax(Range range, IdentifierSyntax name, LiteralIntegerSyntax value) {
+    public AnnotationSyntax(Range range, SyntaxToken hashToken, SyntaxToken colonToken, IdentifierSyntax name, LiteralIntegerSyntax value) {
         super(range);
+        this.hashToken = hashToken;
+        this.colonToken = colonToken;
         this.name = addChild(name);
         this.value = addChild(value);
     }

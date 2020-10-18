@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.stmt.conditional;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.StatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
@@ -19,6 +20,18 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
  * @author Walied K. Yassen
  */
 public final class IfStatementSyntax extends StatementSyntax {
+
+    /**
+     * The token of the "if" keyword.
+     */
+    @Getter
+    private final SyntaxToken ifToken;
+
+    /**
+     * The token of the "else" keyword.
+     */
+    @Getter
+    private final SyntaxToken elseToken;
 
     /**
      * The if statement condition expression.
@@ -41,22 +54,21 @@ public final class IfStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link IfStatementSyntax} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param condition
-     *         the condition of the if statement.
-     * @param trueStatement
-     *         the true code statement of the if statement.
-     * @param falseStatement
-     *         the false code statement of the if statement.
+     * @param range          the node source code range.
+     * @param ifToken        if token of the "if" keyword.
+     * @param elseToken      the toke nof the "else" keyword.
+     * @param condition      the condition of the if statement.
+     * @param trueStatement  the true code statement of the if statement.
+     * @param falseStatement the false code statement of the if statement.
      */
-    public IfStatementSyntax(Range range, ExpressionSyntax condition, StatementSyntax trueStatement, StatementSyntax falseStatement) {
+    public IfStatementSyntax(Range range, SyntaxToken ifToken, SyntaxToken elseToken, ExpressionSyntax condition, StatementSyntax trueStatement, StatementSyntax falseStatement) {
         super(range);
+        this.ifToken = ifToken;
+        this.elseToken = elseToken;
         this.condition = addChild(condition);
         this.trueStatement = addChild(trueStatement);
         this.falseStatement = falseStatement != null ? addChild(falseStatement) : null;
     }
-
 
     /**
      * {@inheritDoc}

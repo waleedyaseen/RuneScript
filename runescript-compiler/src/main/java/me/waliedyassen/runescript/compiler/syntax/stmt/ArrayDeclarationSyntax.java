@@ -10,10 +10,11 @@ package me.waliedyassen.runescript.compiler.syntax.stmt;
 import lombok.Getter;
 import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
 import me.waliedyassen.runescript.type.PrimitiveType;
 
 
@@ -25,10 +26,22 @@ import me.waliedyassen.runescript.type.PrimitiveType;
 public final class ArrayDeclarationSyntax extends StatementSyntax {
 
     /**
-     * The type of the  array.
+     * The token of the define keyword.
      */
     @Getter
-    private final PrimitiveType type;
+    private final SyntaxToken defineToken;
+
+    /**
+     * the token of the dollar symbol.
+     */
+    @Getter
+    private final SyntaxToken dollarToken;
+
+    /**
+     * The token of the semicolon.
+     */
+    @Getter
+    private final SyntaxToken semicolonToken;
 
     /**
      * The name of the array.
@@ -52,18 +65,18 @@ public final class ArrayDeclarationSyntax extends StatementSyntax {
     /**
      * Construct a new {@link StatementSyntax} type object instance.
      *
-     * @param range
-     *         the node source code range.
-     * @param type
-     *         the type of the array.
-     * @param name
-     *         the name of the array.
-     * @param size
-     *         the size of the array.
+     * @param range          the node source code range.
+     * @param defineToken    the token of the define keyword.
+     * @param dollarToken    the token of the dollar symbol.
+     * @param semicolonToken the token of the semicolon.
+     * @param name           the name of the array.
+     * @param size           the size of the array.
      */
-    public ArrayDeclarationSyntax(Range range, PrimitiveType type, IdentifierSyntax name, ExpressionSyntax size) {
+    public ArrayDeclarationSyntax(Range range, SyntaxToken defineToken, SyntaxToken dollarToken, SyntaxToken semicolonToken, IdentifierSyntax name, ExpressionSyntax size) {
         super(range);
-        this.type = type;
+        this.defineToken = defineToken;
+        this.dollarToken = dollarToken;
+        this.semicolonToken = semicolonToken;
         this.name = addChild(name);
         this.size = addChild(size);
     }
@@ -74,5 +87,12 @@ public final class ArrayDeclarationSyntax extends StatementSyntax {
     @Override
     public <T> T accept(SyntaxVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    /**
+     * @return
+     */
+    public PrimitiveType getType() {
+        return PrimitiveType.forRepresentation(defineToken.getLexeme().substring("def_".length()));
     }
 }

@@ -39,7 +39,7 @@ public final class SwitchStatementSyntax extends StatementSyntax {
     private final SwitchCaseSyntax[] cases;
 
     /**
-     * The default case of the swich statement.
+     * The default case of the switch statement.
      */
     @Getter
     private final SwitchCaseSyntax defaultCase;
