@@ -135,7 +135,6 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         // return the parsed script.
         var node = new ScriptSyntax(popRange(), this.type, annotations, trigger, name, parameters.toArray(new ParameterSyntax[0]), code);
         node.setType(type); // TODO: Store raw types
-        System.out.println(type);
         return node;
     }
 

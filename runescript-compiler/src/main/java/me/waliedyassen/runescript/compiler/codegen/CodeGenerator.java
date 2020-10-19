@@ -530,17 +530,17 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
     @Override
     public Void visit(SwitchStatementSyntax switchStatement) {
         // grab the switch case nodes.
-        var case_nodes = switchStatement.getCases();
+        var caseNodes = switchStatement.getCases();
         // create the switch cases.
-        var cases = new SwitchCase[case_nodes.length];
+        var cases = new SwitchCase[caseNodes.length];
         // generate a new switch table from the switch map.
-        var switch_table = switchMap.generateTable(cases);
+        var switchTable = switchMap.generateTable(cases);
         // generate the switch condition code.
         switchStatement.getCondition().accept(this);
         // create the exit block label.
-        var exit_label = generateLabel("switch_" + switch_table.getId() + "_exit");
+        var exit_label = generateLabel("switch_" + switchTable.getId() + "_exit");
         // generate the switch table instruction.
-        instruction(SWITCH, switch_table);
+        instruction(SWITCH, switchTable);
         // generate the switch default case if it was present.
         if (switchStatement.getDefaultCase() != null) {
             switchStatement.getDefaultCase().getCode().accept(this);
@@ -548,18 +548,49 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         // add a branch to the exit label at the end of the switch.
         instruction(BRANCH, exit_label);
         // loop through each switch case and perform code generation on it.
-        for (var index = 0; index < case_nodes.length; index++) {
-            var case_node = case_nodes[index];
-            var case_entry = cases[index] = new SwitchCase(case_node.getResolvedKeys(), generateLabel("switch_" + switch_table.getId() + "_case"));
+        for (var index = 0; index < caseNodes.length; index++) {
+            var caseNode = caseNodes[index];
+            var resolvedKeys = resolveCaseKeys(caseNode.getKeys());
+            var caseEntry = cases[index] = new SwitchCase(resolvedKeys, generateLabel("switch_" + switchTable.getId() + "_case"));
             // perform the code generation on the case.
-            bind(generateBlock(case_entry.getLabel()));
-            case_node.getCode().accept(this);
+            bind(generateBlock(caseEntry.getLabel()));
+            caseNode.getCode().accept(this);
             // add a branch to the exit label.
             instruction(BRANCH, exit_label);
         }
         // generate a block for the exit label.
         bind(generateBlock(exit_label));
         return null;
+    }
+
+    private Object[] resolveCaseKeys(ExpressionSyntax[] keys) {
+        var resolved = new Object[keys.length];
+        for (var index = 0; index < resolved.length; index++) {
+            var key = keys[index];
+            resolved[index] = resolveConstantInt(key);
+        }
+        return resolved;
+    }
+
+    private Object resolveConstantInt(ExpressionSyntax expression) {
+        if (expression instanceof LiteralIntegerSyntax) {
+            return ((LiteralIntegerSyntax) expression).getValue();
+        } else if (expression instanceof LiteralBooleanSyntax) {
+            return ((LiteralBooleanSyntax) expression).getValue() ? 1 : 0;
+        } else if (expression instanceof LiteralCoordgridSyntax) {
+            return ((LiteralCoordgridSyntax) expression).getValue();
+        } else if (expression instanceof LiteralNullSyntax) {
+            return -1;
+        } else if (expression instanceof ConstantSyntax) {
+            var constantName = ((ConstantSyntax) expression).getName().getText();
+            var constantValue = symbolTable.lookupConstant(constantName).getValue();
+            return ((Number) constantValue).intValue();
+        } else if (expression instanceof DynamicSyntax) {
+            var configName = ((DynamicSyntax) expression).getName().getText();
+            return symbolTable.lookupConfig(configName);
+        } else {
+            throw new IllegalStateException();
+        }
     }
 
     /**

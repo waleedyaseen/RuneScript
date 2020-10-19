@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 
+import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
@@ -14,7 +16,6 @@ import me.waliedyassen.runescript.compiler.codegen.block.BlockList;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
-import me.waliedyassen.runescript.compiler.codegen.sw.SwitchCase;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
@@ -64,46 +65,18 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
         var numIntLocals = script.getVariables().getOrDefault(StackType.INT, EMPTY).size() + numIntParameters;
         var numStringLocals = script.getVariables().getOrDefault(StackType.STRING, EMPTY).size() + numStringParameters;
         var numLongLocals = script.getVariables().getOrDefault(StackType.LONG, EMPTY).size() + numLongParameters;
-        //
         var switchTables = new LinkedList<Hashtable<Integer, Integer>>();
+        // create the codegen context.
+        var context = new BytecodeGenContext(script, addressTable, localTable, switchTables);
         final var instructions = new ArrayList<BytecodeInstruction>();
-        for (var $block : script.getBlockList().getBlocks()) {
-            for (var $instruction : $block.getInstructions()) {
+        for (var block : script.getBlockList().getBlocks()) {
+            for (var instruction : block.getInstructions()) {
                 var address = instructions.size();
-                var operand = $instruction.getOperand();
-                if (operand instanceof Label) {
-                    operand = addressTable.get(operand) - address - 1;
-                } else if (operand instanceof SwitchTable) {
-                    var jumps = new Hashtable<Integer, Integer>();
-                    for (SwitchCase $case : ((SwitchTable) operand).getCases()) {
-                        var jump = addressTable.get($case.getLabel()) - address - 1;
-                        for (var key : $case.getKeys()) {
-                            jumps.put(key, jump);
-                        }
-                    }
-                    operand = switchTables.size();
-                    switchTables.add(jumps);
-                } else if (operand instanceof ScriptInfo) {
-                    var info = (ScriptInfo) operand;
-                    operand = info.getPredefinedId() != null ? info.getPredefinedId() : idManager.findScript(info.getFullName(), script.getExtension());
-                } else if (operand instanceof ConfigInfo) {
-                    var info = (ConfigInfo) operand;
-                    operand = idManager.findConfig(info.getType(), info.getName());
-                } else if (operand instanceof Local) {
-                    operand = localTable.get(operand);
-                } else if (operand instanceof Integer) {
-                    // NOOP
-                } else if (operand instanceof String) {
-                    // NOOP
-                } else if (operand instanceof Long) {
-                    // NOOP
-                } else {
-                    throw new UnsupportedOperationException("Unsupported operand type: " + operand + ", for opcode: " + $instruction.getOpcode());
-                }
+                var operand = resolveOperand(context, address, instruction.getOperand());
                 if (operand == null) {
                     throw new IllegalStateException("Null operands are not allowed");
                 }
-                instructions.add(new BytecodeInstruction($instruction.getOpcode().getCode(), $instruction.getOpcode().isLarge(), operand));
+                instructions.add(new BytecodeInstruction(instruction.getOpcode().getCode(), instruction.getOpcode().isLarge(), operand));
             }
         }
         // Create the container object and return it.
@@ -111,6 +84,53 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
                 script.getName(), numIntParameters, numStringParameters, numLongParameters, numIntLocals,
                 numStringLocals, numLongLocals, instructions.toArray(new BytecodeInstruction[0]), switchTables,
                 supportsLongPrimitiveType);
+    }
+
+    /**
+     * Resolves the value of the specified {@code operand}.
+     *
+     * @param context the bytecode code generation context.
+     * @param address the address of the instruction the operand is for.
+     * @param operand the operand that we are trying to resolve
+     * @return the resolved operand value.
+     */
+    private Object resolveOperand(BytecodeGenContext context, int address, Object operand) {
+        if (operand instanceof Label) {
+            return context.addressTable.get(operand) - address - 1;
+        } else if (operand instanceof SwitchTable) {
+            var jumps = new Hashtable<Integer, Integer>();
+            for (var $case : ((SwitchTable) operand).getCases()) {
+                var jump = context.addressTable.get($case.getLabel()) - address - 1;
+                for (var key : $case.getKeys()) {
+                    jumps.put((int) resolveOperand(context, address, key), jump);
+                }
+            }
+            var index = context.switchTables.size();
+            context.switchTables.add(jumps);
+            return index;
+        } else if (operand instanceof ScriptInfo) {
+            var info = (ScriptInfo) operand;
+            if (info.getPredefinedId() != null) {
+                return info.getPredefinedId();
+            }
+            return idManager.findScript(info.getFullName(), context.script.getExtension());
+        } else if (operand instanceof ConfigInfo) {
+            var info = (ConfigInfo) operand;
+            if (info.getPredefinedId() != null) {
+                return info.getPredefinedId();
+            }
+            return idManager.findConfig(info.getType(), info.getName());
+        } else if (operand instanceof Local) {
+            return context.localTable.get(operand);
+        } else if (operand instanceof Integer) {
+            return operand;
+        } else if (operand instanceof String) {
+            return operand;
+        } else if (operand instanceof Long) {
+            return operand;
+        } else {
+            throw new UnsupportedOperationException("Unsupported operand type: " + operand);
+        }
     }
 
     /**
@@ -160,6 +180,40 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
             address += block.getInstructions().size();
         }
         return table;
+    }
+
+    /**
+     * A bytecode generation context.
+     *
+     * @author Walied K. Yassen
+     */
+    @Data
+    private static final class BytecodeGenContext {
+
+        /**
+         * The script that we are generating.
+         */
+        @Getter
+        private final BinaryScript script;
+
+        /**
+         * A table of all the labels.
+         */
+        @Getter
+        private final Map<Label, Integer> addressTable;
+
+        /**
+         * A table of all the local variables.
+         */
+        @Getter
+        private final Map<Local, Integer> localTable;
+
+        /**
+         * A list of all the switch tables.
+         */
+        @Getter
+        private final LinkedList<Hashtable<Integer, Integer>> switchTables;
+
     }
 }
 

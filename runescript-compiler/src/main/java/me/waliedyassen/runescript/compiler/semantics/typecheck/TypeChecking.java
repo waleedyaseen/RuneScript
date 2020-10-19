@@ -33,7 +33,6 @@ import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.*;
 
 import java.util.Arrays;
-import java.util.HashSet;
 
 /**
  * Represents the type checking semantic analysis.
@@ -41,7 +40,7 @@ import java.util.HashSet;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
+public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
 
     /**
      * The owner {@link SemanticChecker} object.
@@ -67,139 +66,139 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ScriptSyntax script) {
+    public TypeCheckAction visit(ScriptSyntax script) {
         this.script = script;
         script.getCode().accept(this);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ParameterSyntax parameter) {
+    public TypeCheckAction visit(ParameterSyntax parameter) {
         parameter.setType(PrimitiveType.forRepresentation(parameter.getTypeToken().getLexeme()));
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ParExpressionSyntax syntax) {
+    public TypeCheckAction visit(ParExpressionSyntax syntax) {
         if (syntax.getExpression().accept(this).isContinue()) {
             syntax.setType(syntax.getExpression().getType());
-            return Action.CONTINUE;
+            return TypeCheckAction.CONTINUE;
         }
-        return Action.SKIP;
+        return TypeCheckAction.SKIP;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(LiteralBooleanSyntax bool) {
+    public TypeCheckAction visit(LiteralBooleanSyntax bool) {
         bool.setType(PrimitiveType.BOOLEAN);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(LiteralIntegerSyntax integer) {
+    public TypeCheckAction visit(LiteralIntegerSyntax integer) {
         integer.setType(PrimitiveType.INT);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(LiteralLongSyntax longInteger) {
+    public TypeCheckAction visit(LiteralLongSyntax longInteger) {
         longInteger.setType(PrimitiveType.LONG);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(LiteralStringSyntax string) {
+    public TypeCheckAction visit(LiteralStringSyntax string) {
         if (symbolTable.lookupGraphic(string.getValue()) != null) {
             string.setType(PrimitiveType.GRAPHIC);
         } else {
             string.setType(PrimitiveType.STRING);
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(LiteralCoordgridSyntax coordgrid) {
+    public TypeCheckAction visit(LiteralCoordgridSyntax coordgrid) {
         coordgrid.setType(PrimitiveType.COORDGRID);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(LiteralNullSyntax literalNullSyntax) {
+    public TypeCheckAction visit(LiteralNullSyntax literalNullSyntax) {
         literalNullSyntax.setType(PrimitiveType.NULL);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(LiteralTypeSyntax literalTypeSyntax) {
+    public TypeCheckAction visit(LiteralTypeSyntax literalTypeSyntax) {
         literalTypeSyntax.setType(PrimitiveType.TYPE);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ConcatenationSyntax concatenation) {
+    public TypeCheckAction visit(ConcatenationSyntax concatenation) {
         for (var expr : concatenation.getExpressions()) {
             if (expr.accept(this).isContinue()) {
                 checkTypeMatching(expr, PrimitiveType.STRING, expr.getType());
             }
         }
         concatenation.setType(PrimitiveType.STRING);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(VariableExpressionSyntax variableExpression) {
-        return variableExpression.hasType() ? Action.CONTINUE : Action.SKIP;
+    public TypeCheckAction visit(VariableExpressionSyntax variableExpression) {
+        return variableExpression.hasType() ? TypeCheckAction.CONTINUE : TypeCheckAction.SKIP;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ArrayElementSyntax arrayExpression) {
+    public TypeCheckAction visit(ArrayElementSyntax arrayExpression) {
         if (arrayExpression.getArray() == null) {
-            return Action.SKIP;
+            return TypeCheckAction.SKIP;
         }
         arrayExpression.setType(arrayExpression.getArray().getType());
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(HookSyntax hook) {
+    public TypeCheckAction visit(HookSyntax hook) {
         if (hookTriggerType == null) {
             checker.reportError(new SemanticError(hook, "Hooks are not allowed"));
         } else if (hook.getName() != null) {
@@ -229,7 +228,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
             }
         }
         hook.setType(PrimitiveType.HOOK);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
 
@@ -237,16 +236,16 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
      * {@inheritDoc}
      */
     @Override
-    public Action visit(CallSyntax call) {
+    public TypeCheckAction visit(CallSyntax call) {
         var name = call.getName();
         var info = symbolTable.lookupScript(call.getTriggerType(), name.getText());
         if (info == null) {
             checker.reportError(new SemanticError(call, String.format("Could not resolve %s script with the name '%s'", call.getTriggerType().getRepresentation(), name.getText())));
-            return Action.SKIP;
+            return TypeCheckAction.SKIP;
         }
         checkCallApplicable(call, info, call.getArguments());
         call.setType(info.getType());
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
@@ -274,10 +273,10 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
      * {@inheritDoc}
      */
     @Override
-    public Action visit(DynamicSyntax dynamic) {
+    public TypeCheckAction visit(DynamicSyntax dynamic) {
         if (dynamic.hasType()) {
             // This means an array expression was assigned to this, this is handled in PerTypeChecking
-            return Action.CONTINUE;
+            return TypeCheckAction.CONTINUE;
         }
         var name = dynamic.getName();
         var commandInfo = symbolTable.lookupCommand(name.getText());
@@ -286,47 +285,47 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
                 checker.reportError(new SemanticError(name, String.format("The command %s(%s) is not applicable for the arguments ()", name.getText(), TypeUtil.createRepresentation(commandInfo.getArguments()))));
             }
             dynamic.setType(commandInfo.getType());
-            return Action.CONTINUE;
+            return TypeCheckAction.CONTINUE;
         }
         var configInfo = symbolTable.lookupConfig(name.getText());
         if (configInfo != null) {
             dynamic.setType(configInfo.getType());
-            return Action.CONTINUE;
+            return TypeCheckAction.CONTINUE;
         }
         var runtimeConstantInfo = symbolTable.lookupRuntimeConstant(name.getText());
         if (runtimeConstantInfo != null) {
             dynamic.setType(runtimeConstantInfo.getType());
-            return Action.CONTINUE;
+            return TypeCheckAction.CONTINUE;
         }
         checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a symbol", name.getText())));
-        return Action.SKIP;
+        return TypeCheckAction.SKIP;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ConstantSyntax constant) {
+    public TypeCheckAction visit(ConstantSyntax constant) {
         var name = constant.getName();
         var info = symbolTable.lookupConstant(name.getText());
         if (info == null) {
             checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a constant", name.getText())));
-            return Action.SKIP;
+            return TypeCheckAction.SKIP;
         }
         constant.setType(info.getType());
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(CommandSyntax commandSyntax) {
+    public TypeCheckAction visit(CommandSyntax commandSyntax) {
         var name = commandSyntax.getName();
         var info = symbolTable.lookupCommand(name.getText());
         if (info == null) {
             checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a command", name.getText())));
-            return Action.SKIP;
+            return TypeCheckAction.SKIP;
         }
         final var actual = commandSyntax.getArguments();
         var check = true;
@@ -344,9 +343,9 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
         var returnType = processCommandExpectedReturns(info, actual);
         if (returnType != null) {
             commandSyntax.setType(returnType);
-            return Action.CONTINUE;
+            return TypeCheckAction.CONTINUE;
         } else {
-            return Action.SKIP;
+            return TypeCheckAction.SKIP;
         }
     }
 
@@ -402,68 +401,68 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
      * {@inheritDoc}
      */
     @Override
-    public Action visit(CalcSyntax calc) {
+    public TypeCheckAction visit(CalcSyntax calc) {
         calc.setType(PrimitiveType.INT);
         if (calc.getExpression().accept(this).isContinue()) {
             checkTypeMatching(calc.getExpression(), PrimitiveType.INT, calc.getExpression().getType());
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(BinaryOperationSyntax binaryOperation) {
+    public TypeCheckAction visit(BinaryOperationSyntax binaryOperation) {
         var check = true;
         check &= binaryOperation.getLeft().accept(this).isContinue();
         check &= binaryOperation.getRight().accept(this).isContinue();
         if (check) {
             var type = checkOperator(binaryOperation, binaryOperation.getLeft().getType(), binaryOperation.getRight().getType(), binaryOperation.getOperator());
             binaryOperation.setType(type);
-            return Action.CONTINUE;
+            return TypeCheckAction.CONTINUE;
         }
-        return Action.SKIP;
+        return TypeCheckAction.SKIP;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(VariableDeclarationSyntax variableDeclaration) {
+    public TypeCheckAction visit(VariableDeclarationSyntax variableDeclaration) {
         var expression = variableDeclaration.getExpression();
         if (expression == null) {
             if (variableDeclaration.getType().getDefaultValue() == null) {
                 checker.reportError(new SemanticError(variableDeclaration, "Variables with type '" + variableDeclaration.getType().getRepresentation() + "' must be initialised"));
             }
-            return Action.CONTINUE;
+            return TypeCheckAction.CONTINUE;
         }
         if (expression.accept(this).isContinue()) {
             checkTypeMatching(expression, variableDeclaration.getType(), expression.getType());
-            return Action.CONTINUE;
+            return TypeCheckAction.CONTINUE;
         }
-        return Action.SKIP;
+        return TypeCheckAction.SKIP;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ArrayDeclarationSyntax arrayDeclaration) {
+    public TypeCheckAction visit(ArrayDeclarationSyntax arrayDeclaration) {
         if (arrayDeclaration.getType().getStackType() != StackType.INT) {
             checker.reportError(new SemanticError(arrayDeclaration, "Arrays can only have a type that is derived from the int type"));
         }
         if (arrayDeclaration.getSize().accept(this).isContinue()) {
             checkTypeMatching(arrayDeclaration.getSize(), PrimitiveType.INT, arrayDeclaration.getSize().getType());
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(VariableInitializerSyntax variableInitializer) {
+    public TypeCheckAction visit(VariableInitializerSyntax variableInitializer) {
         var check = true;
         for (var expr : variableInitializer.getExpressions()) {
             check &= expr.accept(this).isContinue();
@@ -478,57 +477,53 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
                 checker.reportError(new SemanticError(variableInitializer, String.format("Mismatch variable initializer expected: %s but got: %s", varTuple.getRepresentation(), exprTuple.getRepresentation())));
             }
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ScopedVariableSyntax scopedVariable) {
-        return scopedVariable.hasType() ? Action.CONTINUE : Action.SKIP;
+    public TypeCheckAction visit(ScopedVariableSyntax scopedVariable) {
+        return scopedVariable.hasType() ? TypeCheckAction.CONTINUE : TypeCheckAction.SKIP;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ArrayVariableSyntax arrayVariable) {
+    public TypeCheckAction visit(ArrayVariableSyntax arrayVariable) {
         if (arrayVariable.getArrayInfo() == null) {
-            return Action.SKIP;
+            return TypeCheckAction.SKIP;
         }
         arrayVariable.setType(arrayVariable.getArrayInfo().getType());
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(SwitchStatementSyntax switchStatement) {
+    public TypeCheckAction visit(SwitchStatementSyntax switchStatement) {
+        switchStatement.setType(PrimitiveType.forRepresentation(switchStatement.getSwitchToken().getLexeme().substring("switch_".length())));
         var type = switchStatement.getType();
         if (switchStatement.getCondition().accept(this).isContinue()) {
             checkTypeMatching(switchStatement.getCondition(), type, switchStatement.getCondition().getType());
         }
-        var defined_keys = new HashSet<Integer>();
         for (var switchCase : switchStatement.getCases()) {
-            var resolvedKeys = new int[switchCase.getKeys().length];
-            for (var index = 0; index < resolvedKeys.length; index++) {
-                var key = switchCase.getKeys()[index];
-                if (key.accept(this).isContinue() && checkTypeMatching(key, type, key.getType())) {
-                    int resolvedKey = resolveCaseKey(key);
-                    if (!defined_keys.add(resolvedKey)) {
-                        checker.reportError(new SemanticError(key, "Duplicate case"));
+            for (var key : switchCase.getKeys()) {
+                if (key.accept(this).isContinue()) {
+                    if (isConstantInt(key)) {
+                        checkTypeMatching(key, type, key.getType());
+                    } else {
+                        checker.reportError(new SemanticError(key,"Switch cases value must be known at compile-time"));
                     }
-                    resolvedKeys[index] = resolvedKey;
                 }
             }
-            switchCase.setResolvedKeys(resolvedKeys);
             switchCase.accept(this);
         }
         return null;
     }
-
 
     /**
      * Resolves the specified case key expression integer value.
@@ -536,29 +531,33 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
      * @param expression the case key expression to resolve its value.
      * @return the integer value of that expression.
      */
-    private int resolveCaseKey(ExpressionSyntax expression) {
+    private boolean isConstantInt(ExpressionSyntax expression) {
         if (expression instanceof LiteralIntegerSyntax) {
-            return ((LiteralIntegerSyntax) expression).getValue();
+            return true;
         } else if (expression instanceof LiteralBooleanSyntax) {
-            return ((LiteralBooleanSyntax) expression).getValue() ? 1 : 0;
+            return true;
+        } else if (expression instanceof LiteralCoordgridSyntax) {
+            return true;
+        } else if (expression instanceof LiteralNullSyntax) {
+            return true;
         } else if (expression instanceof ConstantSyntax) {
-            var symbol = symbolTable.lookupConstant(((ConstantSyntax) expression).getName().getText());
-            return (int) symbol.getValue();
-        } /*else if (expression instanceof AstDynamic) {
-            TODO: Re-eanble this
-            var name = ((AstDynamic) expression).getName().getText();
-            return symbolTable.lookupConfig(name).getId();
-        } */ else {
-            checker.reportError(new SemanticError(expression, "Case keys must be known at compile-time."));
+            var constantName = ((ConstantSyntax) expression).getName().getText();
+            var constantValue = symbolTable.lookupConstant(constantName).getType();
+            return constantValue.getStackType() == StackType.INT;
+        } else if (expression instanceof DynamicSyntax) {
+            var configName = ((DynamicSyntax) expression).getName().getText();
+            var configInfo = symbolTable.lookupConfig(configName);
+            return configInfo != null && configInfo.getType().getStackType() == StackType.INT;
+        } else {
+            return false;
         }
-        return 0;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(SwitchCaseSyntax switchCase) {
+    public TypeCheckAction visit(SwitchCaseSyntax switchCase) {
         return switchCase.getCode().accept(this);
     }
 
@@ -566,7 +565,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
      * {@inheritDoc}
      */
     @Override
-    public Action visit(IfStatementSyntax ifStatement) {
+    public TypeCheckAction visit(IfStatementSyntax ifStatement) {
         var cond = ifStatement.getCondition();
         if (cond.accept(this).isContinue()) {
             checkTypeMatching(ifStatement.getCondition(), PrimitiveType.BOOLEAN, cond.getType());
@@ -575,73 +574,73 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
         if (ifStatement.getFalseStatement() != null) {
             ifStatement.getFalseStatement().accept(this);
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(WhileStatementSyntax whileStatement) {
+    public TypeCheckAction visit(WhileStatementSyntax whileStatement) {
         whileStatement.getCode().accept(this);
         var cond = whileStatement.getCondition();
         if (cond.accept(this).isContinue()) {
             checkTypeMatching(whileStatement.getCondition(), PrimitiveType.BOOLEAN, cond.getType());
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(DoWhileStatementSyntax doWhileStatementSyntax) {
+    public TypeCheckAction visit(DoWhileStatementSyntax doWhileStatementSyntax) {
         doWhileStatementSyntax.getCode().accept(this);
         var cond = doWhileStatementSyntax.getCondition();
         if (cond.accept(this).isContinue()) {
             checkTypeMatching(doWhileStatementSyntax.getCondition(), PrimitiveType.BOOLEAN, cond.getType());
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ContinueStatementSyntax continueStatementSyntax) {
+    public TypeCheckAction visit(ContinueStatementSyntax continueStatementSyntax) {
         var whileStatementSyntax = continueStatementSyntax.selectParent(syntax -> syntax instanceof WhileStatementSyntax);
         if (whileStatementSyntax == null) {
             checker.reportError(new SemanticError(continueStatementSyntax, "Continue statement is not allowed outside of a loop"));
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(BreakStatementSyntax breakStatementSyntax) {
+    public TypeCheckAction visit(BreakStatementSyntax breakStatementSyntax) {
         var whileStatementSyntax = breakStatementSyntax.selectParent(syntax -> syntax instanceof WhileStatementSyntax);
         if (whileStatementSyntax == null) {
             checker.reportError(new SemanticError(breakStatementSyntax, "Break statement is not allowed outside of a loop"));
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ExpressionStatementSyntax expressionStatement) {
+    public TypeCheckAction visit(ExpressionStatementSyntax expressionStatement) {
         expressionStatement.getExpression().accept(this);
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(ReturnStatementSyntax returnStatement) {
+    public TypeCheckAction visit(ReturnStatementSyntax returnStatement) {
         var expressions = returnStatement.getExpressions();
         var check = true;
         for (var expr : expressions) {
@@ -651,18 +650,18 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
             var type = collectType(returnStatement.getExpressions());
             checkTypeMatching(returnStatement, script.getType(), type);
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Action visit(BlockStatementSyntax blockStatement) {
+    public TypeCheckAction visit(BlockStatementSyntax blockStatement) {
         for (var statement : blockStatement.getStatements()) {
             statement.accept(this);
         }
-        return Action.CONTINUE;
+        return TypeCheckAction.CONTINUE;
     }
 
     /**
@@ -768,32 +767,5 @@ public final class TypeChecking implements SyntaxVisitor<TypeChecking.Action> {
             return nodes[0].getType();
         }
         return new TupleType(Arrays.stream(nodes).map(Syntax::getType).toArray(Type[]::new));
-    }
-
-    /**
-     * Represents the action that should be performed when returned from a child type checking.
-     *
-     * @author Walied K. Yassen
-     */
-    public enum Action {
-
-        /**
-         * Skip the type checking for the parent node and make the parent node skip if necessary.
-         */
-        SKIP,
-
-        /**
-         * Continue the type checking normally.
-         */
-        CONTINUE;
-
-        /**
-         * Checks whether or not this action is a continue action.
-         *
-         * @return <code>true</code> if it is otherwise <code>false</code>.
-         */
-        public boolean isContinue() {
-            return this == CONTINUE;
-        }
     }
 }

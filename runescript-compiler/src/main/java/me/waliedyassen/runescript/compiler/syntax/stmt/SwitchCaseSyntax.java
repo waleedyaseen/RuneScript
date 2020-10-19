@@ -33,12 +33,6 @@ public final class SwitchCaseSyntax extends StatementSyntax {
     private final BlockStatementSyntax code;
 
     /**
-     * The resolved keys of this switch case.
-     */
-    @Getter @Setter
-    private int[] resolvedKeys;
-
-    /**
      * Constructs a new {@link SwitchCaseSyntax} type object instance.
      *
      * @param range

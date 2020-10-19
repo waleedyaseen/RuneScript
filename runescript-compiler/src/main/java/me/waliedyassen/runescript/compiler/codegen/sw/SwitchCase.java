@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 
 /**
- * Represents a generated switch case.
+ * A code generated switch case.
  *
  * @author Walied K. Yassen
  */
@@ -20,13 +20,13 @@ import me.waliedyassen.runescript.compiler.codegen.block.Label;
 public final class SwitchCase {
 
     /**
-     * The switch case key(s).
+     * The keys of the switch case.
      */
     @Getter
-    public final int[] keys;
+    public final Object[] keys;
 
     /**
-     * The switch case label.
+     * The label which the switch case will jump to.
      */
     @Getter
     private final Label label;

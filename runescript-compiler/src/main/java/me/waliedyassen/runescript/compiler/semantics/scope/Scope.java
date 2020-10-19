@@ -191,7 +191,7 @@ public final class Scope {
      *
      * @author Walied K. Yassen
      */
-    final class ArrayTable {
+    static final class ArrayTable {
 
         /**
          * The maximum array count allowed at once in a single script execution.
