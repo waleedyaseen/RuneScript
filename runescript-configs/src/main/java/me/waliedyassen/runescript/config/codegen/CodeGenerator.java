@@ -12,6 +12,7 @@ import lombok.var;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
+import me.waliedyassen.runescript.config.syntax.ConstantSyntax;
 import me.waliedyassen.runescript.config.syntax.IdentifierSyntax;
 import me.waliedyassen.runescript.config.syntax.PropertySyntax;
 import me.waliedyassen.runescript.config.syntax.value.*;
@@ -27,9 +28,8 @@ import me.waliedyassen.runescript.config.var.ConfigMapProperty;
 import me.waliedyassen.runescript.config.var.ConfigParamProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.StackType;
-import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.stack.StackType;
 
 /**
  * The code generator for the configuration compiler.
@@ -53,6 +53,14 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * The binding of the configuration.
      */
     private final ConfigBinding binding;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(ConstantSyntax syntax) {
+        return null;
+    }
 
     /**
      * {@inheritDoc}

@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.expr.literal;
 
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 /**
  * The Syntax Tree element for the type literal syntax.

@@ -33,8 +33,8 @@ import me.waliedyassen.runescript.editor.ui.editor.project.ProjectEditor;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 import me.waliedyassen.runescript.editor.vfs.VFS;
 import me.waliedyassen.runescript.index.Index;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.tuple.TupleType;
 import me.waliedyassen.runescript.type.Type;
 
 import java.io.DataInputStream;
@@ -777,7 +777,7 @@ public final class Project {
         for (var unit : cache.getUnits().values()) {
             var path = unit.getNameWithPath();
             for (var cachedError : unit.getErrors()) {
-                errorsView.addError(path, 0, 0, cachedError.getMessage());
+                errorsView.addError(cachedError.getMessage(), path, cachedError.getLine());
             }
         }
     }
@@ -795,7 +795,7 @@ public final class Project {
             return;
         }
         for (var cachedError : unit.getErrors()) {
-            errorsView.addError(path, 0, 0, cachedError.getMessage());
+            errorsView.addError(cachedError.getMessage(), path, cachedError.getLine());
         }
     }
 

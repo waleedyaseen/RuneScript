@@ -5,12 +5,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.type;
+package me.waliedyassen.runescript.type.primitive;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
+import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.serializer.TypeSerializer;
+import me.waliedyassen.runescript.type.stack.StackType;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -214,12 +216,6 @@ public enum PrimitiveType implements Type {
      * The graphic primitive type.
      */
     GRAPHIC('d', "graphic", StackType.INT, -1, TypeSerializer.SHORT),
-
-    /**
-     * The var primitive type.
-     */
-    // TODO: Verify the char code is correct
-    //VAR('2', "var", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
      * The struct primitive type.

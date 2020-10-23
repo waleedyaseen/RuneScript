@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.config.var;
 
 import lombok.var;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.util.Collections;
 import java.util.List;

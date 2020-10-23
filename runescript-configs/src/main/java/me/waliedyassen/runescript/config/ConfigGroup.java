@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.config;
 
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 /**
  * Contains basic information about a single configuration group.

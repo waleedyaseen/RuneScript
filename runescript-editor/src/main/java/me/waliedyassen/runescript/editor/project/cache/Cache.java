@@ -233,7 +233,7 @@ public final class Cache {
                 }
                 unit.defineSymbols(project.getSymbolTable());
                 for (var error : compiledFile.getErrors()) {
-                    unit.getErrors().add(new CachedError(error.getRange(), new LineColumn(1, 1), error.getMessage()));
+                    unit.getErrors().add(new CachedError(error.getRange(), 1, error.getMessage()));
                 }
                 project.updateErrors(unit);
             }
@@ -263,7 +263,7 @@ public final class Cache {
                 }
                 unit.defineSymbols(project.getSymbolTable());
                 for (var error : compiledFile.getErrors()) {
-                    unit.getErrors().add(new CachedError(error.getRange(), new LineColumn(1, 1), error.getMessage()));
+                    unit.getErrors().add(new CachedError(error.getRange(), 1, error.getMessage()));
                 }
                 project.updateErrors(unit);
             }

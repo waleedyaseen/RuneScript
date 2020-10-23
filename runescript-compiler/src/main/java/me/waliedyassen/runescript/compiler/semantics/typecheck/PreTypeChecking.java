@@ -28,8 +28,8 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.VariableInitializerSyntax
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.tuple.TupleType;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.TypeUtil;
 

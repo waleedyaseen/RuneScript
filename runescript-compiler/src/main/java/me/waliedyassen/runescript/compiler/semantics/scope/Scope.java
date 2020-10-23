@@ -13,7 +13,7 @@ import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 
 import java.util.HashMap;

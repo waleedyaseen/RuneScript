@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.Symbol;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 /**
  * The symbol information for a runtime constant value, which is a constant that is replaced at runtime with another value.

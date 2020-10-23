@@ -24,7 +24,7 @@ public final class BlockList {
     private final List<Block> blocks = new ArrayList<>();
 
     /**
-     * An array o
+     * A list of all the {@link Label} within this list.
      */
     private final List<Label> labels = new ArrayList<>();
 

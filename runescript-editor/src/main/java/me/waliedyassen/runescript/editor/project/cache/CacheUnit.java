@@ -10,14 +10,13 @@ package me.waliedyassen.runescript.editor.project.cache;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.var;
-import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.tuple.TupleType;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.TypeUtil;
 
@@ -119,8 +118,7 @@ public final class CacheUnit {
         for (var error : errors) {
             stream.writeInt(error.getRange().getStart());
             stream.writeInt(error.getRange().getWidth());
-            stream.writeInt(error.getStart().getLine());
-            stream.writeInt(error.getStart().getColumn());
+            stream.writeInt(error.getLine());
             stream.writeUTF(error.getMessage());
         }
         stream.writeShort(scripts.size());
@@ -163,7 +161,7 @@ public final class CacheUnit {
         packCrc = stream.readInt();
         var errorsCount = stream.readUnsignedShort();
         for (var index = 0; index < errorsCount; index++) {
-            errors.add(new CachedError(new Range(stream.readInt(), stream.readInt()), new LineColumn(stream.readInt(), stream.readInt()), stream.readUTF()));
+            errors.add(new CachedError(new Range(stream.readInt(), stream.readInt()), stream.readInt(), stream.readUTF()));
         }
         var scriptsCount = stream.readUnsignedShort();
         for (var index = 0; index < scriptsCount; index++) {

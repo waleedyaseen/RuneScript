@@ -16,7 +16,7 @@ import me.waliedyassen.runescript.editor.file.impl.ProjectFileType;
 import me.waliedyassen.runescript.editor.project.PackType;
 import me.waliedyassen.runescript.editor.project.Project;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;

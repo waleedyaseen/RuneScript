@@ -18,7 +18,7 @@ import me.waliedyassen.runescript.config.syntax.visitor.SyntaxVisitor;
  *
  * @author Walied K. Yassen
  */
-public final class ConstantDeclarationSyntax extends Syntax {
+public final class ConstantSyntax extends Syntax {
 
     /**
      * The token of the caret symbol.
@@ -39,14 +39,14 @@ public final class ConstantDeclarationSyntax extends Syntax {
     private final ValueSyntax value;
 
     /**
-     * Constructs a new {@link ConstantDeclarationSyntax} type object instance.
+     * Constructs a new {@link ConstantSyntax} type object instance.
      *
      * @param range      the source code range of the declaration.
      * @param caretToken the token of the caret symbol.
      * @param name       the name of the constant.
      * @param value      the value of the constant.
      */
-    public ConstantDeclarationSyntax(Range range, SyntaxToken caretToken, IdentifierSyntax name, ValueSyntax value) {
+    public ConstantSyntax(Range range, SyntaxToken caretToken, IdentifierSyntax name, ValueSyntax value) {
         super(range);
         this.caretToken = caretToken;
         this.name = name;

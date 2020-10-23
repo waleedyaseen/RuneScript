@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.type;
 
 import lombok.var;
+import me.waliedyassen.runescript.type.tuple.TupleType;
 
 import java.util.ArrayList;
 import java.util.Arrays;

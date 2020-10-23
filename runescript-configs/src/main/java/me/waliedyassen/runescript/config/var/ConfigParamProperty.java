@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.config.var;
 
 import lombok.Data;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 /**
  * A configuration param property.

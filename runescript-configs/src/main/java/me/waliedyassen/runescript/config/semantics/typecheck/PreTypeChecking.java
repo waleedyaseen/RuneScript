@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
+import me.waliedyassen.runescript.config.syntax.ConstantSyntax;
 import me.waliedyassen.runescript.config.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
@@ -39,6 +40,14 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
      * The configuration group we are checking for.
      */
     private final ConfigBinding binding;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(ConstantSyntax syntax) {
+        return null;
+    }
 
     /**
      * {@inheritDoc}

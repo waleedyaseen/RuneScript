@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor.ui.errors;
 
 import lombok.var;
-import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
@@ -17,9 +16,6 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Represents the errors view of the editor.
@@ -48,25 +44,22 @@ public final class ErrorsView extends JPanel implements ActionSource {
      */
     public ErrorsView() {
         setLayout(new MigLayout("fill, ins 0", "[fill]"));
-        model.addColumn("Message");
-        model.addColumn("File");
-        model.addColumn("Location");
         var view = new JScrollPane(table);
         add(view);
         ShortcutManager.getInstance().bindShortcuts(CommonGroups.ERRORS, view, table);
     }
 
+
     /**
      * Adds a new error to the errors view.
      *
+     * @param description the description of the error.
      * @param path    the path which leads to the error.
      * @param line    the line which leads to the error.
-     * @param column  the column which leads to the error.
-     * @param message the message of the error.
      */
-    public void addError(String path, int line, int column, String message) {
+    public void addError(String description, String path, int line) {
         SwingUtilities.invokeLater(() -> {
-            model.addRow(new Object[]{message, path, "line " + line});
+            model.addRow(new Object[]{description, path, "line " + line});
         });
     }
 
@@ -105,6 +98,15 @@ public final class ErrorsView extends JPanel implements ActionSource {
     public static final class ErrorsTableModel extends DefaultTableModel {
 
         /**
+         * Constructs a new {@link ErrorsTableModel} type object instance.
+         */
+        public ErrorsTableModel() {
+            addColumn("Description");
+            addColumn("Path");
+            addColumn("Location");
+        }
+
+        /**
          * {@inheritDoc}
          */
         @Override
@@ -112,4 +114,5 @@ public final class ErrorsView extends JPanel implements ActionSource {
             return false;
         }
     }
+
 }

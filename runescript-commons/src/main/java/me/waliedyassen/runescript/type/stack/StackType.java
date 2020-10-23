@@ -5,7 +5,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.type;
+package me.waliedyassen.runescript.type.stack;
 
 /**
  * Represents the stack value push/pop type, there are three main types within our frame stack system, which are: an an

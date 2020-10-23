@@ -27,10 +27,10 @@ public final class CachedError {
     private final Range range;
 
     /**
-     * The start position of the error.
+     * The line which contains the error.
      */
     @Getter
-    private final LineColumn start;
+    private final int line;
 
     /**
      * The message of the error.

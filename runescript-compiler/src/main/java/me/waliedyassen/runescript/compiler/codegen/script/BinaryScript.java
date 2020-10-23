@@ -9,14 +9,11 @@ package me.waliedyassen.runescript.compiler.codegen.script;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
-import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockList;
-import me.waliedyassen.runescript.compiler.codegen.block.Label;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
-import me.waliedyassen.runescript.type.StackType;
+import me.waliedyassen.runescript.type.stack.StackType;
 
 import java.util.List;
 import java.util.Map;
@@ -70,6 +67,4 @@ public final class BinaryScript {
      */
     @Getter
     private final ScriptInfo scriptInfo;
-
-    // TODO: toString so we can get rid of stuff like AstExpression.extractNameText
 }

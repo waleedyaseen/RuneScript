@@ -30,11 +30,10 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.loop.BreakStatementSyntax
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.DoWhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
-import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.TupleType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.tuple.TupleType;
 import me.waliedyassen.runescript.type.Type;
 
 import java.util.ArrayList;

@@ -21,7 +21,7 @@ import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.lazy.LazyLoading;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.vfs.VFSFileListener;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import javax.swing.*;
 import javax.swing.tree.MutableTreeNode;

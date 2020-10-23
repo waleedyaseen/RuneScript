@@ -33,8 +33,6 @@ import static me.waliedyassen.runescript.compiler.lexer.token.Kind.*;
  */
 public final class Tokenizer extends TokenizerBase<Kind, SyntaxToken> {
 
-    // TODO: Interpolated strings proper range creation.
-
     /**
      * The current states
      */
@@ -154,8 +152,6 @@ public final class Tokenizer extends TokenizerBase<Kind, SyntaxToken> {
                             } else if (table.isOperatorStart(current)) {
                                 builder.append(current);
                                 for (var index = 1; index < table.getOperatorSize(); index++) {
-                                    // TODO: update the behaviour of peek() to skip the CR character, the same thing
-                                    // take() does.
                                     if (!stream.hasRemaining() || stream.peek() == '\r' && stream.peek() == '\n') {
                                         break;
                                     }

@@ -11,10 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
-import me.waliedyassen.runescript.config.syntax.IdentifierSyntax;
-import me.waliedyassen.runescript.config.syntax.Syntax;
-import me.waliedyassen.runescript.config.syntax.PropertySyntax;
+import me.waliedyassen.runescript.config.syntax.*;
 import me.waliedyassen.runescript.config.syntax.value.*;
 import me.waliedyassen.runescript.config.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
@@ -23,7 +20,7 @@ import me.waliedyassen.runescript.config.semantics.SemanticError;
 import me.waliedyassen.runescript.config.var.*;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 
 import java.util.Collections;
@@ -54,6 +51,14 @@ public final class TypeChecking extends SyntaxTreeVisitor {
      */
     @Getter
     private final ConfigBinding binding;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object visit(ConstantSyntax syntax) {
+        return null;
+    }
 
     /**
      * {@inheritDoc}

@@ -5,9 +5,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package me.waliedyassen.runescript.type;
+package me.waliedyassen.runescript.type.tuple;
 
 import lombok.Getter;
+import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.TypeUtil;
+import me.waliedyassen.runescript.type.stack.StackType;
 
 import java.util.Arrays;
 

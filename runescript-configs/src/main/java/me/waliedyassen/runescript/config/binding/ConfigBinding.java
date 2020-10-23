@@ -21,7 +21,7 @@ import me.waliedyassen.runescript.config.var.rule.impl.ConfigRangeRule;
 import me.waliedyassen.runescript.config.var.rule.impl.ConfigRequireRule;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayData;
 import me.waliedyassen.runescript.config.var.splitarray.ConfigSplitArrayProperty;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.util.*;
 

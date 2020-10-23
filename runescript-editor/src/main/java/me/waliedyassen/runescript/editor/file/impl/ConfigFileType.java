@@ -11,7 +11,7 @@ import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
 import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import javax.swing.*;
 import java.nio.file.Path;

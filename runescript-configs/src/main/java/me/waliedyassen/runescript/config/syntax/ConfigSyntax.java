@@ -14,7 +14,7 @@ import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.config.syntax.value.ValueTypeSyntax;
 import me.waliedyassen.runescript.config.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.util.ArrayList;
 import java.util.List;

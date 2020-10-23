@@ -25,7 +25,7 @@ import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
 import me.waliedyassen.runescript.config.syntax.SyntaxParser;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.util.CollectorsEx;
 
 import java.io.ByteArrayInputStream;

@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.config.var.splitarray;
 import lombok.Data;
 import me.waliedyassen.runescript.config.var.ConfigProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.util.List;
 

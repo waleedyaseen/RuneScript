@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.config.syntax.value;
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.config.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 /**
  * Represents a configuration property type value node.

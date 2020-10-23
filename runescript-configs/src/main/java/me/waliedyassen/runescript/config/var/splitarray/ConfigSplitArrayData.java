@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.config.var.splitarray;
 
 import lombok.Data;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 /**
  * Contains data about a specific config split array property.

@@ -14,7 +14,7 @@ import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.codegen.property.BinaryProperty;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinaryBasicProperty;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;

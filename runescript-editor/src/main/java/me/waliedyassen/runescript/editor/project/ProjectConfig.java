@@ -15,7 +15,7 @@ import me.waliedyassen.runescript.config.var.rule.ConfigRule;
 import me.waliedyassen.runescript.config.var.rule.ConfigRules;
 import me.waliedyassen.runescript.config.var.rule.impl.ConfigRangeRule;
 import me.waliedyassen.runescript.config.var.rule.impl.ConfigRequireRule;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.util.ReflectionUtil;
 

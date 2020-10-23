@@ -10,7 +10,7 @@ package me.waliedyassen.runescript.config.codegen.property.impl;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.config.codegen.property.BinaryProperty;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

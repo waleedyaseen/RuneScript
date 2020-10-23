@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.type;
 
+import me.waliedyassen.runescript.type.stack.StackType;
+
 /**
  * Represents the main interface for our type system.
  *

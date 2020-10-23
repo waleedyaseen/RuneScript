@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.type.serializer;
 
 import lombok.var;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.util.StreamUtil;
 
 import java.io.DataInputStream;

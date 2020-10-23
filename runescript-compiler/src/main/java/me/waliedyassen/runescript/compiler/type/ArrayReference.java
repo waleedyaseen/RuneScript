@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.compiler.type;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.type.PrimitiveType;
-import me.waliedyassen.runescript.type.StackType;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.stack.StackType;
 import me.waliedyassen.runescript.type.Type;
 
 /**

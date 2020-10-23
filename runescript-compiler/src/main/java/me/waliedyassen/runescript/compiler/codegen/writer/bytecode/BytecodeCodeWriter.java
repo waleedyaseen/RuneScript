@@ -21,7 +21,7 @@ import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
-import me.waliedyassen.runescript.type.StackType;
+import me.waliedyassen.runescript.type.stack.StackType;
 
 import java.util.*;
 

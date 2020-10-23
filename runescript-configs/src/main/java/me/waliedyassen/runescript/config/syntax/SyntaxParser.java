@@ -10,11 +10,11 @@ package me.waliedyassen.runescript.config.syntax;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.parser.ParserBase;
-import me.waliedyassen.runescript.config.lexer.token.SyntaxToken;
-import me.waliedyassen.runescript.config.syntax.value.*;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
-import me.waliedyassen.runescript.type.PrimitiveType;
+import me.waliedyassen.runescript.config.lexer.token.SyntaxToken;
+import me.waliedyassen.runescript.config.syntax.value.*;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.util.ArrayList;
 
@@ -222,6 +222,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         var packed = parsed[0] << 28 | parsed[1] << 20 | parsed[2] << 14 | parsed[3] << 6 | parsed[4];
         return new ValueCoordgridSyntax(popRange(), packed);
     }
+
     /**
      * Attempts to parse an {@link ValueStringSyntax} object from the next sequence of tokens.
      *
