@@ -340,6 +340,9 @@ public final class ProjectEditor extends Editor<Path> {
         }
     }
 
+    public static void main(String[] args) {
+
+    }
     /**
      * Checks whether or not the specified {@link PrimitiveType type} can be predefined.
      *
@@ -358,6 +361,7 @@ public final class ProjectEditor extends Editor<Path> {
             case INTERFACE:
             case COMPONENT:
             case FONTMETRICS:
+            case TEXTURE:
                 return true;
             default:
                 return false;
