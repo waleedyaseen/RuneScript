@@ -38,6 +38,28 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     }
 
     /**
+     * @return
+     */
+    public ConstantSyntax[] constants() {
+        var constants = new ArrayList<ConstantSyntax>();
+        while (peekKind() == CARET) {
+            constants.add(constant());
+        }
+        return constants.toArray(new ConstantSyntax[0]);
+    }
+
+    /**
+     * @return
+     */
+    private ConstantSyntax constant() {
+        pushRange();
+        var caretToken = consume(CARET);
+        var name = identifier();
+        var value = value();
+        return new ConstantSyntax(popRange(), caretToken, name, value);
+    }
+
+    /**
      * Attempts to parse an array of {@link ConfigSyntax} objects from the next sequence of tokens.
      *
      * @return the parsed array of {@link ConfigSyntax} objects.

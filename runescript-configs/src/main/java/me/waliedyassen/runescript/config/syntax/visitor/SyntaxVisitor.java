@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.config.syntax.visitor;
 
 import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
+import me.waliedyassen.runescript.config.syntax.ConstantSyntax;
 import me.waliedyassen.runescript.config.syntax.IdentifierSyntax;
 import me.waliedyassen.runescript.config.syntax.PropertySyntax;
 import me.waliedyassen.runescript.config.syntax.value.*;
@@ -29,6 +30,16 @@ public interface SyntaxVisitor<T> {
      * @return An object which is specified by the implementation.
      */
     T visit(ConfigSyntax config);
+
+    /**
+     * Gets called when we have just visited an {@link ConstantSyntax} object.
+     *
+     * @param syntax
+     *         the object we have just visited.
+     *
+     * @return An object which is specified by the implementation.
+     */
+    T visit(ConstantSyntax syntax);
 
     /**
      * Gets called when we have just visited an {@link PropertySyntax} object.
