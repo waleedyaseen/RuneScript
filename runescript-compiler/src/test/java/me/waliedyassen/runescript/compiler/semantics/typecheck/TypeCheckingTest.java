@@ -45,7 +45,7 @@ class TypeCheckingTest {
         for (ScriptParserTest.TestTriggerType triggerType : ScriptParserTest.TestTriggerType.values()) {
             environment.registerTrigger(triggerType);
         }
-        var table = new ScriptSymbolTable();
+        var table = new ScriptSymbolTable(true);
         checker = new SemanticChecker(environment, table, false);
     }
 

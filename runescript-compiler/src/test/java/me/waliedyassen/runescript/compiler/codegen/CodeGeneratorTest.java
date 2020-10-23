@@ -56,7 +56,7 @@ class CodeGeneratorTest {
 
     @BeforeEach
     void setupGenerator() {
-        var table = new ScriptSymbolTable();
+        var table = new ScriptSymbolTable(true);
         instructionMap = new InstructionMap();
         for (var opcode : CoreOpcode.values()) {
             instructionMap.registerCore(opcode, opcode.ordinal(), opcode.isLargeOperand());
@@ -157,7 +157,7 @@ class CodeGeneratorTest {
         try (var stream = getClass().getResourceAsStream(name)) {
             var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             var lexer = new Lexer(tokenizer);
-            var parser = new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
+            var parser = new SyntaxParser(environment, new ScriptSymbolTable(true), new ThrowingErrorReporter(), lexer, "cs2");
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();
@@ -180,7 +180,7 @@ class CodeGeneratorTest {
     BinaryScript[] fromString(String text) {
         var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(text.toCharArray()));
         var lexer = new Lexer(tokenizer);
-        var parser = new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
+        var parser = new SyntaxParser(environment, new ScriptSymbolTable(true), new ThrowingErrorReporter(), lexer, "cs2");
         var scripts = new ArrayList<CompiledScriptUnit>();
         do {
             var unit = new CompiledScriptUnit();

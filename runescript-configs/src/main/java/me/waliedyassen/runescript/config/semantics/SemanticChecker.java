@@ -28,8 +28,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public final class SemanticChecker {
 
-    // TODO: Convert this into ErrorReport and move the methods to static ones.
-
     /**
      * The generated errors during this semantic checker life time.
      */
@@ -41,6 +39,12 @@ public final class SemanticChecker {
      */
     @Getter
     private final SymbolTable symbolTable;
+
+    /**
+     * Whether or not to allow symbols overriding.
+     */
+    @Getter
+    private final boolean allowOverriding;
 
     /**
      * Executes the pre semantic checking for the specified {@link ConfigSyntax configs}.

@@ -97,17 +97,19 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
     /**
      * Constructs a new {@link ScriptCompiler} type object instance.
      *
+     * @param idManager      the ID manager of the compiler.
      * @param environment    the environment of the compiler.
      * @param instructionMap the instruction map to use for this compiler.
      * @param codeWriter     the code writer to use for the compiler.
      * @param allowOverride  whether or not the compiler should override the symbols.
      */
-    private ScriptCompiler(CompilerEnvironment environment,
+    private ScriptCompiler(IDManager idManager,
+                           CompilerEnvironment environment,
                            InstructionMap instructionMap,
                            ScriptSymbolTable symbolTable,
                            CodeWriter<?> codeWriter,
                            boolean allowOverride) {
-        super(null);
+        super(idManager);
         if (!instructionMap.isReady()) {
             throw new IllegalArgumentException("The provided InstructionMap is not ready, please register all of core opcodes before using it.");
         }
@@ -184,7 +186,7 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
             // because they could be referenced from non erroneous.
             for (var compiledFile : output.getFiles().values()) {
                 for (var unit : compiledFile.getUnits()) {
-                    idProvider.findOrCreateScript(unit.getSyntax().getFullName(), compiledFile.getExtension());
+                    idManager.findOrCreateScript(unit.getSyntax().getFullName(), compiledFile.getExtension());
                 }
             }
         }
@@ -310,7 +312,7 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
         /**
          * The {@link IDManager} of the compiler.
          */
-        private IDManager idProvider;
+        private IDManager idManager;
 
         /**
          * Sets the environment object we are going to use for the compiler.
@@ -365,7 +367,7 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
          * @return this {@link CompilerBuilder} object instance.
          */
         public CompilerBuilder withIdProvider(IDManager idProvider) {
-            this.idProvider = idProvider;
+            this.idManager = idProvider;
             return this;
         }
 
@@ -402,19 +404,19 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
             if (instructionMap == null) {
                 throw new IllegalStateException("You must provide an InstructionMap before performing build() operation");
             }
-            if (idProvider == null) {
+            if (idManager == null) {
                 throw new IllegalStateException("You must provide an IdProvider before performing build() operation");
             }
             if (environment == null) {
                 environment = new CompilerEnvironment();
             }
             if (codeWriter == null) {
-                codeWriter = new BytecodeCodeWriter(idProvider, supportsLongPrimitiveType);
+                codeWriter = new BytecodeCodeWriter(idManager, supportsLongPrimitiveType);
             }
             if (symbolTable == null) {
-                symbolTable = new ScriptSymbolTable();
+                symbolTable = new ScriptSymbolTable(true);
             }
-            return new ScriptCompiler(environment, instructionMap, symbolTable, codeWriter, overrideSymbols);
+            return new ScriptCompiler(idManager, environment, instructionMap, symbolTable, codeWriter, overrideSymbols);
         }
     }
 }

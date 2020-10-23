@@ -24,9 +24,9 @@ import java.io.IOException;
 public abstract class CompilerBase<S extends SyntaxBase, U extends CompiledUnit<S>> {
 
     /**
-     * The ID provider for configurations or scripts.
+     * The ID manager for the compiled units.
      */
-    protected final IDManager idProvider;
+    protected final IDManager idManager;
 
     /**
      * Attempts to compile all of the source code specified in the {@link Input} object

@@ -55,7 +55,7 @@ class ConstantFoldingOptimizationTest {
         }
         optimizer = new Optimizer(instructionMap);
         optimizer.register(new ConstantFoldingOptimization());
-        var table = new ScriptSymbolTable();
+        var table = new ScriptSymbolTable(true);
         checker = new SemanticChecker(environment, table, false);
         generator = new CodeGenerator(environment, table, instructionMap, ScriptParserTest.TestTriggerType.CLIENTSCRIPT);
     }
@@ -80,7 +80,7 @@ class ConstantFoldingOptimizationTest {
         var text = String.format(TEMPLATE, expression);
         var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(text.toCharArray()));
         var lexer = new Lexer(tokenizer);
-        var parser = new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
+        var parser = new SyntaxParser(environment, new ScriptSymbolTable(true), new ThrowingErrorReporter(), lexer, "cs2");
         var scripts = new ArrayList<CompiledScriptUnit>();
         do {
             var unit = new CompiledScriptUnit();

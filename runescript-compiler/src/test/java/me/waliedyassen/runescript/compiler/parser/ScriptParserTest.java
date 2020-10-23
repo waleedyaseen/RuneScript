@@ -636,14 +636,14 @@ public final class ScriptParserTest {
     public static SyntaxParser fromString(String text) {
         var tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(text.toCharArray()));
         var lexer = new Lexer(tokenizer);
-        return new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
+        return new SyntaxParser(environment, new ScriptSymbolTable(true), new ThrowingErrorReporter(), lexer, "cs2");
     }
 
     public static SyntaxParser fromResource(String name) {
         try (var stream = ClassLoader.getSystemResourceAsStream(name)) {
             Tokenizer tokenizer = new Tokenizer(new ThrowingErrorReporter(), ScriptCompiler.createLexicalTable(), new BufferedCharStream(stream));
             Lexer lexer = new Lexer(tokenizer);
-            return new SyntaxParser(environment, new ScriptSymbolTable(), new ThrowingErrorReporter(), lexer, "cs2");
+            return new SyntaxParser(environment, new ScriptSymbolTable(true), new ThrowingErrorReporter(), lexer, "cs2");
         } catch (IOException e) {
             e.printStackTrace();
             return null;

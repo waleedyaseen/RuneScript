@@ -124,6 +124,12 @@ public final class Project {
     private CompilerEnvironment compilerEnvironment;
 
     /**
+     * The predefined symbols table for the compiler.
+     */
+    @Getter
+    private ScriptSymbolTable predefinedTable;
+
+    /**
      * The symbol table we are using for the compiler.
      */
     @Getter
@@ -311,7 +317,8 @@ public final class Project {
      */
     public void reloadCompiler() {
         compilerEnvironment = new CompilerEnvironment();
-        symbolTable = new ScriptSymbolTable();
+        predefinedTable = new ScriptSymbolTable(false);
+        symbolTable = predefinedTable.createSubTable();
         instructionMap = new InstructionMap();
         loadInstructions();
         loadTriggers();
@@ -321,7 +328,7 @@ public final class Project {
         loadConstants();
         loadRuntimeConstants();
         compilerProvider = new ProjectCompilerProvider();
-        var configCompiler = new ConfigCompiler(new ProjectIDManager(this), symbolTable);
+        var configCompiler = new ConfigCompiler(new ProjectIDManager(this), symbolTable, overrideSymbols);
         loadBindings(configCompiler);
         registerScriptCompiler();
         registerConfigCompiler(configCompiler);
@@ -515,9 +522,9 @@ public final class Project {
 
     private void defineConfig(PrimitiveType type, int id, String name, PrimitiveType contentType) {
         if (type == PrimitiveType.GRAPHIC) {
-            symbolTable.defineGraphic(name, id);
+            predefinedTable.defineGraphic(name, id);
         } else {
-            var info = symbolTable.defineConfig(name, type, contentType);
+            var info = predefinedTable.defineConfig(name, type, contentType);
             info.setPredefinedId(id);
         }
     }
@@ -547,7 +554,7 @@ public final class Project {
                     var trigger = compilerEnvironment.lookupTrigger(value.<String>get("trigger"));
                     var type = ProjectConfig.parseTypes(value, "type");
                     var arguments = ProjectConfig.parseTypes(value, "arguments");
-                    symbolTable.defineScript(Collections.emptyMap(), trigger, name, type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type), arguments, id);
+                    predefinedTable.defineScript(Collections.emptyMap(), trigger, name, type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type), arguments, id);
                 }
             }
         } catch (Throwable e) {
@@ -998,7 +1005,8 @@ public final class Project {
                 }
                 return config.getPredefinedId();
             }
-            var index = project.index.getOrCreate(getPackName(type.getRepresentation()));
+            var packName = getPackName(type.getRepresentation());
+            var index = project.index.getOrCreate(packName);
             return index.findOrCreate(name);
         }
 

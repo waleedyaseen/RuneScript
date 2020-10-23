@@ -10,9 +10,12 @@ package me.waliedyassen.runescript.compiler.symbol;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
-import me.waliedyassen.runescript.compiler.symbol.impl.*;
-import me.waliedyassen.runescript.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.GraphicInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.RuntimeConstantInfo;
 import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,12 +28,6 @@ import java.util.Map;
  */
 @RequiredArgsConstructor
 public class SymbolTable {
-
-    /**
-     * The parent symbol table.
-     */
-    @Getter
-    private final SymbolTable parent;
 
     /**
      * The defined constants map.
@@ -57,21 +54,32 @@ public class SymbolTable {
     private final Map<String, RuntimeConstantInfo> runtimeConstants = new HashMap<>();
 
     /**
-     * Constructs a new {@link SymbolTable} type object instance.
+     * The parent symbol table.
      */
-    public SymbolTable() {
-        this(null);
+    @Getter
+    private final SymbolTable parent;
+
+    /**
+     * Whether or not to allow the un-defining of symbols from this table.
+     */
+    @Getter
+    protected final boolean allowRemoving;
+
+    /**
+     * Constructs a new {@link SymbolTable} type object instance.
+     *
+     * @param allowRemoving whether or not to allow removing symbols from this table.
+     */
+    public SymbolTable(boolean allowRemoving) {
+        this(null, allowRemoving);
     }
 
     /**
      * Defines a new constant symbol in this table.
      *
-     * @param name
-     *         the name of the constant.
-     * @param type
-     *         the type of the constant.
-     * @param value
-     *         the value of the constant.
+     * @param name  the name of the constant.
+     * @param type  the type of the constant.
+     * @param value the value of the constant.
      */
     public void defineConstant(String name, Type type, Object value) {
         if (lookupConfig(name) != null) {
@@ -83,9 +91,7 @@ public class SymbolTable {
     /**
      * Looks-up for the {@link ConstantInfo constant information} with the specified {@code name}.
      *
-     * @param name
-     *         the name of the constant.
-     *
+     * @param name the name of the constant.
      * @return the {@link ConstantInfo} if it was present otherwise {@code null}.
      */
     public ConstantInfo lookupConstant(String name) {
@@ -99,8 +105,7 @@ public class SymbolTable {
     /**
      * Defines the specified {@link ConfigInfo} in the symbol table.
      *
-     * @param info
-     *         the configuration info object to define.
+     * @param info the configuration info object to define.
      */
     public void defineConfig(ConfigInfo info) {
         if (lookupConfig(info.getName()) != null) {
@@ -112,13 +117,9 @@ public class SymbolTable {
     /**
      * Defines a new configuration type value symbol in this table.
      *
-     * @param name
-     *         the name of the configuration.
-     * @param type
-     *         the type of the configuration.
-     * @param contentType
-     *         the content type of the configuration.
-     *
+     * @param name        the name of the configuration.
+     * @param type        the type of the configuration.
+     * @param contentType the content type of the configuration.
      * @return the created {@link ConfigInfo} object.
      */
     public ConfigInfo defineConfig(String name, Type type, Type contentType) {
@@ -131,21 +132,21 @@ public class SymbolTable {
     }
 
     /**
-     * Undefines the configuration with the specified {@code name}.
+     * Un-defines the configuration with the specified {@code name}.
      *
-     * @param name
-     *         the name of the configuration.
+     * @param name the name of the configuration.
      */
     public void undefineConfig(String name) {
+        if (!allowRemoving) {
+            return;
+        }
         configs.remove(name);
     }
 
     /**
      * Looks-up for the {@link ConfigInfo configuration information} with the specified {@code name}.
      *
-     * @param name
-     *         the name of the configuration type value.
-     *
+     * @param name the name of the configuration type value.
      * @return the {@link ConfigInfo} if it was present otherwise {@code null}.
      */
     public ConfigInfo lookupConfig(String name) {
@@ -160,9 +161,7 @@ public class SymbolTable {
     /**
      * Looks-up for the {@link ConfigInfo variable information} with the specified {@code name}.
      *
-     * @param name
-     *         the name of the variable configuration type value.
-     *
+     * @param name the name of the variable configuration type value.
      * @return the {@link ConfigInfo} if it was present otherwise {@code null}.
      */
     public ConfigInfo lookupVariable(String name) {
@@ -183,10 +182,8 @@ public class SymbolTable {
     /**
      * Defines a new graphic symbol in this table.
      *
-     * @param name
-     *         the name of the graphic.
-     * @param id
-     *         the id of the graphic.
+     * @param name the name of the graphic.
+     * @param id   the id of the graphic.
      */
     public void defineGraphic(String name, int id) {
         if (lookupGraphic(name) != null) {
@@ -198,9 +195,7 @@ public class SymbolTable {
     /**
      * Looks-up for the {@link GraphicInfo} with the specified {@code name}.
      *
-     * @param name
-     *         the name of the graphic.
-     *
+     * @param name the name of the graphic.
      * @return the {@link GraphicInfo} if it was present otherwise {@code null}.
      */
     public GraphicInfo lookupGraphic(String name) {
@@ -214,12 +209,9 @@ public class SymbolTable {
     /**
      * Defines a new runtime constant symbol in this table.
      *
-     * @param name
-     *         the name of the runtime constant.
-     * @param type
-     *         the type of the runtime constant.
-     * @param value
-     *         the value of the runtime constant.
+     * @param name  the name of the runtime constant.
+     * @param type  the type of the runtime constant.
+     * @param value the value of the runtime constant.
      */
     public void defineRuntimeConstant(String name, PrimitiveType type, Object value) {
         if (lookupRuntimeConstant(name) != null) {
@@ -231,9 +223,7 @@ public class SymbolTable {
     /**
      * Looks-up for the {@link RuntimeConstantInfo} with the specified {@code name}.
      *
-     * @param name
-     *         the name of the runtime constant.
-     *
+     * @param name the name of the runtime constant.
      * @return the {@link RuntimeConstantInfo} if it was present otherwise {@code null}.
      */
     public RuntimeConstantInfo lookupRuntimeConstant(String name) {
@@ -250,6 +240,6 @@ public class SymbolTable {
      * @return the created {@link SymbolTable} object.
      */
     public SymbolTable createSubTable() {
-        return new SymbolTable(this);
+        return new SymbolTable(this, true);
     }
 }

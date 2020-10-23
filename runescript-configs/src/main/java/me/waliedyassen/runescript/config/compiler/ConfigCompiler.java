@@ -64,14 +64,22 @@ public final class ConfigCompiler extends CompilerBase<ConfigSyntax, CompiledCon
     private final SymbolTable symbolTable;
 
     /**
+     * Whether or not to allow overriding of symbols.
+     */
+    @Getter
+    private final boolean allowOverriding;
+
+    /**
      * Constructs a new {@link ConfigCompiler} type object instance.
      *
-     * @param idProvider  the ids provider for the compiler.
-     * @param symbolTable the symbol table for the compiler.
+     * @param idManager       the ids provider for the compiler.
+     * @param symbolTable     the symbol table for the compiler.
+     * @param allowOverriding whether or not to allow overriding of symbols.
      */
-    public ConfigCompiler(IDManager idProvider, SymbolTable symbolTable) {
-        super(idProvider);
+    public ConfigCompiler(IDManager idManager, SymbolTable symbolTable, boolean allowOverriding) {
+        super(idManager);
         this.symbolTable = symbolTable;
+        this.allowOverriding = allowOverriding;
     }
 
     /**
@@ -107,7 +115,7 @@ public final class ConfigCompiler extends CompilerBase<ConfigSyntax, CompiledCon
             }
         }
         var mapped = output.getCompiledFiles().stream().collect(groupingBy(Function.identity(), CollectorsEx.flatMapping(file -> file.getUnits().stream().map(CompiledConfigUnit::getSyntax), toList())));
-        var checker = new SemanticChecker(symbolTable);
+        var checker = new SemanticChecker(symbolTable, allowOverriding);
         for (var entry : mapped.entrySet()) {
             var compiledFile = entry.getKey();
             if (compiledFile.isErroneous()) {
@@ -135,7 +143,7 @@ public final class ConfigCompiler extends CompilerBase<ConfigSyntax, CompiledCon
                 var binding = bindings.get(entry.getExtension());
                 var type = binding.getGroup().getType();
                 for (var unit : entry.getUnits()) {
-                    idProvider.findOrCreateConfig(type, unit.getSyntax().getName().getText());
+                    idManager.findOrCreateConfig(type, unit.getSyntax().getName().getText());
                 }
             }
         }
@@ -145,7 +153,7 @@ public final class ConfigCompiler extends CompilerBase<ConfigSyntax, CompiledCon
                     continue;
                 }
                 var binding = bindings.get(entry.getExtension());
-                var codeGen = new CodeGenerator(idProvider, symbolTable, binding);
+                var codeGen = new CodeGenerator(idManager, symbolTable, binding);
                 for (var unit : entry.getUnits()) {
                     var binaryConfig = codeGen.visit(unit.getSyntax());
                     unit.setBinaryConfig(binaryConfig);

@@ -11,12 +11,12 @@ package me.waliedyassen.runescript.config.semantics.typecheck;
 import lombok.RequiredArgsConstructor;
 import lombok.var;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
-import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
-import me.waliedyassen.runescript.config.syntax.ConstantSyntax;
-import me.waliedyassen.runescript.config.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.semantics.SemanticError;
+import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
+import me.waliedyassen.runescript.config.syntax.ConstantSyntax;
+import me.waliedyassen.runescript.config.syntax.visitor.SyntaxTreeVisitor;
 
 /**
  * Represents the pre type checking semantic analysis.
@@ -57,7 +57,14 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
         config.setContentType(config.resolveContentType(binding));
         var info = table.lookupConfig(config.getName().getText());
         if (info != null) {
-            checker.reportError(new SemanticError(config.getName(), "Duplicate configuration: " + info.getName()));
+            if (checker.isAllowOverriding()) {
+                var type = info.getType();
+                if (info.getType() != binding.getGroup().getType()) {
+                    checker.reportError(new SemanticError(config.getName(), String.format("The Mismatch overriding config type: (%s) and (%s)", type.getRepresentation(), info.getType().getRepresentation())));
+                }
+            } else {
+                checker.reportError(new SemanticError(config.getName(), "Duplicate configuration: " + info.getName()));
+            }
         } else {
             table.defineConfig(config.getName().getText(), binding.getGroup().getType(), config.getContentType());
         }
