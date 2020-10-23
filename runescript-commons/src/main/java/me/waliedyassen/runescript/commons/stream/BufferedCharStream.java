@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.commons.stream;
 
 import lombok.var;
+import me.waliedyassen.runescript.commons.document.LineMap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,11 @@ import java.io.InputStreamReader;
  * @author Walied K. Yassen
  */
 public final class BufferedCharStream implements CharStream {
+
+    /**
+     * A map of all the positions mapped to line numbers.
+     */
+    private LineMap lineMap; // Lazily initialized
 
     /**
      * The characters buffer data.
@@ -123,6 +129,27 @@ public final class BufferedCharStream implements CharStream {
     @Override
     public int position() {
         return pos;
+    }
+
+    /**
+     * Returns the current line number the stream is at.
+     *
+     * @return the current line number the stream is at.
+     */
+    public int line() {
+        return lineMap.getLineNumber(pos);
+    }
+
+    /**
+     * Returns the {@link LineMap} if cached, or create new one if not cached.
+     *
+     * @return the {@link LineMap} object.
+     */
+    public LineMap getLineMap() {
+        if (lineMap == null) {
+            lineMap = LineMap.create(buffer);
+        }
+        return lineMap;
     }
 
     /**
