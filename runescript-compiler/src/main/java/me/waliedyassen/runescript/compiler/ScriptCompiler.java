@@ -44,7 +44,7 @@ import java.util.List;
  *
  * @author Walied K. Yassen
  */
-public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
+public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScriptUnit> {
 
     /**
      * The symbol table of the compiler.
@@ -148,16 +148,16 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
      * {@inheritDoc}
      */
     @Override
-    public Output<CompiledScriptUnit> compile(Input input) throws IOException {
+    public Output<ScriptSyntax, CompiledScriptUnit> compile(Input input) throws IOException {
         var symbolTable = this.symbolTable.createSubTable();
-        var output = new Output<CompiledScriptUnit>();
+        var output = new Output<ScriptSyntax, CompiledScriptUnit>();
         for (var sourceFile : input.getSourceFiles()) {
             var errorReporter = new ErrorReporter();
             try {
                 var scripts = parseSyntaxTree(symbolTable, errorReporter, sourceFile.getContent(), sourceFile.getExtension());
                 for (var script : scripts) {
                     var compiledUnit = new CompiledScriptUnit();
-                    compiledUnit.setScript(script);
+                    compiledUnit.setSyntax(script);
                     output.addUnit(sourceFile, compiledUnit);
                 }
             } catch (CompilerError error) {
@@ -182,7 +182,7 @@ public final class ScriptCompiler extends CompilerBase<CompiledScriptUnit> {
             var codeGenerator = new CodeGenerator(environment, symbolTable, instructionMap, environment.getHookTriggerType());
             for (var compiledFile : output.getFiles().values()) {
                 for (var unit : compiledFile.getUnits()) {
-                    var binaryScript = codeGenerator.visit(unit.getScript());
+                    var binaryScript = codeGenerator.visit(unit.getSyntax());
                     optimizer.run(binaryScript);
                     unit.setBinaryScript(binaryScript);
                 }

@@ -155,7 +155,7 @@ class TypeCheckingTest {
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();
-                unit.setScript(parser.script());
+                unit.setSyntax(parser.script());
                 scripts.add(unit);
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
@@ -175,7 +175,7 @@ class TypeCheckingTest {
         var scripts = new ArrayList<CompiledScriptUnit>();
         do {
             var unit = new CompiledScriptUnit();
-            unit.setScript(parser.script());
+            unit.setSyntax(parser.script());
             scripts.add(unit);
         } while (lexer.remaining() > 0);
         checker.executePre(scripts);

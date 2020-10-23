@@ -61,7 +61,7 @@ public final class SemanticChecker {
     public void executePre(Iterable<CompiledScriptUnit> scripts) {
         var pre = new PreTypeChecking(this, symbolTable);
         for (var script : scripts) {
-            script.getScript().accept(pre);
+            script.getSyntax().accept(pre);
         }
     }
 
@@ -74,7 +74,7 @@ public final class SemanticChecker {
     public void execute(Iterable<CompiledScriptUnit> scripts) {
         var checker = new TypeChecking(this, symbolTable, environment.getHookTriggerType());
         for (var script : scripts) {
-            script.getScript().accept(checker);
+            script.getSyntax().accept(checker);
         }
     }
 

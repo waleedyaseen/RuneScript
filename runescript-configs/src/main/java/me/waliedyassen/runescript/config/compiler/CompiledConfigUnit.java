@@ -10,6 +10,7 @@ package me.waliedyassen.runescript.config.compiler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import me.waliedyassen.runescript.compiler.CompiledUnit;
 import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
 import me.waliedyassen.runescript.config.binding.ConfigBinding;
 import me.waliedyassen.runescript.config.codegen.BinaryConfig;
@@ -22,7 +23,7 @@ import me.waliedyassen.runescript.config.codegen.BinaryConfig;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public final class CompiledConfigUnit {
+public final class CompiledConfigUnit extends CompiledUnit<ConfigSyntax> {
 
     /**
      * The configuration binding that was used for the compiled unit.
@@ -32,7 +33,7 @@ public final class CompiledConfigUnit {
     /**
      * The AST configuration node of the compiled unit.
      */
-    private ConfigSyntax config;
+    private ConfigSyntax syntax;
 
     /**
      * The binary configuration of the compiled unit.

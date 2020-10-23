@@ -9,19 +9,19 @@ package me.waliedyassen.runescript.compiler;
 
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxBase;
 
 import java.io.IOException;
 
 /**
  * The base class for all the compiler implementations we use for RuneScript.
  *
- * @param <O>
- *         the output type of the compiler.
- *
+ * @param <S> the type of the Syntax Tree object this compiler will produce.
+ * @param <U> the type of the compilation unit this compiler will produce.
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public abstract class CompilerBase<O> {
+public abstract class CompilerBase<S extends SyntaxBase, U extends CompiledUnit<S>> {
 
     /**
      * The ID provider for configurations or scripts.
@@ -33,14 +33,10 @@ public abstract class CompilerBase<O> {
      * and produce a {@link Output output} object which contains the compiled form of the object
      * and the associated errors produced during that compilation process.
      *
-     * @param input
-     *         the input object which contains the all of the source code that we want to compile.
-     *
+     * @param input the input object which contains the all of the source code that we want to compile.
      * @return the {@link Output} object instance.
-     *
-     * @throws IOException
-     *         if somehow a problem occurred while writing or reading from the temporary streams.
+     * @throws IOException if somehow a problem occurred while writing or reading from the temporary streams.
      */
-    public abstract Output<O> compile(Input input) throws IOException;
+    public abstract Output<S, U> compile(Input input) throws IOException;
 
 }

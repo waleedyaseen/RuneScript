@@ -8,9 +8,10 @@
 package me.waliedyassen.runescript.editor;
 
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
-import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
 import me.waliedyassen.runescript.editor.project.ProjectManager;
+import me.waliedyassen.runescript.editor.project.compile.impl.ProjectScriptCompiler;
 import me.waliedyassen.runescript.editor.ui.EditorUI;
 import me.waliedyassen.runescript.editor.ui.editor.area.EditorView;
 import me.waliedyassen.runescript.editor.ui.explorer.ExplorerView;
@@ -95,16 +96,8 @@ public final class Api {
      * @return the {@link ScriptCompiler} object instance.
      */
     public ScriptCompiler getScriptCompiler() {
-        return getProjectManager().getCurrentProject().get().getScriptsCompiler();
-    }
-
-    /**
-     * Returns the {@link ConfigCompiler} object instance.
-     *
-     * @return the {@link ConfigCompiler} object instance.
-     */
-    public ConfigCompiler getConfigCompiler() {
-        return getProjectManager().getCurrentProject().get().getConfigsCompiler();
+        var projectCompiler =  getProjectManager().getCurrentProject().get().getCompilerProvider().get("cs2");
+        return ((ProjectScriptCompiler) projectCompiler).getCompiler();
     }
 
     /**

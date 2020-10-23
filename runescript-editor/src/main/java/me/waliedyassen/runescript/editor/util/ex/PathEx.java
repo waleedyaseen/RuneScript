@@ -19,15 +19,23 @@ import java.nio.file.Path;
 public final class PathEx {
 
     /**
-     * Returns the extension of the specified {@link Path}.
+     * Extracts the extension from the specified file {@code path}.
      *
-     * @param path
-     *         the path to get it's extension.
-     *
-     * @return the extension of the path or an empty string if there was no extension.
+     * @param path the path of the file that we want to extract the extension from.
+     * @return the extracted extension or an empty string if no extension is found.
+     * @see #getExtension(String)
      */
     public static String getExtension(Path path) {
-        var name = path.getFileName().toString();
+        return getExtension(path.getFileName().toString());
+    }
+
+    /**
+     * Extracts the extension from the specified file {@code name}.
+     *
+     * @param name the name of the file that we want to extract the extension from.
+     * @return the extracted extension or an empty string if no extension is found.
+     */
+    public static String getExtension(String name) {
         var lastDot = name.lastIndexOf('.');
         if (lastDot == -1) {
             return "";
@@ -38,11 +46,8 @@ public final class PathEx {
     /**
      * Normalizes the specified {@link Path path} to a key string.
      *
-     * @param root
-     *         the root path, which when present the other {@code path} will be relativized against.
-     * @param path
-     *         the path which we want to normalize to a key string.
-     *
+     * @param root the root path, which when present the other {@code path} will be relativized against.
+     * @param path the path which we want to normalize to a key string.
      * @return the normalized string form of the path.
      */
     public static String normalizeRelative(Path root, Path path) {

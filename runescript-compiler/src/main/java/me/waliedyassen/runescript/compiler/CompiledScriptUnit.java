@@ -21,12 +21,12 @@ import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 @Getter
 @Setter
 @RequiredArgsConstructor
-public final class CompiledScriptUnit {
+public final class CompiledScriptUnit extends CompiledUnit<ScriptSyntax> {
 
     /**
      * The AST script node of the compiled unit.
      */
-    private ScriptSyntax script;
+    private ScriptSyntax syntax;
 
     /**
      * The binary script of the compiled unit.

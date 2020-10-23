@@ -61,7 +61,10 @@ public final class CodeParser extends AbstractParser {
         parseResult.setParsedLines(0, textArea.getLineCount() - 1);
         var start = System.currentTimeMillis();
         var result = project.getCache().recompile(codeEditor.getKey(), textArea.getText().getBytes());
-        scripts = result.getScriptSyntax().toArray(new ScriptSyntax[0]);
+        scripts = result.getSyntax().stream()
+                .filter(object -> object instanceof ScriptSyntax)
+                .map(object -> (ScriptSyntax) object)
+                .toArray(ScriptSyntax[]::new);
         parseResult.setParseTime(System.currentTimeMillis() - start);
         var unit = project.getCache().getUnits().get(errorsPath);
         for (var error : unit.getErrors()) {

@@ -84,7 +84,7 @@ class ConstantFoldingOptimizationTest {
         var scripts = new ArrayList<CompiledScriptUnit>();
         do {
             var unit = new CompiledScriptUnit();
-            unit.setScript(parser.script());
+            unit.setSyntax(parser.script());
             scripts.add(unit);
         } while (lexer.remaining() > 0);
         if (scripts.size() != 1) {
@@ -92,6 +92,6 @@ class ConstantFoldingOptimizationTest {
         }
         checker.executePre(scripts);
         checker.execute(scripts);
-        return generator.visit(scripts.get(0).getScript());
+        return generator.visit(scripts.get(0).getSyntax());
     }
 }

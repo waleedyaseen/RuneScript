@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxBase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,13 +17,12 @@ import java.util.List;
 /**
  * A compiled file. Contains all the units and errors that were produced by the compiler.
  *
- * @param <U>
- *         the type of units that will be contained in the compiled file.
- *
+ * @param <S> the type of the syntax nodes this compiled file will contain.
+ * @param <U> the type of units that will be contained in the compiled file.
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-public final class CompiledFile<U> {
+public final class CompiledFile<S extends SyntaxBase, U extends CompiledUnit<S>> {
 
     /**
      * The errors that are in this compiled error.
@@ -51,8 +51,7 @@ public final class CompiledFile<U> {
     /**
      * Adds the specified {@link U unit} to this compiled file.
      *
-     * @param unit
-     *         the unit that we want to add to this compiled file.
+     * @param unit the unit that we want to add to this compiled file.
      */
     public void addUnit(U unit) {
         units.add(unit);
@@ -61,8 +60,7 @@ public final class CompiledFile<U> {
     /**
      * Adds the specified {@link CompilerError error} to this compiled file.
      *
-     * @param error
-     *         the error that we want to add to this compiled file.
+     * @param error the error that we want to add to this compiled file.
      */
     public void addError(CompilerError error) {
         errors.add(error);

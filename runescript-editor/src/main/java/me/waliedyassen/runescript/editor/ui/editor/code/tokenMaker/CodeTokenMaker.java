@@ -32,8 +32,6 @@ import static me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTo
 @RequiredArgsConstructor
 public final class CodeTokenMaker extends AbstractTokenMaker {
 
-    // TODO(Walied): Clean this up a bit.
-
     /**
      * The temporary context token stack.
      */

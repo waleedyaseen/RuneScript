@@ -23,6 +23,7 @@ import me.waliedyassen.runescript.config.codegen.CodeGenerator;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
+import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
 import me.waliedyassen.runescript.config.syntax.SyntaxParser;
 import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
@@ -42,11 +43,12 @@ import static java.util.stream.Collectors.toList;
  *
  * @author Walied K. Yassen
  */
-public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
+public final class ConfigCompiler extends CompilerBase<ConfigSyntax, CompiledConfigUnit> {
 
     /**
      * A map of all the bindings that can be used by this compiler mapped by their extension.
      */
+    @Getter
     private final Map<String, ConfigBinding> bindings = new HashMap<>();
 
     /**
@@ -76,9 +78,9 @@ public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
      * {@inheritDoc}
      */
     @Override
-    public Output<CompiledConfigUnit> compile(Input input) throws IOException {
+    public Output<ConfigSyntax, CompiledConfigUnit> compile(Input input) throws IOException {
         var symbolTable = this.symbolTable.createSubTable();
-        var output = new Output<CompiledConfigUnit>();
+        var output = new Output<ConfigSyntax, CompiledConfigUnit>();
         for (var sourceFile : input.getSourceFiles()) {
             var binding = bindings.get(sourceFile.getExtension());
             if (binding == null) {
@@ -97,14 +99,14 @@ public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
                 }
                 for (var config : configs) {
                     var compiledUnit = new CompiledConfigUnit(binding);
-                    compiledUnit.setConfig(config);
+                    compiledUnit.setSyntax(config);
                     output.addUnit(sourceFile, compiledUnit);
                 }
             } catch (CompilerError error) {
                 output.addError(sourceFile, error);
             }
         }
-        var mapped = output.getCompiledFiles().stream().collect(groupingBy(Function.identity(), CollectorsEx.flatMapping(file -> file.getUnits().stream().map(CompiledConfigUnit::getConfig), toList())));
+        var mapped = output.getCompiledFiles().stream().collect(groupingBy(Function.identity(), CollectorsEx.flatMapping(file -> file.getUnits().stream().map(CompiledConfigUnit::getSyntax), toList())));
         var checker = new SemanticChecker(symbolTable);
         for (var entry : mapped.entrySet()) {
             if (entry.getKey().getErrors().size() > 0) {
@@ -132,7 +134,7 @@ public final class ConfigCompiler extends CompilerBase<CompiledConfigUnit> {
                 var binding = bindings.get(entry.getExtension());
                 var codeGen = new CodeGenerator(idProvider, symbolTable, binding);
                 for (var unit : entry.getUnits()) {
-                    var binaryConfig = codeGen.visit(unit.getConfig());
+                    var binaryConfig = codeGen.visit(unit.getSyntax());
                     unit.setBinaryConfig(binaryConfig);
                 }
             }

@@ -9,6 +9,8 @@ package me.waliedyassen.runescript.editor.ui.editor.code;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
+import me.waliedyassen.runescript.compiler.ScriptCompiler;
+import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.file.FileType;
 import me.waliedyassen.runescript.editor.file.impl.ConfigFileType;
@@ -101,9 +103,11 @@ public final class CodeEditor extends FileEditor {
 
     // Register the language highlighter and other stuff in the future.
     static {
-        TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNESCRIPT, () -> new CodeTokenMaker(Api.getApi().getScriptCompiler().getLexicalTable(), Api.getApi().getScriptCompiler().getSymbolTable(), false));
+        // TODO: This vary from project to another, it should not be static
+        var symbolTable = Api.getApi().getScriptCompiler().getSymbolTable();
+        TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNESCRIPT, () -> new CodeTokenMaker(ScriptCompiler.createLexicalTable(), symbolTable, false));
         FoldParserManager.get().addFoldParserMapping(SYNTAX_STYLE_RUNESCRIPT, new CodeFolder(false));
-        TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNECONFIG, () -> new CodeTokenMaker(Api.getApi().getConfigCompiler().getLexicalTable(), Api.getApi().getConfigCompiler().getSymbolTable(), true));
+        TokenMakerFactoryImpl.register(SYNTAX_STYLE_RUNECONFIG, () -> new CodeTokenMaker(ConfigCompiler.createLexicalTable(), symbolTable, true));
         FoldParserManager.get().addFoldParserMapping(SYNTAX_STYLE_RUNECONFIG, new CodeFolder(true));
     }
 }

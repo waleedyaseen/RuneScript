@@ -161,14 +161,14 @@ class CodeGeneratorTest {
             var scripts = new ArrayList<CompiledScriptUnit>();
             do {
                 var unit = new CompiledScriptUnit();
-                unit.setScript(parser.script());
+                unit.setSyntax(parser.script());
                 scripts.add(unit);
             } while (lexer.remaining() > 0);
             checker.executePre(scripts);
             checker.execute(scripts);
             var parsed = new BinaryScript[scripts.size()];
             for (var index = 0; index < parsed.length; index++) {
-                parsed[index] = generator.visit(scripts.get(index).getScript());
+                parsed[index] = generator.visit(scripts.get(index).getSyntax());
             }
             return parsed;
         } catch (IOException e) {
@@ -184,7 +184,7 @@ class CodeGeneratorTest {
         var scripts = new ArrayList<CompiledScriptUnit>();
         do {
             var unit = new CompiledScriptUnit();
-            unit.setScript(parser.script());
+            unit.setSyntax(parser.script());
             scripts.add(unit);
         } while (lexer.remaining() > 0);
         checker.executePre(scripts);
@@ -192,7 +192,7 @@ class CodeGeneratorTest {
         checker.getErrors().forEach(System.out::println);
         var parsed = new BinaryScript[scripts.size()];
         for (var index = 0; index < parsed.length; index++) {
-            parsed[index] = generator.visit(scripts.get(index).getScript());
+            parsed[index] = generator.visit(scripts.get(index).getSyntax());
         }
         return parsed;
     }

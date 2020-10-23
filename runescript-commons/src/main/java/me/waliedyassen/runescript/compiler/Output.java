@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
 import lombok.var;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxBase;
 import me.waliedyassen.runescript.util.ChecksumUtil;
 
 import java.util.ArrayList;
@@ -19,26 +20,23 @@ import java.util.Map;
 /**
  * The output object of a compiler.
  *
- * @param <U>
- *         the compiled unit type.
- *
+ * @param <S> the type of the Syntax Tree node this output will contain.
+ * @param <U> the type of the compiled units this output will contain.
  * @author Walied K. Yassen
  */
-public final class Output<U> {
+public final class Output<S extends SyntaxBase, U extends CompiledUnit<S>> {
 
     /**
      * A map of all the {@link CompiledFile} objects.
      */
     @Getter
-    private final Map<String, CompiledFile<U>> files = new HashMap<>();
+    private final Map<String, CompiledFile<S, U>> files = new HashMap<>();
 
     /**
      * Adds a compiled unit to this output object.
      *
-     * @param sourceFile
-     *         the source file the unit was compiled from.
-     * @param unit
-     *         the unit object that we compiled.
+     * @param sourceFile the source file the unit was compiled from.
+     * @param unit       the unit object that we compiled.
      */
     public void addUnit(SourceFile sourceFile, U unit) {
         var compiledFile = getOrCreateFile(sourceFile);
@@ -48,10 +46,8 @@ public final class Output<U> {
     /**
      * Adds a compile error to this output object.
      *
-     * @param sourceFile
-     *         the source file the error was produced in.
-     * @param error
-     *         the error that was produced.
+     * @param sourceFile the source file the error was produced in.
+     * @param error      the error that was produced.
      */
     public void addError(SourceFile sourceFile, CompilerError error) {
         var compiledFile = getOrCreateFile(sourceFile);
@@ -63,7 +59,7 @@ public final class Output<U> {
      *
      * @return a {@link List} object.
      */
-    public List<CompiledFile<U>> getCompiledFiles() {
+    public List<CompiledFile<S, U>> getCompiledFiles() {
         return new ArrayList<>(files.values());
     }
 
@@ -71,12 +67,10 @@ public final class Output<U> {
      * Returns the cached {@link CompiledFile} that corresponds to the specified {@link SourceFile}. If there
      * was nothing cached, we will create a new cached object and return it.
      *
-     * @param sourceFile
-     *         the source file object which we want it's the corresponding compiled file.
-     *
+     * @param sourceFile the source file object which we want it's the corresponding compiled file.
      * @return the {@link CompiledFile} object.
      */
-    private CompiledFile<U> getOrCreateFile(SourceFile sourceFile) {
+    private CompiledFile<S, U> getOrCreateFile(SourceFile sourceFile) {
         var fullName = sourceFile.getFullNameWithLocation();
         var file = files.get(fullName);
         if (file == null) {

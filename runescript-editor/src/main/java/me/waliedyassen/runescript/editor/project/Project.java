@@ -28,14 +28,18 @@ import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
 import me.waliedyassen.runescript.editor.project.cache.Cache;
-import me.waliedyassen.runescript.editor.project.cache.CacheUnit;
+import me.waliedyassen.runescript.editor.project.cache.unit.CacheUnit;
+import me.waliedyassen.runescript.editor.project.compile.ProjectCompiler;
+import me.waliedyassen.runescript.editor.project.compile.ProjectCompilerProvider;
+import me.waliedyassen.runescript.editor.project.compile.impl.ProjectConfigCompiler;
+import me.waliedyassen.runescript.editor.project.compile.impl.ProjectScriptCompiler;
 import me.waliedyassen.runescript.editor.ui.editor.project.ProjectEditor;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 import me.waliedyassen.runescript.editor.vfs.VFS;
 import me.waliedyassen.runescript.index.Index;
+import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.tuple.TupleType;
-import me.waliedyassen.runescript.type.Type;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -102,16 +106,10 @@ public final class Project {
     private VFS vfs;
 
     /**
-     * The compiler we are going to use for compiling configurations.
+     * The provider object of the {@link ProjectCompiler} types for this project.
      */
     @Getter
-    private ConfigCompiler configsCompiler;
-
-    /**
-     * The compiler we are going to use for compiling scripts.
-     */
-    @Getter
-    private ScriptCompiler scriptsCompiler;
+    private ProjectCompilerProvider compilerProvider;
 
     /**
      * The instruction map of the project.
@@ -317,21 +315,44 @@ public final class Project {
         instructionMap = new InstructionMap();
         loadInstructions();
         loadTriggers();
-        scriptsCompiler = ScriptCompiler.builder()
+        loadCommands();
+        loadConfigs();
+        loadScripts();
+        loadConstants();
+        loadRuntimeConstants();
+        compilerProvider = new ProjectCompilerProvider();
+        var configCompiler = new ConfigCompiler(new ProjectIDManager(this), symbolTable);
+        loadBindings(configCompiler);
+        registerScriptCompiler();
+        registerConfigCompiler(configCompiler);
+    }
+
+    /**
+     * Registers all of the script compiler(s) in the compiler provider.
+     */
+    private void registerScriptCompiler() {
+        var scriptsCompiler = new ProjectScriptCompiler(ScriptCompiler.builder()
                 .withEnvironment(compilerEnvironment)
                 .withInstructionMap(instructionMap)
                 .withSymbolTable(symbolTable)
                 .withOverrideSymbols(overrideSymbols)
                 .withSupportsLongPrimitiveType(supportsLongPrimitiveType)
                 .withIdProvider(idManager)
-                .build();
-        configsCompiler = new ConfigCompiler(new ProjectIDManager(this), symbolTable);
-        loadCommands();
-        loadConfigs();
-        loadScripts();
-        loadConstants();
-        loadRuntimeConstants();
-        loadBindings();
+                .build());
+        compilerProvider.register("cs2", scriptsCompiler);
+        compilerProvider.register("rs2", scriptsCompiler);
+    }
+
+    /**
+     * Registers all of the config compiler(s) in the compiler provider.
+     *
+     * @param configCompiler the underlying compiler tool for the project compiler.
+     */
+    private void registerConfigCompiler(ConfigCompiler configCompiler) {
+        var projectCompiler = new ProjectConfigCompiler(configCompiler);
+        configCompiler.getBindings().keySet().forEach(extension -> {
+            compilerProvider.register(extension, projectCompiler);
+        });
     }
 
     /**
@@ -617,7 +638,7 @@ public final class Project {
     /**
      * Loads all of the configuration bindings of the project.
      */
-    void loadBindings() {
+    void loadBindings(ConfigCompiler configCompiler) {
         bindingsPath.forEach((type, pathRaw) -> {
             var path = Paths.get(pathRaw);
             if (!path.isAbsolute()) {
@@ -631,7 +652,7 @@ public final class Project {
                 try (var config = CommentedFileConfig.of(path.toFile())) {
                     config.load();
                     var binding = new ConfigBinding(() -> type);
-                    configsCompiler.registerBinding(type.getRepresentation(), binding);
+                    configCompiler.registerBinding(type.getRepresentation(), binding);
                     for (var entry : config.entrySet()) {
                         if (entry.getKey().contentEquals("config")) {
                             continue;
@@ -787,7 +808,7 @@ public final class Project {
      *
      * @param unit the cache unit to update the errors for.
      */
-    public void updateErrors(CacheUnit unit) {
+    public void updateErrors(CacheUnit<?> unit) {
         var errorsView = Api.getApi().getUi().getErrorsView();
         var path = unit.getNameWithPath();
         errorsView.removeErrorForPath(path);

@@ -13,20 +13,19 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import me.waliedyassen.runescript.commons.Pair;
-import me.waliedyassen.runescript.commons.document.LineColumn;
+import me.waliedyassen.runescript.compiler.CompiledFile;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
-import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
-import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
 import me.waliedyassen.runescript.config.compiler.CompiledConfigUnit;
 import me.waliedyassen.runescript.editor.file.FileTypeManager;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
+import me.waliedyassen.runescript.editor.project.cache.unit.CacheUnit;
+import me.waliedyassen.runescript.editor.project.compile.CompileResult;
+import me.waliedyassen.runescript.editor.project.compile.ProjectCompiler;
 import me.waliedyassen.runescript.editor.util.ex.PathEx;
-import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.util.ChecksumUtil;
 
 import java.io.DataInputStream;
@@ -59,7 +58,7 @@ public final class Cache {
      * A map of all the cache units that are stored in this
      */
     @Getter
-    private final Map<String, CacheUnit> units = new HashMap<>();
+    private final Map<String, CacheUnit<?>> units = new HashMap<>();
 
     /**
      * The project which this cache is for.
@@ -90,9 +89,12 @@ public final class Cache {
     public void deserialize(DataInputStream stream) throws IOException {
         var unitsCount = stream.readInt();
         for (int index = 0; index < unitsCount; index++) {
-            var unit = new CacheUnit();
-            unit.deserialize(stream, project.getCompilerEnvironment());
-            units.put(unit.getNameWithPath(), unit);
+            var path = stream.readUTF();
+            var extension = PathEx.getExtension(path);
+            var compiler = getCompiler(extension);
+            var cacheUnit = compiler.createUnit(path, null);
+            cacheUnit.read(stream);
+            units.put(cacheUnit.getNameWithPath(), cacheUnit);
         }
     }
 
@@ -114,7 +116,7 @@ public final class Cache {
      */
     public void performSaving() {
         if (dirtyCache) {
-            log.info("Found dirty cache.. saving cache");
+            log.trace("Found dirty cache.. saving cache");
             project.saveCache();
             dirtyCache = false;
         }
@@ -195,82 +197,50 @@ public final class Cache {
      * @return the result object of the compile call.
      */
     @SneakyThrows
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private CompileResult recompile(List<Pair<Path, byte[]>> files, CompileOptions options) {
+        var sourceDirectory = project.getBuildPath().getSourceDirectory();
+        var inputs = new HashMap<ProjectCompiler<?, ?>, Input>();
         var result = new CompileResult();
-        var configInput = options.createInput();
-        var scriptInput = options.createInput();
         for (var pair : files) {
-            var path = pair.getKey();
+            var normalPath = pair.getKey();
+            var normalizedPath = PathEx.normalizeRelative(sourceDirectory, normalPath);
             var content = pair.getValue();
-            var key = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), path);
-            var unit = units.get(key);
+            var compiler = getCompiler(PathEx.getExtension(normalPath));
+            var input = inputs.computeIfAbsent(compiler, dummy -> options.createInput());
+            var unit = units.get(normalizedPath);
             if (unit == null) {
-                unit = createCacheUnit(path);
+                unit = createCacheUnit(normalPath);
             } else {
                 unit.undefineSymbols(project.getSymbolTable());
                 unit.clear();
             }
-            if (unit.isClientScript() || unit.isServerScript()) {
-                scriptInput.addSourceFile(SourceFile.of(path, content));
-            } else {
-                configInput.addSourceFile(SourceFile.of(path, content));
-            }
+            input.addSourceFile(SourceFile.of(normalPath, content));
         }
-        var dirty = false;
-        if (!configInput.getSourceFiles().isEmpty()) {
-            var output = project.getConfigsCompiler().compile(configInput);
-            for (var entry : output.getFiles().entrySet()) {
-                var normalizedPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), Paths.get(entry.getKey()));
-                var compiledFile = entry.getValue();
-                var unit = units.get(normalizedPath);
-                unit.setCrc(compiledFile.getCrc());
-                for (var compiledUnit : compiledFile.getUnits()) {
-                    var info = new ConfigInfo(compiledUnit.getConfig().getName().getText(), compiledUnit.getBinding().getGroup().getType(), compiledUnit.getConfig().getContentType());
-                    unit.getConfigs().add(info);
-                    if (options.getOnUnitCompilation() != null) {
-                        options.getOnUnitCompilation().accept(compiledUnit);
+        if (!inputs.isEmpty()) {
+            var dirty = false;
+            for (var inputEntry : inputs.entrySet()) {
+                var compiler = inputEntry.getKey();
+                var input = inputEntry.getValue();
+                var output = compiler.compile(input);
+                for (Map.Entry outputEntry : output.getFiles().entrySet()) {
+                    var compiledFile = (CompiledFile<?, ?>) outputEntry.getValue();
+                    var normalPath = Paths.get((String) outputEntry.getKey());
+                    var normalizedPath = PathEx.normalizeRelative(sourceDirectory, normalPath);
+                    var unit = units.get(normalizedPath);
+                    unit.update((CompiledFile) compiledFile);
+                    compiledFile.getUnits().forEach(syntax -> result.getSyntax().add(syntax.getSyntax()));
+                    for (var error : compiledFile.getErrors()) {
+                        unit.getErrors().add(new CachedError(error.getRange(), 1, error.getMessage()));
                     }
+                    unit.defineSymbols(project.getSymbolTable());
+                    project.updateErrors(unit);
+                    dirty = true;
                 }
-                unit.defineSymbols(project.getSymbolTable());
-                for (var error : compiledFile.getErrors()) {
-                    unit.getErrors().add(new CachedError(error.getRange(), 1, error.getMessage()));
-                }
-                project.updateErrors(unit);
             }
-            dirty = true;
-        }
-        if (!scriptInput.getSourceFiles().isEmpty()) {
-            var output = project.getScriptsCompiler().compile(scriptInput);
-            for (var entry : output.getFiles().entrySet()) {
-                var normalizedPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), Paths.get(entry.getKey()));
-                var compiledFile = entry.getValue();
-                var unit = units.get(normalizedPath);
-                unit.setCrc(compiledFile.getCrc());
-                for (var compiledUnit : compiledFile.getUnits()) {
-                    result.getScriptSyntax().add(compiledUnit.getScript());
-                    var scriptNode = compiledUnit.getScript();
-                    var scriptName = compiledUnit.getScript().getName().getText();
-                    var triggerName = compiledUnit.getScript().getTrigger().getText();
-                    var info = new ScriptInfo(Collections.emptyMap(), scriptName,
-                            project.getCompilerEnvironment().lookupTrigger(triggerName),
-                            scriptNode.getType(),
-                            Arrays.stream(scriptNode.getParameters()).map(ParameterSyntax::getType).toArray(Type[]::new),
-                            null);
-                    unit.getScripts().add(info);
-                    if (options.getOnUnitCompilation() != null) {
-                        options.getOnUnitCompilation().accept(compiledUnit);
-                    }
-                }
-                unit.defineSymbols(project.getSymbolTable());
-                for (var error : compiledFile.getErrors()) {
-                    unit.getErrors().add(new CachedError(error.getRange(), 1, error.getMessage()));
-                }
-                project.updateErrors(unit);
+            if (dirty) {
+                markCacheDirty();
             }
-            dirty = true;
-        }
-        if (dirty) {
-            markCacheDirty();
         }
         return result;
     }
@@ -299,6 +269,9 @@ public final class Cache {
             } else {
                 throw new IllegalArgumentException();
             }
+        });
+        options.setOnCodeGeneration(object -> {
+            System.out.println("Constant:" + object);
         });
         var units = this.units.values().stream().filter(unit -> forceAll || unit.getCrc() != unit.getPackCrc()).collect(Collectors.toList());
         var files = new ArrayList<Pair<Path, byte[]>>();
@@ -338,11 +311,25 @@ public final class Cache {
      * @param relativePath the relative path of the cache unit.
      * @return the created {@link CacheUnit} object.
      */
+    @SuppressWarnings("rawtypes")
     private CacheUnit createCacheUnit(Path relativePath) {
+        var extension = PathEx.getExtension(relativePath);
+        var compiler = getCompiler(extension);
         var fullPath = PathEx.normalizeRelative(project.getBuildPath().getSourceDirectory(), relativePath);
-        var unit = new CacheUnit(fullPath, relativePath.getFileName().toString());
+        var unit = compiler.createUnit(fullPath, relativePath.getFileName().toString());
         units.put(fullPath, unit);
         return unit;
+    }
+
+    /**
+     * Returns the {@link ProjectCompiler} with the specified {@code extension} or {@code null}
+     * if there was none found.
+     *
+     * @param extension the extension which we want to find the compiler for.
+     * @return the found {@link ProjectCompiler} if found otherwise {@code null}.
+     */
+    private ProjectCompiler<?, ?> getCompiler(String extension) {
+        return project.getCompilerProvider().get(extension);
     }
 
     /**
@@ -372,6 +359,11 @@ public final class Cache {
          * A callback which gets called when we finish compiling a unit.
          */
         private Consumer<Object> onUnitCompilation;
+
+        /**
+         * A callback which gets called before we start code generation.
+         */
+        private Consumer<Object> onCodeGeneration;
 
         /**
          * Creates a base {@link Input} object with all the possible options that are present
