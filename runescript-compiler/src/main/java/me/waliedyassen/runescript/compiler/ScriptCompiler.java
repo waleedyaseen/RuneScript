@@ -10,26 +10,26 @@ package me.waliedyassen.runescript.compiler;
 import lombok.Getter;
 import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
-import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.ConstantFoldingOptimization;
-import me.waliedyassen.runescript.compiler.error.ErrorReporter;
-import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
+import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.ConstantFoldingOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.DeadBlockOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.DeadBranchOptimization;
 import me.waliedyassen.runescript.compiler.codegen.optimizer.impl.NaturalFlowOptimization;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.lexer.Lexer;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.stack.StackType;
@@ -177,6 +177,16 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
             checker.execute(compiledFile.getUnits());
             compiledFile.getErrors().addAll(checker.getErrors());
             checker.getErrors().clear();
+        }
+
+        if (input.isRunIdGeneration()) {
+            // We want to assign IDs for all of the nodes, including the erroneous ones
+            // because they could be referenced from non erroneous.
+            for (var compiledFile : output.getFiles().values()) {
+                for (var unit : compiledFile.getUnits()) {
+                    idProvider.findOrCreateScript(unit.getSyntax().getFullName(), compiledFile.getExtension());
+                }
+            }
         }
         if (input.isRunCodeGeneration()) {
             var codeGenerator = new CodeGenerator(environment, symbolTable, instructionMap, environment.getHookTriggerType());

@@ -23,9 +23,9 @@ import me.waliedyassen.runescript.config.codegen.CodeGenerator;
 import me.waliedyassen.runescript.config.lexer.Lexer;
 import me.waliedyassen.runescript.config.lexer.Tokenizer;
 import me.waliedyassen.runescript.config.lexer.token.Kind;
+import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
 import me.waliedyassen.runescript.config.syntax.SyntaxParser;
-import me.waliedyassen.runescript.config.semantics.SemanticChecker;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.util.CollectorsEx;
 
@@ -109,26 +109,39 @@ public final class ConfigCompiler extends CompilerBase<ConfigSyntax, CompiledCon
         var mapped = output.getCompiledFiles().stream().collect(groupingBy(Function.identity(), CollectorsEx.flatMapping(file -> file.getUnits().stream().map(CompiledConfigUnit::getSyntax), toList())));
         var checker = new SemanticChecker(symbolTable);
         for (var entry : mapped.entrySet()) {
-            if (entry.getKey().getErrors().size() > 0) {
+            var compiledFile = entry.getKey();
+            if (compiledFile.isErroneous()) {
                 continue;
             }
-            var binding = bindings.get(entry.getKey().getExtension());
+            var binding = bindings.get(compiledFile.getExtension());
             checker.executePre(entry.getValue(), binding);
-            entry.getKey().getErrors().addAll(checker.getErrors());
+            compiledFile.getErrors().addAll(checker.getErrors());
             checker.getErrors().clear();
         }
         for (var entry : mapped.entrySet()) {
-            if (entry.getKey().getErrors().size() > 0) {
+            var compiledFile = entry.getKey();
+            if (compiledFile.isErroneous()) {
                 continue;
             }
-            var binding = bindings.get(entry.getKey().getExtension());
+            var binding = bindings.get(compiledFile.getExtension());
             checker.execute(entry.getValue(), binding);
-            entry.getKey().getErrors().addAll(checker.getErrors());
+            compiledFile.getErrors().addAll(checker.getErrors());
             checker.getErrors().clear();
+        }
+        if (input.isRunIdGeneration()) {
+            // We want to assign IDs for all of the nodes, including the erroneous ones
+            // because they could be referenced from non erroneous.
+            for (var entry : mapped.keySet()) {
+                var binding = bindings.get(entry.getExtension());
+                var type = binding.getGroup().getType();
+                for (var unit : entry.getUnits()) {
+                    idProvider.findOrCreateConfig(type, unit.getSyntax().getName().getText());
+                }
+            }
         }
         if (input.isRunCodeGeneration()) {
             for (var entry : mapped.keySet()) {
-                if (entry.getErrors().size() > 0) {
+                if (entry.isErroneous()) {
                     continue;
                 }
                 var binding = bindings.get(entry.getExtension());

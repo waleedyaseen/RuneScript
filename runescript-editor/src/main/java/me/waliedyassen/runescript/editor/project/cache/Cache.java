@@ -229,7 +229,12 @@ public final class Cache {
                     var normalizedPath = PathEx.normalizeRelative(sourceDirectory, normalPath);
                     var unit = units.get(normalizedPath);
                     unit.update((CompiledFile) compiledFile);
-                    compiledFile.getUnits().forEach(syntax -> result.getSyntax().add(syntax.getSyntax()));
+                    for (var compiledUnit : compiledFile.getUnits()) {
+                        result.getSyntax().add(compiledUnit.getSyntax());
+                        if (options.getOnUnitCompilation() != null) {
+                            options.getOnUnitCompilation().accept(compiledUnit);
+                        }
+                    }
                     for (var error : compiledFile.getErrors()) {
                         unit.getErrors().add(new CachedError(error.getRange(), 1, error.getMessage()));
                     }
@@ -261,6 +266,7 @@ public final class Cache {
         var scriptUnits = new ArrayList<CompiledScriptUnit>();
         var options = new CompileOptions();
         options.setRunCodeGeneration(true);
+        options.setRunIdGeneration(true);
         options.setOnUnitCompilation(object -> {
             if (object instanceof CompiledConfigUnit) {
                 configUnits.add((CompiledConfigUnit) object);
@@ -270,9 +276,6 @@ public final class Cache {
                 throw new IllegalArgumentException();
             }
         });
-        options.setOnCodeGeneration(object -> {
-            System.out.println("Constant:" + object);
-        });
         var units = this.units.values().stream().filter(unit -> forceAll || unit.getCrc() != unit.getPackCrc()).collect(Collectors.toList());
         var files = new ArrayList<Pair<Path, byte[]>>();
         for (var unit : units) {
@@ -280,14 +283,6 @@ public final class Cache {
             files.add(Pair.of(path, Files.readAllBytes(path)));
         }
         recompile(files, options);
-        for (var configUnit : configUnits) {
-            var binaryConfig = configUnit.getBinaryConfig();
-            project.getIdManager().findOrCreateConfig(binaryConfig.getGroup().getType(), binaryConfig.getName());
-        }
-        for (var scriptUnit : scriptUnits) {
-            var binaryScript = scriptUnit.getBinaryScript();
-            project.getIdManager().findOrCreateScript(binaryScript.getName(), binaryScript.getExtension());
-        }
         for (var configUnit : configUnits) {
             var type = configUnit.getBinding().getGroup().getType();
             var name = configUnit.getBinaryConfig().getName();
@@ -356,14 +351,14 @@ public final class Cache {
         private boolean runCodeGeneration;
 
         /**
+         * Whether or not we should run the id generation.
+         */
+        private boolean runIdGeneration;
+
+        /**
          * A callback which gets called when we finish compiling a unit.
          */
         private Consumer<Object> onUnitCompilation;
-
-        /**
-         * A callback which gets called before we start code generation.
-         */
-        private Consumer<Object> onCodeGeneration;
 
         /**
          * Creates a base {@link Input} object with all the possible options that are present
@@ -374,6 +369,7 @@ public final class Cache {
         public Input createInput() {
             var input = new Input();
             input.setRunCodeGeneration(runCodeGeneration);
+            input.setRunIdGeneration(runIdGeneration);
             return input;
         }
     }

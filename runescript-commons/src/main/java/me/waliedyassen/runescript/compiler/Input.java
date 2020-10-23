@@ -34,10 +34,16 @@ public final class Input {
     private boolean runCodeGeneration;
 
     /**
+     * Whether or not we should run the ID generation before the code generation.
+     */
+    @Getter
+    @Setter
+    private boolean runIdGeneration;
+
+    /**
      * Adds the specified {@link SourceFile} to the list of files we want to compile.
      *
-     * @param sourceFile
-     *         the source file that we want to compile.
+     * @param sourceFile the source file that we want to compile.
      */
     public void addSourceFile(SourceFile sourceFile) {
         sourceFiles.add(sourceFile);

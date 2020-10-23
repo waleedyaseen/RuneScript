@@ -65,4 +65,13 @@ public final class CompiledFile<S extends SyntaxBase, U extends CompiledUnit<S>>
     public void addError(CompilerError error) {
         errors.add(error);
     }
+
+    /**
+     * Checks whether or not this compiled file is erroneous.
+     *
+     * @return <code>true</code> if it is otherwise <code>false</code>.
+     */
+    public boolean isErroneous() {
+        return errors.size() > 0;
+    }
 }
