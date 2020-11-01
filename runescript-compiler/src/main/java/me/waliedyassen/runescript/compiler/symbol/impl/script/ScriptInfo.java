@@ -69,7 +69,11 @@ public final class ScriptInfo extends Symbol {
      * @return the full name of the script with the trigger.
      */
     public String getFullName() {
-        return String.format("[%s,%s]", trigger.getRepresentation(), name);
+        if (name == null) {
+            return String.format("[%s]", trigger.getRepresentation());
+        } else {
+            return String.format("[%s,%s]", trigger.getRepresentation(), name);
+        }
     }
 
     /**

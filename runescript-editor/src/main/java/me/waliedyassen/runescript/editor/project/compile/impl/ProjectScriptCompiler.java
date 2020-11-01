@@ -65,7 +65,7 @@ public final class ProjectScriptCompiler implements ProjectCompiler<ScriptSyntax
      */
     @Override
     public CacheScriptUnit createUnit(String filePath, String fileName) {
-        return new CacheScriptUnit(fileName, fileName);
+        return new CacheScriptUnit(filePath, fileName);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class ProjectScriptCompiler implements ProjectCompiler<ScriptSyntax
         @Override
         public void defineSymbols(ScriptSymbolTable symbolTable) {
             for (var script : scripts) {
-                if (symbolTable.lookupScript(script.getTrigger(), script.getName()) == null) {
+                if (symbolTable.lookupScript(script.getFullName()) == null) {
                     symbolTable.defineScript(script);
                 }
             }
@@ -120,8 +120,9 @@ public final class ProjectScriptCompiler implements ProjectCompiler<ScriptSyntax
         public void update(CompiledFile<?, CompiledScriptUnit> compiledFile) {
             for (var compiledUnit : compiledFile.getUnits()) {
                 var scriptNode = compiledUnit.getSyntax();
-                var scriptName = compiledUnit.getSyntax().getName().getText();
-                var triggerName = compiledUnit.getSyntax().getTrigger().getText();
+                var name = scriptNode.getName();
+                var scriptName = name.getName() != null ? name.getName().getText() : null;
+                var triggerName = name.getTrigger().getText();
                 var info = new ScriptInfo(Collections.emptyMap(), scriptName,
                         compiler.getEnvironment().lookupTrigger(triggerName),
                         scriptNode.getType(),
@@ -138,7 +139,13 @@ public final class ProjectScriptCompiler implements ProjectCompiler<ScriptSyntax
         public void writeImpl(DataOutputStream stream) throws IOException {
             stream.writeShort(scripts.size());
             for (var script : scripts) {
-                stream.writeUTF(script.getName());
+                var name = script.getName();
+                if (name != null) {
+                    stream.writeBoolean(true);
+                    stream.writeUTF(script.getName());
+                } else {
+                    stream.writeBoolean(false);
+                }
                 stream.writeUTF(script.getTrigger().getRepresentation());
                 stream.writeByte(script.getArguments().length);
                 for (var argument : script.getArguments()) {
@@ -160,7 +167,7 @@ public final class ProjectScriptCompiler implements ProjectCompiler<ScriptSyntax
             var environment = compiler.getEnvironment();
             var scriptsCount = stream.readUnsignedShort();
             for (var index = 0; index < scriptsCount; index++) {
-                var name = stream.readUTF();
+                var name = stream.readBoolean() ? stream.readUTF() : null;
                 var trigger = environment.lookupTrigger(stream.readUTF());
                 var argumentsCount = stream.readUnsignedByte();
                 var arguments = new Type[argumentsCount];

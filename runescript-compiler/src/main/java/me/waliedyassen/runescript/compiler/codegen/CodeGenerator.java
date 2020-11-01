@@ -139,8 +139,6 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         bind(generateBlock("entry"));
         script.getCode().accept(this);
         generateDefaultReturn(script.getType());
-        // format the script name to be in the formal format.
-        var name = String.format("[%s,%s]", script.getTrigger().getText(), script.getName().getText());
         // put all of the blocks into a sorted map.
         var blocks = new BlockList();
         for (var block : blockMap.getBlocks()) {
@@ -157,7 +155,8 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         // clean-up the junk after code generation is done.
         initialise();
         // return the generated script object.
-        var info = symbolTable.lookupScript(environment.lookupTrigger(script.getTrigger().getText()), script.getName().getText());
+        var name = script.getName().toText();
+        var info = symbolTable.lookupScript(name);
         return new BinaryScript(script.getExtension(), name, blocks, parameters, variables, tables, info);
     }
 
@@ -305,7 +304,12 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         if (hook.getTransmits() != null) {
             signature.append('Y');
         }
-        instruction(PUSH_INT_CONSTANT, hook.getName() == null ? -1 : symbolTable.lookupScript(hookTriggerType, hook.getName().getText()));
+        if (hook.getName() == null) {
+            instruction(PUSH_INT_CONSTANT, -1);
+        } else {
+            var fullName = String.format("[%s,%s]", hookTriggerType.getRepresentation(), hook.getName().getText());
+            instruction(PUSH_INT_CONSTANT, symbolTable.lookupScript(fullName));
+        }
         if (hook.getArguments() != null) {
             for (var argument : hook.getArguments()) {
                 argument.accept(this);
@@ -328,8 +332,10 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         for (var argument : call.getArguments()) {
             argument.accept(this);
         }
-        var script = symbolTable.lookupScript(call.getTriggerType(), call.getName().getText());
-        return instruction(call.getTriggerType().getOpcode(), script);
+        final var triggerType = call.getTriggerType();
+        var fullName = String.format("[%s,%s]", triggerType.getRepresentation(), call.getName().getText());
+        var script = symbolTable.lookupScript(fullName);
+        return instruction(triggerType.getOpcode(), script);
     }
 
     /**

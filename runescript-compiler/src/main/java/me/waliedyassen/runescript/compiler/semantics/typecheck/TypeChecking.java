@@ -205,8 +205,9 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         if (hookTriggerType == null) {
             checker.reportError(new SemanticError(hook, "Hooks are not allowed"));
         } else if (hook.getName() != null) {
+            var fullName = String.format("[%s,%s]",hookTriggerType.getRepresentation(), hook.getName().getText());
             var parentInfo = symbolTable.lookupCommand(((CommandSyntax) hook.getParent()).getName().getText());
-            var scriptInfo = symbolTable.lookupScript(hookTriggerType, hook.getName().getText());
+            var scriptInfo = symbolTable.lookupScript(fullName);
             if (scriptInfo == null) {
                 checker.reportError(new SemanticError(hook.getName(), String.format("Could not resolve %s script with the name '%s'", hookTriggerType.getRepresentation(), hook.getName().getText())));
             } else {
@@ -240,10 +241,11 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(CallSyntax call) {
-        var name = call.getName();
-        var info = symbolTable.lookupScript(call.getTriggerType(), name.getText());
+        final var triggerType = call.getTriggerType();
+        var fullName = String.format("[%s,%s]", triggerType.getRepresentation(), call.getName().getText());
+        var info = symbolTable.lookupScript(fullName);
         if (info == null) {
-            checker.reportError(new SemanticError(call, String.format("Could not resolve %s script with the name '%s'", call.getTriggerType().getRepresentation(), name.getText())));
+            checker.reportError(new SemanticError(call, String.format("Could not resolve %s script with the name '%s'", call.getTriggerType().getRepresentation(), call.getName().getText())));
             return TypeCheckAction.SKIP;
         }
         checkCallApplicable(call, info, call.getArguments());

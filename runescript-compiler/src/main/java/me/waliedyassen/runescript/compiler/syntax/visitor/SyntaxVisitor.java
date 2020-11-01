@@ -9,6 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.visitor;
 
 import me.waliedyassen.runescript.compiler.syntax.AnnotationSyntax;
 import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
+import me.waliedyassen.runescript.compiler.syntax.ScriptNameSyntax;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.syntax.expr.*;
 import me.waliedyassen.runescript.compiler.syntax.expr.literal.*;
@@ -35,6 +36,15 @@ public interface SyntaxVisitor<T> {
      * @return the implementation output object.
      */
     default T visit(ScriptSyntax script) {
+        return null;
+    }
+    /**
+     * Gets called when we have just visited an {@link ScriptNameSyntax} node.
+     *
+     * @param syntax the {@link ScriptNameSyntax} node we have just visited.
+     * @return the implementation output object.
+     */
+    default T visit(ScriptNameSyntax syntax) {
         return null;
     }
 

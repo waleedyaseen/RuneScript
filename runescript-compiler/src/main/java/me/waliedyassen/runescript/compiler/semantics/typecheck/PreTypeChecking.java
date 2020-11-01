@@ -28,10 +28,10 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.VariableInitializerSyntax
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxTreeVisitor;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
-import me.waliedyassen.runescript.type.primitive.PrimitiveType;
-import me.waliedyassen.runescript.type.tuple.TupleType;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.TypeUtil;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
+import me.waliedyassen.runescript.type.tuple.TupleType;
 
 import java.util.*;
 
@@ -80,7 +80,7 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
             annotations = Collections.emptyMap();
         }
         // resolve the script trigger type.
-        var triggerName = script.getTrigger();
+        var triggerName = script.getName().getTrigger();
         var trigger = checker.getEnvironment().lookupTrigger(triggerName.getText());
         scopes.push(new Scope(null));
         for (var parameter : script.getParameters()) {
@@ -109,29 +109,29 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
                 reportError(new SemanticError(triggerName, String.format("The trigger type '%s' requires parameters of type '%s'", trigger.getRepresentation(), TypeUtil.createRepresentation(expected))));
             }
             // check if the script is already defined in the symbol table, and define it if it was not, or produce an error if it was a duplicate.
-            var name = script.getName().getText();
-            var existing = symbolTable.lookupScript(trigger, name);
+            var name = script.getName();
+            var existing = symbolTable.lookupScript(name.toText());
             if (existing != null) {
                 if (annotations.containsKey("id")) {
-                    reportError(new SemanticError(script.getName(), "You cannot use the 'id' annotation on overriding scripts"));
+                    reportError(new SemanticError(name, "You cannot use the 'id' annotation on overriding scripts"));
                 }
                 if (checker.isAllowOverriding()) {
                     var existingArguments = TypeUtil.flatten(existing.getArguments());
                     if (!Arrays.equals(actual, existingArguments)) {
-                        reportError(new SemanticError(script.getName(), String.format("Mismatch overriding scripts arguments: (%s) and (%s)", TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(existingArguments))));
+                        reportError(new SemanticError(name, String.format("Mismatch overriding scripts arguments: (%s) and (%s)", TypeUtil.createRepresentation(actual), TypeUtil.createRepresentation(existingArguments))));
                     }
                     if (!existing.getType().equals(script.getType())) {
-                        reportError(new SemanticError(script.getName(), String.format("Mismatch overriding scripts return type: (%s) and (%s)", TypeUtil.createRepresentation(script.getType()), TypeUtil.createRepresentation(existing.getType()))));
+                        reportError(new SemanticError(name, String.format("Mismatch overriding scripts return type: (%s) and (%s)", TypeUtil.createRepresentation(script.getType()), TypeUtil.createRepresentation(existing.getType()))));
                     }
                 } else {
-                    reportError(new SemanticError(script.getName(), String.format("The script '%s' is already defined", name)));
+                    reportError(new SemanticError(name, String.format("The script '%s' is already defined", name)));
                 }
             } else {
                 Integer predefinedId = null;
                 if (annotations.containsKey("id")) {
                     predefinedId = annotations.get("id").getValue();
                 }
-                symbolTable.defineScript(annotations, trigger, name, script.getType(), actual, predefinedId);
+                symbolTable.defineScript(annotations, trigger, name.getName() != null ? name.getName().getText() : null, script.getType(), actual, predefinedId);
             }
         }
         script.getCode().accept(this);

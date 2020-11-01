@@ -186,7 +186,7 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
             // because they could be referenced from non erroneous.
             for (var compiledFile : output.getFiles().values()) {
                 for (var unit : compiledFile.getUnits()) {
-                    idManager.findOrCreateScript(unit.getSyntax().getFullName(), compiledFile.getExtension());
+                    idManager.findOrCreateScript(unit.getSyntax().getName().toText(), compiledFile.getExtension());
                 }
             }
         }

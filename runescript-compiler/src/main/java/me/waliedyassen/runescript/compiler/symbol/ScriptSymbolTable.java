@@ -23,11 +23,6 @@ import java.util.Map;
 public final class ScriptSymbolTable extends SymbolTable {
 
     /**
-     * The script name template.
-     */
-    private static final String SCRIPT_NAME_TEMPLATE = "[%s,%s]";
-
-    /**
      * The defined scripts map.
      */
     @Getter
@@ -124,10 +119,27 @@ public final class ScriptSymbolTable extends SymbolTable {
      * @param predefinedId the predefined id of the script.
      */
     public void defineScript(Map<String, Annotation> annotations, TriggerType trigger, String name, Type type, Type[] arguments, Integer predefinedId) {
-        if (lookupScript(trigger, name) != null) {
-            throw new IllegalArgumentException(String.format("The script '[%s,%s]' is already defined.", trigger.getRepresentation(), name));
+        var fullName = makeScriptName(trigger, name);
+        if (lookupScript(fullName) != null) {
+            throw new IllegalArgumentException(String.format("The script '%s' is already defined.", fullName));
         }
-        scripts.put(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name), new ScriptInfo(annotations, name, trigger, type, arguments, predefinedId));
+        scripts.put(fullName, new ScriptInfo(annotations, name, trigger, type, arguments, predefinedId));
+    }
+
+
+    /**
+     * Builds the full script name from the specified trigger and name.
+     *
+     * @param trigger the trigger of the script.
+     * @param name    the name of the script.
+     * @return the full name of the script.
+     */
+    private String makeScriptName(TriggerType trigger, String name) {
+        if (name == null) {
+            return String.format("[%s]", trigger.getRepresentation());
+        } else {
+            return String.format("[%s,%s]", trigger.getRepresentation(), name);
+        }
     }
 
     /**
@@ -140,21 +152,20 @@ public final class ScriptSymbolTable extends SymbolTable {
         if (!allowRemoving) {
             return;
         }
-        var fullName = String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name);
+        var fullName = makeScriptName(trigger, name);
         scripts.remove(fullName);
     }
 
     /**
-     * Looks-up for the {@link ScriptInfo script information} with the specified {@code trigger} and {@code name}.
+     * Looks-up for the {@link ScriptInfo script information} with the specified {@code name}.
      *
-     * @param trigger the trigger type of the script to lookup for.
-     * @param name    the name of the script to lookup for.
+     * @param name the name of the script to lookup for.
      * @return the {@link ScriptInfo} if it was present otherwise {@code null}.
      */
-    public ScriptInfo lookupScript(TriggerType trigger, String name) {
-        var info = scripts.get(String.format(SCRIPT_NAME_TEMPLATE, trigger.getRepresentation(), name));
+    public ScriptInfo lookupScript(String name) {
+        var info = scripts.get(name);
         if (info == null && getParent() != null) {
-            info = getParent().lookupScript(trigger, name);
+            info = getParent().lookupScript(name);
         }
         return info;
     }

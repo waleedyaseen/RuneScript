@@ -367,22 +367,25 @@ public final class Project {
      */
     @SneakyThrows
     void loadInstructions() {
-        var file = (File) null;
-        var path = instructionsPath;
-        if (path.startsWith("*")) {
-            path = path.substring(1);
-            if ("osrs_default".equals(path)) {
-                file = new File(getClass().getResource("osrs_default_instructions.toml").toURI());
+        var path = (Path) null;
+        var pathRaw = instructionsPath;
+        if (pathRaw.startsWith("*")) {
+            pathRaw = pathRaw.substring(1);
+            if ("osrs_default".equals(pathRaw)) {
+                path = Paths.get(getClass().getResource("osrs_default_instructions.toml").toURI());
             } else {
-                throw new IllegalStateException("Unrecognised macro: " + path);
+                throw new IllegalStateException("Unrecognised macro: " + pathRaw);
             }
         } else {
-            file = new File(path);
+            path = Paths.get(pathRaw);
         }
-        if (!file.exists()) {
+        if (!path.isAbsolute()) {
+            path = directory.resolve(path);
+        }
+        if (!Files.exists(path)) {
             throw new IllegalStateException("The specified instructions file does not exist");
         }
-        try (var config = CommentedFileConfig.of(file)) {
+        try (var config = CommentedFileConfig.of(path)) {
             config.load();
             for (var entry : config.entrySet()) {
                 var key = entry.getKey();
@@ -400,22 +403,25 @@ public final class Project {
      */
     @SneakyThrows
     void loadTriggers() {
-        var file = (File) null;
-        var path = triggersPath;
-        if (path.startsWith("*")) {
-            path = path.substring(1);
-            if ("osrs_default".equals(path)) {
-                file = new File(getClass().getResource("osrs_default_triggers.toml").toURI());
+        var path = (Path) null;
+        var pathRaw = triggersPath;
+        if (pathRaw.startsWith("*")) {
+            pathRaw = pathRaw.substring(1);
+            if ("osrs_default".equals(pathRaw)) {
+                path = Paths.get(getClass().getResource("osrs_default_triggers.toml").toURI());
             } else {
-                throw new IllegalStateException("Unrecognised macro: " + path);
+                throw new IllegalStateException("Unrecognised macro: " + pathRaw);
             }
         } else {
-            file = new File(path);
+            path = Paths.get(pathRaw);
         }
-        if (!file.exists()) {
-            throw new IllegalStateException("The specified instructions file does not exist");
+        if (!path.isAbsolute()) {
+            path = directory.resolve(path);
         }
-        try (var config = CommentedFileConfig.of(file)) {
+        if (!Files.exists(path)) {
+            throw new IllegalStateException("The specified trigger file does not exist");
+        }
+        try (var config = CommentedFileConfig.of(path)) {
             config.load();
             for (var entry : config.entrySet()) {
                 var name = entry.getKey();
@@ -463,7 +469,7 @@ public final class Project {
             path = directory.resolve(commandsPath);
         }
         if (!Files.exists(path)) {
-            throw new IllegalStateException("The specified instructions file does not exist: " + path);
+            throw new IllegalStateException("The specified commands file does not exist: " + path);
         }
         try (var config = CommentedFileConfig.of(path)) {
             config.load();

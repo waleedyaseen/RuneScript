@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.compiler.syntax;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.BlockStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -38,16 +37,10 @@ public final class ScriptSyntax extends Syntax {
     private final List<AnnotationSyntax> annotations;
 
     /**
-     * The trigger type name of the script.
-     */
-    @Getter
-    private final IdentifierSyntax trigger;
-
-    /**
      * The name of the script.
      */
     @Getter
-    private final IdentifierSyntax name;
+    private final ScriptNameSyntax name;
 
     /**
      * The parameters list of the script..
@@ -70,20 +63,17 @@ public final class ScriptSyntax extends Syntax {
      *         the extension of the file containg the script.
      * @param annotations
      *         the annotations of the script.
-     * @param trigger
-     *         the script trigger type.
      * @param name
-     *         the script name.
+     *         the name of the script.
      * @param parameters
      *         the script parameters.
      * @param code
      *         the script code statement.
      */
-    public ScriptSyntax(Range range, String extension, List<AnnotationSyntax> annotations, IdentifierSyntax trigger, IdentifierSyntax name, ParameterSyntax[] parameters, BlockStatementSyntax code) {
+    public ScriptSyntax(Range range, String extension, List<AnnotationSyntax> annotations, ScriptNameSyntax name, ParameterSyntax[] parameters, BlockStatementSyntax code) {
         super(range);
         this.extension = extension;
         this.annotations = addChild(annotations);
-        this.trigger = addChild(trigger);
         this.name = addChild(name);
         this.parameters = addChild(parameters);
         this.code = addChild(code);
@@ -111,14 +101,5 @@ public final class ScriptSyntax extends Syntax {
             }
         }
         return null;
-    }
-
-    /**
-     * Returns the full name of the script.
-     *
-     * @return the full name of the script.
-     */
-    public String getFullName() {
-        return String.format("[%s,%s]", trigger.getText(), name.getText());
     }
 }

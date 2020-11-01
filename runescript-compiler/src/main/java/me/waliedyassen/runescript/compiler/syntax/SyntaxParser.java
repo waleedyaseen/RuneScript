@@ -32,9 +32,9 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.loop.DoWhileStatementSynt
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
+import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.tuple.TupleType;
-import me.waliedyassen.runescript.type.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,11 +95,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         // parse annotations if we have any.
         var annotations = annotationList();
         // parse the script trigger and name.
-        consume(LBRACKET);
-        var trigger = advancedIdentifier();
-        consume(COMMA);
         var name = scriptName();
-        consume(RBRACKET);
         // parse the script return ype nad parameters list.
         Type type = PrimitiveType.VOID;
         var parameters = new ArrayList<ParameterSyntax>();
@@ -132,18 +128,28 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         // we will allow empty scripts for now.
         var code = unbracedBlockStatement();
         // return the parsed script.
-        var node = new ScriptSyntax(popRange(), this.type, annotations, trigger, name, parameters.toArray(new ParameterSyntax[0]), code);
+        var node = new ScriptSyntax(popRange(), this.type, annotations, name, parameters.toArray(new ParameterSyntax[0]), code);
         node.setType(type); // TODO: Store raw types
         return node;
     }
 
     /**
-     * Attempts to parse a script name {@link ExpressionSyntax} object node.
+     * Attempts to parse a script name {@link ScriptNameSyntax} object node.
      *
-     * @return the parsed {@link ExpressionSyntax} object node.
+     * @return the parsed {@link ScriptNameSyntax} object node.
      */
-    private IdentifierSyntax scriptName() {
-        return advancedIdentifier();
+    private ScriptNameSyntax scriptName() {
+        pushRange();
+        var leftBracket = consume(LBRACKET);
+        var trigger = advancedIdentifier();
+        var name = (IdentifierSyntax) null;
+        var comma = (SyntaxToken) null;
+        if (peekKind() == COMMA) {
+            comma = consume(COMMA);
+            name = advancedIdentifier();
+        }
+        var rightBracket = consume(RBRACKET);
+        return new ScriptNameSyntax(popRange(), leftBracket, comma, rightBracket, trigger, name);
     }
 
     /**
