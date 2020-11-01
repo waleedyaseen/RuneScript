@@ -193,6 +193,11 @@ public enum PrimitiveType implements Type {
     CATEGORY('y', "category", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
+     * The namedobj primitive type.
+     */
+    NAMEDOBJ('O', "namedobj", StackType.INT, -1, TypeSerializer.SHORT),
+
+    /**
      * The object primitive type.
      */
     OBJ('o', "obj", StackType.INT, -1, TypeSerializer.SHORT),
@@ -230,7 +235,22 @@ public enum PrimitiveType implements Type {
     /**
      * The colour primitive type.
      */
-    COLOUR('C', "colour", StackType.INT, -1, TypeSerializer.SHORT);
+    COLOUR('C', "colour", StackType.INT, -1, TypeSerializer.SHORT),
+
+    /**
+     * The identity kit primitive type.
+     */
+    IDK('K', "idkit", StackType.INT, -1, TypeSerializer.SHORT),
+
+    /**
+     * The chat phrase primitive type.
+     */
+    CHATPHRASE('e', "chatphrase", StackType.INT, -1, TypeSerializer.SHORT),
+
+    /**
+     * The BAS primitive type.
+     */
+    BAS('\u20ac', "bas", StackType.INT, -1, TypeSerializer.SHORT);
 
     /**
      * The {@link PrimitiveType} by {@link #representation} look-up map.
