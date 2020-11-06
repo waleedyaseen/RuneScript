@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.runtime.executor.impl;
 
 import lombok.var;
-import me.waliedyassen.runescript.runtime.ScriptFrame;
 import me.waliedyassen.runescript.runtime.ScriptRuntime;
 import me.waliedyassen.runescript.runtime.executor.ExecutionException;
 import me.waliedyassen.runescript.runtime.executor.instruction.InstructionExecutor;
@@ -258,7 +257,7 @@ public interface CoreOps {
         }
         var jump = switchTable.get(runtime.popInt());
         if (jump != null) {
-            runtime.setAddress(runtime.getAddress() + 1);
+            runtime.setAddress(runtime.getAddress() + jump);
         }
     };
 }
