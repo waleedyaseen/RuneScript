@@ -124,7 +124,7 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
                         reportError(new SemanticError(name, String.format("Mismatch overriding scripts return type: (%s) and (%s)", TypeUtil.createRepresentation(script.getType()), TypeUtil.createRepresentation(existing.getType()))));
                     }
                 } else {
-                    reportError(new SemanticError(name, String.format("The script '%s' is already defined", name)));
+                    reportError(new SemanticError(name, String.format("The script '%s' is already defined", name.toText())));
                 }
             } else {
                 Integer predefinedId = null;
