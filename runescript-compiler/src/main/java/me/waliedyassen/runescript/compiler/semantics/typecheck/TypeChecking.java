@@ -30,7 +30,8 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
-import me.waliedyassen.runescript.type.*;
+import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.TypeUtil;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.stack.StackType;
 import me.waliedyassen.runescript.type.tuple.TupleType;
@@ -205,7 +206,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         if (hookTriggerType == null) {
             checker.reportError(new SemanticError(hook, "Hooks are not allowed"));
         } else if (hook.getName() != null) {
-            var fullName = String.format("[%s,%s]",hookTriggerType.getRepresentation(), hook.getName().getText());
+            var fullName = String.format("[%s,%s]", hookTriggerType.getRepresentation(), hook.getName().getText());
             var parentInfo = symbolTable.lookupCommand(((CommandSyntax) hook.getParent()).getName().getText());
             var scriptInfo = symbolTable.lookupScript(fullName);
             if (scriptInfo == null) {
@@ -521,7 +522,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
                     if (isConstantInt(key)) {
                         checkTypeMatching(key, type, key.getType());
                     } else {
-                        checker.reportError(new SemanticError(key,"Switch cases value must be known at compile-time"));
+                        checker.reportError(new SemanticError(key, "Switch cases value must be known at compile-time"));
                     }
                 }
             }
@@ -767,7 +768,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     private Type collectType(Syntax[] nodes) {
         if (nodes.length == 0) {
-            return PrimitiveType.VOID;
+            return new TupleType(new PrimitiveType[0]);
         } else if (nodes.length == 1) {
             return nodes[0].getType();
         }
