@@ -168,6 +168,21 @@ public enum PrimitiveType implements Type {
     MODEL('m', "model", StackType.INT, -1, TypeSerializer.SHORT),
 
     /**
+     * The top level interface primitive type.
+     */
+    TOPLEVELINTERFACE('F', "toplevelinterface", StackType.INT, -1, TypeSerializer.SHORT),
+
+    /**
+     * The overlay interface primitive type.
+     */
+    OVERLAYINTERFACE('L', "overlayinterface", StackType.INT, -1, TypeSerializer.SHORT),
+
+    /**
+     * The client interface primitive type.
+     */
+    CLIENTINTERFACE('\u00a9', "clientinterface", StackType.INT, -1, TypeSerializer.SHORT),
+
+    /**
      * The interface primitive type.
      */
     INTERFACE('a', "interface", StackType.INT, -1, TypeSerializer.SHORT),
@@ -369,6 +384,7 @@ public enum PrimitiveType implements Type {
             case ENUM:
             case NPC:
             case CATEGORY:
+            case NAMEDOBJ:
             case OBJ:
             case INV:
             case MAPELEMENT:

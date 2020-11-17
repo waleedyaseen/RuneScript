@@ -359,6 +359,9 @@ public final class ProjectEditor extends Editor<Path> {
             case GRAPHIC:
             case SYNTH:
             case INTERFACE:
+            case TOPLEVELINTERFACE:
+            case CLIENTINTERFACE:
+            case OVERLAYINTERFACE:
             case COMPONENT:
             case FONTMETRICS:
             case TEXTURE:
