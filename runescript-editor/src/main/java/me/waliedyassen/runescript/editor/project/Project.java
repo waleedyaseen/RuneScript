@@ -560,7 +560,8 @@ public final class Project {
                     var trigger = compilerEnvironment.lookupTrigger(value.<String>get("trigger"));
                     var type = ProjectConfig.parseTypes(value, "type");
                     var arguments = ProjectConfig.parseTypes(value, "arguments");
-                    predefinedTable.defineScript(Collections.emptyMap(), trigger, name, type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type), arguments, id);
+                    var returnType = type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type);
+                    predefinedTable.defineScript(Collections.emptyMap(), trigger, name, returnType, arguments, id);
                 }
             }
         } catch (Throwable e) {
