@@ -15,6 +15,7 @@ import java.util.Map;
  *
  * @author Walied K. Yassen
  */
+@SuppressWarnings("rawtypes")
 public final class InstructionExecutorMap {
 
     /**
