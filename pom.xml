@@ -15,7 +15,7 @@
     <properties>
         <junit.version>5.7.0</junit.version>
         <java.version>1.8</java.version>
-        <lombok.version>1.18.14</lombok.version>
+        <lombok.version>1.18.20</lombok.version>
         <jacoco.version>0.8.5</jacoco.version>
         <surefire.version>2.22.2</surefire.version>
         <compiler.version>3.8.1</compiler.version>
@@ -75,7 +75,7 @@
             <plugin>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok-maven-plugin</artifactId>
-                <version>1.18.12.0</version>
+                <version>${lombok.version}.0</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
