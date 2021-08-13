@@ -8,8 +8,6 @@
 
 package me.waliedyassen.runescript.editor.ui.tabbedpane;
 
-import lombok.var;
-
 import javax.swing.*;
 
 /**
@@ -18,30 +16,5 @@ import javax.swing.*;
  * @author Walied K. Yassen
  */
 public final class TabbedPane extends JTabbedPane {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setTitleAt(int index, String title) {
-        var component = getTabComponentAt(index);
-        if (component instanceof TabComponent) {
-            ((TabComponent) component).setTitle(title);
-        } else {
-            super.setTitleAt(index, title);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setToolTipTextAt(int index, String tooltip) {
-        var component = getTabComponentAt(index);
-        if (component instanceof TabComponent) {
-            ((TabComponent) component).setTooltip(tooltip);
-        } else {
-            super.setToolTipTextAt(index, tooltip);
-        }
-    }
+    // NOOP
 }

@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor.area;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
@@ -16,7 +18,6 @@ import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonShortcuts;
 import me.waliedyassen.runescript.editor.ui.editor.Editor;
 import me.waliedyassen.runescript.editor.ui.editor.tab.EditorTab;
-import me.waliedyassen.runescript.editor.ui.editor.tab.EditorTabComponent;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;
 import me.waliedyassen.runescript.editor.ui.menu.action.list.ActionList;
 import me.waliedyassen.runescript.editor.ui.tabbedpane.TabbedPane;
@@ -28,6 +29,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * The editor main-view component.
@@ -60,7 +62,7 @@ public final class EditorView extends JPanel implements ActionSource {
     /**
      * The editor tab events handler.
      */
-    private final EditorTabHandler editorTabHandler;
+    //private final EditorTabHandler editorTabHandler;
 
     /**
      * Constructs a new {@link EditorView} type object instance.
@@ -68,12 +70,25 @@ public final class EditorView extends JPanel implements ActionSource {
     public EditorView() {
         setLayout(new BorderLayout());
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        tabbedPane.putClientProperty(FlatClientProperties.TABBED_PANE_TAB_CLOSABLE, true);
+        tabbedPane.putClientProperty(FlatClientProperties.TABBED_PANE_TAB_CLOSE_TOOLTIPTEXT, "Close");
+        tabbedPane.putClientProperty(FlatClientProperties.TABBED_PANE_TAB_CLOSE_CALLBACK, (BiConsumer<JTabbedPane, Integer>) (tabPane, tabIndex) -> {
+            var component = tabPane.getComponentAt(tabIndex);
+            if (component == null){
+                return;
+            }
+            var tab = tabsByComponent.get(component);
+            if (tab == null){
+                return;
+            }
+            tab.requestClose();
+        });
         add(tabbedPane, BorderLayout.CENTER);
         // We replace the original mouse listener of the tabbed pane.
-        var delegateListener = tabbedPane.getMouseListeners()[0];
+        /*var delegateListener = tabbedPane.getMouseListeners()[0];
         tabbedPane.removeMouseListener(delegateListener);
         editorTabHandler = new EditorTabHandler(delegateListener);
-        tabbedPane.addMouseListener(editorTabHandler);
+        tabbedPane.addMouseListener(editorTabHandler);*/
     }
 
     /**
@@ -107,9 +122,9 @@ public final class EditorView extends JPanel implements ActionSource {
         var component = editor.getViewComponent();
         tabsByKey.put(key, tab);
         tabsByComponent.put(component, tab);
-        tabbedPane.addTab(editor.getTitle(), component);
-        tabbedPane.setTabComponentAt(tabbedPane.indexOfComponent(component), new EditorTabComponent(tab, editorTabHandler));
+        tabbedPane.addTab(editor.getTitle(),editor.getIcon(),component);
         selectTab(key);
+
 
     }
 
