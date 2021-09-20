@@ -483,7 +483,7 @@ public final class Project {
                 var hook = value.getOrElse("hook", false);
                 var hookType = value.contains("hooktype") ? PrimitiveType.valueOf(value.get("hooktype")) : null;
                 var tag = value.getOrElse("tag", (String) null);
-                var returnTypes = type.length > 1 ? new TupleType(type) : type.length == 0 ? PrimitiveType.VOID : type[0];
+                var returnTypes = type.length > 1 ? new TupleType(type) : type.length == 0 ? TupleType.EMPTY : type[0];
                 symbolTable.defineCommand(new BasicOpcode(opcode, false), name, returnTypes, arguments, hook, hookType, alternative, tag);
             }
         }
@@ -560,7 +560,7 @@ public final class Project {
                     var trigger = compilerEnvironment.lookupTrigger(value.<String>get("trigger"));
                     var type = ProjectConfig.parseTypes(value, "type");
                     var arguments = ProjectConfig.parseTypes(value, "arguments");
-                    var returnType = type.length < 1 ? PrimitiveType.VOID : type.length == 1 ? type[0] : new TupleType(type);
+                    var returnType = type.length < 1 ? TupleType.EMPTY : type.length == 1 ? type[0] : new TupleType(type);
                     predefinedTable.defineScript(Collections.emptyMap(), trigger, name, returnType, arguments, id);
                 }
             }

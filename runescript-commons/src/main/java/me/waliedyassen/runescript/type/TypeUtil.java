@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.type;
 
 import lombok.var;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.tuple.TupleType;
 
 import java.util.ArrayList;
@@ -25,9 +26,7 @@ public final class TypeUtil {
      * Creates a textual representation of the given {@link Type types} then join them all together into one {@link
      * String} using a comma.
      *
-     * @param types
-     *         the types to create the textual representation for.
-     *
+     * @param types the types to create the textual representation for.
      * @return the textual representation of the specified types.
      */
     public static String createRepresentation(Type... types) {
@@ -38,9 +37,7 @@ public final class TypeUtil {
      * Flattens the given {@link Type types} into one combined array. It takes each type and turns it into an array if
      * it contains more than one type such as {@link TupleType} then combine all of those types into one array.
      *
-     * @param types
-     *         the types to flatten.
-     *
+     * @param types the types to flatten.
      * @return the flattened array of {@link Type} objects.
      */
     public static Type[] flatten(Type[] types) {
@@ -55,6 +52,22 @@ public final class TypeUtil {
             }
         }
         return flattened.toArray(new Type[0]);
+    }
+
+    /**
+     * Checks whether ror not the specified type can be considered as "void". A void type is a type that doesn't
+     * hold any kind of data.
+     *
+     * @param type the type to check if it is void.
+     * @return <code>true</code> if it is otherise <code>false</code>.
+     */
+    public static boolean isVoid(Type type) {
+        if (type == null || type == PrimitiveType.VOID || type == TupleType.EMPTY) {
+            return true;
+        } else if (type instanceof TupleType) {
+            return ((TupleType) type).getChilds().length == 0;
+        }
+        return false;
     }
 
     private TypeUtil() {

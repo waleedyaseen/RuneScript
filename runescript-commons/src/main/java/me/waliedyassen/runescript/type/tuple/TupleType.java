@@ -23,6 +23,11 @@ import java.util.Arrays;
 public final class TupleType implements Type {
 
     /**
+     * An {@link TupleType} object with no child types.
+     */
+    public static final TupleType EMPTY = new TupleType();
+
+    /**
      * The child types of this tuple.
      */
     @Getter

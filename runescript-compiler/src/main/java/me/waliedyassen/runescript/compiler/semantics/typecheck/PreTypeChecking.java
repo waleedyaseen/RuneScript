@@ -91,7 +91,7 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
             reportError(new SemanticError(triggerName, String.format("%s cannot be resolved to a trigger", triggerName.getText())));
         } else {
             // check if the trigger supports return values.
-            if (script.getType() != PrimitiveType.VOID && !trigger.hasReturns()) {
+            if (!TypeUtil.isVoid(script.getType()) && !trigger.hasReturns()) {
                 reportError(new SemanticError(triggerName, String.format("The trigger type '%s' does not allow return values", trigger.getRepresentation())));
             }
             // check if the trigger matches return types.

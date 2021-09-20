@@ -97,7 +97,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         // parse the script trigger and name.
         var name = scriptName();
         // parse the script return ype nad parameters list.
-        Type type = PrimitiveType.VOID;
+        Type type = TupleType.EMPTY;
         var parameters = new ArrayList<ParameterSyntax>();
         var has_returntype = false;
         if (consumeIf(LPAREN)) {

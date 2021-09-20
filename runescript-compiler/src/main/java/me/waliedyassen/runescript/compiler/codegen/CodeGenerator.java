@@ -39,10 +39,11 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
+import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.TypeUtil;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.stack.StackType;
 import me.waliedyassen.runescript.type.tuple.TupleType;
-import me.waliedyassen.runescript.type.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -166,7 +167,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @param returnType the return type of the script.
      */
     private void generateDefaultReturn(Type returnType) {
-        if (returnType != PrimitiveType.VOID) {
+        if (!TypeUtil.isVoid(returnType)) {
             if (returnType instanceof TupleType) {
                 var flattened = ((TupleType) returnType).getFlattened();
                 for (var type : flattened) {

@@ -768,7 +768,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     private Type collectType(Syntax[] nodes) {
         if (nodes.length == 0) {
-            return new TupleType(new PrimitiveType[0]);
+            return TupleType.EMPTY;
         } else if (nodes.length == 1) {
             return nodes[0].getType();
         }
