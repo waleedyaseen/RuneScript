@@ -85,10 +85,10 @@ public final class EditorView extends JPanel implements ActionSource {
         });
         add(tabbedPane, BorderLayout.CENTER);
         // We replace the original mouse listener of the tabbed pane.
-        /*var delegateListener = tabbedPane.getMouseListeners()[0];
+        var delegateListener = tabbedPane.getMouseListeners()[0];
         tabbedPane.removeMouseListener(delegateListener);
-        editorTabHandler = new EditorTabHandler(delegateListener);
-        tabbedPane.addMouseListener(editorTabHandler);*/
+        var editorTabHandler = new EditorTabHandler(delegateListener);
+        tabbedPane.addMouseListener(editorTabHandler);
     }
 
     /**
