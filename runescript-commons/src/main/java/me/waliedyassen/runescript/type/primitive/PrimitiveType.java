@@ -135,7 +135,7 @@ public enum PrimitiveType implements Type {
     /**
      * The coordgrid primitive type.
      */
-    COORDGRID('c', "coordgrid", StackType.INT, -1, TypeSerializer.INT),
+    COORDGRID('c', "coord", StackType.INT, -1, TypeSerializer.INT),
 
     /**
      * The char primitive type.
