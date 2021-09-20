@@ -302,7 +302,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
                 signature.append(hook.getArguments()[index].getType().getCode());
             }
         }
-        if (hook.getTransmits() != null) {
+        if (hook.getTransmits() != null && hook.getTransmits().length != 0) {
             signature.append('Y');
         }
         if (hook.getName() == null) {
@@ -316,7 +316,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
                 argument.accept(this);
             }
         }
-        if (hook.getTransmits() != null) {
+        if (hook.getTransmits() != null && hook.getTransmits().length != 0) {
             for (var transmit : hook.getTransmits()) {
                 transmit.accept(this);
             }
