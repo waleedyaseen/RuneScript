@@ -486,12 +486,13 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      */
     @Override
     public Instruction visit(VariableInitializerSyntax variableInitializer) {
-        var count = variableInitializer.getExpressions().length;
-        for (var index = 0; index < count; index++) {
+        var exprCount = variableInitializer.getExpressions().length;
+        for (var index = 0; index < exprCount; index++) {
             variableInitializer.getVariables()[index].accept(this);
             variableInitializer.getExpressions()[index].accept(this);
         }
-        for (var index = count - 1; index >= 0; index--) {
+        var varCount = variableInitializer.getVariables().length;
+        for (var index = varCount - 1; index >= 0; index--) {
             var variable = variableInitializer.getVariables()[index];
             if (variable instanceof ArrayVariableSyntax) {
                 var arrayVariable = (ArrayVariableSyntax) variable;
