@@ -293,7 +293,13 @@ public final class Cache {
         for (var scriptUnit : scriptUnits) {
             var binaryScript = scriptUnit.getBinaryScript();
             var name = scriptUnit.getBinaryScript().getName();
-            var id = project.getIdManager().findScript(name, binaryScript.getExtension());
+            var predefinedIdAnnotation = scriptUnit.getSyntax().findAnnotation("id");
+            Integer id;
+            if (predefinedIdAnnotation != null) {
+                id = predefinedIdAnnotation.getValue().getValue();
+            } else {
+                id = project.getIdManager().findScript(name, binaryScript.getExtension());
+            }
             var serialised = writer.write(binaryScript).encode();
             project.getPackManager().pack(getPackName(binaryScript.getExtension()), id, name, serialised);
         }

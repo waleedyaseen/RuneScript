@@ -43,7 +43,6 @@ import me.waliedyassen.runescript.type.tuple.TupleType;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -993,6 +992,10 @@ public final class Project {
          */
         @Override
         public int findOrCreateScript(String name, String extension) {
+            var existing = project.symbolTable.lookupScript(name);
+            if (existing != null) {
+                return existing.getPredefinedId();
+            }
             var index = project.index.getOrCreate(getPackName(extension));
             return index.findOrCreate(name);
         }
@@ -1022,6 +1025,10 @@ public final class Project {
          */
         @Override
         public int findScript(String name, String extension) throws IllegalArgumentException {
+            var existing = project.symbolTable.lookupScript(name);
+            if (existing != null) {
+                return existing.getPredefinedId();
+            }
             var index = project.index.get(getPackName(extension));
             var id = index.find(name);
             if (id == null) {
