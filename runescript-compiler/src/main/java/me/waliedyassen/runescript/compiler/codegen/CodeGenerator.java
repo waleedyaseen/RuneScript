@@ -276,7 +276,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             var local = localMap.lookup(name);
             return instruction(getPushVariableOpcode(variableExpression.getScope(), (PrimitiveType) local.getType()), local);
         } else {
-            var config = symbolTable.lookupConfig(name);
+            var config = symbolTable.lookupVariable(name);
             return instruction(getPushVariableOpcode(variableExpression.getScope(), (PrimitiveType) config.getType()), config);
         }
     }
@@ -352,7 +352,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             if (commandInfo != null) {
                 return generateCommand(commandInfo, false);
             }
-            var configInfo = symbolTable.lookupConfig(name);
+            var configInfo = symbolTable.lookupConfig(dynamic.getType(), name);
             if (configInfo != null) {
                 return instruction(PUSH_INT_CONSTANT, configInfo);
             }
@@ -594,7 +594,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             return ((Number) constantValue).intValue();
         } else if (expression instanceof DynamicSyntax) {
             var configName = ((DynamicSyntax) expression).getName().getText();
-            return symbolTable.lookupConfig(configName);
+            return symbolTable.lookupConfig(expression.getType(), configName);
         } else {
             throw new IllegalStateException();
         }

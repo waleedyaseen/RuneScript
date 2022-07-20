@@ -597,7 +597,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         pushRange();
         var defineToken = consume(DEFINE);
         var dollarSign = consume(DOLLAR);
-        var name = identifier();
+        var name = advancedIdentifier();
         ExpressionSyntax expression;
         if (consumeIf(EQUALS)) {
             expression = consumeIf(NULL) ? null : expression();

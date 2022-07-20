@@ -13,6 +13,7 @@ import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 /**
  * Represents a variable define (or declaration) statement.
@@ -60,6 +61,7 @@ public final class VariableDeclarationSyntax extends StatementSyntax {
         this.dollarToken = dollarToken;
         this.name = addChild(name);
         this.expression = expression != null ? addChild(expression) : null;
+        setType(PrimitiveType.forRepresentation(defineToken.getLexeme().substring("def_".length())));
     }
 
     /**

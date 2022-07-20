@@ -221,6 +221,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
                         checker.reportError(new SemanticError(hook, String.format("Expected a transmit list of type '%s'", expected.getRepresentation())));
                     } else {
                         for (var transmit : transmits) {
+                            transmit.setType(expected);
                             if (transmit.accept(this).isContinue()) {
                                 checkTypeMatching(transmit, expected, transmit.getType());
                             }
@@ -261,9 +262,14 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      * @param arguments the arguments that are used in the call.
      */
     private void checkCallApplicable(SyntaxBase call, ScriptInfo info, ExpressionSyntax[] arguments) {
+        Type[] expectedArgumentTypes = info.getArguments();
         var check = true;
+        var index = 0;
         for (var argument : arguments) {
-            check &= argument.accept(this).isContinue();
+            if (index < expectedArgumentTypes.length)  argument.setHintType(expectedArgumentTypes[index]);
+            var result = argument.accept(this);
+            index += TypeUtil.flatten(new Type[] { argument.getType() }).length;
+            check &= result.isContinue();
         }
         if (check) {
             var actual = collectType(arguments);
@@ -292,7 +298,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
             dynamic.setType(commandInfo.getType());
             return TypeCheckAction.CONTINUE;
         }
-        var configInfo = symbolTable.lookupConfig(name.getText());
+        var configInfo = symbolTable.lookupConfig(dynamic.getHintType(), name.getText());
         if (configInfo != null) {
             dynamic.setType(configInfo.getType());
             return TypeCheckAction.CONTINUE;
@@ -332,20 +338,27 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
             checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a command", name.getText())));
             return TypeCheckAction.SKIP;
         }
-        final var actual = commandSyntax.getArguments();
+        final var tempTypes = info.getArguments();
+        final var arguments = commandSyntax.getArguments();
         var check = true;
-        for (var expressionSyntax : actual) {
-            check &= expressionSyntax.accept(this).isContinue();
+        var index = 0;
+        for (var argument : arguments) {
+            if (index < tempTypes.length) {
+                argument.setHintType(tempTypes[index]);
+            }
+            var result = argument.accept(this);
+            index += TypeUtil.flatten(new Type[] { argument.getType() }).length;
+            check &= result.isContinue();
         }
         if (check) {
-            var actualType = collectType(actual);
-            var expectedTypes = processCommandExpectedArguments(info, actual);
+            var actualType = collectType(arguments);
+            var expectedTypes = processCommandExpectedArguments(info, arguments);
             var expectedType = new TupleType(expectedTypes);
             if (!checkTypeMatching(commandSyntax, expectedType, actualType, false)) {
                 checker.reportError(new SemanticError(commandSyntax, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), actualType.getRepresentation(), expectedType.getRepresentation())));
             }
         }
-        var returnType = processCommandExpectedReturns(info, actual);
+        var returnType = processCommandExpectedReturns(info, arguments);
         if (returnType != null) {
             commandSyntax.setType(returnType);
             return TypeCheckAction.CONTINUE;
@@ -392,7 +405,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
             if (actual.length > 1 && actual[1] instanceof DynamicSyntax) {
                 // argument 1 is "param"
                 var literal = (DynamicSyntax) actual[1];
-                var configInfo = symbolTable.lookupConfig(literal.getName().getText());
+                var configInfo = symbolTable.lookupConfig(actual[1].getHintType(), literal.getName().getText());
                 if (configInfo != null && configInfo.getContentType() != null) {
                     return configInfo.getContentType();
                 }
@@ -419,9 +432,14 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(BinaryOperationSyntax binaryOperation) {
+        var left = binaryOperation.getLeft();
+        var right = binaryOperation.getRight();
+        left.setHintType(right.getType());
+        right.setHintType(left.getType());
         var check = true;
-        check &= binaryOperation.getLeft().accept(this).isContinue();
-        check &= binaryOperation.getRight().accept(this).isContinue();
+        check &= left.accept(this).isContinue();
+        check &= right.accept(this).isContinue();
+
         if (check) {
             var type = checkOperator(binaryOperation, binaryOperation.getLeft().getType(), binaryOperation.getRight().getType(), binaryOperation.getOperator());
             binaryOperation.setType(type);
@@ -442,6 +460,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
             }
             return TypeCheckAction.CONTINUE;
         }
+        expression.setHintType(variableDeclaration.getType());
         if (expression.accept(this).isContinue()) {
             checkTypeMatching(expression, variableDeclaration.getType(), expression.getType());
             return TypeCheckAction.CONTINUE;
@@ -551,7 +570,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
             return constantValue.getStackType() == StackType.INT;
         } else if (expression instanceof DynamicSyntax) {
             var configName = ((DynamicSyntax) expression).getName().getText();
-            var configInfo = symbolTable.lookupConfig(configName);
+            var configInfo = symbolTable.lookupConfig(expression.getHintType(), configName);
             return configInfo != null && configInfo.getType().getStackType() == StackType.INT;
         } else {
             return false;

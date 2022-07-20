@@ -893,7 +893,7 @@ public final class Project {
             if (!(type instanceof PrimitiveType)) {
                 throw new IllegalArgumentException();
             }
-            var config = project.symbolTable.lookupConfig(name);
+            var config = project.symbolTable.lookupConfig(type, name);
             if (config != null && config.getPredefinedId() != null) {
                 if (config.getType() != type) {
                     throw new IllegalStateException();
@@ -928,7 +928,7 @@ public final class Project {
         @Override
         public int findConfig(Type type, String name) throws IllegalArgumentException {
             if (type instanceof PrimitiveType) {
-                var config = project.symbolTable.lookupConfig(name);
+                var config = project.symbolTable.lookupConfig(type, name);
                 if (config != null && config.getPredefinedId() != null) {
                     if (config.getType() != type) {
                         throw new IllegalStateException();

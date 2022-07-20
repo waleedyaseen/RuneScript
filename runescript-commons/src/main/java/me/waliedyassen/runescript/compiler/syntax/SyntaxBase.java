@@ -10,6 +10,8 @@ package me.waliedyassen.runescript.compiler.syntax;
 import lombok.*;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +52,14 @@ public abstract class SyntaxBase implements Element {
     @Setter(AccessLevel.PACKAGE)
     @EqualsAndHashCode.Exclude
     private SyntaxBase parent;
+
+    /**
+     * The type that was hinted for this node.
+     */
+    @Getter
+    @Setter
+    @EqualsAndHashCode.Exclude
+    private Type hintType;
 
     /**
      * Adds all of the specified nodes of type {@link T} to this node as children.

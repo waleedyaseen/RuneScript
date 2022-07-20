@@ -38,7 +38,7 @@ public class SymbolTable {
      * The defined configurations map.
      */
     @Getter
-    private final SymbolList<ConfigInfo> configs = new SymbolList<>();
+    private final Map<Type, SymbolList<ConfigInfo>> configs = new HashMap<>();
 
     /**
      * The defined graphics map.
@@ -107,10 +107,15 @@ public class SymbolTable {
      * @param info the configuration info object to define.
      */
     public void defineConfig(ConfigInfo info) {
-        if (lookupConfig(info.getName()) != null) {
+        if (lookupConfig(info.getType(), info.getName()) != null) {
             throw new IllegalArgumentException("The configuration '" + info.getName() + "' is already defined.");
         }
-        configs.add(info);
+        var list = configs.get(info.getType());
+        if (list == null) {
+            list = new SymbolList<>();
+            configs.put(info.getType(), list);
+        }
+        list.add(info);
     }
 
     /**
@@ -122,12 +127,9 @@ public class SymbolTable {
      * @return the created {@link ConfigInfo} object.
      */
     public ConfigInfo defineConfig(String name, Type type, Type contentType) {
-        if (lookupConfig(name) != null) {
-            throw new IllegalArgumentException("The configuration '" + name + "' is already defined.");
-        }
-        var config = new ConfigInfo(name, type, contentType);
-        configs.add(config);
-        return config;
+        var configInfo = new ConfigInfo(name, type, contentType);
+        defineConfig(configInfo);
+        return configInfo;
     }
 
     /**
@@ -148,10 +150,14 @@ public class SymbolTable {
      * @param name the name of the configuration type value.
      * @return the {@link ConfigInfo} if it was present otherwise {@code null}.
      */
-    public ConfigInfo lookupConfig(String name) {
-        var info = configs.lookupByName(name);
+    public ConfigInfo lookupConfig(Type type, String name) {
+        var list = configs.get(type);
+        ConfigInfo info = null;
+        if (list != null) {
+            info = list.lookupByName(name);
+        }
         if (info == null && parent != null) {
-            info = parent.lookupConfig(name);
+            info = parent.lookupConfig(type, name);
         }
         return info;
     }
@@ -164,16 +170,21 @@ public class SymbolTable {
      * @return the {@link ConfigInfo} if it was present otherwise {@code null}.
      */
     public ConfigInfo lookupVariable(String name) {
-        var config = lookupConfig(name);
-        if (config == null) {
-            return null;
+        var varConfig = lookupConfig(PrimitiveType.VAR, name);
+        if (varConfig != null) {
+            return varConfig;
         }
-        switch ((PrimitiveType) config.getType()) {
-            case VAR:
-            case VARBIT:
-            case VARCINT:
-            case VARCSTR:
-                return config;
+        var varBitConfig = lookupConfig(PrimitiveType.VARBIT, name);
+        if (varBitConfig != null) {
+            return varBitConfig;
+        }
+        var varcIntConfig = lookupConfig(PrimitiveType.VARCINT, name);
+        if (varcIntConfig != null) {
+            return varcIntConfig;
+        }
+        var varcStrConfig = lookupConfig(PrimitiveType.VARCSTR, name);
+        if (varcStrConfig != null) {
+            return varcStrConfig;
         }
         return null;
     }
