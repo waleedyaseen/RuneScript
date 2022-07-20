@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.compiler;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 
 /**
  * Represents a single compiled unit of a script source file.

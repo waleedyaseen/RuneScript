@@ -9,11 +9,10 @@ package me.waliedyassen.runescript.editor.project;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
-import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.util.ReflectionUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 

@@ -9,8 +9,8 @@ package me.waliedyassen.runescript.compiler.semantics;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.compiler.CompilerError;
-import me.waliedyassen.runescript.compiler.syntax.SyntaxBase;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
+import me.waliedyassen.runescript.compiler.syntax.SyntaxBase;
 
 /**
  * Represents a compiler error that occurred during the semantic analysis time.

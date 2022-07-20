@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.compiler.syntax;
 import lombok.EqualsAndHashCode;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
-import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 /**
  * Represents the smallest unit in the Abstract Syntax Tree (AST).

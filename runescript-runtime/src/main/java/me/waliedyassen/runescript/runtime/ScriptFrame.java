@@ -9,10 +9,7 @@
 package me.waliedyassen.runescript.runtime;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.runtime.ScriptRuntime;
 import me.waliedyassen.runescript.runtime.script.Script;
-
-import java.util.Arrays;
 
 /**
  * @author Walied K. Yassen

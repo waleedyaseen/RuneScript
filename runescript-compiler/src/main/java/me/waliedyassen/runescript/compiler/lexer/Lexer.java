@@ -12,7 +12,6 @@ import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
-import me.waliedyassen.runescript.compiler.syntax.Syntax;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 
 /**

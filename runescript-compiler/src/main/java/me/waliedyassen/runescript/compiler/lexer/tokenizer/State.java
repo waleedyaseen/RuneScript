@@ -9,9 +9,6 @@ package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.commons.document.LineColumn;
-import me.waliedyassen.runescript.compiler.lexer.token.Kind;
-import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 
 import java.util.ArrayDeque;

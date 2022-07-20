@@ -7,8 +7,6 @@
  */
 package me.waliedyassen.runescript.commons.stream;
 
-import me.waliedyassen.runescript.commons.document.LineColumn;
-
 /**
  * Repesents a source code characters input stream.
  *

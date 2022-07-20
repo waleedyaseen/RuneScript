@@ -9,8 +9,8 @@ package me.waliedyassen.runescript.compiler.message.impl;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.message.CompilerMessage;
+import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 
 /**
  * A message which is fired when a compiler have just finished parsing

@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.editor.ui.editor.code.completion.parameter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.CodeCompletionProvider;
@@ -17,17 +16,15 @@ import me.waliedyassen.runescript.editor.ui.editor.code.parser.ParserManager;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.ParameterChoicesProvider;
-import org.fife.ui.autocomplete.ParameterizedCompletion;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
-import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.fife.ui.autocomplete.ParameterizedCompletion.*;
+import static org.fife.ui.autocomplete.ParameterizedCompletion.Parameter;
 
 /**
  * An auto completion provider for command and script parameters.

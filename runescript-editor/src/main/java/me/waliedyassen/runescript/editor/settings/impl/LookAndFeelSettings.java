@@ -8,8 +8,6 @@
 package me.waliedyassen.runescript.editor.settings.impl;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.formdev.flatlaf.intellijthemes.FlatAllIJThemes;
 import com.formdev.flatlaf.intellijthemes.FlatDarkFlatIJTheme;
 import lombok.Data;
@@ -19,7 +17,6 @@ import me.waliedyassen.runescript.editor.util.LafUtil;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 
 /**
  * The Look and Feel settings page.

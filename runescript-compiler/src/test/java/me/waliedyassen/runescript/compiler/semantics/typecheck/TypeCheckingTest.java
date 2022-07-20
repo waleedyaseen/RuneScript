@@ -23,8 +23,8 @@ import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
-import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

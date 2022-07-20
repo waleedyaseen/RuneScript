@@ -7,7 +7,10 @@
  */
 package me.waliedyassen.runescript.editor.shortcut;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
 import java.util.ArrayList;

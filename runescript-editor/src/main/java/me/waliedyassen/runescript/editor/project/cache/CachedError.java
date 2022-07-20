@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.commons.document.LineColumn;
 import me.waliedyassen.runescript.commons.document.Range;
 
 /**

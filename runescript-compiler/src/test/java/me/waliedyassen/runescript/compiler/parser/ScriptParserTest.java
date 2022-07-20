@@ -32,9 +32,9 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
+import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.tuple.TupleType;
-import me.waliedyassen.runescript.type.Type;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

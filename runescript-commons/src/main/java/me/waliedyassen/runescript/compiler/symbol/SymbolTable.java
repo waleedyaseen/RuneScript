@@ -81,7 +81,7 @@ public class SymbolTable {
      * @param value the value of the constant.
      */
     public void defineConstant(String name, Type type, Object value) {
-        if (lookupConfig(name) != null) {
+        if (lookupConstant(name) != null) {
             throw new IllegalArgumentException("The constant '" + name + "' is already defined.");
         }
         constants.put(name, new ConstantInfo(name, type, value));

@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor.ui.editor.area;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.editor.Api;

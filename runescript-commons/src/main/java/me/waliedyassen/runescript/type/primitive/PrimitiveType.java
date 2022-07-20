@@ -149,7 +149,7 @@ public enum PrimitiveType implements Type {
     /**
      * The maparea primitive type.
      */
-    MAPAREA('`', "maparea", StackType.INT, -1, TypeSerializer.INT),
+    MAPAREA('`', "wma", StackType.INT, -1, TypeSerializer.INT),
 
     /**
      * The enum primitive type.
@@ -264,7 +264,13 @@ public enum PrimitiveType implements Type {
     /**
      * The BAS primitive type.
      */
-    BAS('\u20ac', "bas", StackType.INT, -1, TypeSerializer.SHORT);
+    BAS('\u20ac', "bas", StackType.INT, -1, TypeSerializer.SHORT),
+    DBROW('\u00D0', "dbrow", StackType.INT, -1, TypeSerializer.SHORT),
+    NEWVAR('-', "newvar", StackType.INT, -1, TypeSerializer.SHORT),
+    NPC_UID('u', "npc_uid", StackType.INT, -1, TypeSerializer.SHORT),
+    LOC_SHAPE('H', "locshape", StackType.INT, -1, TypeSerializer.SHORT),
+    ;
+
 
     /**
      * The {@link PrimitiveType} by {@link #representation} look-up map.

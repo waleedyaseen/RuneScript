@@ -7,10 +7,8 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor.code.completion;
 
-import lombok.Getter;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
-import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.cache.AutoCompleteCache;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.CodeCompletion;
@@ -19,8 +17,6 @@ import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.KeywordC
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.parameter.CodeParameterCompletionProvider;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
-import org.fife.ui.autocomplete.ParameterChoicesProvider;
-import org.fife.ui.autocomplete.ParameterizedCompletion;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;

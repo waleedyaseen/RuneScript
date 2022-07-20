@@ -10,8 +10,8 @@ package me.waliedyassen.runescript.compiler.syntax.expr;
 import lombok.Getter;
 import lombok.Setter;
 import me.waliedyassen.runescript.commons.document.Range;
-import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
+import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
  * Represents an array expression.

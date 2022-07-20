@@ -8,8 +8,8 @@
 package me.waliedyassen.runescript.compiler.codegen.local;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.type.stack.StackType;
 import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.stack.StackType;
 
 import java.util.ArrayList;
 import java.util.HashMap;

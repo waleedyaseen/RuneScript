@@ -12,8 +12,6 @@ import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
-import java.beans.Statement;
-
 public final class ErrorStatementSyntax extends StatementSyntax {
 
     private final Token<Kind> token;
