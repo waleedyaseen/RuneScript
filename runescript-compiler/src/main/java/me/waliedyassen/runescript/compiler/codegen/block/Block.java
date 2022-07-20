@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.compiler.codegen.block;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.Instruction;
 
 import java.util.ArrayList;

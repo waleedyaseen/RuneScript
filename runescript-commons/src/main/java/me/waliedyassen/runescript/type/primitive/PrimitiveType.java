@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.type.primitive;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.serializer.TypeSerializer;
 import me.waliedyassen.runescript.type.stack.StackType;

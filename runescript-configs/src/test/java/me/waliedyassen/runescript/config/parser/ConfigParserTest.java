@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.config.parser;
 
-import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;

@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor.ui.status;
 
 import lombok.Getter;
-import lombok.var;
 import me.waliedyassen.runescript.editor.property.impl.StringProperty;
 import net.miginfocom.swing.MigLayout;
 

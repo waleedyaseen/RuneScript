@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.syntax.visitor;
 
-import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;

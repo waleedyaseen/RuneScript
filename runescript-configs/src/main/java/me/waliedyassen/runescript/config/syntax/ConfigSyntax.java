@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.config.syntax;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.var;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.config.syntax.value.ValueTypeSyntax;
 import me.waliedyassen.runescript.config.syntax.visitor.SyntaxVisitor;

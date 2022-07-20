@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.config.var.rule.impl;
 
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
 import me.waliedyassen.runescript.config.syntax.PropertySyntax;
 import me.waliedyassen.runescript.config.syntax.value.ValueSyntax;

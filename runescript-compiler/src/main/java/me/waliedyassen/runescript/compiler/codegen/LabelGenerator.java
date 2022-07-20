@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.codegen;
 
-import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
 
 import java.util.HashMap;

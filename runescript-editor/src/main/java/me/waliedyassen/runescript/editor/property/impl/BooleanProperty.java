@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.editor.property.impl;
 
-import lombok.var;
 import me.waliedyassen.runescript.editor.property.Property;
 
 /**

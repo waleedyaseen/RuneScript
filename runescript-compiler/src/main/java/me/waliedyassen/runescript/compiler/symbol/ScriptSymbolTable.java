@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.compiler.symbol;
 
 import lombok.Getter;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;

@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.editor.ui.dialog;
 
-import lombok.var;
 import me.waliedyassen.runescript.editor.Api;
 
 import javax.swing.*;

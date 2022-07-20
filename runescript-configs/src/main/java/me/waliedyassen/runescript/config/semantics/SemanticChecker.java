@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.config.semantics;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.CompilerError;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.syntax.ConfigSyntax;

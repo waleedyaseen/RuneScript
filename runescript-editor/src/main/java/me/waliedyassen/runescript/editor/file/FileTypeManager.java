@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.editor.file;
 
-import lombok.var;
 import me.waliedyassen.runescript.editor.file.impl.ConfigFileType;
 import me.waliedyassen.runescript.editor.file.impl.PlainFileType;
 import me.waliedyassen.runescript.editor.file.impl.ProjectFileType;

@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.editor.util.ex;
 
-import lombok.var;
 
 import javax.swing.*;
 import java.awt.*;

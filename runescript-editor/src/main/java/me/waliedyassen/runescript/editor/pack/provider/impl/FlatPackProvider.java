@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.editor.pack.provider.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.var;
 import me.waliedyassen.runescript.editor.pack.impl.FlatPack;
 import me.waliedyassen.runescript.editor.pack.provider.PackProvider;
 

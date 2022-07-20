@@ -9,7 +9,6 @@
 package me.waliedyassen.runescript.editor.ui.editor.tab;
 
 import lombok.Getter;
-import lombok.var;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;

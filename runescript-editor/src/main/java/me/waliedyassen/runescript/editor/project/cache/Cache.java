@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import me.waliedyassen.runescript.commons.Pair;
 import me.waliedyassen.runescript.compiler.CompiledFile;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;

@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.config.syntax;
 
-import lombok.var;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.parser.ParserBase;
 import me.waliedyassen.runescript.config.lexer.Lexer;

@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
-import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.error.ThrowingErrorReporter;

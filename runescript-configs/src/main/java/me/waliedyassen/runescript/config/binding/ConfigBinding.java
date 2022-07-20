@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.config.binding;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.var.ConfigBasicDynamicProperty;
 import me.waliedyassen.runescript.config.var.ConfigBasicProperty;

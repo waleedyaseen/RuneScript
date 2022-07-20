@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.editor.resource;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import lombok.var;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

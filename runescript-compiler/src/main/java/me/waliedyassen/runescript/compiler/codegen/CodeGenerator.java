@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.compiler.codegen;
 
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockList;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockMap;

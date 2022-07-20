@@ -9,7 +9,6 @@
 package me.waliedyassen.runescript.editor.pack.manager;
 
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.editor.pack.Pack;
 import me.waliedyassen.runescript.editor.pack.PackFile;
 import me.waliedyassen.runescript.editor.pack.provider.PackProvider;

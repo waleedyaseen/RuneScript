@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.commons.document;
 
-import lombok.var;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

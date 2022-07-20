@@ -553,14 +553,18 @@ public final class Project {
             try (var config = CommentedFileConfig.of(path.toFile())) {
                 config.load();
                 for (var entry : config.entrySet()) {
-                    var value = (CommentedConfig) entry.getValue();
-                    var id = value.getInt("id");
-                    var name = value.<String>get("name");
-                    var trigger = compilerEnvironment.lookupTrigger(value.<String>get("trigger"));
-                    var type = ProjectConfig.parseTypes(value, "type");
-                    var arguments = ProjectConfig.parseTypes(value, "arguments");
-                    var returnType = type.length < 1 ? TupleType.EMPTY : type.length == 1 ? type[0] : new TupleType(type);
-                    predefinedTable.defineScript(Collections.emptyMap(), trigger, name, returnType, arguments, id);
+                    try {
+                        var value = (CommentedConfig) entry.getValue();
+                        var id = value.getInt("id");
+                        var name = value.<String>get("name");
+                        var trigger = compilerEnvironment.lookupTrigger(value.<String>get("trigger"));
+                        var type = ProjectConfig.parseTypes(value, "type");
+                        var arguments = ProjectConfig.parseTypes(value, "arguments");
+                        var returnType = type.length < 1 ? TupleType.EMPTY : type.length == 1 ? type[0] : new TupleType(type);
+                        predefinedTable.defineScript(Collections.emptyMap(), trigger, name, returnType, arguments, id);
+                    } catch (Throwable e) {
+                        log.error("An error occurred while loading the predefined script for key: {}", entry.getKey(), e);
+                    }
                 }
             }
         } catch (Throwable e) {

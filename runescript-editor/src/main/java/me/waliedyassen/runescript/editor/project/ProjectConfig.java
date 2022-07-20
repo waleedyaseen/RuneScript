@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor.project;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.config.var.ConfigProperty;
 import me.waliedyassen.runescript.config.var.rule.ConfigRule;

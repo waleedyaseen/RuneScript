@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxBase;
 import me.waliedyassen.runescript.util.ChecksumUtil;
 

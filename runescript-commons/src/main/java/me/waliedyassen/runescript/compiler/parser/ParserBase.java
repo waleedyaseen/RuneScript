@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.compiler.parser;
 
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.commons.document.Element;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;

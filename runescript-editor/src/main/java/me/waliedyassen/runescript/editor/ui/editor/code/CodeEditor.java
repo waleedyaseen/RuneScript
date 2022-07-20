@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor.ui.editor.code;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
 import me.waliedyassen.runescript.editor.Api;

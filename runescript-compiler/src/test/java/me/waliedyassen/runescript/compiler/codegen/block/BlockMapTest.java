@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.block;
 
-import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.LabelGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor.property;
 
 import lombok.AllArgsConstructor;
-import lombok.var;
 
 import java.util.ArrayList;
 import java.util.List;

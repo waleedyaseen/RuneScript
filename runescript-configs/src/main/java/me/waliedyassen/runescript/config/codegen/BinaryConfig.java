@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.config.codegen;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.var;
 import me.waliedyassen.runescript.config.ConfigGroup;
 import me.waliedyassen.runescript.config.codegen.property.BinaryProperty;
 import me.waliedyassen.runescript.config.codegen.property.impl.BinaryBasicProperty;

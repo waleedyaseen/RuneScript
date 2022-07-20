@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.compiler.semantics.scope;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;

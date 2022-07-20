@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.block;
 
-import lombok.var;
 import org.junit.jupiter.api.Test;
 
 import static me.waliedyassen.runescript.compiler.TestHelper.dummyInstruction;

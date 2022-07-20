@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.commons.stream;
 
-import lombok.var;
 import me.waliedyassen.runescript.commons.document.LineMap;
 
 import java.io.IOException;

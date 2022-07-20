@@ -8,7 +8,6 @@
 
 package me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.factory;
 
-import lombok.var;
 import org.fife.ui.rsyntaxtextarea.TokenMaker;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 

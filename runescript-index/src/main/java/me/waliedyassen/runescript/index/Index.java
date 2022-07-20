@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.index;
 
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.var;
 import me.waliedyassen.runescript.index.table.IndexTable;
 
 import java.util.HashMap;

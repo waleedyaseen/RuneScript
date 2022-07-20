@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.editor.ui.settings;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.formdev.flatlaf.util.UIScale;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import me.waliedyassen.runescript.editor.settings.Settings;
 import me.waliedyassen.runescript.editor.settings.SettingsManager;
 import me.waliedyassen.runescript.editor.util.JsonUtil;

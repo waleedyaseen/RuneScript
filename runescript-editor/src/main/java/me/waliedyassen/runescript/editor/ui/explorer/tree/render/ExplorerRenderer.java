@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.editor.ui.explorer.tree.render;
 
-import lombok.var;
 import me.waliedyassen.runescript.editor.EditorIcons;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.DirectoryNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.FileNode;

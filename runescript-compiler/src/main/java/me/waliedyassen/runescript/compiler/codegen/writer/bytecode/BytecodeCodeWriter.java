@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.codegen.block.Block;
 import me.waliedyassen.runescript.compiler.codegen.block.BlockList;
 import me.waliedyassen.runescript.compiler.codegen.block.Label;
@@ -128,6 +127,8 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
             return operand;
         } else if (operand instanceof Long) {
             return operand;
+        } else if (operand instanceof Boolean) {
+            return ((Boolean) operand) ? 1 : 0;
         } else {
             throw new UnsupportedOperationException("Unsupported operand type: " + operand);
         }

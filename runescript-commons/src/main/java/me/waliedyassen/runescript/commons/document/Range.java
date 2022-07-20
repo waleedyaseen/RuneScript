@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.commons.document;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.var;
 
 /**
  * Represents a position range within a document.

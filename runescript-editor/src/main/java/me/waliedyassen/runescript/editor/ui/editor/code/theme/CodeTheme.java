@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.editor.ui.editor.code.theme;
 
-import lombok.var;
 import me.waliedyassen.runescript.editor.ui.editor.code.CodeEditor;
 import me.waliedyassen.runescript.editor.ui.editor.code.tokenMaker.CodeTokens;
 import me.waliedyassen.runescript.editor.util.FontManager;

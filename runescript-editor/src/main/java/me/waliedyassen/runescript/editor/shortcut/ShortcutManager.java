@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.editor.shortcut;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.config.lexer;
 
-import lombok.var;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;

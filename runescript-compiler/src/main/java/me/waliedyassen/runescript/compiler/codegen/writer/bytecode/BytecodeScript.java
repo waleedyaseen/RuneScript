@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.compiler.codegen.writer.bytecode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.var;
 import me.waliedyassen.runescript.util.StreamUtil;
 
 import java.io.ByteArrayOutputStream;

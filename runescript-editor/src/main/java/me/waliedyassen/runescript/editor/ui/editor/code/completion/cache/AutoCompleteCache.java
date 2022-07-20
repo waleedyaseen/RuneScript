@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.editor.ui.editor.code.completion.cache;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.impl.CodeCompletion;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.CompletionProvider;

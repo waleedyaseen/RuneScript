@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.optimizer.impl;
 
-import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;

@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor.ui.editor.code.completion;
 
 import lombok.Getter;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.lexer.table.LexicalTable;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.var;
 import me.waliedyassen.runescript.editor.settings.state.SettingsState;
 
 import javax.swing.*;

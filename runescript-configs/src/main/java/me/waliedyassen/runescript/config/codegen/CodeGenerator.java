@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.config.codegen;
 
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.symbol.SymbolTable;
 import me.waliedyassen.runescript.config.syntax.ConfigSyntax;

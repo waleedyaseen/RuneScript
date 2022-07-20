@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.editor.ui.errors;
 
-import lombok.var;
 import me.waliedyassen.runescript.editor.shortcut.ShortcutManager;
 import me.waliedyassen.runescript.editor.shortcut.common.CommonGroups;
 import me.waliedyassen.runescript.editor.ui.menu.action.ActionSource;

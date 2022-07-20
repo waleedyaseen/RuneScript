@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.type;
 
-import lombok.var;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.tuple.TupleType;
 

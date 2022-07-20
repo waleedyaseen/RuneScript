@@ -10,7 +10,6 @@ package me.waliedyassen.runescript.editor.pack.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import me.waliedyassen.runescript.editor.pack.Pack;
 import me.waliedyassen.runescript.editor.pack.PackFile;
 

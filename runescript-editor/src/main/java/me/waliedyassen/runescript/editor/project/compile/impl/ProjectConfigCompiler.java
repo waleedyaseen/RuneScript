@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor.project.compile.impl;
 
 import lombok.Getter;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.CompiledFile;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.Output;

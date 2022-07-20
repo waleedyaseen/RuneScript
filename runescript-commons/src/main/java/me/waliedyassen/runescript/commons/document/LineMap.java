@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.commons.document;
 
-import lombok.var;
 
 import java.util.Arrays;
 

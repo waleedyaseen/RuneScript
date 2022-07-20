@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.compiler.codegen.local;
 
-import lombok.var;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.stack.StackType;
 import org.junit.jupiter.api.Test;

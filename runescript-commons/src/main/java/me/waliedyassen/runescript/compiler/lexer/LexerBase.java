@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.compiler.lexer;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.commons.document.Range;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 

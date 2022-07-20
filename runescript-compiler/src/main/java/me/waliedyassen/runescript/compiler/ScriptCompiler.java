@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
-import lombok.var;
 import me.waliedyassen.runescript.commons.stream.BufferedCharStream;
 import me.waliedyassen.runescript.compiler.codegen.CodeGenerator;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;

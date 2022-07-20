@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.editor.project;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
 import me.waliedyassen.runescript.editor.property.impl.BooleanProperty;

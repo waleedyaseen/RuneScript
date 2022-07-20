@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.config.var.rule;
 
-import lombok.var;
 import me.waliedyassen.runescript.config.syntax.ConfigSyntax;
 import me.waliedyassen.runescript.config.syntax.PropertySyntax;
 import me.waliedyassen.runescript.config.syntax.value.ValueSyntax;

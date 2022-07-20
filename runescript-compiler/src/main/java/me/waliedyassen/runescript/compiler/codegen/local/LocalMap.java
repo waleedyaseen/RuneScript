@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.compiler.codegen.local;
 
 import lombok.Getter;
-import lombok.var;
 import me.waliedyassen.runescript.type.stack.StackType;
 import me.waliedyassen.runescript.type.Type;
 

@@ -9,7 +9,6 @@ package me.waliedyassen.runescript.editor.ui.explorer.tree.lazy;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerNode;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.ExplorerTree;
 import me.waliedyassen.runescript.editor.ui.explorer.tree.node.DirectoryNode;

@@ -8,7 +8,6 @@
 package me.waliedyassen.runescript.editor;
 
 import lombok.RequiredArgsConstructor;
-import lombok.var;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.editor.project.ProjectManager;
 import me.waliedyassen.runescript.editor.project.compile.impl.ProjectScriptCompiler;

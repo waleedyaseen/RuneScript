@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.formdev.flatlaf.intellijthemes.FlatAllIJThemes;
 import com.formdev.flatlaf.intellijthemes.FlatDarkFlatIJTheme;
 import lombok.Data;
-import lombok.var;
 import me.waliedyassen.runescript.editor.settings.Settings;
 import me.waliedyassen.runescript.editor.settings.state.SettingsState;
 import me.waliedyassen.runescript.editor.util.LafUtil;
