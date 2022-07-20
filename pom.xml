@@ -15,12 +15,12 @@
     <properties>
         <junit.version>5.7.0</junit.version>
         <java.version>17</java.version>
-        <lombok.version>1.18.20</lombok.version>
-        <jacoco.version>0.8.5</jacoco.version>
+        <lombok.version>1.18.24</lombok.version>
+        <jacoco.version>0.8.8</jacoco.version>
         <surefire.version>2.22.2</surefire.version>
         <compiler.version>3.8.1</compiler.version>
         <release.version>2.5.3</release.version>
-        <logback.verison>1.2.3</logback.verison>
+        <logback.verison>1.2.11</logback.verison>
         <kotlin.version>1.7.10</kotlin.version>
     </properties>
     <modules>
@@ -86,7 +86,7 @@
             <plugin>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok-maven-plugin</artifactId>
-                <version>${lombok.version}.0</version>
+                <version>1.18.20.0</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
