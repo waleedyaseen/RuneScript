@@ -9,11 +9,6 @@ package me.waliedyassen.runescript.editor.project;
 
 import com.electronwill.nightconfig.core.CommentedConfig;
 import me.waliedyassen.runescript.compiler.type.ArrayReference;
-import me.waliedyassen.runescript.config.var.ConfigProperty;
-import me.waliedyassen.runescript.config.var.rule.ConfigRule;
-import me.waliedyassen.runescript.config.var.rule.ConfigRules;
-import me.waliedyassen.runescript.config.var.rule.impl.ConfigRangeRule;
-import me.waliedyassen.runescript.config.var.rule.impl.ConfigRequireRule;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.util.ReflectionUtil;
@@ -58,64 +53,6 @@ public final class ProjectConfig {
             throw new IllegalArgumentException("Malformed components for required property: " + name + ", expected TYPE component only");
         }
         return name;
-    }
-
-    /**
-     * Attempts to parse an array of {@link ConfigRule}s list from the specified {@link CommentedConfig} object.
-     *
-     * @param config
-     *         the configuration object to attempt to parse from.
-     * @param name
-     *         the name of the configuration to parse.
-     *
-     * @return the parsed array of {@link ConfigRule}s list objects.
-     */
-    public static List<ConfigRule>[] parseConfigRules(CommentedConfig config, String name) {
-        var array = config.<List<List<String>>>get(name);
-        if (array == null) {
-            return ConfigProperty.NO_RULES;
-        }
-        var rules = new List[array.size()];
-        for (var index = 0; index < array.size(); index++) {
-            var types = array.get(index);
-            var mapped = new ArrayList<ConfigRule>(types.size());
-            for (var typeName : types) {
-                mapped.add(parseConfigRule(typeName));
-            }
-            rules[index] = mapped;
-        }
-        return rules;
-    }
-
-    /**
-     * Parses a single configuration rule from the specified raw text.
-     *
-     * @param raw
-     *         the raw text to extract the single configuration rule from.
-     *
-     * @return the extracted {@link ConfigRule} type object instance.
-     */
-    private static ConfigRule parseConfigRule(String raw) {
-        var lParenIndex = raw.indexOf('(');
-        var ruleName = lParenIndex > 0 ? raw.substring(0, lParenIndex) : raw;
-        switch (ruleName) {
-            case "RANGE": {
-                var arguments = extractArguments(RANGE_RULE_PATTERN, raw);
-                if (arguments == null) {
-                    throw new IllegalArgumentException("Malformed arguments for configuration rule:" + raw);
-                }
-                return new ConfigRangeRule(Integer.parseInt(arguments[0]), Integer.parseInt(arguments[1]));
-            }
-            case "REQUIRE": {
-                var arguments = extractArguments(REQUIRE_RULE_PATTERN, raw);
-                if (arguments == null) {
-                    throw new IllegalArgumentException("Malformed arguments for configuration rule:" + raw);
-                }
-                return new ConfigRequireRule(arguments[0]);
-            }
-            default:
-                return ConfigRules.valueOf(raw);
-        }
     }
 
     /**

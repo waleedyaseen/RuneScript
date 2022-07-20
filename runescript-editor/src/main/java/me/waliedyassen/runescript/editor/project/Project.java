@@ -21,9 +21,6 @@ import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
-import me.waliedyassen.runescript.config.binding.ConfigBinding;
-import me.waliedyassen.runescript.config.compiler.ConfigCompiler;
-import me.waliedyassen.runescript.config.var.ConfigParamProperty;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
 import me.waliedyassen.runescript.editor.project.build.BuildPath;
@@ -31,7 +28,6 @@ import me.waliedyassen.runescript.editor.project.cache.Cache;
 import me.waliedyassen.runescript.editor.project.cache.unit.CacheUnit;
 import me.waliedyassen.runescript.editor.project.compile.ProjectCompiler;
 import me.waliedyassen.runescript.editor.project.compile.ProjectCompilerProvider;
-import me.waliedyassen.runescript.editor.project.compile.impl.ProjectConfigCompiler;
 import me.waliedyassen.runescript.editor.project.compile.impl.ProjectScriptCompiler;
 import me.waliedyassen.runescript.editor.ui.editor.project.ProjectEditor;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
@@ -327,10 +323,7 @@ public final class Project {
         loadConstants();
         loadRuntimeConstants();
         compilerProvider = new ProjectCompilerProvider();
-        var configCompiler = new ConfigCompiler(new ProjectIDManager(this), symbolTable, overrideSymbols);
-        loadBindings(configCompiler);
         registerScriptCompiler();
-        registerConfigCompiler(configCompiler);
     }
 
     /**
@@ -347,18 +340,6 @@ public final class Project {
                 .build());
         compilerProvider.register("cs2", scriptsCompiler);
         compilerProvider.register("rs2", scriptsCompiler);
-    }
-
-    /**
-     * Registers all of the config compiler(s) in the compiler provider.
-     *
-     * @param configCompiler the underlying compiler tool for the project compiler.
-     */
-    private void registerConfigCompiler(ConfigCompiler configCompiler) {
-        var projectCompiler = new ProjectConfigCompiler(configCompiler);
-        configCompiler.getBindings().keySet().forEach(extension -> {
-            compilerProvider.register(extension, projectCompiler);
-        });
     }
 
     /**
@@ -650,105 +631,6 @@ public final class Project {
         } catch (Throwable e) {
             log.error("An error occurred while loading the runtime constants file for path: {}", runtimeConstantsPath, e);
         }
-    }
-
-    /**
-     * Loads all of the configuration bindings of the project.
-     */
-    void loadBindings(ConfigCompiler configCompiler) {
-        bindingsPath.forEach((type, pathRaw) -> {
-            var path = Paths.get(pathRaw);
-            if (!path.isAbsolute()) {
-                path = directory.resolve(pathRaw);
-            }
-            if (!Files.exists(path)) {
-                log.info("The specified configuration binding file does not exist for type {} and path: {}", type, pathRaw);
-                return;
-            }
-            try {
-                try (var config = CommentedFileConfig.of(path.toFile())) {
-                    config.load();
-                    var binding = new ConfigBinding(() -> type);
-                    configCompiler.registerBinding(type.getRepresentation(), binding);
-                    for (var entry : config.entrySet()) {
-                        if (entry.getKey().contentEquals("config")) {
-                            continue;
-                        }
-                        var value = (CommentedConfig) entry.getValue();
-                        var entryType = value.getOrElse("type", "BASIC");
-                        switch (entryType) {
-                            case "BASIC": {
-                                var opcode = value.getInt("opcode");
-                                var required = value.getOrElse("required", false);
-                                var components = ProjectConfig.parsePrimitiveTypes(value, "components");
-                                var rules = ProjectConfig.parseConfigRules(value, "rules");
-                                binding.addBasicProperty(entry.getKey(), opcode, required, components, rules);
-                                break;
-                            }
-                            case "BASIC_REPEAT": {
-                                var opcode = value.getInt("opcode");
-                                var required = value.getOrElse("required", false);
-                                var components = ProjectConfig.parsePrimitiveTypes(value, "components");
-                                var rules = ProjectConfig.parseConfigRules(value, "rules");
-                                var count = value.getInt("count");
-                                var format = value.getOrElse("format", entry.getKey() + "%d");
-                                binding.addBasicProperty(format, opcode, required, components, rules, count);
-                                break;
-                            }
-                            case "BASIC_DYNAMIC": {
-                                var opcodes = value.<List<Integer>>get("opcodes");
-                                if (opcodes.size() != 2) {
-                                    throw new IllegalArgumentException("Expected 2 values (int opcode, string opcode) for opcodes field in property: " + entry.getKey());
-                                }
-                                var inferring = ProjectConfig.parseInferredVariable(config, value.get("typeProperty"));
-                                binding.addBasicDynamicProperty(entry.getKey(), inferring, opcodes.stream().mapToInt(Integer::intValue).toArray());
-                                break;
-                            }
-                            case "SPLIT_ARRAY": {
-                                var opcode = value.getInt("opcode");
-                                var required = value.getOrElse("required", false);
-                                var components = ProjectConfig.parsePrimitiveTypes(value, "components");
-                                var rules = ProjectConfig.parseConfigRules(value, "rules");
-                                var sizeType = PrimitiveType.valueOf(value.get("sizeType"));
-                                var maxSize = value.getInt("maxSize");
-                                var names = value.<List<String>>get("names");
-                                binding.addSplitArrayProperty(entry.getKey(), opcode, required, names.toArray(new String[0]), components, rules, sizeType, maxSize);
-                                break;
-                            }
-                            case "MAP": {
-                                var opcodes = value.<List<Integer>>get("opcodes");
-                                if (opcodes.size() != 2) {
-                                    throw new IllegalArgumentException("Expected 2 values (int opcode, string opcode) for opcodes field in property: " + entry.getKey());
-                                }
-                                var keyTypeProperty = ProjectConfig.parseInferredVariable(config, value.get("keyTypeProperty"));
-                                var valueTypeProperty = ProjectConfig.parseInferredVariable(config, value.get("valueTypeProperty"));
-                                binding.addMapProperty(entry.getKey(), opcodes.stream().mapToInt(Integer::intValue).toArray(), keyTypeProperty, valueTypeProperty);
-                                break;
-                            }
-                            default: {
-                                throw new IllegalArgumentException("The specified type is not recognised: " + entryType);
-                            }
-                        }
-                    }
-                    var contentTypeProperty = config.contains("config.content_type_property") ? config.<String>get("config.content_type_property") : null;
-                    if (contentTypeProperty != null) {
-                        binding.setContentTypeProperty(contentTypeProperty);
-                        var prop = binding.findProperty(binding.getContentTypeProperty());
-                        if (prop == null || prop.getComponents().length != 1 || prop.getComponents()[0] != PrimitiveType.TYPE) {
-                            throw new IllegalArgumentException("Malformed content type property: " + binding.getContentTypeProperty());
-                        }
-                    }
-                    if (config.getOrElse("config.add_param_property", false)) {
-                        binding.addProperty("param", new ConfigParamProperty("param", 249));
-                    }
-                    if (config.getOrElse("config.add_transmit_property", false)) {
-                        binding.addBasicProperty("transmit", 250, false, new PrimitiveType[]{PrimitiveType.BOOLEAN}, new List[]{Collections.emptyList()});
-                    }
-                }
-            } catch (Throwable e) {
-                log.error("An error occurred while loading the configuration binding file for type: {} and path: {}", type, pathRaw, e);
-            }
-        });
     }
 
     /**

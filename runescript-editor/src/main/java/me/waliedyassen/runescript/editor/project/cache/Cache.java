@@ -17,7 +17,6 @@ import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.Input;
 import me.waliedyassen.runescript.compiler.SourceFile;
 import me.waliedyassen.runescript.compiler.codegen.writer.bytecode.BytecodeCodeWriter;
-import me.waliedyassen.runescript.config.compiler.CompiledConfigUnit;
 import me.waliedyassen.runescript.editor.file.FileTypeManager;
 import me.waliedyassen.runescript.editor.job.WorkExecutor;
 import me.waliedyassen.runescript.editor.project.Project;
@@ -261,33 +260,24 @@ public final class Cache {
         }
         // TODO: We need to make sure all of the tabs are currently saved so we don't cause any issues in the symbol table.
         // TODO: Clean this function up.
-        var configUnits = new ArrayList<CompiledConfigUnit>();
         var scriptUnits = new ArrayList<CompiledScriptUnit>();
         var options = new CompileOptions();
         options.setRunCodeGeneration(true);
         options.setRunIdGeneration(true);
         options.setOnUnitCompilation(object -> {
-            if (object instanceof CompiledConfigUnit) {
-                configUnits.add((CompiledConfigUnit) object);
-            } else if (object instanceof CompiledScriptUnit) {
+            if (object instanceof CompiledScriptUnit) {
                 scriptUnits.add((CompiledScriptUnit) object);
             } else {
                 throw new IllegalArgumentException();
             }
         });
-        var units = this.units.values().stream().filter(unit -> forceAll || unit.getCrc() != unit.getPackCrc()).collect(Collectors.toList());
+        var units = this.units.values().stream().filter(unit -> forceAll || unit.getCrc() != unit.getPackCrc()).toList();
         var files = new ArrayList<Pair<Path, byte[]>>();
         for (var unit : units) {
             var path = project.getBuildPath().getSourceDirectory().resolve(unit.getNameWithPath());
             files.add(Pair.of(path, Files.readAllBytes(path)));
         }
         recompile(files, options);
-        for (var configUnit : configUnits) {
-            var type = configUnit.getBinding().getGroup().getType();
-            var name = configUnit.getBinaryConfig().getName();
-            var id = project.getIdManager().findConfig(type, name);
-            project.getPackManager().pack(getPackName(type.getRepresentation()), id, name, configUnit.getBinaryConfig().serialize());
-        }
         var writer = new BytecodeCodeWriter(project.getIdManager(), project.isSupportsLongPrimitiveType());
         for (var scriptUnit : scriptUnits) {
             var binaryScript = scriptUnit.getBinaryScript();
