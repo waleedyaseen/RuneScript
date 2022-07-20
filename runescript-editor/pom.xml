@@ -71,12 +71,12 @@
         <dependency>
             <groupId>com.electronwill.night-config</groupId>
             <artifactId>core</artifactId>
-            <version>3.6.4</version>
+            <version>3.6.5</version>
         </dependency>
         <dependency>
             <groupId>com.electronwill.night-config</groupId>
             <artifactId>toml</artifactId>
-            <version>3.6.4</version>
+            <version>3.6.5</version>
         </dependency>
         <dependency>
             <groupId>me.waliedyassen.runescript</groupId>
@@ -92,13 +92,7 @@
         <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>autocomplete</artifactId>
-            <version>3.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>me.waliedyassen.runescript</groupId>
-            <artifactId>runescript-configs</artifactId>
-            <version>0.6-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>3.2.0</version>
         </dependency>
     </dependencies>
 </project>
