@@ -32,25 +32,25 @@ public class SymbolTable {
      * The defined constants map.
      */
     @Getter
-    private final Map<String, ConstantInfo> constants = new HashMap<>();
+    private final SymbolList<ConstantInfo> constants = new SymbolList<>();
 
     /**
      * The defined configurations map.
      */
     @Getter
-    private final Map<String, ConfigInfo> configs = new HashMap<>();
+    private final SymbolList<ConfigInfo> configs = new SymbolList<>();
 
     /**
      * The defined graphics map.
      */
     @Getter
-    private final Map<String, GraphicInfo> graphics = new HashMap<>();
+    private final SymbolList<GraphicInfo> graphics = new SymbolList<>();
 
     /**
      * The defined runtime constants.
      */
     @Getter
-    private final Map<String, RuntimeConstantInfo> runtimeConstants = new HashMap<>();
+    private final SymbolList<RuntimeConstantInfo> runtimeConstants = new SymbolList<>();
 
     /**
      * The parent symbol table.
@@ -59,7 +59,7 @@ public class SymbolTable {
     private final SymbolTable parent;
 
     /**
-     * Whether or not to allow the un-defining of symbols from this table.
+     * Whether to allow the un-defining of symbols from this table.
      */
     @Getter
     protected final boolean allowRemoving;
@@ -67,7 +67,7 @@ public class SymbolTable {
     /**
      * Constructs a new {@link SymbolTable} type object instance.
      *
-     * @param allowRemoving whether or not to allow removing symbols from this table.
+     * @param allowRemoving whether to allow removing symbols from this table.
      */
     public SymbolTable(boolean allowRemoving) {
         this(null, allowRemoving);
@@ -84,7 +84,7 @@ public class SymbolTable {
         if (lookupConstant(name) != null) {
             throw new IllegalArgumentException("The constant '" + name + "' is already defined.");
         }
-        constants.put(name, new ConstantInfo(name, type, value));
+        constants.add(new ConstantInfo(name, type, value));
     }
 
     /**
@@ -94,7 +94,7 @@ public class SymbolTable {
      * @return the {@link ConstantInfo} if it was present otherwise {@code null}.
      */
     public ConstantInfo lookupConstant(String name) {
-        var info = constants.get(name);
+        var info = constants.lookupByName(name);
         if (info == null && parent != null) {
             info = parent.lookupConstant(name);
         }
@@ -110,7 +110,7 @@ public class SymbolTable {
         if (lookupConfig(info.getName()) != null) {
             throw new IllegalArgumentException("The configuration '" + info.getName() + "' is already defined.");
         }
-        configs.put(info.getName(), info);
+        configs.add(info);
     }
 
     /**
@@ -126,7 +126,7 @@ public class SymbolTable {
             throw new IllegalArgumentException("The configuration '" + name + "' is already defined.");
         }
         var config = new ConfigInfo(name, type, contentType);
-        configs.put(name, config);
+        configs.add(config);
         return config;
     }
 
@@ -149,7 +149,7 @@ public class SymbolTable {
      * @return the {@link ConfigInfo} if it was present otherwise {@code null}.
      */
     public ConfigInfo lookupConfig(String name) {
-        var info = configs.get(name);
+        var info = configs.lookupByName(name);
         if (info == null && parent != null) {
             info = parent.lookupConfig(name);
         }
@@ -188,7 +188,7 @@ public class SymbolTable {
         if (lookupGraphic(name) != null) {
             throw new IllegalArgumentException("The graphic '" + name + "' is already defined.");
         }
-        graphics.put(name, new GraphicInfo(name, id));
+        graphics.add(new GraphicInfo(name, id));
     }
 
     /**
@@ -198,7 +198,7 @@ public class SymbolTable {
      * @return the {@link GraphicInfo} if it was present otherwise {@code null}.
      */
     public GraphicInfo lookupGraphic(String name) {
-        var info = graphics.get(name);
+        var info = graphics.lookupByName(name);
         if (info == null && parent != null) {
             info = parent.lookupGraphic(name);
         }
@@ -216,7 +216,7 @@ public class SymbolTable {
         if (lookupRuntimeConstant(name) != null) {
             throw new IllegalArgumentException("The runtime constant '" + name + "' is already defined.");
         }
-        runtimeConstants.put(name, new RuntimeConstantInfo(name, type, value));
+        runtimeConstants.add(new RuntimeConstantInfo(name, type, value));
     }
 
     /**
@@ -226,7 +226,7 @@ public class SymbolTable {
      * @return the {@link RuntimeConstantInfo} if it was present otherwise {@code null}.
      */
     public RuntimeConstantInfo lookupRuntimeConstant(String name) {
-        var info = runtimeConstants.get(name);
+        var info = runtimeConstants.lookupByName(name);
         if (info == null && parent != null) {
             info = parent.lookupRuntimeConstant(name);
         }
