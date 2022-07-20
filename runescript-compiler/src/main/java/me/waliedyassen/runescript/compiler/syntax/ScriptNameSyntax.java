@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -52,15 +52,15 @@ public final class ScriptNameSyntax extends Syntax {
     /**
      * Constructs a new {@link ScriptNameSyntax} type object instance.
      *
-     * @param range        the node source code range.
+     * @param span        the node source code range.
      * @param leftBracket  the token of the left bracket.
      * @param trigger      the trigger identifier expression.
      * @param comma        the token of the comma.
      * @param name         the name identifier expression.
      * @param rightBracket the token of the right bracket.
      */
-    public ScriptNameSyntax(Range range, SyntaxToken leftBracket, SyntaxToken comma, SyntaxToken rightBracket, IdentifierSyntax trigger, IdentifierSyntax name) {
-        super(range);
+    public ScriptNameSyntax(Span span, SyntaxToken leftBracket, SyntaxToken comma, SyntaxToken rightBracket, IdentifierSyntax trigger, IdentifierSyntax name) {
+        super(span);
         this.leftBracket = leftBracket;
         this.comma = comma;
         this.rightBracket = rightBracket;

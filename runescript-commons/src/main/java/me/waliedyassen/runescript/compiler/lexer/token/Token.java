@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.lexer.token;
 
 import lombok.Data;
 import me.waliedyassen.runescript.commons.document.Element;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 
 /**
  * Represents a single token in any of our parsers.
@@ -27,7 +27,7 @@ public class Token<K> implements Element {
     /**
      * The token source code range.
      */
-    private final Range range;
+    private final Span span;
 
     /**
      * The token lexeme value.

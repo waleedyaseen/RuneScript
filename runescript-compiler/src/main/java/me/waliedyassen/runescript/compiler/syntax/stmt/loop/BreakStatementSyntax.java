@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.stmt.loop;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.stmt.StatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
@@ -35,12 +35,12 @@ public final class BreakStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link BreakStatementSyntax} type object instance.
      *
-     * @param range          the node source code range.
+     * @param span          the node source code range.
      * @param controlToken   the token of the control keyword.
      * @param semicolonToken the token of the semicolon.
      */
-    public BreakStatementSyntax(Range range, SyntaxToken controlToken, SyntaxToken semicolonToken) {
-        super(range);
+    public BreakStatementSyntax(Span span, SyntaxToken controlToken, SyntaxToken semicolonToken) {
+        super(span);
         this.controlToken = controlToken;
         this.semicolonToken = semicolonToken;
     }

@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.stmt;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
@@ -47,14 +47,14 @@ public final class SwitchStatementSyntax extends StatementSyntax {
     /**
      * Constructs a new {@link SwitchStatementSyntax} type object instance.
      *
-     * @param range       the node source code range.
+     * @param span       the node source code range.
      * @param switchToken the token of the "switch" keyword.
      * @param condition   the switch statement condition.
      * @param cases       the switch statement member cases
      * @param defaultCase the switch statement default case
      */
-    public SwitchStatementSyntax(Range range, SyntaxToken switchToken, ExpressionSyntax condition, SwitchCaseSyntax[] cases, SwitchCaseSyntax defaultCase) {
-        super(range);
+    public SwitchStatementSyntax(Span span, SyntaxToken switchToken, ExpressionSyntax condition, SwitchCaseSyntax[] cases, SwitchCaseSyntax defaultCase) {
+        super(span);
         this.switchToken = switchToken;
         this.condition = addChild(condition);
         this.cases = addChild(cases);

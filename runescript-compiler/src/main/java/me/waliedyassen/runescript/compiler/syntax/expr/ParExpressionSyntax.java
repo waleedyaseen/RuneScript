@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -40,13 +40,13 @@ public final class ParExpressionSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link ParExpressionSyntax} type object instance.
      *
-     * @param range           the node source code range.
+     * @param span           the node source code range.
      * @param leftParenToken  the token of the left parenthesis.
      * @param rightParenToken the token of the right parenthesis.
      * @param expression      the expression within the parenthesis.
      */
-    public ParExpressionSyntax(Range range, SyntaxToken leftParenToken, SyntaxToken rightParenToken, ExpressionSyntax expression) {
-        super(range);
+    public ParExpressionSyntax(Span span, SyntaxToken leftParenToken, SyntaxToken rightParenToken, ExpressionSyntax expression) {
+        super(span);
         this.leftParenToken = leftParenToken;
         this.rightParenToken = rightParenToken;
         this.expression = addChild(expression);

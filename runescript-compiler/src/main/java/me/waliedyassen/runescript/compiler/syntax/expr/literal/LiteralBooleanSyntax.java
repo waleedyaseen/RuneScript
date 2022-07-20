@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.syntax.expr.literal;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
@@ -20,11 +20,11 @@ public final class LiteralBooleanSyntax extends LiteralExpressionSyntax<Boolean>
     /**
      * Construct a new {@link LiteralBooleanSyntax} type object instance.
      *
-     * @param range the node source code range.
+     * @param span the node source code range.
      * @param value the boolean literal value
      */
-    public LiteralBooleanSyntax(Range range, Boolean value) {
-        super(range, value);
+    public LiteralBooleanSyntax(Span span, Boolean value) {
+        super(span, value);
     }
 
     /**

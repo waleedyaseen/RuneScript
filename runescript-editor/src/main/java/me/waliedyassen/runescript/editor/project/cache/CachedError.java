@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.editor.project.cache;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 
 /**
  * A cached error that is stored in a cached file.
@@ -23,7 +23,7 @@ public final class CachedError {
      * The range of the error in the source code.
      */
     @Getter
-    private final Range range;
+    private final Span span;
 
     /**
      * The line which contains the error.

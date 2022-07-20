@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr.op;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.util.Operator;
@@ -49,7 +49,7 @@ public final class BinaryOperationSyntax extends ExpressionSyntax {
      *         the operation right side expression.
      */
     public BinaryOperationSyntax(ExpressionSyntax left, Operator operator, ExpressionSyntax right) {
-        super(new Range(left.getRange(), right.getRange()));
+        super(new Span(left.getSpan(), right.getSpan()));
         this.left = addChild(left);
         this.operator = operator;
         this.right = addChild(right);

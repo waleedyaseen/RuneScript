@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.stmt.loop;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.StatementSyntax;
@@ -51,15 +51,15 @@ public final class DoWhileStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link DoWhileStatementSyntax} type object instance.
      *
-     * @param range          the node source code range.
+     * @param span          the node source code range.
      * @param doToken        the token of the "do" keyword.
      * @param whileToken     the token of the "while" keyword.
      * @param semicolonToken the token of the semicolon.
      * @param code           the code of the  do while statement.
      * @param condition      the condition of the do while statement.
      */
-    public DoWhileStatementSyntax(Range range, SyntaxToken doToken, SyntaxToken whileToken, SyntaxToken semicolonToken, StatementSyntax code, ExpressionSyntax condition) {
-        super(range);
+    public DoWhileStatementSyntax(Span span, SyntaxToken doToken, SyntaxToken whileToken, SyntaxToken semicolonToken, StatementSyntax code, ExpressionSyntax condition) {
+        super(span);
         this.doToken = doToken;
         this.whileToken = whileToken;
         this.semicolonToken = semicolonToken;

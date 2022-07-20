@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
 import lombok.ToString;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 
@@ -36,15 +36,15 @@ public final class VariableExpressionSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link VariableExpressionSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the expression source code range.
      * @param scope
      *         the scope of the variable.
      * @param name
      *         the name of the variable.
      */
-    public VariableExpressionSyntax(Range range, VariableScope scope, IdentifierSyntax name) {
-        super(range);
+    public VariableExpressionSyntax(Span span, VariableScope scope, IdentifierSyntax name) {
+        super(span);
         this.scope = scope;
         this.name = addChild(name);
     }

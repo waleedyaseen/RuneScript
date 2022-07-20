@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.syntax;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
@@ -22,10 +22,10 @@ public final class SyntaxToken extends Token<Kind> {
      * Constructs a new {@link SyntaxToken} type object instance.
      *
      * @param kind   the kind of the token.
-     * @param range  the source code range of the token.
+     * @param span  the source code range of the token.
      * @param lexeme the raw text representation of the token.
      */
-    public SyntaxToken(Kind kind, Range range, String lexeme) {
-        super(kind, range, lexeme);
+    public SyntaxToken(Kind kind, Span span, String lexeme) {
+        super(kind, span, lexeme);
     }
 }

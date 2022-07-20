@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.parser;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.CompilerError;
 
 /**
@@ -26,12 +26,12 @@ public final class SyntaxError extends CompilerError {
     /**
      * Constructs a new {@link SyntaxError} type object instance.
      *
-     * @param range
+     * @param span
      *         the source code range which the error occurred within.
      * @param message
      *         the error message explaining why the error has occurred.
      */
-    public SyntaxError(Range range, String message) {
-        super(range, message);
+    public SyntaxError(Span span, String message) {
+        super(span, message);
     }
 }

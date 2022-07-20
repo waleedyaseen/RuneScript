@@ -69,7 +69,7 @@ public final class CodeParameterCompletionProvider implements ParameterChoicesPr
             return null;
         }
         for (var script : parser.getScripts()) {
-            if (script.getRange().contains(offset)) {
+            if (script.getSpan().contains(offset)) {
                 return script;
             }
         }

@@ -684,7 +684,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
             var _case = switchCase();
             if (_case.isDefault()) {
                 if (defaultCase != null) {
-                    throw createError(_case.getRange(), "Switch statements can only have one default case defined");
+                    throw createError(_case.getSpan(), "Switch statements can only have one default case defined");
                 }
                 defaultCase = _case;
             } else {
@@ -1104,7 +1104,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     private LexerBase<Kind, SyntaxToken> createLexerFromString(SyntaxToken token) {
         var stream = new BufferedCharStream(token.getLexeme().toCharArray());
-        var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream, token.getRange().getStart());
+        var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream, token.getSpan().getBegin());
         return new Lexer(tokenizer);
     }
 

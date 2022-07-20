@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler;
 
 import lombok.Getter;
 import me.waliedyassen.runescript.RuneScriptError;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 
 /**
  * Represents an error that has occurred during any of the compiler phases.
@@ -27,16 +27,16 @@ public abstract class CompilerError extends RuneScriptError {
      * The error source code range.
      */
     @Getter
-    private final Range range;
+    private final Span span;
 
     /**
      * Constructs a new {@link CompilerError} type object instance.
      *
-     * @param range   the error range in the source code.
+     * @param span   the error range in the source code.
      * @param message a message describing why the error has occurred.
      */
-    public CompilerError(Range range, String message) {
+    public CompilerError(Span span, String message) {
         super(message);
-        this.range = range;
+        this.span = span;
     }
 }

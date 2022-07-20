@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.stmt;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
@@ -64,15 +64,15 @@ public final class ArrayDeclarationSyntax extends StatementSyntax {
     /**
      * Construct a new {@link StatementSyntax} type object instance.
      *
-     * @param range          the node source code range.
+     * @param span          the node source code range.
      * @param defineToken    the token of the define keyword.
      * @param dollarToken    the token of the dollar symbol.
      * @param semicolonToken the token of the semicolon.
      * @param name           the name of the array.
      * @param size           the size of the array.
      */
-    public ArrayDeclarationSyntax(Range range, SyntaxToken defineToken, SyntaxToken dollarToken, SyntaxToken semicolonToken, IdentifierSyntax name, ExpressionSyntax size) {
-        super(range);
+    public ArrayDeclarationSyntax(Span span, SyntaxToken defineToken, SyntaxToken dollarToken, SyntaxToken semicolonToken, IdentifierSyntax name, ExpressionSyntax size) {
+        super(span);
         this.defineToken = defineToken;
         this.dollarToken = dollarToken;
         this.semicolonToken = semicolonToken;

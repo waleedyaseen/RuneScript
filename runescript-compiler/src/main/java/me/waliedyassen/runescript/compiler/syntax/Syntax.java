@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.EqualsAndHashCode;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
@@ -24,10 +24,10 @@ public abstract class Syntax extends SyntaxBase {
     /**
      * Constructs a new {@link Syntax} type object instance.
      *
-     * @param range the source code range of the node.
+     * @param span the source code range of the node.
      */
-    public Syntax(Range range) {
-        super(range);
+    public Syntax(Span span) {
+        super(span);
     }
 
     /**

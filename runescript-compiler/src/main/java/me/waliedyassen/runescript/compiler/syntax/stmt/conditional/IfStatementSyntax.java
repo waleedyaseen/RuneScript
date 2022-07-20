@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.stmt.conditional;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.StatementSyntax;
@@ -66,7 +66,7 @@ public final class IfStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link IfStatementSyntax} type object instance.
      *
-     * @param range           the node source code range.
+     * @param span           the node source code range.
      * @param ifToken         if token of the "if" keyword.
      * @param leftParenToken  the token of the left parenthesis.
      * @param rightParenToken the token of the right parenthesis.
@@ -75,8 +75,8 @@ public final class IfStatementSyntax extends StatementSyntax {
      * @param trueStatement   the true code statement of the if statement.
      * @param falseStatement  the false code statement of the if statement.
      */
-    public IfStatementSyntax(Range range, SyntaxToken ifToken, SyntaxToken leftParenToken, SyntaxToken rightParenToken, SyntaxToken elseToken, ExpressionSyntax condition, StatementSyntax trueStatement, StatementSyntax falseStatement) {
-        super(range);
+    public IfStatementSyntax(Span span, SyntaxToken ifToken, SyntaxToken leftParenToken, SyntaxToken rightParenToken, SyntaxToken elseToken, ExpressionSyntax condition, StatementSyntax trueStatement, StatementSyntax falseStatement) {
+        super(span);
         this.ifToken = ifToken;
         this.elseToken = elseToken;
         this.leftParenToken = leftParenToken;

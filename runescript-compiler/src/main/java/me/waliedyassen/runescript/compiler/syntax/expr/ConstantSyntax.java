@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -35,12 +35,12 @@ public final class ConstantSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link ConstantSyntax} type object instance.
      *
-     * @param range      the expression source code range.
+     * @param span      the expression source code range.
      * @param caretToken the caret syntax token.
      * @param name       the name of the constant.
      */
-    public ConstantSyntax(Range range, SyntaxToken caretToken, IdentifierSyntax name) {
-        super(range);
+    public ConstantSyntax(Span span, SyntaxToken caretToken, IdentifierSyntax name) {
+        super(span);
         this.caretToken = caretToken;
         this.name = addChild(name);
     }

@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.util.VariableScope;
 
@@ -29,15 +29,15 @@ public final class ScopedVariableSyntax extends VariableSyntax {
     /**
      * Constructs a new {@link ScopedVariableSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the node source code range.
      * @param scope
      *         the scope of the varaible.
      * @param name
      *         the name of the variable.
      */
-    public ScopedVariableSyntax(Range range, VariableScope scope, IdentifierSyntax name) {
-        super(range, name);
+    public ScopedVariableSyntax(Span span, VariableScope scope, IdentifierSyntax name) {
+        super(span, name);
         this.scope = scope;
     }
 

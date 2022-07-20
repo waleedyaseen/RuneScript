@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.stmt;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
@@ -49,14 +49,14 @@ public final class VariableDeclarationSyntax extends StatementSyntax {
     /**
      * Construct a new {@link VariableDeclarationSyntax} type object instance.
      *
-     * @param range       the node source code range.
+     * @param span       the node source code range.
      * @param defineToken the token of the define keyword.
      * @param dollarToken the toke nof the dollar sign.
      * @param name        the name of the variable.
      * @param expression  the initializer expression of the variable.
      */
-    public VariableDeclarationSyntax(Range range, SyntaxToken defineToken, SyntaxToken dollarToken, IdentifierSyntax name, ExpressionSyntax expression) {
-        super(range);
+    public VariableDeclarationSyntax(Span span, SyntaxToken defineToken, SyntaxToken dollarToken, IdentifierSyntax name, ExpressionSyntax expression) {
+        super(span);
         this.defineToken = defineToken;
         this.dollarToken = dollarToken;
         this.name = addChild(name);

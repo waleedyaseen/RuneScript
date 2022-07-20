@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.syntax.expr.literal;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 
 /**
  * Represents a number literal expression node.
@@ -19,10 +19,10 @@ abstract class LiteralNumberSyntax<T extends Number> extends LiteralExpressionSy
     /**
      * Constructs a new {@link LiteralNumberSyntax} type object instance.
      *
-     * @param range  the node source code range.
+     * @param span  the node source code range.
      * @param number the value of the literal.
      */
-    LiteralNumberSyntax(Range range, T number) {
-        super(range, number);
+    LiteralNumberSyntax(Span span, T number) {
+        super(span, number);
     }
 }

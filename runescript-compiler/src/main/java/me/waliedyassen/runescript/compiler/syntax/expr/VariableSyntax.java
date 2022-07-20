@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 
 /**
  * The base class for all of the AST variable nodes.
@@ -26,13 +26,13 @@ public abstract class VariableSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link VariableSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the node source code range.
      * @param name
      *         the name of the variable.
      */
-    public VariableSyntax(Range range, IdentifierSyntax name) {
-        super(range);
+    public VariableSyntax(Span span, IdentifierSyntax name) {
+        super(span);
         this.name = name;
     }
 }

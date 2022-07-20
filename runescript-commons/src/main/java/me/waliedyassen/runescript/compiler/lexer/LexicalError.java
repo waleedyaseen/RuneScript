@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.lexer;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.CompilerError;
 
 /**
@@ -25,10 +25,10 @@ public final class LexicalError extends CompilerError {
     /**
      * Constructs a new {@link LexicalError} type object instance.
      *
-     * @param range   the error source code range.
+     * @param span   the error source code range.
      * @param message a message describing why the error has occurred.
      */
-    public LexicalError(Range range, String message) {
-        super(range, message + " at offset:" + range.getStart());
+    public LexicalError(Span span, String message) {
+        super(span, message + " at offset:" + span.getBegin());
     }
 }

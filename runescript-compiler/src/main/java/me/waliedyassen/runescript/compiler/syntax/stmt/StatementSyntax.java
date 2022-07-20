@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.syntax.stmt;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.Syntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -26,10 +26,10 @@ public abstract class StatementSyntax extends Syntax {
     /**
      * Construct a new {@link StatementSyntax} type object instance.
      *
-     * @param range the node source code range.
+     * @param span the node source code range.
      */
-    public StatementSyntax(Range range) {
-        super(range);
+    public StatementSyntax(Span span) {
+        super(span);
     }
 
     /**

@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.parser;
 
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.commons.document.Element;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.LexerBase;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
@@ -25,9 +25,9 @@ import java.util.Stack;
 public abstract class ParserBase<K, T extends Token<K>> {
 
     /**
-     * The {@link Range} object stack. It is used to calculate the nested {@link Range}s.
+     * The {@link Span} object stack. It is used to calculate the nested {@link Span}s.
      */
-    private final Stack<Range> ranges = new Stack<>();
+    private final Stack<Span> spans = new Stack<>();
 
     /**
      * A stack wh8ich contains all of the sub-lexer objects.
@@ -51,11 +51,11 @@ public abstract class ParserBase<K, T extends Token<K>> {
     protected final K eofKind;
 
     /**
-     * Creates an empty {@link Range} object at the current parsing position.
+     * Creates an empty {@link Span} object at the current parsing position.
      *
-     * @return the created {@link Range} object.
+     * @return the created {@link Span} object.
      */
-    protected Range emptyRange() {
+    protected Span emptyRange() {
         pushRange();
         return popRange();
     }
@@ -71,7 +71,7 @@ public abstract class ParserBase<K, T extends Token<K>> {
     protected T consume(K expected) {
         var token = peek();
         var kind = token == null ? eofKind : token.getKind();
-        var range = token != null && token.getRange() != null ? token.getRange() : lexer.getStartRange();
+        var range = token != null && token.getSpan() != null ? token.getSpan() : lexer.getStartSpan();
         if (kind == expected) {
             consume();
             return token;
@@ -157,35 +157,35 @@ public abstract class ParserBase<K, T extends Token<K>> {
     }
 
     /**
-     * Pushes a new {@link Range} into the {@link #ranges} stack. Calls to this method should be followed by {@link
-     * #popRange()} to remove the pushed {@link Range} object from the stack.
+     * Pushes a new {@link Span} into the {@link #spans} stack. Calls to this method should be followed by {@link
+     * #popRange()} to remove the pushed {@link Span} object from the stack.
      */
     protected void pushRange() {
-        ranges.push(new Range());
+        spans.push(new Span());
     }
 
     /**
-     * Appends the specified {@link Element} range into the last {@link Range} in the {@link #ranges} stack. If the
-     * element is null or there is no {@link Range} object available into the stack, the method will have no effect.
+     * Appends the specified {@link Element} range into the last {@link Span} in the {@link #spans} stack. If the
+     * element is null or there is no {@link Span} object available into the stack, the method will have no effect.
      *
      * @param element the element to append it's range.
      */
     protected void appendRange(Element element) {
-        if (ranges.isEmpty() || element == null) {
+        if (spans.isEmpty() || element == null) {
             return;
         }
-        ranges.lastElement().add(element.getRange());
+        spans.lastElement().add(element.getSpan());
     }
 
     /**
-     * Pops the last pushed {@link Range} object from the stack. If the stack is empty.
+     * Pops the last pushed {@link Span} object from the stack. If the stack is empty.
      *
-     * @return the popped {@link Range} object.
+     * @return the popped {@link Span} object.
      */
-    protected Range popRange() {
-        var range = ranges.pop();
-        if (!ranges.isEmpty()) {
-            ranges.lastElement().add(range);
+    protected Span popRange() {
+        var range = spans.pop();
+        if (!spans.isEmpty()) {
+            spans.lastElement().add(range);
         }
         return range;
     }
@@ -203,12 +203,12 @@ public abstract class ParserBase<K, T extends Token<K>> {
     /**
      * Creates a syntax error indicating a mismatched grammar rule.
      *
-     * @param range   the source code range in which the error has occurred.
+     * @param span   the source code range in which the error has occurred.
      * @param message the error message describing why the error has occurred
      * @return the created {@link SyntaxError} object.
      */
-    protected SyntaxError createError(Range range, String message) {
-        return new SyntaxError(range, message);
+    protected SyntaxError createError(Span span, String message) {
+        return new SyntaxError(span, message);
     }
 
     /**
@@ -219,7 +219,7 @@ public abstract class ParserBase<K, T extends Token<K>> {
      * @return the created {@link SyntaxError} object.
      */
     protected SyntaxError createError(T token, String message) {
-        return new SyntaxError(token == null ? emptyRange() : token.getRange(), message);
+        return new SyntaxError(token == null ? emptyRange() : token.getSpan(), message);
     }
 
     /**

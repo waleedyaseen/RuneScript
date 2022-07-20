@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 
@@ -40,7 +40,7 @@ public final class CallSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link CallSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the expression source code range.
      * @param triggerType
      *         the trigger type of the script we want to call.
@@ -49,8 +49,8 @@ public final class CallSyntax extends ExpressionSyntax {
      * @param arguments
      *         the arguments that will be passed to that script.
      */
-    public CallSyntax(Range range, TriggerType triggerType, IdentifierSyntax name, ExpressionSyntax[] arguments) {
-        super(range);
+    public CallSyntax(Span span, TriggerType triggerType, IdentifierSyntax name, ExpressionSyntax[] arguments) {
+        super(span);
         this.triggerType = triggerType;
         this.name = addChild(name);
         this.arguments = addChild(arguments);

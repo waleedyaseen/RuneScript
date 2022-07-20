@@ -32,7 +32,7 @@ public final class SemanticError extends CompilerError {
      * @param message the message describing why the error has occurred.
      */
     public SemanticError(SyntaxBase node, String message) {
-        super(node.getRange(), message);
+        super(node.getSpan(), message);
         script = (ScriptSyntax) node.selectParent(owner -> owner instanceof ScriptSyntax);
     }
 }

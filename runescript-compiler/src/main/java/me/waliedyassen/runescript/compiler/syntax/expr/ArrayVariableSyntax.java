@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -36,15 +36,15 @@ public final class ArrayVariableSyntax extends VariableSyntax {
     /**
      * Constructs a new {@link ArrayVariableSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the node source code range.
      * @param name
      *         the name of the variable.
      * @param index
      *         the index of the array.
      */
-    public ArrayVariableSyntax(Range range, IdentifierSyntax name, ExpressionSyntax index) {
-        super(range, name);
+    public ArrayVariableSyntax(Span span, IdentifierSyntax name, ExpressionSyntax index) {
+        super(span, name);
         this.index = index;
     }
 

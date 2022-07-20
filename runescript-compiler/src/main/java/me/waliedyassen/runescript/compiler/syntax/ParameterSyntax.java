@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -45,13 +45,13 @@ public final class ParameterSyntax extends Syntax {
     /**
      * Construct a new {@link ScriptSyntax} type object instance.
      *
-     * @param range       the node source range.
+     * @param span       the node source range.
      * @param dollarToken the token of the dollar symbol.
      * @param typeToken        the type of the parameter.
      * @param name        the name of the parameter.
      */
-    public ParameterSyntax(Range range, SyntaxToken dollarToken, SyntaxToken typeToken, IdentifierSyntax name, int index) {
-        super(range);
+    public ParameterSyntax(Span span, SyntaxToken dollarToken, SyntaxToken typeToken, IdentifierSyntax name, int index) {
+        super(span);
         this.dollarToken = dollarToken;
         this.typeToken = typeToken;
         this.index = index;

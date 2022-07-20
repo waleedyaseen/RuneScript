@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.stmt;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -34,15 +34,15 @@ public final class SwitchCaseSyntax extends StatementSyntax {
     /**
      * Constructs a new {@link SwitchCaseSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the node source code range.
      * @param keys
      *         the keys of the switch case.
      * @param code
      *         the switch case block statement.
      */
-    public SwitchCaseSyntax(Range range, ExpressionSyntax[] keys, BlockStatementSyntax code) {
-        super(range);
+    public SwitchCaseSyntax(Span span, ExpressionSyntax[] keys, BlockStatementSyntax code) {
+        super(span);
         this.keys = addChild(keys);
         this.code = addChild(code);
     }

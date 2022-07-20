@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.editor.project.cache.unit;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.CompiledFile;
 import me.waliedyassen.runescript.compiler.CompiledUnit;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
@@ -130,8 +130,8 @@ public abstract class CacheUnit<U extends CompiledUnit<?>> {
         stream.writeInt(packCrc);
         stream.writeShort(errors.size());
         for (var error : errors) {
-            stream.writeInt(error.getRange().getStart());
-            stream.writeInt(error.getRange().getWidth());
+            stream.writeInt(error.getSpan().getBegin());
+            stream.writeInt(error.getSpan().getEnd());
             stream.writeInt(error.getLine());
             stream.writeUTF(error.getMessage());
         }
@@ -150,7 +150,7 @@ public abstract class CacheUnit<U extends CompiledUnit<?>> {
         packCrc = stream.readInt();
         var errorsCount = stream.readUnsignedShort();
         for (var index = 0; index < errorsCount; index++) {
-            errors.add(new CachedError(new Range(stream.readInt(), stream.readInt()), stream.readInt(), stream.readUTF()));
+            errors.add(new CachedError(new Span(stream.readInt(), stream.readInt()), stream.readInt(), stream.readUTF()));
         }
         readImpl(stream);
     }

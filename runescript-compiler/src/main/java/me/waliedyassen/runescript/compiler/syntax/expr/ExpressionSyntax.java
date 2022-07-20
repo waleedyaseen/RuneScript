@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.Syntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -21,10 +21,10 @@ public abstract class ExpressionSyntax extends Syntax {
     /**
      * Constructs a new {@link ExpressionSyntax} type object instance.
      *
-     * @param range the expression source code range.
+     * @param span the expression source code range.
      */
-    public ExpressionSyntax(Range range) {
-        super(range);
+    public ExpressionSyntax(Span span) {
+        super(span);
     }
 
     /**

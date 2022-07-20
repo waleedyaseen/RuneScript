@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.lexer;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public abstract class LexerBase<K, T extends Token<K>> {
      * The start range of the lexer.
      */
     @Getter
-    protected final Range startRange;
+    protected final Span startSpan;
 
     /**
      * The current pointer index value.

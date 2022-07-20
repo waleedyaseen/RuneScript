@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr.literal;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
@@ -29,11 +29,11 @@ public final class LiteralNullSyntax extends LiteralExpressionSyntax<Object> {
     /**
      * Constructs a new {@link LiteralNullSyntax} type object instance.
      *
-     * @param range     the expression source code range.
+     * @param span     the expression source code range.
      * @param wordToken the word token of the null keyword.
      */
-    public LiteralNullSyntax(Range range, Token<Kind> wordToken) {
-        super(range, null);
+    public LiteralNullSyntax(Span span, Token<Kind> wordToken) {
+        super(span, null);
         this.wordToken = wordToken;
     }
 

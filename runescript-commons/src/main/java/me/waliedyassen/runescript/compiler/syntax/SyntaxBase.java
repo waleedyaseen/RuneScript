@@ -9,9 +9,8 @@ package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.*;
 import me.waliedyassen.runescript.commons.document.Element;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.type.Type;
-import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +42,7 @@ public abstract class SyntaxBase implements Element {
      * The node source code range.
      */
     @Getter
-    private final Range range;
+    private final Span span;
 
     /**
      * The parent node of this node.

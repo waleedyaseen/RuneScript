@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.stmt.BlockStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -57,7 +57,7 @@ public final class ScriptSyntax extends Syntax {
     /**
      * Construct a new {@link ScriptSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the script source range.
      * @param extension
      *         the extension of the file containg the script.
@@ -70,8 +70,8 @@ public final class ScriptSyntax extends Syntax {
      * @param code
      *         the script code statement.
      */
-    public ScriptSyntax(Range range, String extension, List<AnnotationSyntax> annotations, ScriptNameSyntax name, ParameterSyntax[] parameters, BlockStatementSyntax code) {
-        super(range);
+    public ScriptSyntax(Span span, String extension, List<AnnotationSyntax> annotations, ScriptNameSyntax name, ParameterSyntax[] parameters, BlockStatementSyntax code) {
+        super(span);
         this.extension = extension;
         this.annotations = addChild(annotations);
         this.name = addChild(name);

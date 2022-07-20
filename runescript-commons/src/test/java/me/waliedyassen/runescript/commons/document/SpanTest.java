@@ -13,17 +13,17 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class RangeTest {
+class SpanTest {
 
-    Range range;
+    Span span;
 
     @BeforeEach
     void prepareRange() {
-        range = new Range(1,5);
+        span = new Span(1,5);
     }
 
     @Test
     void testClone() {
-        assertEquals(range.clone(), range);
+        assertEquals(span.clone(), span);
     }
 }

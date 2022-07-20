@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
@@ -27,11 +27,11 @@ public final class CalcSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link ExpressionSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the expression source code range.
      */
-    public CalcSyntax(Range range, ParExpressionSyntax expression) {
-        super(range);
+    public CalcSyntax(Span span, ParExpressionSyntax expression) {
+        super(span);
         this.expression = addChild(expression);
     }
 

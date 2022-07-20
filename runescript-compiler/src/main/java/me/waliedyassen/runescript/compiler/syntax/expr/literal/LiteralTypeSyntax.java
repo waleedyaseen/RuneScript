@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.syntax.expr.literal;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
@@ -21,11 +21,11 @@ public final class LiteralTypeSyntax extends LiteralExpressionSyntax<PrimitiveTy
     /**
      * Constructs a new {@link LiteralExpressionSyntax} type object instance.
      *
-     * @param range the node source code range.
+     * @param span the node source code range.
      * @param value the value of the literal.
      */
-    public LiteralTypeSyntax(Range range, PrimitiveType value) {
-        super(range, value);
+    public LiteralTypeSyntax(Span span, PrimitiveType value) {
+        super(span, value);
     }
 
     /**

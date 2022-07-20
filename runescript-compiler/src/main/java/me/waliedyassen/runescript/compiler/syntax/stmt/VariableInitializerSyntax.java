@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.stmt;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.expr.VariableSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
@@ -35,15 +35,15 @@ public final class VariableInitializerSyntax extends StatementSyntax {
     /**
      * Constructs a new {@link VariableInitializerSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the node source code range.
      * @param variables
      *         the variables that are being initialized.
      * @param expressions
      *         the expressions the variables being initialized with.
      */
-    public VariableInitializerSyntax(Range range, VariableSyntax[] variables, ExpressionSyntax[] expressions) {
-        super(range);
+    public VariableInitializerSyntax(Span span, VariableSyntax[] variables, ExpressionSyntax[] expressions) {
+        super(span);
         this.variables = addChild(variables);
         this.expressions = addChild(expressions);
     }

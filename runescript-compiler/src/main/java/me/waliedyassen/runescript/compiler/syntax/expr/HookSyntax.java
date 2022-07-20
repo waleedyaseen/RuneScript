@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
@@ -39,7 +39,7 @@ public final class HookSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link HookSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the expression source code range.
      * @param name
      *         the name of the hook.
@@ -48,8 +48,8 @@ public final class HookSyntax extends ExpressionSyntax {
      * @param transmits
      *         the transmits of the hook.
      */
-    public HookSyntax(Range range, IdentifierSyntax name, ExpressionSyntax[] arguments, ExpressionSyntax[] transmits) {
-        super(range);
+    public HookSyntax(Span span, IdentifierSyntax name, ExpressionSyntax[] arguments, ExpressionSyntax[] transmits) {
+        super(span);
         this.name = name != null ? addChild(name) : null;
         this.arguments = arguments != null ? addChild(arguments) : null;
         this.transmits = transmits != null ? addChild(transmits) : null;

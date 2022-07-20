@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
@@ -39,7 +39,7 @@ public final class CommandSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link ExpressionSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the expression source code range.
      * @param name
      *         the command name.
@@ -48,8 +48,8 @@ public final class CommandSyntax extends ExpressionSyntax {
      * @param alternative
      *         whether or not this command expression is alternative.
      */
-    public CommandSyntax(Range range, IdentifierSyntax name, ExpressionSyntax[] arguments, boolean alternative) {
-        super(range);
+    public CommandSyntax(Span span, IdentifierSyntax name, ExpressionSyntax[] arguments, boolean alternative) {
+        super(span);
         this.name = addChild(name);
         this.arguments = addChild(arguments);
         this.alternative = alternative;

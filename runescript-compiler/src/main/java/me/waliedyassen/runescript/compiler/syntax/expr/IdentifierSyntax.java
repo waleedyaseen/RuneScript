@@ -9,7 +9,7 @@ package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
 import lombok.ToString;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -30,11 +30,11 @@ public final class IdentifierSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link IdentifierSyntax} type object instance.
      *
-     * @param range the identifier source code range.
+     * @param span the identifier source code range.
      * @param token the token of the identifier.
      */
-    public IdentifierSyntax(Range range, SyntaxToken token) {
-        super(range);
+    public IdentifierSyntax(Span span, SyntaxToken token) {
+        super(span);
         this.token = token;
     }
 

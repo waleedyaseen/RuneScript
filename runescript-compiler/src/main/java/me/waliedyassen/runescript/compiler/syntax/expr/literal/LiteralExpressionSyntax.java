@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr.literal;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 
 /**
@@ -27,11 +27,11 @@ public abstract class LiteralExpressionSyntax<T> extends ExpressionSyntax {
     /**
      * Constructs a new {@link LiteralExpressionSyntax} type object instance.
      *
-     * @param range the node source code range.
+     * @param span the node source code range.
      * @param value the value of the literal.
      */
-    LiteralExpressionSyntax(Range range, T value) {
-        super(range);
+    LiteralExpressionSyntax(Span span, T value) {
+        super(span);
         this.value = value;
     }
 }

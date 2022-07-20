@@ -17,7 +17,7 @@ public interface Element {
     /**
      * Gets the element in-document position range.
      *
-     * @return the {@link Range} object.
+     * @return the {@link Span} object.
      */
-    Range getRange();
+    Span getSpan();
 }

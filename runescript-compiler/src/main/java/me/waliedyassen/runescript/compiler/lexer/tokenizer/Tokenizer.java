@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.lexer.tokenizer;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.commons.stream.CharStream;
 import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.LexicalError;
@@ -377,13 +377,13 @@ public final class Tokenizer extends TokenizerBase<Kind, SyntaxToken> {
     }
 
     /**
-     * Creates a {@link Range} object starting at the current marked position and ending at the current position.
+     * Creates a {@link Span} object starting at the current marked position and ending at the current position.
      *
-     * @return the created {@link Range} object.
+     * @return the created {@link Span} object.
      * @see #mark()
      */
-    public Range range() {
-        return new Range(positionOffset + state.position, positionOffset + stream.position() - state.position);
+    public Span range() {
+        return new Span(positionOffset + state.position, positionOffset + stream.position());
     }
 
     /**
@@ -458,16 +458,16 @@ public final class Tokenizer extends TokenizerBase<Kind, SyntaxToken> {
          * {@inheritDoc}
          */
         @Override
-        public SyntaxToken createToken(Range range, Kind kind, String lexeme) {
-            return new SyntaxToken(kind, range, lexeme);
+        public SyntaxToken createToken(Span span, Kind kind, String lexeme) {
+            return new SyntaxToken(kind, span, lexeme);
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        public SyntaxToken createErrorToken(Range range, Kind kind, String lexeme) {
-            return new SyntaxToken(kind, range, lexeme);
+        public SyntaxToken createErrorToken(Span span, Kind kind, String lexeme) {
+            return new SyntaxToken(kind, span, lexeme);
         }
     }
 }

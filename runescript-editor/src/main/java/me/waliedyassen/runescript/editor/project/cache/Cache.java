@@ -234,7 +234,7 @@ public final class Cache {
                         }
                     }
                     for (var error : compiledFile.getErrors()) {
-                        unit.getErrors().add(new CachedError(error.getRange(), 1, error.getMessage()));
+                        unit.getErrors().add(new CachedError(error.getSpan(), 1, error.getMessage()));
                     }
                     unit.defineSymbols(project.getSymbolTable());
                     project.updateErrors(unit);

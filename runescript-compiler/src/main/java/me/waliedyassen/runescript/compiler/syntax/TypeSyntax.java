@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
@@ -25,11 +25,11 @@ public final class TypeSyntax extends Syntax {
     /**
      * Constructs a new {@link SyntaxToken} type object instance.
      *
-     * @param range the source c ode range of the syntax.
+     * @param span the source c ode range of the syntax.
      * @param token the syntax token of the type.
      */
-    public TypeSyntax(Range range, SyntaxToken token) {
-        super(range);
+    public TypeSyntax(Span span, SyntaxToken token) {
+        super(span);
         this.token = token;
     }
 

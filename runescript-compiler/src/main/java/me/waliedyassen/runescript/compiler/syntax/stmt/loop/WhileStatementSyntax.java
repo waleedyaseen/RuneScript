@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.stmt.loop;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxToken;
 import me.waliedyassen.runescript.compiler.syntax.expr.ExpressionSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.StatementSyntax;
@@ -54,15 +54,15 @@ public final class WhileStatementSyntax extends StatementSyntax {
     /**
      * Construct a new {@link StatementSyntax} type object instance.
      *
-     * @param range           the node source code range.
+     * @param span           the node source code range.
      * @param whileToken      the token of the "while" keyword.
      * @param leftParenToken  the token of the left parenthesis.
      * @param rightParenToken the token of the right parenthesis.
      * @param condition       the condition of the while loop.
      * @param code            the code statement of the while loop.
      */
-    public WhileStatementSyntax(Range range, SyntaxToken whileToken, SyntaxToken leftParenToken, SyntaxToken rightParenToken, ExpressionSyntax condition, StatementSyntax code) {
-        super(range);
+    public WhileStatementSyntax(Span span, SyntaxToken whileToken, SyntaxToken leftParenToken, SyntaxToken rightParenToken, ExpressionSyntax condition, StatementSyntax code) {
+        super(span);
         this.whileToken = whileToken;
         this.leftParenToken = leftParenToken;
         this.rightParenToken = rightParenToken;

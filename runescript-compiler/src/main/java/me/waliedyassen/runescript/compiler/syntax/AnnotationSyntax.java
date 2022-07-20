@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.expr.IdentifierSyntax;
 import me.waliedyassen.runescript.compiler.syntax.expr.literal.LiteralIntegerSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
@@ -48,14 +48,14 @@ public final class AnnotationSyntax extends Syntax {
     /**
      * Constructs a new {@link AnnotationSyntax} type object instance.
      *
-     * @param range      the node source code range.
+     * @param span      the node source code range.
      * @param hashToken  the token of the hash symbol.
      * @param colonToken the token of the colon symbol.
      * @param name       the name of the annotation.
      * @param value      the value of the annotation.
      */
-    public AnnotationSyntax(Range range, SyntaxToken hashToken, SyntaxToken colonToken, IdentifierSyntax name, LiteralIntegerSyntax value) {
-        super(range);
+    public AnnotationSyntax(Span span, SyntaxToken hashToken, SyntaxToken colonToken, IdentifierSyntax name, LiteralIntegerSyntax value) {
+        super(span);
         this.hashToken = hashToken;
         this.colonToken = colonToken;
         this.name = addChild(name);

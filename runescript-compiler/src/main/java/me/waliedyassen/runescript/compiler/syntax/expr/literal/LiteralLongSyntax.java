@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.syntax.expr.literal;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
@@ -20,11 +20,11 @@ public final class LiteralLongSyntax extends LiteralNumberSyntax<Long> {
     /**
      * Constructs a new {@link LiteralLongSyntax} type object instance.
      *
-     * @param range the node source code range.
+     * @param span the node source code range.
      * @param value the value of the literal.
      */
-    public LiteralLongSyntax(Range range, Long value) {
-        super(range, value);
+    public LiteralLongSyntax(Span span, Long value) {
+        super(span, value);
     }
 
     /**

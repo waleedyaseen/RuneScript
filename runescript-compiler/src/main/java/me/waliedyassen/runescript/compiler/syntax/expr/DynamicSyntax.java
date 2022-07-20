@@ -8,7 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
 /**
@@ -27,13 +27,13 @@ public final class DynamicSyntax extends ExpressionSyntax {
     /**
      * Constructs a new {@link ExpressionSyntax} type object instance.
      *
-     * @param range
+     * @param span
      *         the expression source code range.
      * @param name
      *         the dynamic name.
      */
-    public DynamicSyntax(Range range, IdentifierSyntax name) {
-        super(range);
+    public DynamicSyntax(Span span, IdentifierSyntax name) {
+        super(span);
         this.name = addChild(name);
     }
 

@@ -7,7 +7,7 @@
  */
 package me.waliedyassen.runescript.compiler.lexer.token;
 
-import me.waliedyassen.runescript.commons.document.Range;
+import me.waliedyassen.runescript.commons.document.Span;
 
 /**
  * A factory class for creating new {@link Token} objects.
@@ -20,21 +20,21 @@ public interface TokenFactory<K, T extends Token<K>> {
     /**
      * Creates a new {@link T token} object with the specified data.
      *
-     * @param range  the range of the token in the source document.
+     * @param span  the range of the token in the source document.
      * @param kind   the kind of the token that we are creating.
      * @param lexeme the source code representation of the token.
      * @return the created {@link T} object.
      */
-    T createToken(Range range, K kind, String lexeme);
+    T createToken(Span span, K kind, String lexeme);
 
     /**
      * Creates a new erroneous {@link T token} object with the specified data.
      *
-     * @param range  the range of the token in the source document.
+     * @param span  the range of the token in the source document.
      * @param kind   the kind of the token that we are creating.
      * @param lexeme the source code representation of the token.
      * @return the created {@link T} object.
      */
-    T createErrorToken(Range range, K kind, String lexeme);
+    T createErrorToken(Span span, K kind, String lexeme);
 }
 
