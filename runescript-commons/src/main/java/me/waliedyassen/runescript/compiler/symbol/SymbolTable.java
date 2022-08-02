@@ -222,7 +222,7 @@ public class SymbolTable {
         constants.add(new ConstantInfo("setting_store_button_mobile", count++, PrimitiveType.INT.INSTANCE, 47));
         constants.add(new ConstantInfo("setting_mouse_camera", count++, PrimitiveType.INT.INSTANCE, 49));
         constants.add(new ConstantInfo("setting_function_button", count++, PrimitiveType.INT.INSTANCE, 52));
-        constants.add(new ConstantInfo("setting_escape_closes.INT.INSTANCEerface", count++, PrimitiveType.INT.INSTANCE, 57));
+        constants.add(new ConstantInfo("setting_escape_closes_interface", count++, PrimitiveType.INT.INSTANCE, 57));
         constants.add(new ConstantInfo("setting_accept_aid", count++, PrimitiveType.INT.INSTANCE, 59));
         constants.add(new ConstantInfo("setting_warning_teleport_to_target", count++, PrimitiveType.INT.INSTANCE, 60));
         constants.add(new ConstantInfo("setting_warning_dareeyak_teleport", count++, PrimitiveType.INT.INSTANCE, 61));
@@ -237,7 +237,7 @@ public class SymbolTable {
         constants.add(new ConstantInfo("setting_warning_carrallangar_tablet", count++, PrimitiveType.INT.INSTANCE, 71));
         constants.add(new ConstantInfo("setting_warning_annakarl_tablet", count++, PrimitiveType.INT.INSTANCE, 72));
         constants.add(new ConstantInfo("setting_warning_ghorrock_tablet", count++, PrimitiveType.INT.INSTANCE, 73));
-        constants.add(new ConstantInfo("setting.INT.INSTANCEerface_scaling", count++, PrimitiveType.INT.INSTANCE, 79));
+        constants.add(new ConstantInfo("setting_interface_scaling", count++, PrimitiveType.INT.INSTANCE, 79));
         constants.add(new ConstantInfo("setting_precise_timing", count++, PrimitiveType.INT.INSTANCE, 82));
         constants.add(new ConstantInfo("setting_separate_hours", count++, PrimitiveType.INT.INSTANCE, 83));
         constants.add(new ConstantInfo("setting_opaque_public_chat_colour", count++, PrimitiveType.INT.INSTANCE, 87));
@@ -301,7 +301,7 @@ public class SymbolTable {
         constants.add(new ConstantInfo("setting_helper_agility_highlight_obstacles", count++, PrimitiveType.INT.INSTANCE, 164));
         constants.add(new ConstantInfo("setting_minimap_lock", count++, PrimitiveType.INT.INSTANCE, 166));
         constants.add(new ConstantInfo("setting_draw_distance", count++, PrimitiveType.INT.INSTANCE, 168));
-        constants.add(new ConstantInfo("setting.INT.INSTANCEerface_scaling_mode", count++, PrimitiveType.INT.INSTANCE, 169));
+        constants.add(new ConstantInfo("setting_interface_scaling_mode", count++, PrimitiveType.INT.INSTANCE, 169));
         constants.add(new ConstantInfo("setting_buff_ammo", count++, PrimitiveType.INT.INSTANCE, 170));
         constants.add(new ConstantInfo("setting_highlight_hovered_tile_colour_colour", count++, PrimitiveType.INT.INSTANCE, 174));
         constants.add(new ConstantInfo("setting_highlight_current_tile_colour_colour", count++, PrimitiveType.INT.INSTANCE, 177));

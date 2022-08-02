@@ -91,13 +91,6 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
         newMenu.addSeparator();
         newMenu.addAction("Server Script", createFileAction("rs2", "server script"));
         newMenu.addAction("Client Script", createFileAction("cs2", "client script"));
-        newMenu.addSeparator();
-        for (var type : PrimitiveType.Companion.getValues()) {
-            if (!type.isConfigType()) {
-                continue;
-            }
-            newMenu.addAction("Config ." + type.getRepresentation(), createFileAction(type.getRepresentation(), type.getRepresentation() + " config"));
-        }
         actionList.addSeparator();
         actionList.addAction("Delete", CommonGroups.EXPLORER.lookup(CommonShortcuts.EXPLORER_DELETE));
     }
