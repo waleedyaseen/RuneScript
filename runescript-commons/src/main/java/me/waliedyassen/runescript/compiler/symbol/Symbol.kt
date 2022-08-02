@@ -7,6 +7,8 @@
  */
 package me.waliedyassen.runescript.compiler.symbol
 
+import me.waliedyassen.runescript.type.Type
+
 /**
  * Represents the base class for any symbol registered in the symbol table.
  *
@@ -14,4 +16,16 @@ package me.waliedyassen.runescript.compiler.symbol
  */
 abstract class Symbol {
     abstract val name: String
+    abstract val id: Int
 }
+
+/**
+ * Represents a configuration type value information.
+ *
+ * @author Walied K. Yassen
+ */
+data class ConfigSymbol(
+    override val name: String,
+    override val id: Int,
+    val contentType: Type?
+) : Symbol()

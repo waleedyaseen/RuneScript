@@ -19,17 +19,16 @@ import me.waliedyassen.runescript.compiler.symbol.Symbol;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Getter
 public final class GraphicInfo extends Symbol {
 
     /**
      * The name of the graphic.
      */
-    @Getter
     private final String name;
 
     /**
      * The id of the graphic.
      */
-    @Getter
     private final int id;
 }

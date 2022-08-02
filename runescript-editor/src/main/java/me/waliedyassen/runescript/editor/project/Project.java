@@ -10,7 +10,11 @@ package me.waliedyassen.runescript.editor.project;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
@@ -20,6 +24,7 @@ import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
 import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.util.trigger.BasicTriggerType;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.pack.manager.PackManager;
@@ -32,8 +37,8 @@ import me.waliedyassen.runescript.editor.project.compile.impl.ProjectScriptCompi
 import me.waliedyassen.runescript.editor.ui.editor.project.ProjectEditor;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 import me.waliedyassen.runescript.editor.vfs.VFS;
-import me.waliedyassen.runescript.index.Index;
 import me.waliedyassen.runescript.type.Type;
+import me.waliedyassen.runescript.type.TypeUtil;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.tuple.TupleType;
 
@@ -44,9 +49,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * A very basic project system that provides basic information such as the name and the build path directories.
@@ -134,12 +142,6 @@ public final class Project {
      */
     @Getter
     private Cache cache;
-
-    /**
-     * The index table for the script files.
-     */
-    @Getter
-    private Index<String> index;
 
     /**
      * Whether or not the project supports long primitive type compilation.
@@ -276,7 +278,7 @@ public final class Project {
         predefinedConstantsPath = compiler.has("constants") ? compiler.get("constants").textValue() : "";
         packType = compiler.has("packType") ? PackType.valueOf(compiler.get("packType").textValue()) : PackType.SQLITE;
         configsPath.clear();
-        for (var type : PrimitiveType.values()) {
+        for (var type : PrimitiveType.Companion.getValues()) {
             if (!ProjectEditor.isPredefinable(type)) {
                 continue;
             }
@@ -287,7 +289,7 @@ public final class Project {
             configsPath.put(type, node.textValue());
         }
         bindingsPath.clear();
-        for (var type : PrimitiveType.values()) {
+        for (var type : PrimitiveType.Companion.getValues()) {
             if (!type.isConfigType()) {
                 continue;
             }
@@ -317,9 +319,7 @@ public final class Project {
         loadInstructions();
         loadTriggers();
         loadCommands();
-        loadConfigs();
         loadScripts();
-        loadConstants();
         loadRuntimeConstants();
         compilerProvider = new ProjectCompilerProvider();
         registerScriptCompiler();
@@ -450,72 +450,40 @@ public final class Project {
         if (!Files.exists(path)) {
             throw new IllegalStateException("The specified commands file does not exist: " + path);
         }
-        try (var config = CommentedFileConfig.of(path)) {
-            config.load();
-            for (var entry : config.entrySet()) {
-                var name = entry.getKey();
-                var value = (CommentedConfig) entry.getValue();
-                var opcode = value.getInt("opcode");
-                var type = ProjectConfig.parseTypes(value, "type");
-                var arguments = ProjectConfig.parseTypes(value, "arguments");
-                var alternative = value.getOrElse("alternative", false);
-                var hook = value.getOrElse("hook", false);
-                var hookType = value.contains("hooktype") ? PrimitiveType.valueOf(value.get("hooktype")) : null;
-                var tag = value.getOrElse("tag", (String) null);
-                var returnTypes = type.length > 1 ? new TupleType(type) : type.length == 0 ? TupleType.EMPTY : type[0];
-                symbolTable.defineCommand(new BasicOpcode(opcode, false), name, returnTypes, arguments, hook, hookType, alternative, tag);
-            }
-        }
-    }
-
-    /**
-     * Loads the config types configuration of the project.
-     */
-    void loadConfigs() {
-        configsPath.forEach((type, pathRaw) -> {
-            var path = Paths.get(pathRaw);
-            if (!path.isAbsolute()) {
-                path = directory.resolve(pathRaw);
-            }
-            if (!Files.exists(path)) {
-                log.info("The specified configuration file does not exist for type {} and path: {}", type, pathRaw);
+        Pattern pattern = Pattern.compile("\\[(?<id>\\d+),(?<dot>true|false),(?<name>[\\w_]+)\\]\\((?<args>\\w+(,\\w+)*)?\\)\\((?<returns>\\w+(,\\w+)*)?\\)(?<transmits>\\{\\w+\\})?");
+        Files.lines(path).forEach(line -> {
+            var matcher = pattern.matcher(line);
+            if (!matcher.matches()) {
                 return;
             }
-            try {
-                try (var config = CommentedFileConfig.of(path.toFile())) {
-                    config.load();
-                    for (var entry : config.entrySet()) {
-                        var value = entry.getValue();
-                        if (value instanceof Integer) {
-                            defineConfig(type, (Integer) value, entry.getKey(), null);
-                        } else if (value instanceof CommentedConfig) {
-                            var commentedConfig = (CommentedConfig) value;
-                            var id = commentedConfig.getInt("id");
-                            var name = commentedConfig.contains("name") ? commentedConfig.<String>get("name") : entry.getKey();
-                            var contentType = commentedConfig.contains("contentType") ? PrimitiveType.valueOf(commentedConfig.get("contentType")) : null;
-                            defineConfig(type, id, name, contentType);
-                        } else {
-                            throw new IllegalArgumentException("Invalid preloaded config value: " + value.getClass().getName());
-                        }
-                    }
-                }
-            } catch (Throwable e) {
-                log.error("An error occurred while loading the configuration file for type: {} and path: {}", type, pathRaw, e);
-            }
+            var id = Integer.parseInt(matcher.group("id"));
+            var dot = Boolean.parseBoolean(matcher.group("dot"));
+            var name = matcher.group("name");
+            var args = matcher.group("args") == null ? new Type[0] :
+                    Arrays.stream(matcher.group("args").split(","))
+                            .map(PrimitiveType::forLiteral)
+                            .toArray(Type[]::new);
+            var returns = matcher.group("returns") == null ? new Type[0] :
+                    Arrays.stream(matcher.group("returns").split(","))
+                            .map(PrimitiveType::forLiteral)
+                            .toArray(Type[]::new);
+            var transmitsRaw = matcher.group("transmits");
+            var transmits = transmitsRaw != null
+                    ? PrimitiveType.forLiteral(transmitsRaw.substring(1, transmitsRaw.length() - 1)) : null;
+            var combinedReturns = returns.length > 1 ? new TupleType(returns) : returns.length == 0 ? TupleType.EMPTY : returns[0];
+            symbolTable.defineCommand(new BasicOpcode(id, false), name, args, combinedReturns, transmits, dot);
         });
     }
 
-    private void defineConfig(PrimitiveType type, int id, String name, PrimitiveType contentType) {
-        if (type == PrimitiveType.GRAPHIC) {
-            predefinedTable.defineGraphic(name, id);
-        } else {
-            var info = predefinedTable.defineConfig(name, type, contentType);
-            info.setPredefinedId(id);
-        }
+    private static void extracted(String name, int opcode, boolean dot, Type[] arguments, Type hookType, Type returnTypes) {
+        System.out.println("[" + opcode + "," + dot + "," + name + "]" +
+                "(" + Arrays.stream(arguments).map(Type::getRepresentation).collect(Collectors.joining(",")) + ")" +
+                "(" + Arrays.stream(TypeUtil.flatten(new Type[]{returnTypes})).map(Type::getRepresentation).collect(Collectors.joining(",")) + ")" +
+                (hookType != null ? "{" + hookType.getRepresentation() + "}" : ""));
     }
 
     /**
-     * Loads all of the predefined scripts of the projects.
+     * Loads all the predefined scripts of the projects.
      */
     private void loadScripts() {
         if (predefinedScriptsPath == null || predefinedScriptsPath.trim().isEmpty()) {
@@ -541,7 +509,7 @@ public final class Project {
                         var type = ProjectConfig.parseTypes(value, "type");
                         var arguments = ProjectConfig.parseTypes(value, "arguments");
                         var returnType = type.length < 1 ? TupleType.EMPTY : type.length == 1 ? type[0] : new TupleType(type);
-                        predefinedTable.defineScript(Collections.emptyMap(), trigger, name, returnType, arguments, id);
+                        predefinedTable.defineScript(new ScriptInfo(name, id, trigger, returnType, arguments));
                     } catch (Throwable e) {
                         log.error("An error occurred while loading the predefined script for key: {}", entry.getKey(), e);
                     }
@@ -549,42 +517,6 @@ public final class Project {
             }
         } catch (Throwable e) {
             log.error("An error occurred while loading the predefined scripts file for path: {}", predefinedScriptsPath, e);
-        }
-    }
-
-    /**
-     * Loads all of the predefined constants of the project.
-     */
-    private void loadConstants() {
-        if (predefinedConstantsPath == null || predefinedConstantsPath.trim().isEmpty()) {
-            return;
-        }
-        var path = Paths.get(predefinedConstantsPath);
-        if (!path.isAbsolute()) {
-            path = directory.resolve(predefinedConstantsPath);
-        }
-        if (!Files.exists(path)) {
-            log.info("The specified constants file does not exist: {}", predefinedConstantsPath);
-            return;
-        }
-        try {
-            try (var fileConfig = CommentedFileConfig.of(path.toFile())) {
-                fileConfig.load();
-                for (var entry : fileConfig.entrySet()) {
-                    var object = entry.getValue();
-                    if (object instanceof Integer) {
-                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.INT, object);
-                    } else if (object instanceof Long) {
-                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.LONG, object);
-                    } else if (object instanceof String) {
-                        symbolTable.defineConstant(entry.getKey(), PrimitiveType.STRING, object);
-                    } else {
-                        throw new IllegalArgumentException("Unrecognised value in the predefined constant(s) file for key: " + entry.getKey());
-                    }
-                }
-            }
-        } catch (Throwable e) {
-            log.error("An error occurred while loading the predefined constants file for path: {}", predefinedConstantsPath, e);
         }
     }
 
@@ -609,7 +541,7 @@ public final class Project {
                 for (var entry : fileConfig.entrySet()) {
                     var config = (CommentedConfig) entry.getValue();
                     var name = entry.getKey();
-                    var type = PrimitiveType.valueOf(config.get("type"));
+                    var type = PrimitiveType.forLiteral(config.get("type"));
                     Object value;
                     switch (type.getStackType()) {
                         case INT:
@@ -624,7 +556,7 @@ public final class Project {
                         default:
                             throw new UnsupportedOperationException();
                     }
-                    symbolTable.defineRuntimeConstant(name, type, value);
+                    symbolTable.defineRuntimeConstant(name, name.hashCode(), type, value);
                 }
             }
         } catch (Throwable e) {
@@ -638,7 +570,7 @@ public final class Project {
     private void postLoad() {
         packManager = new PackManager(packType.newInstance(buildPath.getPackDirectory().toAbsolutePath()));
         vfs = new VFS(directory);
-        loadIndex();
+        loadSym();
         loadCache();
     }
 
@@ -668,22 +600,28 @@ public final class Project {
     /**
      * Loads the index tables of the project.
      */
-    private void loadIndex() {
-        var rootPath = resolveRsPath();
-        var indexFile = rootPath.resolve("index.bin");
-        index = new Index<>();
-        if (Files.exists(indexFile)) {
-            try (var stream = new DataInputStream(Files.newInputStream(indexFile))) {
-                var key = stream.readUTF();
-                var table = index.create(key);
-                table.read(stream);
-            } catch (IOException e) {
-                log.error("An error occurred while loading the project cache", e);
-            }
-        } else {
-            index.create(getPackName("rs2"));
-            index.create(getPackName("cs2")).setCursor(10000);
-            saveIndex();
+    private void loadSym() {
+        var rootPath = directory;
+        var symPath = rootPath.resolve("sym");
+        var pattern = Pattern.compile("(\\w+)\\.sym");
+        try {
+            Files.list(symPath).forEach(file -> {
+                var matcher = pattern.matcher(file.getFileName().toString());
+                if (matcher.matches()) {
+                    var literal = matcher.group(1);
+                    PrimitiveType type = PrimitiveType.forRepresentation(literal);
+                    if (type == null) {
+                        return;
+                    }
+                    try {
+                        symbolTable.read(type, file);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -732,22 +670,6 @@ public final class Project {
     }
 
     /**
-     * Save the index tables of the project.
-     */
-    public void saveIndex() {
-        var rootPath = resolveRsPath();
-        var cacheFile = rootPath.resolve("index.bin");
-        try (var stream = new DataOutputStream(Files.newOutputStream(cacheFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE))) {
-            for (var entry : index.getTables().entrySet()) {
-                stream.writeUTF(entry.getKey());
-                entry.getValue().write(stream);
-            }
-        } catch (IOException e) {
-            log.error("An error occurred while writing the project cache", e);
-        }
-    }
-
-    /**
      * Resolves the root .rs directory path and create it if it does not exist.
      *
      * @return the {@link Path} object of the .rs directory.
@@ -786,26 +708,6 @@ public final class Project {
         compiler.put("runtimeConstants", runtimeConstantsPath);
         compiler.put("scripts", predefinedScriptsPath);
         compiler.put("constants", predefinedConstantsPath);
-        for (var type : PrimitiveType.values()) {
-            if (!ProjectEditor.isPredefinable(type)) {
-                continue;
-            }
-            var path = configsPath.get(type);
-            if (path == null) {
-                continue;
-            }
-            compiler.put("config_" + type.getRepresentation(), path);
-        }
-        for (var type : PrimitiveType.values()) {
-            if (!type.isConfigType()) {
-                continue;
-            }
-            var path = bindingsPath.get(type);
-            if (path == null) {
-                continue;
-            }
-            compiler.put("binding_" + type.getRepresentation(), path);
-        }
         root.put("supportsLongPrimitiveType", supportsLongPrimitiveType);
         root.put("overrideSymbols", overrideSymbols);
         // Serialise the pack information.
@@ -838,28 +740,6 @@ public final class Project {
     }
 
     /**
-     * Returns the pack database name for the file with the specified {@code extension}.
-     *
-     * @param extension the extension of the file the pack database name is for.
-     * @return the name of the pack database.
-     * @throws IllegalArgumentException if we failed to find a pack database name for the given extension.
-     */
-    public static String getPackName(String extension) {
-        switch (extension) {
-            case "cs2":
-                return "clientscript";
-            case "rs2":
-                return "serverscript";
-            default:
-                PrimitiveType type = PrimitiveType.forRepresentation(extension);
-                if (type != null && type.isConfigType()) {
-                    return "config-" + type.getRepresentation();
-                }
-                throw new IllegalArgumentException("Failed to find a pack database name for extension: " + extension);
-        }
-    }
-
-    /**
      * Represents {@link IDManager} implementation for projects.
      *
      * @author Walied K. Yassen
@@ -872,78 +752,32 @@ public final class Project {
          */
         private final Project project;
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
-        public int findOrCreateScript(String name, String extension) {
-            var existing = project.symbolTable.lookupScript(name);
-            if (existing != null) {
-                return existing.getPredefinedId();
+        public int findOrCreateScriptId(String name, String extension) {
+            var symbol = project.symbolTable.lookupScript(name);
+            if (symbol != null) {
+                return symbol.getId();
             }
-            var index = project.index.getOrCreate(getPackName(extension));
-            return index.findOrCreate(name);
+            return generateScriptId();
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int findOrCreateConfig(Type type, String name) {
-            if (!(type instanceof PrimitiveType)) {
-                throw new IllegalArgumentException();
-            }
-            var config = project.symbolTable.lookupConfig(type, name);
-            if (config != null && config.getPredefinedId() != null) {
-                if (config.getType() != type) {
-                    throw new IllegalStateException();
-                }
-                return config.getPredefinedId();
-            }
-            var packName = getPackName(type.getRepresentation());
-            var index = project.index.getOrCreate(packName);
-            return index.findOrCreate(name);
+        private int generateScriptId() {
+            return project.symbolTable.getScripts()
+                    .values()
+                    .stream()
+                    .max(Comparator.comparingInt(ScriptInfo::getId))
+                    .map(ScriptInfo::getId)
+                    .orElse(-1) + 1;
         }
 
-        /**
-         * {@inheritDoc}
-         */
+
         @Override
         public int findScript(String name, String extension) throws IllegalArgumentException {
             var existing = project.symbolTable.lookupScript(name);
             if (existing != null) {
-                return existing.getPredefinedId();
+                return existing.getId();
             }
-            var index = project.index.get(getPackName(extension));
-            var id = index.find(name);
-            if (id == null) {
-                throw new IllegalArgumentException("Failed to find an id for script with name: " + name);
-            }
-            return id;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int findConfig(Type type, String name) throws IllegalArgumentException {
-            if (type instanceof PrimitiveType) {
-                var config = project.symbolTable.lookupConfig(type, name);
-                if (config != null && config.getPredefinedId() != null) {
-                    if (config.getType() != type) {
-                        throw new IllegalStateException();
-                    }
-                    return config.getPredefinedId();
-                }
-                var index = project.index.get(getPackName(type.getRepresentation()));
-                if (index != null) {
-                    var id = index.find(name);
-                    if (id != null) {
-                        return id;
-                    }
-                }
-            }
-            throw new IllegalArgumentException("Failed to find an id for config with name: " + name + " and type: " + type.getRepresentation());
+            throw new IllegalArgumentException("Failed to find an id for script with name: " + name);
         }
     }
 }

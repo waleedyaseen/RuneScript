@@ -15,7 +15,7 @@ import me.waliedyassen.runescript.compiler.codegen.optimizer.Optimizer;
 import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 
 /**
- * Represents the natural flow redudant jumps removal optimizations.
+ * Represents the natural flow redundant jumps removal optimizations.
  *
  * @author Walied K. Yassen
  */

@@ -224,8 +224,8 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      */
     @Override
     public Instruction visit(LiteralStringSyntax string) {
-        if (string.getType() == PrimitiveType.GRAPHIC) {
-            return instruction(PUSH_INT_CONSTANT, symbolTable.lookupGraphic(string.getValue()).getId());
+        if (string.getType() == PrimitiveType.GRAPHIC.INSTANCE) {
+            return instruction(PUSH_INT_CONSTANT, symbolTable.lookupConfig(PrimitiveType.GRAPHIC.INSTANCE, string.getValue()).getId());
         } else {
             return instruction(PUSH_STRING_CONSTANT, string.getValue());
         }
@@ -274,10 +274,11 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         var name = variableExpression.getName().getText();
         if (variableExpression.getScope() == VariableScope.LOCAL) {
             var local = localMap.lookup(name);
-            return instruction(getPushVariableOpcode(variableExpression.getScope(), (PrimitiveType) local.getType()), local);
+            return instruction(getPushVariableOpcode(variableExpression.getScope(), null,(PrimitiveType) local.getType()), local);
         } else {
             var config = symbolTable.lookupVariable(name);
-            return instruction(getPushVariableOpcode(variableExpression.getScope(), (PrimitiveType) config.getType()), config);
+            var domain = symbolTable.lookupVariableDomain(name);
+            return instruction(getPushVariableOpcode(variableExpression.getScope(), domain, (PrimitiveType) config.getContentType()), config);
         }
     }
 
@@ -287,7 +288,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
     @Override
     public Instruction visit(ArrayElementSyntax arrayExpression) {
         arrayExpression.getIndex().accept(this);
-        return instruction(PUSH_ARRAY_INT, arrayExpression.getArray().getIndex());
+        return instruction(PUSH_ARRAY_INT, arrayExpression.getArray().getId());
     }
 
     /**
@@ -467,7 +468,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             instruction(opcode, variableDeclaration.getType().getDefaultValue());
         }
         var local = localMap.registerVariable(variableDeclaration.getName().getText(), variableDeclaration.getType());
-        return instruction(getPopVariableOpcode(VariableScope.LOCAL, (PrimitiveType) variableDeclaration.getType()), local);
+        return instruction(getPopVariableOpcode(VariableScope.LOCAL, null, (PrimitiveType) variableDeclaration.getType()), local);
     }
 
     /**
@@ -477,7 +478,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
     public Instruction visit(ArrayDeclarationSyntax arrayDeclaration) {
         arrayDeclaration.getSize().accept(this);
         var array = arrayDeclaration.getArray();
-        return instruction(DEFINE_ARRAY, (array.getIndex() << 16) | array.getType().getCode());
+        return instruction(DEFINE_ARRAY, (array.getId() << 16) | array.getType().getCode());
     }
 
     /**
@@ -493,11 +494,11 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         var varCount = variableInitializer.getVariables().length;
         for (var index = varCount - 1; index >= 0; index--) {
             var variable = variableInitializer.getVariables()[index];
-            if (variable instanceof ArrayVariableSyntax) {
-                var arrayVariable = (ArrayVariableSyntax) variable;
-                instruction(POP_ARRAY_INT, arrayVariable.getArrayInfo().getIndex());
+            if (variable instanceof ArrayVariableSyntax arrayVariable) {
+                instruction(POP_ARRAY_INT, arrayVariable.getArrayInfo().getId());
             } else {
                 var scopedVariable = (ScopedVariableSyntax) variable;
+                PrimitiveType domain = null;
                 Object operand;
                 PrimitiveType type;
                 if (scopedVariable.getScope() == VariableScope.LOCAL) {
@@ -506,9 +507,10 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
                 } else {
                     var configInfo = symbolTable.lookupVariable(scopedVariable.getName().getText());
                     operand = configInfo;
-                    type = (PrimitiveType) configInfo.getType();
+                    type = (PrimitiveType) configInfo.getContentType();
+                    domain = symbolTable.lookupVariableDomain(scopedVariable.getName().getText());
                 }
-                instruction(getPopVariableOpcode(scopedVariable.getScope(), type), operand);
+                instruction(getPopVariableOpcode(scopedVariable.getScope(), domain, type), operand);
             }
         }
         return null;
@@ -977,7 +979,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @param type  the type of the variable we want the opcode for,
      * @return the push {@link CoreOpcode opcode} enum constant.
      */
-    private static CoreOpcode getPushVariableOpcode(VariableScope scope, PrimitiveType type) {
+    private static CoreOpcode getPushVariableOpcode(VariableScope scope,PrimitiveType domain, PrimitiveType type) {
         switch (scope) {
             case LOCAL:
                 switch (type.getStackType()) {
@@ -992,18 +994,20 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
 
                 }
             case GLOBAL:
-                switch (type) {
-                    case VAR:
-                        return CoreOpcode.PUSH_VARP;
-                    case VARBIT:
-                        return CoreOpcode.PUSH_VARP_BIT;
-                    case VARCINT:
-                        return CoreOpcode.PUSH_VARC_INT;
-                    case VARCSTR:
-                        return CoreOpcode.PUSH_VARC_STRING;
-                    default:
-                        throw new UnsupportedOperationException("Unsupported variable domain type: " + type);
+                if (PrimitiveType.VARP.INSTANCE.equals(domain)) {
+                    return PUSH_VARP;
+                } else if (PrimitiveType.VARBIT.INSTANCE.equals(domain)) {
+                    return PUSH_VARP_BIT;
+                } else if (PrimitiveType.VARC.INSTANCE.equals(domain)) {
+                    if (type.getStackType() == StackType.INT) {
+                        return PUSH_VARC_INT;
+                    } else if (type.getStackType() == StackType.STRING) {
+                        return PUSH_VARC_STRING;
+                    } else {
+                        throw new UnsupportedOperationException();
+                    }
                 }
+                throw new UnsupportedOperationException("Unsupported variable domain type: " + type);
             default:
                 throw new UnsupportedOperationException();
         }
@@ -1016,7 +1020,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @param type  the type of the variable we want the opcode for,
      * @return the pop {@link CoreOpcode opcode} enum constant.
      */
-    private static CoreOpcode getPopVariableOpcode(VariableScope scope, PrimitiveType type) {
+    private static CoreOpcode getPopVariableOpcode(VariableScope scope, PrimitiveType domain, PrimitiveType type) {
         switch (scope) {
             case LOCAL:
                 switch (type.getStackType()) {
@@ -1031,18 +1035,20 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
 
                 }
             case GLOBAL:
-                switch (type) {
-                    case VAR:
-                        return CoreOpcode.POP_VARP;
-                    case VARBIT:
-                        return CoreOpcode.POP_VARP_BIT;
-                    case VARCINT:
-                        return CoreOpcode.POP_VARC_INT;
-                    case VARCSTR:
-                        return CoreOpcode.POP_VARC_STRING;
-                    default:
-                        throw new UnsupportedOperationException("Unsupported variable domain type: " + type);
+                if (PrimitiveType.VARP.INSTANCE.equals(domain)) {
+                    return POP_VARP;
+                } else if (PrimitiveType.VARBIT.INSTANCE.equals(domain)) {
+                    return POP_VARP_BIT;
+                } else if (PrimitiveType.VARC.INSTANCE.equals(domain)) {
+                    if (type.getStackType() == StackType.INT) {
+                        return POP_VARC_INT;
+                    } else if (type.getStackType() == StackType.STRING) {
+                        return POP_VARC_STRING;
+                    } else {
+                        throw new UnsupportedOperationException();
+                    }
                 }
+                throw new UnsupportedOperationException("Unsupported variable domain type: " + type);
             default:
                 throw new UnsupportedOperationException();
         }

@@ -101,7 +101,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(LiteralBooleanSyntax bool) {
-        bool.setType(PrimitiveType.BOOLEAN);
+        bool.setType(PrimitiveType.BOOLEAN.INSTANCE);
         return TypeCheckAction.CONTINUE;
     }
 
@@ -110,7 +110,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(LiteralIntegerSyntax integer) {
-        integer.setType(PrimitiveType.INT);
+        integer.setType(PrimitiveType.INT.INSTANCE);
         return TypeCheckAction.CONTINUE;
     }
 
@@ -119,7 +119,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(LiteralLongSyntax longInteger) {
-        longInteger.setType(PrimitiveType.LONG);
+        longInteger.setType(PrimitiveType.LONG.INSTANCE);
         return TypeCheckAction.CONTINUE;
     }
 
@@ -128,10 +128,10 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(LiteralStringSyntax string) {
-        if (symbolTable.lookupGraphic(string.getValue()) != null) {
-            string.setType(PrimitiveType.GRAPHIC);
+        if (symbolTable.lookupConfig(PrimitiveType.GRAPHIC.INSTANCE, string.getValue()) != null) {
+            string.setType(PrimitiveType.GRAPHIC.INSTANCE);
         } else {
-            string.setType(PrimitiveType.STRING);
+            string.setType(PrimitiveType.STRING.INSTANCE);
         }
         return TypeCheckAction.CONTINUE;
     }
@@ -141,7 +141,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(LiteralCoordgridSyntax coordgrid) {
-        coordgrid.setType(PrimitiveType.COORDGRID);
+        coordgrid.setType(PrimitiveType.COORDGRID.INSTANCE);
         return TypeCheckAction.CONTINUE;
     }
 
@@ -150,7 +150,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(LiteralNullSyntax literalNullSyntax) {
-        literalNullSyntax.setType(PrimitiveType.NULL);
+        literalNullSyntax.setType(PrimitiveType.NULL.INSTANCE);
         return TypeCheckAction.CONTINUE;
     }
 
@@ -159,7 +159,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(LiteralTypeSyntax literalTypeSyntax) {
-        literalTypeSyntax.setType(PrimitiveType.TYPE);
+        literalTypeSyntax.setType(PrimitiveType.TYPE.INSTANCE);
         return TypeCheckAction.CONTINUE;
     }
 
@@ -170,10 +170,10 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
     public TypeCheckAction visit(ConcatenationSyntax concatenation) {
         for (var expr : concatenation.getExpressions()) {
             if (expr.accept(this).isContinue()) {
-                checkTypeMatching(expr, PrimitiveType.STRING, expr.getType());
+                checkTypeMatching(expr, PrimitiveType.STRING.INSTANCE, expr.getType());
             }
         }
-        concatenation.setType(PrimitiveType.STRING);
+        concatenation.setType(PrimitiveType.STRING.INSTANCE);
         return TypeCheckAction.CONTINUE;
     }
 
@@ -214,7 +214,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
                 checkCallApplicable(hook, scriptInfo, hook.getArguments());
             }
             if (parentInfo != null) {
-                var expected = parentInfo.getHookType();
+                var expected = parentInfo.getTransmits();
                 var transmits = hook.getTransmits();
                 if (expected != null) {
                     if (transmits.length == 0) {
@@ -232,7 +232,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
                 }
             }
         }
-        hook.setType(PrimitiveType.HOOK);
+        hook.setType(PrimitiveType.HOOK.INSTANCE);
         return TypeCheckAction.CONTINUE;
     }
 
@@ -300,7 +300,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         }
         var configInfo = symbolTable.lookupConfig(dynamic.getHintType(), name.getText());
         if (configInfo != null) {
-            dynamic.setType(configInfo.getType());
+            dynamic.setType(dynamic.getHintType());
             return TypeCheckAction.CONTINUE;
         }
         var runtimeConstantInfo = symbolTable.lookupRuntimeConstant(name.getText());
@@ -340,10 +340,13 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         }
         final var tempTypes = info.getArguments();
         final var arguments = commandSyntax.getArguments();
+        boolean isEnum = commandSyntax.getName().getText().equals("enum");
         var check = true;
         var index = 0;
         for (var argument : arguments) {
-            if (index < tempTypes.length) {
+            if (isEnum && index == 3 && arguments[0] instanceof LiteralTypeSyntax typeSyntax) {
+                argument.setHintType(typeSyntax.getValue());
+            } else if (index < tempTypes.length) {
                 argument.setHintType(tempTypes[index]);
             }
             var result = argument.accept(this);
@@ -420,9 +423,9 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(CalcSyntax calc) {
-        calc.setType(PrimitiveType.INT);
+        calc.setType(PrimitiveType.INT.INSTANCE);
         if (calc.getExpression().accept(this).isContinue()) {
-            checkTypeMatching(calc.getExpression(), PrimitiveType.INT, calc.getExpression().getType());
+            checkTypeMatching(calc.getExpression(), PrimitiveType.INT.INSTANCE, calc.getExpression().getType());
         }
         return TypeCheckAction.CONTINUE;
     }
@@ -477,7 +480,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
             checker.reportError(new SemanticError(arrayDeclaration, "Arrays can only have a type that is derived from the int type"));
         }
         if (arrayDeclaration.getSize().accept(this).isContinue()) {
-            checkTypeMatching(arrayDeclaration.getSize(), PrimitiveType.INT, arrayDeclaration.getSize().getType());
+            checkTypeMatching(arrayDeclaration.getSize(), PrimitiveType.INT.INSTANCE, arrayDeclaration.getSize().getType());
         }
         return TypeCheckAction.CONTINUE;
     }
@@ -571,7 +574,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         } else if (expression instanceof DynamicSyntax) {
             var configName = ((DynamicSyntax) expression).getName().getText();
             var configInfo = symbolTable.lookupConfig(expression.getHintType(), configName);
-            return configInfo != null && configInfo.getType().getStackType() == StackType.INT;
+            return configInfo != null && expression.getHintType().getStackType() == StackType.INT;
         } else {
             return false;
         }
@@ -592,7 +595,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
     public TypeCheckAction visit(IfStatementSyntax ifStatement) {
         var cond = ifStatement.getCondition();
         if (cond.accept(this).isContinue()) {
-            checkTypeMatching(ifStatement.getCondition(), PrimitiveType.BOOLEAN, cond.getType());
+            checkTypeMatching(ifStatement.getCondition(), PrimitiveType.BOOLEAN.INSTANCE, cond.getType());
         }
         ifStatement.getTrueStatement().accept(this);
         if (ifStatement.getFalseStatement() != null) {
@@ -609,7 +612,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         whileStatement.getCode().accept(this);
         var cond = whileStatement.getCondition();
         if (cond.accept(this).isContinue()) {
-            checkTypeMatching(whileStatement.getCondition(), PrimitiveType.BOOLEAN, cond.getType());
+            checkTypeMatching(whileStatement.getCondition(), PrimitiveType.BOOLEAN.INSTANCE, cond.getType());
         }
         return TypeCheckAction.CONTINUE;
     }
@@ -622,7 +625,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         doWhileStatementSyntax.getCode().accept(this);
         var cond = doWhileStatementSyntax.getCondition();
         if (cond.accept(this).isContinue()) {
-            checkTypeMatching(doWhileStatementSyntax.getCondition(), PrimitiveType.BOOLEAN, cond.getType());
+            checkTypeMatching(doWhileStatementSyntax.getCondition(), PrimitiveType.BOOLEAN.INSTANCE, cond.getType());
         }
         return TypeCheckAction.CONTINUE;
     }
@@ -703,21 +706,21 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         if (operator.isEquality()) {
             applicable = checkTypeMatching(null, left, right, false);
         } else if (operator.isRelational()) {
-            if (left == PrimitiveType.INT || left == PrimitiveType.LONG) {
+            if (left == PrimitiveType.INT.INSTANCE || left == PrimitiveType.LONG.INSTANCE) {
                 applicable = left.equals(right);
             }
         } else if (operator.isLogical()) {
-            applicable = left == PrimitiveType.BOOLEAN && right == PrimitiveType.BOOLEAN;
+            applicable = left == PrimitiveType.BOOLEAN.INSTANCE && right == PrimitiveType.BOOLEAN.INSTANCE;
         } else if (operator.isArithmetic()) {
             if (node.selectParent(parent -> parent instanceof CalcSyntax) == null) {
                 checker.reportError(new SemanticError(node, "Arithmetic expressions are only allowed within a 'calc' expression"));
             }
-            applicable = left == PrimitiveType.INT && right == PrimitiveType.INT;
+            applicable = left == PrimitiveType.INT.INSTANCE && right == PrimitiveType.INT.INSTANCE;
         }
         if (!applicable) {
             checker.reportError(new SemanticError(node, "The operator '" + operator.getRepresentation() + "' is undefined for the argument type(s) " + left.getRepresentation() + ", " + right.getRepresentation()));
         }
-        return operator.isArithmetic() ? PrimitiveType.INT : PrimitiveType.BOOLEAN;
+        return operator.isArithmetic() ? PrimitiveType.INT.INSTANCE : PrimitiveType.BOOLEAN.INSTANCE;
     }
 
     /**
@@ -770,8 +773,8 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      * @return <code>true</code> they are otherwise <code>false</code>.
      */
     private boolean isTypeCompatible(Type first, Type second) {
-        if (first == PrimitiveType.NULL || second == PrimitiveType.NULL) {
-            Type other = first == PrimitiveType.NULL ? second : first;
+        if (first == PrimitiveType.NULL.INSTANCE || second == PrimitiveType.NULL.INSTANCE) {
+            Type other = first == PrimitiveType.NULL.INSTANCE ? second : first;
             return other instanceof PrimitiveType && ((PrimitiveType) other).isNullable();
         } else {
             return first.equals(second);

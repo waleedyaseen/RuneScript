@@ -92,7 +92,7 @@ public class DirectoryNode extends ExplorerNode<Path> implements VFSFileListener
         newMenu.addAction("Server Script", createFileAction("rs2", "server script"));
         newMenu.addAction("Client Script", createFileAction("cs2", "client script"));
         newMenu.addSeparator();
-        for (var type : PrimitiveType.values()) {
+        for (var type : PrimitiveType.Companion.getValues()) {
             if (!type.isConfigType()) {
                 continue;
             }

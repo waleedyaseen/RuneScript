@@ -37,8 +37,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static me.waliedyassen.runescript.editor.project.Project.getPackName;
-
 /**
  * A cache system that is for a specific project.
  *
@@ -290,7 +288,7 @@ public final class Cache {
                 id = project.getIdManager().findScript(name, binaryScript.getExtension());
             }
             var serialised = writer.write(binaryScript).encode();
-            project.getPackManager().pack(getPackName(binaryScript.getExtension()), id, name, serialised);
+            project.getPackManager().pack(binaryScript.getExtension(), id, name, serialised);
         }
         return true;
     }

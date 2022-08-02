@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.codegen.local.Local;
 import me.waliedyassen.runescript.compiler.symbol.impl.ArrayInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
@@ -77,7 +76,7 @@ public final class Scope {
      * @param name
      *         the name of the variable.
      *
-     * @return the {@link VariableInfo} object if the variable could be accessed otherwise {@code null}.
+     * @return the {@link VariableSymbol} object if the variable could be accessed otherwise {@code null}.
      */
     public Local getLocalVariable(String name) {
         var variable = variables.get(name);

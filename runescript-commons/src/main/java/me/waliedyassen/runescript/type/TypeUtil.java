@@ -61,7 +61,7 @@ public final class TypeUtil {
      * @return <code>true</code> if it is otherise <code>false</code>.
      */
     public static boolean isVoid(Type type) {
-        if (type == null || type == PrimitiveType.VOID || type == TupleType.EMPTY) {
+        if (type == null || type == PrimitiveType.VOID.INSTANCE || type == TupleType.EMPTY) {
             return true;
         } else if (type instanceof TupleType) {
             return ((TupleType) type).getChilds().length == 0;

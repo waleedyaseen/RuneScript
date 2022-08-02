@@ -15,7 +15,7 @@ import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.semantics.scope.Scope;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
-import me.waliedyassen.runescript.compiler.symbol.impl.variable.VariableInfo;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
 import me.waliedyassen.runescript.compiler.syntax.Syntax;
@@ -130,7 +130,12 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
                 if (annotations.containsKey("id")) {
                     predefinedId = annotations.get("id").getValue();
                 }
-                symbolTable.defineScript(annotations, trigger, name.getName() != null ? name.getName().getText() : null, script.getType(), actual, predefinedId);
+                if (predefinedId == null) {
+                    predefinedId = -1;
+                }
+                var scriptInfo = new ScriptInfo(name.getName() != null ? name.getName().getText() : null, predefinedId, trigger, script.getType(), actual);
+                // TODO(WAlied): ID is -1 in here
+                symbolTable.defineScript(scriptInfo);
             }
         }
         script.getCode().accept(this);
@@ -234,7 +239,7 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
                 var local = resolveLocalVariable(name);
                 if (local == null) {
                     reportError(new SemanticError(node, String.format("%s cannot be resolved to a local variable", name)));
-                    return PrimitiveType.UNDEFINED;
+                    return PrimitiveType.UNDEFINED.INSTANCE;
                 }
                 return local.getType();
             }
@@ -242,20 +247,9 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
                 var config = symbolTable.lookupVariable(name);
                 if (config == null) {
                     reportError(new SemanticError(node, String.format("%s cannot be resolved to a global variable", name)));
-                    return PrimitiveType.UNDEFINED;
+                    return PrimitiveType.UNDEFINED.INSTANCE;
                 }
-                switch ((PrimitiveType) config.getType()) {
-                    case VARCSTR:
-                        return PrimitiveType.STRING;
-                    case VAR:
-                    case VARCINT:
-                        if (config.getContentType() == null) {
-                            throw new IllegalStateException("Expected content type to be present");
-                        }
-                        return config.getContentType();
-                    default:
-                        return PrimitiveType.INT;
-                }
+                return config.getContentType();
             }
             default:
                 throw new UnsupportedOperationException();
@@ -303,7 +297,7 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
     public Void visit(DynamicSyntax dynamic) {
         var arrayInfo = scopes.lastElement().getArray(dynamic.getName().getText());
         if (arrayInfo != null) {
-            dynamic.setType(new ArrayReference(arrayInfo.getType(), arrayInfo.getIndex()));
+            dynamic.setType(new ArrayReference(arrayInfo.getType(), arrayInfo.getId()));
         }
         return super.visit(dynamic);
     }
@@ -329,7 +323,7 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
      * Resolves the local variable with the specified {@code name}.
      *
      * @param name the name of the local variable that we want to resolve.
-     * @return the {@link VariableInfo} of the name.
+     * @return the {@link Local} of the name.
      */
     private Local resolveLocalVariable(String name) {
         return scopes.lastElement().getLocalVariable(name);

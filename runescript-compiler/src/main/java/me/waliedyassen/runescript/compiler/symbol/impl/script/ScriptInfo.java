@@ -28,16 +28,16 @@ import java.util.Objects;
 public final class ScriptInfo extends Symbol {
 
     /**
-     * The list of annotation of the script.
-     */
-    @Getter
-    private final Map<String, Annotation> annotations;
-
-    /**
      * The name of the script.
      */
     @Getter
     private final String name;
+
+    /**
+     * The id of the script.
+     */
+    @Getter
+    private final int id;
 
     /**
      * The trigger of the script.
@@ -56,12 +56,6 @@ public final class ScriptInfo extends Symbol {
      */
     @Getter
     private final Type[] arguments;
-
-    /**
-     * The predefined id of the script.
-     */
-    @Getter
-    private final Integer predefinedId;
 
     /**
      * Returns the full name of the script with the trigger.

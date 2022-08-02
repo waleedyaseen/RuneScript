@@ -18,23 +18,21 @@ import me.waliedyassen.runescript.type.primitive.PrimitiveType;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
+@Getter
 public final class ArrayInfo extends Symbol {
 
     /**
      * The index of the array.
      */
-    @Getter
-    private final int index;
+    private final int id;
 
     /**
      * The name of the array.
      */
-    @Getter
     private final String name;
 
     /**
      * The type of the array.
      */
-    @Getter
     private final PrimitiveType type;
 }

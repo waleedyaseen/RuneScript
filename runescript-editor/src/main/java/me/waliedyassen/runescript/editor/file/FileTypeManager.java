@@ -7,7 +7,6 @@
  */
 package me.waliedyassen.runescript.editor.file;
 
-import me.waliedyassen.runescript.editor.file.impl.ConfigFileType;
 import me.waliedyassen.runescript.editor.file.impl.PlainFileType;
 import me.waliedyassen.runescript.editor.file.impl.ProjectFileType;
 import me.waliedyassen.runescript.editor.file.impl.ScriptFileType;
@@ -37,7 +36,6 @@ public final class FileTypeManager {
     static {
         register(new ProjectFileType());
         register(new ScriptFileType());
-        register(new ConfigFileType());
     }
 
     /**
@@ -77,7 +75,7 @@ public final class FileTypeManager {
         if (type == null) {
             return false;
         }
-        return type instanceof ConfigFileType || type instanceof ScriptFileType;
+        return type instanceof ScriptFileType;
     }
 
     private FileTypeManager() {

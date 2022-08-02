@@ -72,14 +72,6 @@ public final class ProjectEditor extends Editor<Path> {
                 field.setText(path);
             }
         });
-        viewComponent.configBindings.forEach((type, field) -> {
-            var path = project.getBindingsPath().get(type);
-            if (path == null) {
-                field.setText("");
-            } else {
-                field.setText(path);
-            }
-        });
         viewComponent.packTypeComboBox.setSelectedItem(project.getPackType());
     }
 
@@ -99,8 +91,6 @@ public final class ProjectEditor extends Editor<Path> {
         project.setPackType((PackType) viewComponent.packTypeComboBox.getSelectedItem());
         project.getConfigsPath().clear();
         project.getConfigsPath().putAll(getConfigPathMap());
-        project.getBindingsPath().clear();
-        project.getBindingsPath().putAll(getBindingPathMap());
         project.reloadCompiler();
         try {
             project.saveData();
@@ -155,7 +145,6 @@ public final class ProjectEditor extends Editor<Path> {
         modified |= !viewComponent.predefinedScriptsField.getText().equals(project.getPredefinedScriptsPath());
         modified |= !viewComponent.predefinedConstantsField.getText().equals(project.getPredefinedConstantsPath());
         modified |= !getConfigPathMap().equals(project.getConfigsPath());
-        modified |= !getBindingPathMap().equals(project.getBindingsPath());
         modified |= project.isSupportsLongPrimitiveType() != viewComponent.supportsLongTypeCheckBox.isSelected();
         modified |= project.isOverrideSymbols() != viewComponent.overrideSymbolsCheckBox.isSelected();
         modified |= project.getPackType() != viewComponent.packTypeComboBox.getSelectedItem();
@@ -170,18 +159,6 @@ public final class ProjectEditor extends Editor<Path> {
      */
     private Map<PrimitiveType, String> getConfigPathMap() {
         return viewComponent.predefinedConfigs.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue().getText().trim().length() > 0)
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getText().trim()));
-    }
-
-    /**
-     * Returns a map of all the configuration bindings file paths mapped by the associated config primitive type.
-     *
-     * @return the {@link Map} object.
-     */
-    private Map<PrimitiveType, String> getBindingPathMap() {
-        return viewComponent.configBindings.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().getText().trim().length() > 0)
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getText().trim()));
@@ -240,11 +217,6 @@ public final class ProjectEditor extends Editor<Path> {
         private final Map<PrimitiveType, JTextField> predefinedConfigs = new HashMap<>();
 
         /**
-         * A map of all the text fields that lead to the configuration bindings.
-         */
-        private final Map<PrimitiveType, JTextField> configBindings = new HashMap<>();
-
-        /**
          * A combo box that holds all of the possible pack type to use.
          */
         private final JComboBox<PackType> packTypeComboBox = new JComboBox<>(PackType.values());
@@ -266,7 +238,6 @@ public final class ProjectEditor extends Editor<Path> {
             }
             add(optionsPanel, "growx,wrap");
             initSymbolsPanel();
-            initBindingsPanel();
         }
 
         private void initSymbolsPanel() {
@@ -278,7 +249,7 @@ public final class ProjectEditor extends Editor<Path> {
                 createBrowseSymbolRow(symbolPanel, "Runtime Constants", runtimeConstantsField);
                 createBrowseSymbolRow(symbolPanel, "Predefined constant(s)", predefinedConstantsField);
                 createBrowseSymbolRow(symbolPanel, "Predefined script(s)", predefinedScriptsField);
-                for (var type : PrimitiveType.values()) {
+                for (var type : PrimitiveType.Companion.getValues()) {
                     if (!isPredefinable(type)) {
                         continue;
                     }
@@ -293,34 +264,13 @@ public final class ProjectEditor extends Editor<Path> {
             add(scrollPane, "growx,wrap");
         }
 
-        private void initBindingsPanel() {
-            var bindingPanel = new JPanel(new MigLayout("", "[][grow][]"));
-            {
-                for (var type : PrimitiveType.values()) {
-                    if (!type.isConfigType()) {
-                        continue;
-                    }
-                    var textField = new JTextField();
-                    configBindings.put(type, textField);
-                    createBrowseSymbolRow(bindingPanel, "Binding ." + type.getRepresentation(), textField);
-                }
-            }
-
-            var scrollPane = new JScrollPane(bindingPanel);
-            scrollPane.setBorder(BorderFactory.createTitledBorder("Binding"));
-            add(scrollPane, "growx,wrap");
-        }
-
         /**
          * Creates a browse for a symbol row, contains a label, a text field for the symbol configuration file path, and a brwose
          * button for browsing for symbol configuration file.
          *
-         * @param panel
-         *         the panel which we will add the symbol row to.
-         * @param name
-         *         the name of the symbol we are browsing for.
-         * @param textField
-         *         the text field to place the symbols in.
+         * @param panel     the panel which we will add the symbol row to.
+         * @param name      the name of the symbol we are browsing for.
+         * @param textField the text field to place the symbols in.
          */
         private void createBrowseSymbolRow(JPanel panel, String name, JTextField textField) {
             panel.add(new JLabel(name + ":"));
@@ -342,31 +292,28 @@ public final class ProjectEditor extends Editor<Path> {
     public static void main(String[] args) {
 
     }
+
     /**
      * Checks whether or not the specified {@link PrimitiveType type} can be predefined.
      *
-     * @param type
-     *         the type to check if it can.
-     *
+     * @param type the type to check if it can.
      * @return <code>true</code> if it can otherwise <code>false</code>.
      */
     public static boolean isPredefinable(PrimitiveType type) {
         if (type.isConfigType()) {
             return true;
         }
-        switch (type) {
-            case GRAPHIC:
-            case SYNTH:
-            case INTERFACE:
-            case TOPLEVELINTERFACE:
-            case CLIENTINTERFACE:
-            case OVERLAYINTERFACE:
-            case COMPONENT:
-            case FONTMETRICS:
-            case TEXTURE:
-                return true;
-            default:
-                return false;
+        if (PrimitiveType.GRAPHIC.INSTANCE.equals(type)
+                || PrimitiveType.SYNTH.INSTANCE.equals(type)
+                || PrimitiveType.INTERFACE.INSTANCE.equals(type)
+                || PrimitiveType.TOPLEVELINTERFACE.INSTANCE.equals(type)
+                || PrimitiveType.CLIENTINTERFACE.INSTANCE.equals(type)
+                || PrimitiveType.OVERLAYINTERFACE.INSTANCE.equals(type)
+                || PrimitiveType.COMPONENT.INSTANCE.equals(type)
+                || PrimitiveType.FONTMETRICS.INSTANCE.equals(type)
+                || PrimitiveType.TEXTURE.INSTANCE.equals(type)) {
+            return true;
         }
+        return false;
     }
 }

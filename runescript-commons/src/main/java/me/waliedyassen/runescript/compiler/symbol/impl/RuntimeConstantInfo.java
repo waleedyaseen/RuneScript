@@ -20,23 +20,23 @@ import me.waliedyassen.runescript.type.primitive.PrimitiveType;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Getter
 public final class RuntimeConstantInfo extends Symbol {
 
     /**
      * The name of the constant.
      */
-    @Getter
     private final String name;
+
+    private final int id;
 
     /**
      * The type of the constant.
      */
-    @Getter
     private final PrimitiveType type;
 
     /**
      * The value of the constant.
      */
-    @Getter
     private final Object value;
 }

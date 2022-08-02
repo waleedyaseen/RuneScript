@@ -46,7 +46,7 @@ public abstract class Syntax extends SyntaxBase {
     public final Type getType() {
         var type = getAttribute("type");
         if (type == null) {
-            return PrimitiveType.UNDEFINED;
+            return PrimitiveType.UNDEFINED.INSTANCE;
         }
         return (Type) type;
     }

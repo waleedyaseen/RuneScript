@@ -27,7 +27,6 @@
         <module>runescript-commons</module>
         <module>runescript-compiler</module>
         <module>runescript-runtime</module>
-        <module>runescript-index</module>
         <module>runescript-editor</module>
     </modules>
     <scm>

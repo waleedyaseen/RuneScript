@@ -97,7 +97,7 @@ public final class ProjectScriptCompiler implements ProjectCompiler<ScriptSyntax
         public void defineSymbols(ScriptSymbolTable symbolTable) {
             for (var script : scripts) {
                 if (symbolTable.lookupScript(script.getFullName()) == null) {
-                    symbolTable.defineScript(script);
+//                    symbolTable.defineScript(script);
                 }
             }
         }
@@ -122,12 +122,12 @@ public final class ProjectScriptCompiler implements ProjectCompiler<ScriptSyntax
                 var name = scriptNode.getName();
                 var scriptName = name.getName() != null ? name.getName().getText() : null;
                 var triggerName = name.getTrigger().getText();
-                var info = new ScriptInfo(Collections.emptyMap(), scriptName,
-                        compiler.getEnvironment().lookupTrigger(triggerName),
-                        scriptNode.getType(),
-                        Arrays.stream(scriptNode.getParameters()).map(ParameterSyntax::getType).toArray(Type[]::new),
-                        null);
-                scripts.add(info);
+//                var info = new ScriptInfo(Collections.emptyMap(), scriptName,
+//                        compiler.getEnvironment().lookupTrigger(triggerName),
+//                        scriptNode.getType(),
+//                        Arrays.stream(scriptNode.getParameters()).map(ParameterSyntax::getType).toArray(Type[]::new),
+//                        null);
+//                scripts.add(info);
             }
         }
 
@@ -136,26 +136,26 @@ public final class ProjectScriptCompiler implements ProjectCompiler<ScriptSyntax
          */
         @Override
         public void writeImpl(DataOutputStream stream) throws IOException {
-            stream.writeShort(scripts.size());
-            for (var script : scripts) {
-                var name = script.getName();
-                if (name != null) {
-                    stream.writeBoolean(true);
-                    stream.writeUTF(script.getName());
-                } else {
-                    stream.writeBoolean(false);
-                }
-                stream.writeUTF(script.getTrigger().getRepresentation());
-                stream.writeByte(script.getArguments().length);
-                for (var argument : script.getArguments()) {
-                    stream.writeUTF(argument.getRepresentation());
-                }
-                var returnTypes = TypeUtil.flatten(new Type[]{script.getType()});
-                stream.writeByte(returnTypes.length);
-                for (var returnType : returnTypes) {
-                    stream.writeUTF(returnType.getRepresentation());
-                }
-            }
+//            stream.writeShort(scripts.size());
+//            for (var script : scripts) {
+//                var name = script.getName();
+//                if (name != null) {
+//                    stream.writeBoolean(true);
+//                    stream.writeUTF(script.getName());
+//                } else {
+//                    stream.writeBoolean(false);
+//                }
+//                stream.writeUTF(script.getTrigger().getRepresentation());
+//                stream.writeByte(script.getArguments().length);
+//                for (var argument : script.getArguments()) {
+//                    stream.writeUTF(argument.getRepresentation());
+//                }
+//                var returnTypes = TypeUtil.flatten(new Type[]{script.getType()});
+//                stream.writeByte(returnTypes.length);
+//                for (var returnType : returnTypes) {
+//                    stream.writeUTF(returnType.getRepresentation());
+//                }
+//            }
         }
 
         /**
@@ -163,23 +163,23 @@ public final class ProjectScriptCompiler implements ProjectCompiler<ScriptSyntax
          */
         @Override
         public void readImpl(DataInputStream stream) throws IOException {
-            var environment = compiler.getEnvironment();
-            var scriptsCount = stream.readUnsignedShort();
-            for (var index = 0; index < scriptsCount; index++) {
-                var name = stream.readBoolean() ? stream.readUTF() : null;
-                var trigger = environment.lookupTrigger(stream.readUTF());
-                var argumentsCount = stream.readUnsignedByte();
-                var arguments = new Type[argumentsCount];
-                for (var argumentIndex = 0; argumentIndex < argumentsCount; argumentIndex++) {
-                    arguments[argumentIndex] = PrimitiveType.forRepresentation(stream.readUTF());
-                }
-                var returnsCount = stream.readUnsignedByte();
-                var returns = new Type[returnsCount];
-                for (var returnIndex = 0; returnIndex < returnsCount; returnIndex++) {
-                    returns[returnIndex] = PrimitiveType.forRepresentation(stream.readUTF());
-                }
-                scripts.add(new ScriptInfo(Collections.emptyMap(), name, trigger, returnsCount == 0 ? TupleType.EMPTY : returnsCount > 1 ? new TupleType(returns) : returns[0], arguments, null));
-            }
+//            var environment = compiler.getEnvironment();
+//            var scriptsCount = stream.readUnsignedShort();
+//            for (var index = 0; index < scriptsCount; index++) {
+//                var name = stream.readBoolean() ? stream.readUTF() : null;
+//                var trigger = environment.lookupTrigger(stream.readUTF());
+//                var argumentsCount = stream.readUnsignedByte();
+//                var arguments = new Type[argumentsCount];
+//                for (var argumentIndex = 0; argumentIndex < argumentsCount; argumentIndex++) {
+//                    arguments[argumentIndex] = PrimitiveType.forRepresentation(stream.readUTF());
+//                }
+//                var returnsCount = stream.readUnsignedByte();
+//                var returns = new Type[returnsCount];
+//                for (var returnIndex = 0; returnIndex < returnsCount; returnIndex++) {
+//                    returns[returnIndex] = PrimitiveType.forRepresentation(stream.readUTF());
+//                }
+//                scripts.add(new ScriptInfo(Collections.emptyMap(), name, trigger, returnsCount == 0 ? TupleType.EMPTY : returnsCount > 1 ? new TupleType(returns) : returns[0], arguments, null));
+//            }
         }
 
         /**

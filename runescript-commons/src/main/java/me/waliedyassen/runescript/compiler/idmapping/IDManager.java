@@ -27,20 +27,7 @@ public interface IDManager {
      *
      * @return the id of the script.
      */
-    int findOrCreateScript(String name, String extension);
-
-    /**
-     * Attempts to find the config ID with the specified {@code name} and the specified {@link Type type}.
-     * If no config is found, we will create a new ID and assign it to that config.
-     *
-     * @param type
-     *         the type of the config.
-     * @param name
-     *         the name of the config.
-     *
-     * @return the id of the config.
-     */
-    int findOrCreateConfig(Type type, String name);
+    int findOrCreateScriptId(String name, String extension);
 
     /**
      * Attempts to find the id for the script with the specified {@code name}.
@@ -55,19 +42,4 @@ public interface IDManager {
      *         if we failed to find an id for the specified {@code name}.
      */
     int findScript(String name, String extension) throws IllegalArgumentException;
-
-    /**
-     * Attempts to find the id for the config with the specified {@code name} and {@link Type type}.
-     *
-     * @param type
-     *         the type of the config that we want to find the id for.
-     * @param name
-     *         the name of the config that we want to find the id for.
-     *
-     * @return the id of the config that we found.
-     *
-     * @throws IllegalArgumentException
-     *         if we failed to find an id for the config specified {@code name}.
-     */
-    int findConfig(Type type, String name) throws IllegalArgumentException;
 }

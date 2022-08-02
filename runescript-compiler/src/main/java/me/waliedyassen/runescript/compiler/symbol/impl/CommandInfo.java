@@ -7,11 +7,9 @@
  */
 package me.waliedyassen.runescript.compiler.symbol.impl;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
-import me.waliedyassen.runescript.compiler.symbol.Symbol;
 import me.waliedyassen.runescript.type.Type;
 
 /**
@@ -20,18 +18,7 @@ import me.waliedyassen.runescript.type.Type;
  * @author Walied K. Yassen
  */
 @RequiredArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public final class CommandInfo extends Symbol {
-
-    /**
-     * A tag which indicates this command information is for the "enum" command.
-     */
-    public static final String ENUM_TAG = "enum";
-
-    /**
-     * A tag which indicates this command information is for the "x_param" command.
-     */
-    public static final String PARAM_TAG = "param";
+public final class CommandInfo {
 
     /**
      * The opcode of this command.
@@ -46,40 +33,28 @@ public final class CommandInfo extends Symbol {
     private final String name;
 
     /**
-     * The return type of the command.
-     */
-    @Getter
-    private final Type type;
-
-    /**
      * The argument type(s) of the command.
      */
     @Getter
     private final Type[] arguments;
 
     /**
-     * Whether or not this command is a hook command.
+     * The return type of the command.
      */
     @Getter
-    private final boolean hook;
+    private final Type type;
 
     /**
      * The type of transmits the hook must have if present.
      */
     @Getter
-    private final Type hookType;
+    private final Type transmits;
 
     /**
-     * Whether or not this command can be alternative.
+     * Whether this command can be alternative.
      */
     @Getter
-    private final boolean alternative;
-
-    /**
-     * The tag of the command, used to distinguish special commands like <code>enum</code> or <code>x_param</code>.
-     */
-    @Getter
-    private final String tag;
+    private final boolean dot;
 
     /**
      * Checks whether or not this command information is for the enum command.
@@ -87,7 +62,7 @@ public final class CommandInfo extends Symbol {
      * @return <code>true</code> if it is otherwise <code>false</code>.
      */
     public boolean isEnum() {
-        return ENUM_TAG.equals(tag);
+        return name.equals("enum");
     }
 
     /**
@@ -96,6 +71,6 @@ public final class CommandInfo extends Symbol {
      * @return <code>true</code> if it is otherwise <code>false</code>.
      */
     public boolean isParam() {
-        return PARAM_TAG.equals(tag);
+        return name.equals("oc_param") || name.equals("lc_param") || name.equals("nc_param") || name.equals("struct_param");
     }
 }

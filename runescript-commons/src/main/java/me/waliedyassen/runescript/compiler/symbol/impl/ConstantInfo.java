@@ -20,23 +20,23 @@ import me.waliedyassen.runescript.type.Type;
  */
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Getter
 public final class ConstantInfo extends Symbol {
 
     /**
      * The constant name.
      */
-    @Getter
     private final String name;
+
+    private final int id;
 
     /**
      * The constant type.
      */
-    @Getter
     private final Type type;
 
     /**
      * The constant value.
      */
-    @Getter
     private final Object value;
 }

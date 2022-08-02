@@ -1049,13 +1049,10 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         if (type == null) {
             return false;
         }
-        if (!type.isHook()) {
-            return false;
-        }
         if (index >= type.getArguments().length) {
             return false;
         }
-        return type.getArguments()[index] == PrimitiveType.HOOK && (peekKind() == STRING || peekKind() == NULL);
+        return type.getArguments()[index] == PrimitiveType.HOOK.INSTANCE && (peekKind() == STRING || peekKind() == NULL);
     }
 
     /**

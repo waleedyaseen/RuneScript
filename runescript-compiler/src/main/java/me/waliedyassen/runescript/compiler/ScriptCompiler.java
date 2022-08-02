@@ -27,15 +27,19 @@ import me.waliedyassen.runescript.compiler.lexer.token.Kind;
 import me.waliedyassen.runescript.compiler.lexer.tokenizer.Tokenizer;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
+import me.waliedyassen.runescript.compiler.syntax.Syntax;
 import me.waliedyassen.runescript.compiler.syntax.SyntaxParser;
 import me.waliedyassen.runescript.compiler.util.Operator;
+import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.stack.StackType;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -181,14 +185,28 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
         }
 
         if (input.isRunIdGeneration()) {
-            // We want to assign IDs for all of the nodes, including the erroneous ones
-            // because they could be referenced from non erroneous.
+            // We want to assign IDs for all the nodes, including the erroneous ones
+            // because they could be referenced from non-erroneous.
             for (var compiledFile : output.getFiles().values()) {
                 for (var unit : compiledFile.getUnits()) {
-                    var predefinedId = unit.getSyntax().findAnnotation("id");
-                    if (predefinedId == null) {
-                        idManager.findOrCreateScript(unit.getSyntax().getName().toText(), compiledFile.getExtension());
+                    var idSyntax = unit.getSyntax().findAnnotation("id");
+                    Integer id = null;
+                    if (idSyntax != null) {
+                        id = idSyntax.getValue().getValue();
                     }
+                    var syntax = unit.getSyntax();
+                    if (id == null) {
+                        id = idManager.findOrCreateScriptId(unit.getSyntax().getName().toText(), compiledFile.getExtension());
+                    }
+                    var script = new ScriptInfo(
+                            syntax.getName().getName().getText(),
+                            id,
+                            environment.lookupTrigger(syntax.getName().getTrigger().getText()),
+                            syntax.getType(),
+                            Arrays.stream(syntax.getParameters()).map(Syntax::getType).toArray(Type[]::new));
+                    symbolTable.undefineScript(script.getTrigger(), script.getName());
+                    symbolTable.defineScript(script);
+
                 }
             }
         }
@@ -228,7 +246,7 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
         table.registerKeyword("null", Kind.NULL);
         table.registerKeyword("continue", Kind.CONTINUE);
         table.registerKeyword("break", Kind.BREAK);
-        for (var type : PrimitiveType.values()) {
+        for (var type : PrimitiveType.Companion.getValues()) {
             if (type.isReferencable()) {
                 table.registerKeyword(type.getRepresentation(), Kind.TYPE);
             }

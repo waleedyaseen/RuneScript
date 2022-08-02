@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.editor.Api;
 import me.waliedyassen.runescript.editor.file.FileType;
-import me.waliedyassen.runescript.editor.file.impl.ConfigFileType;
 import me.waliedyassen.runescript.editor.file.impl.ScriptFileType;
 import me.waliedyassen.runescript.editor.ui.editor.code.completion.CodeCompletionProvider;
 import me.waliedyassen.runescript.editor.ui.editor.code.folder.CodeFolder;
@@ -55,7 +54,7 @@ public final class CodeEditor extends FileEditor {
      */
     public CodeEditor(FileType fileType, Path path) {
         super(fileType, path);
-        config = fileType instanceof ConfigFileType;
+        config = false;
         textArea.setSyntaxEditingStyle(config ? SYNTAX_STYLE_RUNECONFIG : SYNTAX_STYLE_RUNESCRIPT);
         textArea.setTabSize(2);
         textArea.setAutoIndentEnabled(true);

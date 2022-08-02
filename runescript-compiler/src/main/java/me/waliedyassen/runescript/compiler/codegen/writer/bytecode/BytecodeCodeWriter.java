@@ -18,7 +18,7 @@ import me.waliedyassen.runescript.compiler.codegen.script.BinaryScript;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.codegen.writer.CodeWriter;
 import me.waliedyassen.runescript.compiler.idmapping.IDManager;
-import me.waliedyassen.runescript.compiler.symbol.impl.ConfigInfo;
+import me.waliedyassen.runescript.compiler.symbol.ConfigSymbol;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.type.stack.StackType;
 
@@ -107,18 +107,10 @@ public final class BytecodeCodeWriter extends CodeWriter<BytecodeScript> {
             var index = context.switchTables.size();
             context.switchTables.add(jumps);
             return index;
-        } else if (operand instanceof ScriptInfo) {
-            var info = (ScriptInfo) operand;
-            if (info.getPredefinedId() != null) {
-                return info.getPredefinedId();
-            }
-            return idManager.findScript(info.getFullName(), context.script.getExtension());
-        } else if (operand instanceof ConfigInfo) {
-            var info = (ConfigInfo) operand;
-            if (info.getPredefinedId() != null) {
-                return info.getPredefinedId();
-            }
-            return idManager.findConfig(info.getType(), info.getName());
+        } else if (operand instanceof ScriptInfo info) {
+            return info.getId();
+        } else if (operand instanceof ConfigSymbol info) {
+            return info.getId();
         } else if (operand instanceof Local) {
             return context.localTable.get(operand);
         } else if (operand instanceof Integer) {
