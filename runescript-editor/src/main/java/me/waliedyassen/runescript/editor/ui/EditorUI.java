@@ -296,10 +296,8 @@ public final class EditorUI implements WindowListener {
      */
     @Override
     public void windowClosing(WindowEvent e) {
-        if (!frame.isVisible()) {
-            return;
-        }
         frame.dispose();
+        System.exit(0);
     }
 
     /**
