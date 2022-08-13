@@ -80,7 +80,7 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
     private final InstructionMap instructionMap;
 
     /**
-     * The generated scripts optimizer.
+     * The generated scripts' optimizer.
      */
     @Getter
     private final Optimizer optimizer;
@@ -104,7 +104,7 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
      * @param environment    the environment of the compiler.
      * @param instructionMap the instruction map to use for this compiler.
      * @param codeWriter     the code writer to use for the compiler.
-     * @param allowOverride  whether or not the compiler should override the symbols.
+     * @param allowOverride  whether the compiler should override the symbols.
      */
     private ScriptCompiler(IDManager idManager,
                            CompilerEnvironment environment,

@@ -73,6 +73,7 @@ public final class CodeParser extends AbstractParser {
                 parseResult.addNotice(new ErrorNotice(this, error.getMessage(), line, range.getBegin(), range.getEnd() - range.getBegin()));
             } catch (Throwable e) {
                 log.warn("An error occurred while adding the compiling errors to the result", e);
+                log.warn("Error message: {} line: {} span-begin: {} span-end: {}", error.getMessage(), error.getLine(), error.getSpan().getBegin(),error.getSpan().getEnd());
             }
         }
         return parseResult;

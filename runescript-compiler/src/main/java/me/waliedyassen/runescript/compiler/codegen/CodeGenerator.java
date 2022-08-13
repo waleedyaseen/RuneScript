@@ -22,6 +22,7 @@ import me.waliedyassen.runescript.compiler.codegen.sw.SwitchMap;
 import me.waliedyassen.runescript.compiler.codegen.sw.SwitchTable;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
+import me.waliedyassen.runescript.compiler.symbol.TypedSymbol;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
 import me.waliedyassen.runescript.compiler.syntax.ParameterSyntax;
 import me.waliedyassen.runescript.compiler.syntax.ScriptSyntax;
@@ -277,8 +278,9 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             return instruction(getPushVariableOpcode(variableExpression.getScope(), null,(PrimitiveType) local.getType()), local);
         } else {
             var config = symbolTable.lookupVariable(name);
+            var type = symbolTable.lookupVariableType(name);
             var domain = symbolTable.lookupVariableDomain(name);
-            return instruction(getPushVariableOpcode(variableExpression.getScope(), domain, (PrimitiveType) config.getContentType()), config);
+            return instruction(getPushVariableOpcode(variableExpression.getScope(), domain, type), config);
         }
     }
 
@@ -353,20 +355,21 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             if (commandInfo != null) {
                 return generateCommand(commandInfo, false);
             }
-            var configInfo = symbolTable.lookupConfig(dynamic.getType(), name);
+            var configInfo = symbolTable.lookupConfig((PrimitiveType<?>)dynamic.getType(), name);
             if (configInfo != null) {
                 return instruction(PUSH_INT_CONSTANT, configInfo);
             }
             var runtimeConstantInfo = symbolTable.lookupRuntimeConstant(name);
             if (runtimeConstantInfo != null) {
-                switch (dynamic.getType().getStackType()) {
-                    case INT:
-                        return instruction(PUSH_INT_CONSTANT, ((Integer) runtimeConstantInfo.getValue()));
-                    case STRING:
-                        return instruction(PUSH_STRING_CONSTANT, ((String) runtimeConstantInfo.getValue()));
-                    case LONG:
-                        return instruction(PUSH_LONG_CONSTANT, ((Long) runtimeConstantInfo.getValue()));
+                var type = dynamic.getType();
+                if (type == null || type.getStackType() == null) {
+                    throw new RuntimeException();
                 }
+                return switch (type.getStackType()) {
+                    case INT -> instruction(PUSH_INT_CONSTANT, ((Integer) runtimeConstantInfo.getValue()));
+                    case STRING -> instruction(PUSH_STRING_CONSTANT, ((String) runtimeConstantInfo.getValue()));
+                    case LONG -> instruction(PUSH_LONG_CONSTANT, ((Long) runtimeConstantInfo.getValue()));
+                };
             }
             throw new UnsupportedOperationException(name);
         }
@@ -498,16 +501,16 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
                 instruction(POP_ARRAY_INT, arrayVariable.getArrayInfo().getId());
             } else {
                 var scopedVariable = (ScopedVariableSyntax) variable;
-                PrimitiveType domain = null;
                 Object operand;
-                PrimitiveType type;
+                PrimitiveType<?> type;
+                PrimitiveType<?> domain;
                 if (scopedVariable.getScope() == VariableScope.LOCAL) {
                     operand = localMap.lookup(scopedVariable.getName().getText());
-                    type = (PrimitiveType) scopedVariable.getType();
+                    type = (PrimitiveType<?>) scopedVariable.getType();
+                    domain = null;
                 } else {
-                    var configInfo = symbolTable.lookupVariable(scopedVariable.getName().getText());
-                    operand = configInfo;
-                    type = (PrimitiveType) configInfo.getContentType();
+                    operand = symbolTable.lookupVariable(scopedVariable.getName().getText());
+                    type = symbolTable.lookupVariableType(scopedVariable.getName().getText());
                     domain = symbolTable.lookupVariableDomain(scopedVariable.getName().getText());
                 }
                 instruction(getPopVariableOpcode(scopedVariable.getScope(), domain, type), operand);
@@ -596,7 +599,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             return ((Number) constantValue).intValue();
         } else if (expression instanceof DynamicSyntax) {
             var configName = ((DynamicSyntax) expression).getName().getText();
-            return symbolTable.lookupConfig(expression.getType(), configName);
+            return symbolTable.lookupConfig((PrimitiveType<?>) expression.getType(), configName);
         } else {
             throw new IllegalStateException();
         }

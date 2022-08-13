@@ -30,7 +30,7 @@ class Span {
      * Constructs a new [Span] type object instance.
      */
     @JvmOverloads
-    constructor(begin: Int = Int.MAX_VALUE, end: Int = 0) {
+    constructor(begin: Int = 0, end: Int = 0) {
         this.begin = begin
         this.end = end
     }

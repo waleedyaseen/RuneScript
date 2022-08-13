@@ -10,11 +10,7 @@ package me.waliedyassen.runescript.editor.project;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.SneakyThrows;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.codegen.InstructionMap;
@@ -34,7 +30,6 @@ import me.waliedyassen.runescript.editor.project.cache.unit.CacheUnit;
 import me.waliedyassen.runescript.editor.project.compile.ProjectCompiler;
 import me.waliedyassen.runescript.editor.project.compile.ProjectCompilerProvider;
 import me.waliedyassen.runescript.editor.project.compile.impl.ProjectScriptCompiler;
-import me.waliedyassen.runescript.editor.ui.editor.project.ProjectEditor;
 import me.waliedyassen.runescript.editor.util.JsonUtil;
 import me.waliedyassen.runescript.editor.vfs.VFS;
 import me.waliedyassen.runescript.type.Type;
@@ -51,8 +46,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -200,18 +193,6 @@ public final class Project {
     private String predefinedConstantsPath;
 
     /**
-     * A map which contains all of the predefined configuration paths.
-     */
-    @Getter
-    private final Map<PrimitiveType, String> configsPath;
-
-    /**
-     * A map which contains all of the configuration bindings paths.
-     */
-    @Getter
-    private final Map<PrimitiveType, String> bindingsPath;
-
-    /**
      * The pack type of the project.
      */
     @Getter
@@ -225,8 +206,6 @@ public final class Project {
      */
     Project(Path directory) {
         this.directory = directory;
-        configsPath = new HashMap<>();
-        bindingsPath = new HashMap<>();
     }
 
     /**
@@ -277,28 +256,6 @@ public final class Project {
         predefinedScriptsPath = compiler.has("scripts") ? compiler.get("scripts").textValue() : "";
         predefinedConstantsPath = compiler.has("constants") ? compiler.get("constants").textValue() : "";
         packType = compiler.has("packType") ? PackType.valueOf(compiler.get("packType").textValue()) : PackType.SQLITE;
-        configsPath.clear();
-        for (var type : PrimitiveType.Companion.getValues()) {
-            if (!ProjectEditor.isPredefinable(type)) {
-                continue;
-            }
-            var node = compiler.get("config_" + type.getRepresentation());
-            if (node == null) {
-                continue;
-            }
-            configsPath.put(type, node.textValue());
-        }
-        bindingsPath.clear();
-        for (var type : PrimitiveType.Companion.getValues()) {
-            if (!type.isConfigType()) {
-                continue;
-            }
-            var node = compiler.get("binding_" + type.getRepresentation());
-            if (node == null) {
-                continue;
-            }
-            bindingsPath.put(type, node.textValue());
-        }
         var packer = root.get("packer");
         if (packer != null) {
             packType = PackType.valueOf(packer.get("type").textValue());
@@ -437,7 +394,7 @@ public final class Project {
         if (commandsPath.startsWith("*")) {
             var name = commandsPath.substring(1);
             if ("osrs_default".equals(name)) {
-                path = Paths.get(getClass().getResource("osrs_default_commands.toml").toURI());
+                path = Paths.get(getClass().getResource("osrs_default_commands.sym").toURI());
             } else {
                 throw new IllegalStateException("Unrecognised macro: " + name);
             }

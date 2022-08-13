@@ -266,9 +266,9 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         var check = true;
         var index = 0;
         for (var argument : arguments) {
-            if (index < expectedArgumentTypes.length)  argument.setHintType(expectedArgumentTypes[index]);
+            if (index < expectedArgumentTypes.length) argument.setHintType(expectedArgumentTypes[index]);
             var result = argument.accept(this);
-            index += TypeUtil.flatten(new Type[] { argument.getType() }).length;
+            index += TypeUtil.flatten(new Type[]{argument.getType()}).length;
             check &= result.isContinue();
         }
         if (check) {
@@ -298,7 +298,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
             dynamic.setType(commandInfo.getType());
             return TypeCheckAction.CONTINUE;
         }
-        var configInfo = symbolTable.lookupConfig(dynamic.getHintType(), name.getText());
+        var configInfo = symbolTable.lookupConfig((PrimitiveType<?>) dynamic.getHintType(), name.getText());
         if (configInfo != null) {
             dynamic.setType(dynamic.getHintType());
             return TypeCheckAction.CONTINUE;
@@ -350,7 +350,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
                 argument.setHintType(tempTypes[index]);
             }
             var result = argument.accept(this);
-            index += TypeUtil.flatten(new Type[] { argument.getType() }).length;
+            index += TypeUtil.flatten(new Type[]{argument.getType()}).length;
             check &= result.isContinue();
         }
         if (check) {
@@ -399,18 +399,17 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     private Type processCommandExpectedReturns(CommandInfo info, ExpressionSyntax[] actual) {
         if (info.isEnum()) {
-            if (actual.length > 1 && actual[1] instanceof LiteralTypeSyntax) {
-                // argument 1 is "outputtype"
-                var literal = (LiteralTypeSyntax) actual[1];
+            if (actual.length > 1 && actual[1] instanceof LiteralTypeSyntax literal) {
                 return literal.getValue();
             }
         } else if (info.isParam()) {
-            if (actual.length > 1 && actual[1] instanceof DynamicSyntax) {
-                // argument 1 is "param"
-                var literal = (DynamicSyntax) actual[1];
-                var configInfo = symbolTable.lookupConfig(actual[1].getHintType(), literal.getName().getText());
-                if (configInfo != null && configInfo.getContentType() != null) {
-                    return configInfo.getContentType();
+            if (actual.length > 1 && actual[1] instanceof DynamicSyntax literal) {
+                var symbol = symbolTable.lookupConfig(PrimitiveType.PARAM.INSTANCE, literal.getName().getText());
+                if (symbol != null) {
+                    if (!symbol.getTransmit() && script.getExtension().equals("cs2")){
+                        checker.reportError(new SemanticError(literal, String.format("The param %s is not set to transmit", literal.getName().getText())));
+                    }
+                    return symbol.getType();
                 }
                 return null;
             }
@@ -573,7 +572,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
             return constantValue.getStackType() == StackType.INT;
         } else if (expression instanceof DynamicSyntax) {
             var configName = ((DynamicSyntax) expression).getName().getText();
-            var configInfo = symbolTable.lookupConfig(expression.getHintType(), configName);
+            var configInfo = symbolTable.lookupConfig((PrimitiveType<?>) expression.getHintType(), configName);
             return configInfo != null && expression.getHintType().getStackType() == StackType.INT;
         } else {
             return false;

@@ -44,7 +44,7 @@ import java.util.*;
 public final class PreTypeChecking extends SyntaxTreeVisitor {
 
     /**
-     * The stack which holds all of the current scopes.
+     * The stack which holds all the current scopes.
      */
     private final Stack<Scope> scopes = new Stack<>();
 
@@ -244,12 +244,12 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
                 return local.getType();
             }
             case GLOBAL: {
-                var config = symbolTable.lookupVariable(name);
-                if (config == null) {
+                var type = symbolTable.lookupVariableType(name);
+                if (type == null) {
                     reportError(new SemanticError(node, String.format("%s cannot be resolved to a global variable", name)));
                     return PrimitiveType.UNDEFINED.INSTANCE;
                 }
-                return config.getContentType();
+                return type;
             }
             default:
                 throw new UnsupportedOperationException();

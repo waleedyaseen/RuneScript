@@ -22,9 +22,6 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Represents an {@link Editor} for the {@link ProjectFileType}.
@@ -64,14 +61,6 @@ public final class ProjectEditor extends Editor<Path> {
         viewComponent.predefinedScriptsField.setText(project.getPredefinedScriptsPath());
         viewComponent.supportsLongTypeCheckBox.setSelected(project.isSupportsLongPrimitiveType());
         viewComponent.overrideSymbolsCheckBox.setSelected(project.isOverrideSymbols());
-        viewComponent.predefinedConfigs.forEach((type, field) -> {
-            var path = project.getConfigsPath().get(type);
-            if (path == null) {
-                field.setText("");
-            } else {
-                field.setText(path);
-            }
-        });
         viewComponent.packTypeComboBox.setSelectedItem(project.getPackType());
     }
 
@@ -89,8 +78,6 @@ public final class ProjectEditor extends Editor<Path> {
         project.setSupportsLongPrimitiveType(viewComponent.supportsLongTypeCheckBox.isSelected());
         project.setOverrideSymbols(viewComponent.overrideSymbolsCheckBox.isSelected());
         project.setPackType((PackType) viewComponent.packTypeComboBox.getSelectedItem());
-        project.getConfigsPath().clear();
-        project.getConfigsPath().putAll(getConfigPathMap());
         project.reloadCompiler();
         try {
             project.saveData();
@@ -144,24 +131,10 @@ public final class ProjectEditor extends Editor<Path> {
         modified |= !viewComponent.runtimeConstantsField.getText().equals(project.getRuntimeConstantsPath());
         modified |= !viewComponent.predefinedScriptsField.getText().equals(project.getPredefinedScriptsPath());
         modified |= !viewComponent.predefinedConstantsField.getText().equals(project.getPredefinedConstantsPath());
-        modified |= !getConfigPathMap().equals(project.getConfigsPath());
         modified |= project.isSupportsLongPrimitiveType() != viewComponent.supportsLongTypeCheckBox.isSelected();
         modified |= project.isOverrideSymbols() != viewComponent.overrideSymbolsCheckBox.isSelected();
         modified |= project.getPackType() != viewComponent.packTypeComboBox.getSelectedItem();
         return modified;
-    }
-
-    /**
-     * Returns a map of all the predefined configuration type file paths mapped by the associated config primitive
-     * type.
-     *
-     * @return the {@link Map} object.
-     */
-    private Map<PrimitiveType, String> getConfigPathMap() {
-        return viewComponent.predefinedConfigs.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue().getText().trim().length() > 0)
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getText().trim()));
     }
 
     /**
@@ -212,11 +185,6 @@ public final class ProjectEditor extends Editor<Path> {
         private final JTextField predefinedConstantsField = new JTextField();
 
         /**
-         * A map of all the text fields that lead to the predefined configs.
-         */
-        private final Map<PrimitiveType, JTextField> predefinedConfigs = new HashMap<>();
-
-        /**
          * A combo box that holds all of the possible pack type to use.
          */
         private final JComboBox<PackType> packTypeComboBox = new JComboBox<>(PackType.values());
@@ -249,14 +217,6 @@ public final class ProjectEditor extends Editor<Path> {
                 createBrowseSymbolRow(symbolPanel, "Runtime Constants", runtimeConstantsField);
                 createBrowseSymbolRow(symbolPanel, "Predefined constant(s)", predefinedConstantsField);
                 createBrowseSymbolRow(symbolPanel, "Predefined script(s)", predefinedScriptsField);
-                for (var type : PrimitiveType.Companion.getValues()) {
-                    if (!isPredefinable(type)) {
-                        continue;
-                    }
-                    var textField = new JTextField();
-                    predefinedConfigs.put(type, textField);
-                    createBrowseSymbolRow(symbolPanel, "Predefined ." + type.getRepresentation() + "(s)", textField);
-                }
             }
 
             var scrollPane = new JScrollPane(symbolPanel);

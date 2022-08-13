@@ -7,12 +7,10 @@
  */
 package me.waliedyassen.runescript.compiler.symbol
 
-import me.waliedyassen.runescript.type.Type
+import me.waliedyassen.runescript.type.primitive.PrimitiveType
 
 /**
- * Represents the base class for any symbol registered in the symbol table.
- *
- * @author Walied K. Yassen
+ * The base class for all the symbols in the compiler.
  */
 abstract class Symbol {
     abstract val name: String
@@ -20,12 +18,29 @@ abstract class Symbol {
 }
 
 /**
- * Represents a configuration type value information.
- *
- * @author Walied K. Yassen
+ * The bare minimum implementation of [Symbol] class.
+ */
+data class BasicSymbol(
+    override val name: String,
+    override val id: Int
+) : Symbol()
+
+/**
+ * A [Symbol] implementation that stores an additional [SymbolType].
+ */
+data class TypedSymbol(
+    override val name: String,
+    override val id: Int,
+    val type: PrimitiveType<*>
+) : Symbol()
+
+/**
+ * A [Symbol] implementation that stores an additional [SymbolType] and transmit
+ * boolean property.
  */
 data class ConfigSymbol(
     override val name: String,
     override val id: Int,
-    val contentType: Type?
+    val type: PrimitiveType<*>,
+    val transmit: Boolean
 ) : Symbol()

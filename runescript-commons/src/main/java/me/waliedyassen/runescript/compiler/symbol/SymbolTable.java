@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
 import me.waliedyassen.runescript.compiler.symbol.impl.RuntimeConstantInfo;
-import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 
 import java.io.IOException;
@@ -39,7 +38,7 @@ public class SymbolTable {
      * The defined configurations map.
      */
     @Getter
-    private final Map<Type, SymbolList<ConfigSymbol>> configs = new HashMap<>();
+    private final Map<PrimitiveType<?>, SymbolList<?>> configs = new HashMap<>();
 
     /**
      * The defined runtime constants.
@@ -67,6 +66,11 @@ public class SymbolTable {
     public SymbolTable(boolean allowRemoving) {
         this(null, allowRemoving);
         int count = 0;
+        try {
+            Class.forName(PrimitiveType.class.getName(), true, PrimitiveType.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         constants.add(new ConstantInfo("false", count++, PrimitiveType.INT.INSTANCE, 0));
         constants.add(new ConstantInfo("true", count++, PrimitiveType.INT.INSTANCE, 1));
         constants.add(new ConstantInfo("iftype_layer", count++, PrimitiveType.INT.INSTANCE, 0));
@@ -364,23 +368,12 @@ public class SymbolTable {
 
     }
 
-    public void read(PrimitiveType type, Path file) throws IOException {
-        var loader = ConfigSymbolLoader.INSTANCE;
-        Files.lines(file).forEach(line -> defineConfig(type, loader.load(line)));
-    }
-
-    /**
-     * Defines a new constant symbol in this table.
-     *
-     * @param name  the name of the constant.
-     * @param type  the type of the constant.f
-     * @param value the value of the constant.
-     */
-    public void defineConstant(String name, int id, Type type, Object value) {
-        if (lookupConstant(name) != null) {
-            throw new IllegalArgumentException("The constant '" + name + "' is already defined.");
+    public <T extends Symbol> void read(PrimitiveType<T> type, Path file) throws IOException {
+        var loader = type.getLoader();
+        if (loader == null) {
+            throw new IllegalStateException();
         }
-        constants.add(new ConstantInfo(name, id, type, value));
+        Files.lines(file).forEach(line -> defineConfig(type, loader.load(line)));
     }
 
     /**
@@ -397,16 +390,12 @@ public class SymbolTable {
         return info;
     }
 
-    /**
-     * Defines the specified {@link ConfigSymbol} in the symbol table.
-     *
-     * @param info the configuration info object to define.
-     */
-    public void defineConfig(PrimitiveType type, ConfigSymbol info) {
+    public <T extends Symbol> void defineConfig(PrimitiveType<T> type, T info) {
         if (lookupConfig(type, info.getName()) != null) {
             throw new IllegalArgumentException("The configuration '" + info.getName() + "' is already defined.");
         }
-        var list = configs.get(type);
+        //noinspection unchecked
+        var list = (SymbolList<T>) configs.get(type);
         if (list == null) {
             list = new SymbolList<>();
             configs.put(type, list);
@@ -414,15 +403,10 @@ public class SymbolTable {
         list.add(info);
     }
 
-    /**
-     * Looks-up for the {@link ConfigSymbol configuration information} with the specified {@code name}.
-     *
-     * @param name the name of the configuration type value.
-     * @return the {@link ConfigSymbol} if it was present otherwise {@code null}.
-     */
-    public ConfigSymbol lookupConfig(Type type, String name) {
-        var list = configs.get(type);
-        ConfigSymbol info = null;
+    public <T extends Symbol> T lookupConfig(PrimitiveType<T> type, String name) {
+        //noinspection unchecked
+        var list = (SymbolList<T>) configs.get(type);
+        T info = null;
         if (list != null) {
             info = list.lookupByName(name);
         }
@@ -432,14 +416,7 @@ public class SymbolTable {
         return info;
     }
 
-
-    /**
-     * Looks-up for the {@link ConfigSymbol variable information} with the specified {@code name}.
-     *
-     * @param name the name of the variable configuration type value.
-     * @return the {@link ConfigSymbol} if it was present otherwise {@code null}.
-     */
-    public ConfigSymbol lookupVariable(String name) {
+    public Symbol lookupVariable(String name) {
         var varConfig = lookupConfig(PrimitiveType.VARP.INSTANCE, name);
         if (varConfig != null) {
             return varConfig;
@@ -449,13 +426,26 @@ public class SymbolTable {
             return varBitConfig;
         }
         var varcConfig = lookupConfig(PrimitiveType.VARC.INSTANCE, name);
+        return varcConfig;
+    }
+
+    public PrimitiveType<?> lookupVariableType(String name) {
+        var varConfig = lookupConfig(PrimitiveType.VARP.INSTANCE, name);
+        if (varConfig != null) {
+            return varConfig.getType();
+        }
+        var varBitConfig = lookupConfig(PrimitiveType.VARBIT.INSTANCE, name);
+        if (varBitConfig != null) {
+            return PrimitiveType.INT.INSTANCE;
+        }
+        var varcConfig = lookupConfig(PrimitiveType.VARC.INSTANCE, name);
         if (varcConfig != null) {
-            return varcConfig;
+            return varcConfig.getType();
         }
         return null;
     }
 
-    public PrimitiveType lookupVariableDomain(String name) {
+    public PrimitiveType<?> lookupVariableDomain(String name) {
         var varConfig = lookupConfig(PrimitiveType.VARP.INSTANCE, name);
         if (varConfig != null) {
             return PrimitiveType.VARP.INSTANCE;
@@ -478,7 +468,7 @@ public class SymbolTable {
      * @param type  the type of the runtime constant.
      * @param value the value of the runtime constant.
      */
-    public void defineRuntimeConstant(String name, int id, PrimitiveType type, Object value) {
+    public void defineRuntimeConstant(String name, int id, PrimitiveType<?> type, Object value) {
         if (lookupRuntimeConstant(name) != null) {
             throw new IllegalArgumentException("The runtime constant '" + name + "' is already defined.");
         }
