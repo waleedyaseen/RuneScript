@@ -14,6 +14,8 @@ import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.lexer.LexerBase;
 import me.waliedyassen.runescript.compiler.lexer.token.Token;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -27,7 +29,7 @@ public abstract class ParserBase<K, T extends Token<K>> {
     /**
      * The {@link Span} object stack. It is used to calculate the nested {@link Span}s.
      */
-    private final Stack<Span> spans = new Stack<>();
+    private final Stack<List<Span>> spans = new Stack<>();
 
     /**
      * A stack wh8ich contains all of the sub-lexer objects.
@@ -161,7 +163,7 @@ public abstract class ParserBase<K, T extends Token<K>> {
      * #popRange()} to remove the pushed {@link Span} object from the stack.
      */
     protected void pushRange() {
-        spans.push(new Span());
+        spans.push(new ArrayList<>());
     }
 
     /**
@@ -183,11 +185,14 @@ public abstract class ParserBase<K, T extends Token<K>> {
      * @return the popped {@link Span} object.
      */
     protected Span popRange() {
-        var range = spans.pop();
-        if (!spans.isEmpty()) {
-            spans.lastElement().add(range);
+        var spans = this.spans.pop();
+        if (!this.spans.isEmpty()) {
+            this.spans.lastElement().addAll(spans);
         }
-        return range;
+        if (spans.isEmpty()) {
+            return new Span(lexer.getIndex(), lexer.getIndex());
+        }
+        return new Span(spans);
     }
 
     /**

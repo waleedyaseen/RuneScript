@@ -106,4 +106,8 @@ public abstract class LexerBase<K, T extends Token<K>> {
     public int remaining() {
         return tokens.size() - index;
     }
+
+    public int getIndex() {
+        return index;
+    }
 }

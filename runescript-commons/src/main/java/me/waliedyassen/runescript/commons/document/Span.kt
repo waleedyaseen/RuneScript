@@ -12,37 +12,10 @@ package me.waliedyassen.runescript.commons.document
  *
  * @author Walied K. Yassen
  */
-class Span {
+class Span(var begin: Int, var end: Int) {
 
-    /**
-     * The start position of the range in a document.
-     */
-    var begin = 0
-        private set
-
-    /**
-     * The width of the range in characters.
-     */
-    var end = 0
-        private set
-
-    /**
-     * Constructs a new [Span] type object instance.
-     */
-    @JvmOverloads
-    constructor(begin: Int = 0, end: Int = 0) {
-        this.begin = begin
-        this.end = end
-    }
-
-    /**
-     * Constructs a new [Span] type object instance.
-     *
-     * @param spans the ranges which will be combined into one range.
-     */
-    constructor(vararg spans: Span) {
-        add(*spans)
-    }
+    constructor(vararg spans: Span) : this(spans.minOf { it.begin }, spans.maxOf { it.end })
+    constructor(spans: List<Span>) : this(spans.minOf { it.begin }, spans.maxOf { it.end })
 
     /**
      * Performs [.add] for each of the given `ranges`.
@@ -61,8 +34,8 @@ class Span {
      * @param span the range which we wil update this [Span] object to include.
      */
     fun add(span: Span) {
-        begin = Math.min(begin, span.begin)
-        end = Math.max(end, span.end)
+        begin = begin.coerceAtMost(span.begin)
+        end = end.coerceAtLeast(span.end)
     }
 
     /**
