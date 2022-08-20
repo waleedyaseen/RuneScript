@@ -536,6 +536,9 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         if (switchStatement.getCondition().accept(this).isContinue()) {
             checkTypeMatching(switchStatement.getCondition(), type, switchStatement.getCondition().getType());
         }
+        if (switchStatement.getDefaultCase() != null) {
+            switchStatement.getDefaultCase().accept(this);
+        }
         for (var switchCase : switchStatement.getCases()) {
             for (var key : switchCase.getKeys()) {
                 if (key.accept(this).isContinue()) {
