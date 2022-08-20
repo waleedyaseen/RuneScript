@@ -69,6 +69,8 @@ open class PrimitiveType<T : Symbol>(
     object NPC_UID : PrimitiveType<BasicSymbol>('u', "npc_uid", StackType.INT, -1, BasicSymbolLoader)
     object LOC_SHAPE : PrimitiveType<BasicSymbol>('H', "locshape", StackType.INT, -1, BasicSymbolLoader)
 
+    override fun toString() = javaClass.simpleName
+
     val isReferencable: Boolean
         get() = when (this) {
             is TYPE -> false
