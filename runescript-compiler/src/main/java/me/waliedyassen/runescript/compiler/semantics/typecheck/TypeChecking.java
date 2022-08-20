@@ -221,7 +221,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
                         checker.reportError(new SemanticError(hook, String.format("Expected a transmit list of type '%s'", expected.getRepresentation())));
                     } else {
                         for (var transmit : transmits) {
-                            transmit.setType(expected);
+                            transmit.setHintType(expected);
                             if (transmit.accept(this).isContinue()) {
                                 checkTypeMatching(transmit, expected, transmit.getType());
                             }
