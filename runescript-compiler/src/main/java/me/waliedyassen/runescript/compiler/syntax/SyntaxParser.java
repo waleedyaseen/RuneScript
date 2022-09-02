@@ -207,7 +207,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         pushRange();
         var typeToken = consume(peekKind() == ARRAY_TYPE ? ARRAY_TYPE : TYPE);
         var dollarToken = consume(DOLLAR);
-        var name = identifier();
+        var name = advancedIdentifier();
         return new ParameterSyntax(popRange(), dollarToken, typeToken, name, index);
     }
 
@@ -931,7 +931,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     public VariableExpressionSyntax localVariable() {
         pushRange();
         consume(DOLLAR);
-        var name = identifier();
+        var name = advancedIdentifier();
         return new VariableExpressionSyntax(popRange(), VariableScope.LOCAL, name);
     }
 
