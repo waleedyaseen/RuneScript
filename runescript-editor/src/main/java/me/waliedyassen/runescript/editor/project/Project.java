@@ -275,6 +275,7 @@ public final class Project {
         instructionMap = new InstructionMap();
         loadInstructions();
         loadTriggers();
+        loadSym();
         loadCommands();
         loadScripts();
         loadRuntimeConstants();
@@ -432,13 +433,6 @@ public final class Project {
         });
     }
 
-    private static void extracted(String name, int opcode, boolean dot, Type[] arguments, Type hookType, Type returnTypes) {
-        System.out.println("[" + opcode + "," + dot + "," + name + "]" +
-                "(" + Arrays.stream(arguments).map(Type::getRepresentation).collect(Collectors.joining(",")) + ")" +
-                "(" + Arrays.stream(TypeUtil.flatten(new Type[]{returnTypes})).map(Type::getRepresentation).collect(Collectors.joining(",")) + ")" +
-                (hookType != null ? "{" + hookType.getRepresentation() + "}" : ""));
-    }
-
     /**
      * Loads all the predefined scripts of the projects.
      */
@@ -527,7 +521,6 @@ public final class Project {
     private void postLoad() {
         packManager = new PackManager(packType.newInstance(buildPath.getPackDirectory().toAbsolutePath()));
         vfs = new VFS(directory);
-        loadSym();
         loadCache();
     }
 
