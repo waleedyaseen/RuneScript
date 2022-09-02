@@ -27,6 +27,7 @@ import me.waliedyassen.runescript.compiler.syntax.stmt.loop.ContinueStatementSyn
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.DoWhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.stmt.loop.WhileStatementSyntax;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
+import me.waliedyassen.runescript.compiler.type.ArrayReference;
 import me.waliedyassen.runescript.compiler.util.Operator;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.Type;
@@ -35,6 +36,7 @@ import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.stack.StackType;
 import me.waliedyassen.runescript.type.tuple.TupleType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -406,7 +408,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
             if (actual.length > 1 && actual[1] instanceof DynamicSyntax literal) {
                 var symbol = symbolTable.lookupConfig(PrimitiveType.PARAM.INSTANCE, literal.getName().getText());
                 if (symbol != null) {
-                    if (!symbol.getTransmit() && script.getExtension().equals("cs2")){
+                    if (!symbol.getTransmit() && script.getExtension().equals("cs2")) {
                         checker.reportError(new SemanticError(literal, String.format("The param %s is not set to transmit", literal.getName().getText())));
                     }
                     return symbol.getType();
@@ -489,12 +491,32 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(VariableInitializerSyntax variableInitializer) {
+        var hintTypes = new ArrayList<Type>();
         var check = true;
-        for (var expr : variableInitializer.getExpressions()) {
-            check &= expr.accept(this).isContinue();
-        }
         for (var var : variableInitializer.getVariables()) {
-            check &= var.accept(this).isContinue();
+            var result = var.accept(this);
+            if (!result.isContinue()) {
+                check = false;
+            } else {
+                if (var.getType() instanceof ArrayReference ref) {
+                    hintTypes.add(ref.getType());
+                } else {
+                    hintTypes.add(var.getType());
+                }
+            }
+        }
+        var index = 0;
+        for (var expr : variableInitializer.getExpressions()) {
+            if (index < hintTypes.size()) {
+                expr.setHintType(hintTypes.get(index));
+            }
+            var result = expr.accept(this);
+            if (!result.isContinue()) {
+                check = false;
+            } else {
+                index += TypeUtil.flatten(new Type[]{expr.getType()}).length;
+                hintTypes.add(expr.getType());
+            }
         }
         if (check) {
             var varTuple = collectType(variableInitializer.getVariables());

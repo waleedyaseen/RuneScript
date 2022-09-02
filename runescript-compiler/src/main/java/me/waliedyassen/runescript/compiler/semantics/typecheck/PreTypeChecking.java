@@ -199,17 +199,17 @@ public final class PreTypeChecking extends SyntaxTreeVisitor {
         for (var index = 0; index < count; index++) {
             var variable = variableInitializer.getVariables()[index];
             var name = variable.getName().getText();
-            if (variable instanceof ArrayVariableSyntax) {
-                var arrayVariable = (ArrayVariableSyntax) variable;
+            if (variable instanceof ArrayVariableSyntax arrayVariable) {
                 var arrayInfo = scopes.lastElement().getArray(name);
                 if (arrayInfo == null) {
                     reportError(new SemanticError(variableInitializer, String.format("%s cannot be resolved to an array", name)));
                 } else {
                     arrayVariable.setArrayInfo(arrayInfo);
+                    variable.setType(arrayInfo.getType());
                 }
             } else {
                 var scopedVariable = (ScopedVariableSyntax) variable;
-                scopedVariable.setType(checkVariableResolving(scopedVariable.getName(), scopedVariable.getScope(), name));
+                variable.setType(checkVariableResolving(scopedVariable.getName(), scopedVariable.getScope(), name));
             }
         }
         return super.visit(variableInitializer);
