@@ -18,7 +18,7 @@
     <version>0.6-SNAPSHOT</version>
     <properties>
         <dockingframes.version>1.1.3p1</dockingframes.version>
-        <jackson.version>2.13.3</jackson.version>
+        <jackson.version>2.13.4.1</jackson.version>
         <rsta.version>3.2.0</rsta.version>
         <flatlaf.version>2.4</flatlaf.version>
     </properties>
