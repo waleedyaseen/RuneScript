@@ -559,7 +559,7 @@ public final class Project {
                 var matcher = pattern.matcher(file.getFileName().toString());
                 if (matcher.matches()) {
                     var literal = matcher.group(1);
-                    PrimitiveType type = PrimitiveType.forRepresentation(literal);
+                    PrimitiveType type = PrimitiveType.forLiteralOrNull(literal);
                     if (type == null) {
                         return;
                     }
