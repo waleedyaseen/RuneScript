@@ -379,9 +379,8 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * {@inheritDoc}
      */
     public Instruction visit(ConstantSyntax constant) {
-        var symbol = symbolTable.lookupConstant(constant.getName().getText());
         CoreOpcode opcode;
-        switch (symbol.getType().getStackType()) {
+        switch (constant.getType().getStackType()) {
             case INT:
                 opcode = CoreOpcode.PUSH_INT_CONSTANT;
                 break;
@@ -392,9 +391,9 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
                 opcode = CoreOpcode.PUSH_LONG_CONSTANT;
                 break;
             default:
-                throw new UnsupportedOperationException("Unsupported constant base stack type: " + symbol.getType().getStackType());
+                throw new UnsupportedOperationException("Unsupported constant base stack type: " + constant.getType().getStackType());
         }
-        return instruction(opcode, symbol.getValue());
+        return instruction(opcode, constant.getValue());
     }
 
     /**
@@ -594,9 +593,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         } else if (expression instanceof LiteralNullSyntax) {
             return -1;
         } else if (expression instanceof ConstantSyntax) {
-            var constantName = ((ConstantSyntax) expression).getName().getText();
-            var constantValue = symbolTable.lookupConstant(constantName).getValue();
-            return ((Number) constantValue).intValue();
+            return ((Number) ((ConstantSyntax) expression).getValue()).intValue();
         } else if (expression instanceof DynamicSyntax) {
             var configName = ((DynamicSyntax) expression).getName().getText();
             return symbolTable.lookupConfig((PrimitiveType<?>) expression.getType(), configName);
@@ -705,8 +702,10 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @param branch_false the if-false block label.
      */
     private void generateCondition(ExpressionSyntax condition, Block source_block, Label branch_true, Label branch_false) {
-        if (condition instanceof BinaryOperationSyntax) {
-            var binaryOperation = (BinaryOperationSyntax) condition;
+        while (condition instanceof ParExpressionSyntax parExpression) {
+            condition = parExpression.getExpression();
+        }
+        if (condition instanceof BinaryOperationSyntax binaryOperation) {
             var operator = binaryOperation.getOperator();
             if (operator.isEquality() || operator.isRelational()) {
                 CoreOpcode opcode;

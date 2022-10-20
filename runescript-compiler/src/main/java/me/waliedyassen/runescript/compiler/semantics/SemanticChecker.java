@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import me.waliedyassen.runescript.compiler.CompiledScriptUnit;
 import me.waliedyassen.runescript.compiler.CompilerError;
+import me.waliedyassen.runescript.compiler.ScriptCompiler;
 import me.waliedyassen.runescript.compiler.env.CompilerEnvironment;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.PreTypeChecking;
 import me.waliedyassen.runescript.compiler.semantics.typecheck.TypeChecking;
@@ -33,6 +34,7 @@ public final class SemanticChecker {
     @Getter
     private final List<CompilerError> errors = new ArrayList<>();
 
+    private final ScriptCompiler compiler;
     /**
      * The environment of the owner compiler.
      */
@@ -71,7 +73,7 @@ public final class SemanticChecker {
      *         the scripts to perform the semantic checking on.
      */
     public void execute(Iterable<CompiledScriptUnit> scripts) {
-        var checker = new TypeChecking(this, symbolTable, environment.getHookTriggerType());
+        var checker = new TypeChecking(compiler, this, symbolTable, environment.getHookTriggerType());
         for (var script : scripts) {
             script.getSyntax().accept(checker);
         }

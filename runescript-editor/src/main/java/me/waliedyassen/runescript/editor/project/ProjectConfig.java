@@ -43,9 +43,6 @@ public final class ProjectConfig {
                 mapped[index] = new ArrayReference(PrimitiveType.forLiteralOrNull(typeName.substring(0, typeName.length() - 5)), index);
             } else {
                 mapped[index] = PrimitiveType.forLiteralOrNull(typeName.toLowerCase());
-                if (mapped[index] == null) {
-                    System.out.println("No type for literla" + typeName);
-                }
             }
         }
         return mapped;

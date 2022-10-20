@@ -45,7 +45,7 @@ class TypeCheckingTest {
             environment.registerTrigger(triggerType);
         }
         var table = new ScriptSymbolTable(true);
-        checker = new SemanticChecker(environment, table, false);
+        checker = new SemanticChecker(null, environment, table, false);
     }
 
     @Test

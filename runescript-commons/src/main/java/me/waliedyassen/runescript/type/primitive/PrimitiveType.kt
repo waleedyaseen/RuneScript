@@ -4,6 +4,8 @@ import me.waliedyassen.runescript.compiler.symbol.BasicSymbol
 import me.waliedyassen.runescript.compiler.symbol.BasicSymbolLoader
 import me.waliedyassen.runescript.compiler.symbol.ConfigSymbol
 import me.waliedyassen.runescript.compiler.symbol.ConfigSymbolLoader
+import me.waliedyassen.runescript.compiler.symbol.ConstantSymbol
+import me.waliedyassen.runescript.compiler.symbol.ConstantSymbolLoader
 import me.waliedyassen.runescript.compiler.symbol.Symbol
 import me.waliedyassen.runescript.compiler.symbol.SymbolLoader
 import me.waliedyassen.runescript.compiler.symbol.TypedSymbol
@@ -23,6 +25,7 @@ open class PrimitiveType<T : Symbol>(
     object UNDEFINED : PrimitiveType<BasicSymbol>('\ufff0', "undefined", null, null, null)
     object HOOK : PrimitiveType<BasicSymbol>('\ufff1', "hook", null, null, null)
     object VOID : PrimitiveType<BasicSymbol>('\ufff2', "void", null, null, null)
+    object CONSTANT : PrimitiveType<ConstantSymbol>('\ufff3', "constant", null, null, ConstantSymbolLoader)
     object TYPE : PrimitiveType<BasicSymbol>('\ufff6', "type", null, null, null)
     object PARAM : PrimitiveType<ConfigSymbol>('\uffd0', "param", null, null, ConfigSymbolLoader)
     object FLO : PrimitiveType<BasicSymbol>('\uffd1', "flo", null, null, null)
@@ -125,6 +128,7 @@ open class PrimitiveType<T : Symbol>(
             UNDEFINED,
             HOOK,
             VOID,
+            CONSTANT,
             TYPE,
             PARAM,
             FLO,

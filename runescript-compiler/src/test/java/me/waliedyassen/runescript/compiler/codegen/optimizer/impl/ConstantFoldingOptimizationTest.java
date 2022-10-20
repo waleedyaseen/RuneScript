@@ -55,7 +55,7 @@ class ConstantFoldingOptimizationTest {
         optimizer = new Optimizer(instructionMap);
         optimizer.register(new ConstantFoldingOptimization());
         var table = new ScriptSymbolTable(true);
-        checker = new SemanticChecker(environment, table, false);
+        checker = new SemanticChecker(null, environment, table, false);
         generator = new CodeGenerator(environment, table, instructionMap, ScriptParserTest.TestTriggerType.CLIENTSCRIPT);
     }
 

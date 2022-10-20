@@ -60,7 +60,7 @@ class CodeGeneratorTest {
         for (var opcode : CoreOpcode.values()) {
             instructionMap.registerCore(opcode, opcode.ordinal(), opcode.isLargeOperand());
         }
-        checker = new SemanticChecker(environment, table, false);
+        checker = new SemanticChecker(null, environment, table, false);
         generator = new CodeGenerator(environment, table, instructionMap, ScriptParserTest.TestTriggerType.CLIENTSCRIPT);
         generator.initialise();
         table.defineCommand(new BasicOpcode(0, false), "func_i_i", PrimitiveType.INT, new Type[]{PrimitiveType.INT}, false, null, false, null);

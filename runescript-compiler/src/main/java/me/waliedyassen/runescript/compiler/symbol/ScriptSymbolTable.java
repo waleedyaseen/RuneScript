@@ -10,8 +10,6 @@ package me.waliedyassen.runescript.compiler.symbol;
 import lombok.Getter;
 import me.waliedyassen.runescript.compiler.codegen.opcode.Opcode;
 import me.waliedyassen.runescript.compiler.symbol.impl.CommandInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.ConstantInfo;
-import me.waliedyassen.runescript.compiler.symbol.impl.script.Annotation;
 import me.waliedyassen.runescript.compiler.symbol.impl.script.ScriptInfo;
 import me.waliedyassen.runescript.compiler.util.trigger.TriggerType;
 import me.waliedyassen.runescript.type.Type;
@@ -60,7 +58,7 @@ public final class ScriptSymbolTable extends SymbolTable {
     }
 
     /**
-     * Looks-up for the {@link ConstantInfo command information} with the specified {@code name}.
+     * Looks-up for the {@link CommandInfo command information} with the specified {@code name}.
      *
      * @param name the name of the command.
      * @return the {@link CommandInfo} if it was present otherwise {@code null}.

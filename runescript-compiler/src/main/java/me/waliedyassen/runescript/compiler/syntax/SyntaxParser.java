@@ -1101,7 +1101,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      */
     private LexerBase<Kind, SyntaxToken> createLexerFromString(SyntaxToken token) {
         var stream = new BufferedCharStream(token.getLexeme().toCharArray());
-        var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream, token.getSpan().getBegin());
+        var tokenizer = new Tokenizer(errorReporter, ((Lexer) lexer()).getLexicalTable(), stream, token.getSpan().getBegin() + 1);
         return new Lexer(tokenizer);
     }
 
@@ -1153,5 +1153,9 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
     public PrimitiveType primitiveType() {
         var token = consume(TYPE);
         return PrimitiveType.forRepresentation(token.getLexeme());
+    }
+
+    public boolean hasMore() {
+        return lexer().remaining() > 0;
     }
 }

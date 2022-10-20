@@ -576,7 +576,7 @@ public final class Project {
     }
 
     /**
-     * Updates all of the errors of the project.
+     * Updates all the errors of the project.
      */
     public void updateErrors() {
         var errorsView = Api.getApi().getUi().getErrorsView();

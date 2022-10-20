@@ -143,15 +143,19 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
      * @return a {@link List list} of the parsed {@link ScriptSyntax} objects.
      */
     private List<ScriptSyntax> parseSyntaxTree(ScriptSymbolTable symbolTable, ErrorReporter errorReporter, byte[] data, String extension) throws IOException {
-        var stream = new BufferedCharStream(new ByteArrayInputStream(data));
-        var tokenizer = new Tokenizer(errorReporter, lexicalTable, stream);
-        var lexer = new Lexer(tokenizer);
-        var parser = new SyntaxParser(environment, symbolTable, errorReporter, lexer, extension);
+        var parser = createParser(symbolTable, errorReporter, data, extension);
         var scripts = new ArrayList<ScriptSyntax>();
-        while (lexer.remaining() > 0) {
+        while (parser.hasMore()) {
             scripts.add(parser.script());
         }
         return scripts;
+    }
+
+    public SyntaxParser createParser(ScriptSymbolTable symbolTable, ErrorReporter errorReporter, byte[] data, String extension) throws IOException {
+        var stream = new BufferedCharStream(new ByteArrayInputStream(data));
+        var tokenizer = new Tokenizer(errorReporter, lexicalTable, stream);
+        var lexer = new Lexer(tokenizer);
+        return new SyntaxParser(environment, symbolTable, errorReporter, lexer, extension);
     }
 
     /**
@@ -177,7 +181,7 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
                 output.addError(sourceFile, error);
             });
         }
-        var checker = new SemanticChecker(environment, symbolTable, allowOverride);
+        var checker = new SemanticChecker(this, environment, symbolTable, allowOverride);
         for (var compiledFile : output.getFiles().values()) {
             checker.executePre(compiledFile.getUnits());
             compiledFile.getErrors().addAll(checker.getErrors());

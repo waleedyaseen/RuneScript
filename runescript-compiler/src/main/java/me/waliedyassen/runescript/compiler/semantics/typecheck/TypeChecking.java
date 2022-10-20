@@ -8,6 +8,9 @@
 package me.waliedyassen.runescript.compiler.semantics.typecheck;
 
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import me.waliedyassen.runescript.compiler.ScriptCompiler;
+import me.waliedyassen.runescript.compiler.error.ErrorReporter;
 import me.waliedyassen.runescript.compiler.semantics.SemanticChecker;
 import me.waliedyassen.runescript.compiler.semantics.SemanticError;
 import me.waliedyassen.runescript.compiler.symbol.ScriptSymbolTable;
@@ -46,6 +49,8 @@ import java.util.Arrays;
  */
 @RequiredArgsConstructor
 public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
+
+    private final ScriptCompiler compiler;
 
     /**
      * The owner {@link SemanticChecker} object.
@@ -320,13 +325,41 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
     @Override
     public TypeCheckAction visit(ConstantSyntax constant) {
         var name = constant.getName();
-        var info = symbolTable.lookupConstant(name.getText());
+        var info = symbolTable.lookupConfig(PrimitiveType.CONSTANT.INSTANCE, name.getText());
         if (info == null) {
             checker.reportError(new SemanticError(name, String.format("%s cannot be resolved to a constant", name.getText())));
             return TypeCheckAction.SKIP;
         }
-        constant.setType(info.getType());
+        if (constant.getHintType() == null) {
+            checker.reportError(new SemanticError(name, String.format("%s constant type cannot be inferred (value: %s)", name.getText(), info.getLiteral())));
+            return TypeCheckAction.SKIP;
+        }
+        constant.setType(constant.getHintType());
+        constant.setValue(parseConstantValue(constant, info.getLiteral(), constant.getHintType()));
         return TypeCheckAction.CONTINUE;
+    }
+
+    @SneakyThrows
+    private Object parseConstantValue(ConstantSyntax constant, String literal, Type hintType) {
+        if (hintType == PrimitiveType.STRING.INSTANCE && !literal.startsWith("\"")) {
+            literal = "\"" + literal.replaceAll("\"", "\\\"") + "\"";
+        }
+        var errorReporter = new ErrorReporter();
+        var parser = compiler.createParser(symbolTable, errorReporter, literal.getBytes(), "cs2");
+        Object result;
+        if (hintType == PrimitiveType.INT.INSTANCE) {
+            result = parser.literalInteger().getValue();
+        } else if (hintType == PrimitiveType.STRING.INSTANCE) {
+            result = parser.literalString().getValue();
+        } else {
+            checker.reportError(new SemanticError(constant, "Only int or string constants are currently allowed"));
+            return null;
+        }
+        if (!errorReporter.getErrors().isEmpty()) {
+            checker.reportError(new SemanticError(constant, "Problem occurred while parsing constnat value"));
+            return null;
+        }
+        return result;
     }
 
     /**
@@ -438,10 +471,17 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
     public TypeCheckAction visit(BinaryOperationSyntax binaryOperation) {
         var left = binaryOperation.getLeft();
         var right = binaryOperation.getRight();
-        left.setHintType(right.getType());
-        right.setHintType(left.getType());
+        if (right.getType() != PrimitiveType.UNDEFINED.INSTANCE) {
+            left.setHintType(right.getType());
+        }
+        if (left.getType() != PrimitiveType.UNDEFINED.INSTANCE) {
+            right.setHintType(left.getType());
+        }
         var check = true;
         check &= left.accept(this).isContinue();
+        if (left.getType() != PrimitiveType.UNDEFINED.INSTANCE) {
+            right.setHintType(left.getType());
+        }
         check &= right.accept(this).isContinue();
 
         if (check) {
@@ -563,6 +603,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         }
         for (var switchCase : switchStatement.getCases()) {
             for (var key : switchCase.getKeys()) {
+                key.setHintType(type);
                 if (key.accept(this).isContinue()) {
                     if (isConstantInt(key)) {
                         checkTypeMatching(key, type, key.getType());
@@ -592,9 +633,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         } else if (expression instanceof LiteralNullSyntax) {
             return true;
         } else if (expression instanceof ConstantSyntax) {
-            var constantName = ((ConstantSyntax) expression).getName().getText();
-            var constantValue = symbolTable.lookupConstant(constantName).getType();
-            return constantValue.getStackType() == StackType.INT;
+            return ((ConstantSyntax) expression).getValue() instanceof Integer;
         } else if (expression instanceof DynamicSyntax) {
             var configName = ((DynamicSyntax) expression).getName().getText();
             var configInfo = symbolTable.lookupConfig((PrimitiveType<?>) expression.getHintType(), configName);
@@ -692,10 +731,16 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(ReturnStatementSyntax returnStatement) {
+        var expectedHintTypes = TypeUtil.flatten(new Type[]{script.getType()});
+        var index = 0;
         var expressions = returnStatement.getExpressions();
         var check = true;
         for (var expr : expressions) {
+            if (index < expectedHintTypes.length) {
+                expr.setHintType(expectedHintTypes[index]);
+            }
             check &= expr.accept(this).isContinue();
+            index += TypeUtil.flatten(new Type[]{expr.getType()}).length;
         }
         if (check) {
             var type = collectType(returnStatement.getExpressions());
