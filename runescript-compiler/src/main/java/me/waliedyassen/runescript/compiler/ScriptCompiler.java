@@ -123,9 +123,14 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
         this.allowOverride = allowOverride;
         lexicalTable = createLexicalTable();
         optimizer = new Optimizer(instructionMap);
-        optimizer.register(new NaturalFlowOptimization());
-        optimizer.register(new DeadBranchOptimization());
-        optimizer.register(new DeadBlockOptimization());
+        // seems to be breaking some parts
+        // if (a = a) {}
+        // else if (b = b) {}
+        // mes("test")
+        // the test would never be reached
+//        optimizer.register(new NaturalFlowOptimization());
+//        optimizer.register(new DeadBranchOptimization());
+//        optimizer.register(new DeadBlockOptimization());
         optimizer.register(new ConstantFoldingOptimization());
     }
 
