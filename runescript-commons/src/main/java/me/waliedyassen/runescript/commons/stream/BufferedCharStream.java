@@ -161,9 +161,13 @@ public final class BufferedCharStream implements CharStream {
     private static char[] readAllChars(InputStream stream) throws IOException {
         var buffer = new char[stream.available()];
         try (var reader = new InputStreamReader(stream)) {
-            if (reader.read(buffer) != buffer.length) {
-                // TODO: Change to another solution, but this should work fine for now.
-                throw new IllegalStateException("Failed to read the input stream fully");
+            int off = 0;
+            while (off < buffer.length) {
+                int n = reader.read(buffer, off, buffer.length - off);
+                if (n == -1) {
+                    break;
+                }
+                off += n;
             }
         }
         return buffer;
