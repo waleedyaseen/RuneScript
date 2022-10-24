@@ -96,6 +96,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(ParExpressionSyntax syntax) {
+        syntax.getExpression().setHintType(syntax.getHintType());
         if (syntax.getExpression().accept(this).isContinue()) {
             syntax.setType(syntax.getExpression().getType());
             return TypeCheckAction.CONTINUE;
@@ -458,6 +459,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
     @Override
     public TypeCheckAction visit(CalcSyntax calc) {
         calc.setType(PrimitiveType.INT.INSTANCE);
+        calc.getExpression().setHintType(PrimitiveType.INT.INSTANCE);
         if (calc.getExpression().accept(this).isContinue()) {
             checkTypeMatching(calc.getExpression(), PrimitiveType.INT.INSTANCE, calc.getExpression().getType());
         }
@@ -473,9 +475,13 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         var right = binaryOperation.getRight();
         if (right.getType() != PrimitiveType.UNDEFINED.INSTANCE) {
             left.setHintType(right.getType());
+        } else if (binaryOperation.getHintType() != null) {
+            left.setHintType(binaryOperation.getHintType());
         }
         if (left.getType() != PrimitiveType.UNDEFINED.INSTANCE) {
             right.setHintType(left.getType());
+        } else if (binaryOperation.getHintType() != null) {
+            right.setHintType(binaryOperation.getHintType());
         }
         var check = true;
         check &= left.accept(this).isContinue();
