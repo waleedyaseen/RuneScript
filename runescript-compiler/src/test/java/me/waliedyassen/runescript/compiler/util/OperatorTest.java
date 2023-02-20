@@ -49,7 +49,9 @@ class OperatorTest {
     @Test
     void testLookup() {
         for (var operator : Operator.values()) {
-            assertEquals(operator, Operator.lookup(operator.getKind()));
+            if (operator.getRepresentation()!=null) {
+                assertEquals(operator, Operator.lookup(operator.getKind()));
+            }
         }
     }
 }

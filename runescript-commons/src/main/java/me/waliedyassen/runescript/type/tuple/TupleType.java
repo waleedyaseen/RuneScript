@@ -8,8 +8,10 @@
 package me.waliedyassen.runescript.type.tuple;
 
 import lombok.Getter;
+import lombok.ToString;
 import me.waliedyassen.runescript.type.Type;
 import me.waliedyassen.runescript.type.TypeUtil;
+import me.waliedyassen.runescript.type.primitive.PrimitiveType;
 import me.waliedyassen.runescript.type.stack.StackType;
 
 import java.util.Arrays;
@@ -20,6 +22,7 @@ import java.util.Arrays;
  *
  * @author Walied K. Yassen
  */
+@ToString
 public final class TupleType implements Type {
 
     /**
@@ -56,6 +59,8 @@ public final class TupleType implements Type {
     public boolean equals(Object obj) {
         if (obj instanceof TupleType) {
             return Arrays.equals(flattened, ((TupleType) obj).flattened);
+        } else if (flattened.length == 1) {
+            return obj == flattened[0];
         }
         return false;
     }

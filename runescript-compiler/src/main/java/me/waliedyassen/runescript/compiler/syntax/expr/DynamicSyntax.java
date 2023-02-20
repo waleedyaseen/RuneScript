@@ -8,6 +8,7 @@
 package me.waliedyassen.runescript.compiler.syntax.expr;
 
 import lombok.Getter;
+import lombok.ToString;
 import me.waliedyassen.runescript.commons.document.Span;
 import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
 
@@ -16,6 +17,7 @@ import me.waliedyassen.runescript.compiler.syntax.visitor.SyntaxVisitor;
  *
  * @author Walied K. Yassen
  */
+@ToString
 public final class DynamicSyntax extends ExpressionSyntax {
 
     /**

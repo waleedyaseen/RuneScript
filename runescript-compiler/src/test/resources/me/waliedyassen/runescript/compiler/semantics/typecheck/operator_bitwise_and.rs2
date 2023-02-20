@@ -1,0 +1,2 @@
+[proc,test](int $a, int $b)(int)
+return(calc($a & $b));

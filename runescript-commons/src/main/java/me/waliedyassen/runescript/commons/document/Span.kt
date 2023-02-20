@@ -12,7 +12,7 @@ package me.waliedyassen.runescript.commons.document
  *
  * @author Walied K. Yassen
  */
-class Span(var begin: Int, var end: Int) {
+data class Span(var begin: Int, var end: Int) {
 
     constructor(vararg spans: Span) : this(spans.minOf { it.begin }, spans.maxOf { it.end })
     constructor(spans: List<Span>) : this(spans.minOf { it.begin }, spans.maxOf { it.end })

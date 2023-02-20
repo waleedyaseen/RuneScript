@@ -17,8 +17,8 @@ class ScopeTest {
     @Test
     void testDeclareLocalVariable() {
         var scope = new Scope(null);
-        scope.declareLocalVariable("first", PrimitiveType.INT);
-        scope.declareLocalVariable("second", PrimitiveType.INT);
+        scope.declareLocalVariable("first", PrimitiveType.INT.INSTANCE);
+        scope.declareLocalVariable("second", PrimitiveType.INT.INSTANCE);
         assertNotNull(scope.getLocalVariable("first"));
         assertNotNull(scope.getLocalVariable("second"));
     }
@@ -27,41 +27,41 @@ class ScopeTest {
     void testGetLocalVariable() {
         var parentScope = new Scope(null);
         var childScope = parentScope.createChild();
-        parentScope.declareLocalVariable("parent_var", PrimitiveType.INT);
+        parentScope.declareLocalVariable("parent_var", PrimitiveType.INT.INSTANCE);
         assertNotNull(childScope.getLocalVariable("parent_var"));
-        childScope.declareLocalVariable("child_var", PrimitiveType.INT);
+        childScope.declareLocalVariable("child_var", PrimitiveType.INT.INSTANCE);
         assertNull(parentScope.getLocalVariable("child_var"));
         assertNotNull(childScope.getLocalVariable("child_var"));
-        assertEquals(PrimitiveType.INT, childScope.getLocalVariable("parent_var").getType());
-        assertEquals(PrimitiveType.INT, childScope.getLocalVariable("child_var").getType());
+        assertEquals(PrimitiveType.INT.INSTANCE, childScope.getLocalVariable("parent_var").getType());
+        assertEquals(PrimitiveType.INT.INSTANCE, childScope.getLocalVariable("child_var").getType());
     }
 
     @Test
     void testDeclareArray() {
         var scope = new Scope(null);
-        scope.declareArray("first", PrimitiveType.INT);
-        scope.declareArray("second", PrimitiveType.INT);
+        scope.declareArray("first", PrimitiveType.INT.INSTANCE);
+        scope.declareArray("second", PrimitiveType.INT.INSTANCE);
         assertEquals(2, scope.getArrayCount());
         assertNotNull(scope.getArray("first"));
         assertNotNull(scope.getArray("second"));
         var childScope = scope.createChild();
         for (var index = 0; index < 3; index++) {
-            childScope.declareArray("array" + index, PrimitiveType.INT);
+            childScope.declareArray("array" + index, PrimitiveType.INT.INSTANCE);
         }
-        assertThrows(IllegalStateException.class, () -> childScope.declareArray("invalid", PrimitiveType.INT));
+        assertThrows(IllegalStateException.class, () -> childScope.declareArray("invalid", PrimitiveType.INT.INSTANCE));
     }
 
     @Test
     void testGetArray() {
         var parentScope = new Scope(null);
         var childScope = parentScope.createChild();
-        parentScope.declareArray("parent_array", PrimitiveType.INT);
+        parentScope.declareArray("parent_array", PrimitiveType.INT.INSTANCE);
         assertNotNull(childScope.getArray("parent_array"));
-        childScope.declareArray("child_array", PrimitiveType.INT);
+        childScope.declareArray("child_array", PrimitiveType.INT.INSTANCE);
         assertNull(parentScope.getArray("child_array"));
         assertNotNull(childScope.getArray("child_array"));
-        assertEquals(PrimitiveType.INT, childScope.getArray("parent_array").getType());
-        assertEquals(PrimitiveType.INT, childScope.getArray("child_array").getType());
+        assertEquals(PrimitiveType.INT.INSTANCE, childScope.getArray("parent_array").getType());
+        assertEquals(PrimitiveType.INT.INSTANCE, childScope.getArray("child_array").getType());
     }
 
     @Test

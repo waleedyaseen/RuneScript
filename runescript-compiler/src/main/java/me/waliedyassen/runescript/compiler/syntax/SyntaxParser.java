@@ -906,8 +906,6 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
             case CALC:
             case IDENTIFIER:
             case BOOL:
-            case INTEGER:
-            case LONG:
             case TYPE:
                 token = consume();
                 break;

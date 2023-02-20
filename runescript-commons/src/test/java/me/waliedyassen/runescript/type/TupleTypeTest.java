@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TupleTypeTest {
 
-    private static final TupleType TUPLE = new TupleType(new TupleType(PrimitiveType.INT, PrimitiveType.STRING), PrimitiveType.INT, new TupleType(PrimitiveType.STRING, PrimitiveType.BOOLEAN));
-    private static final PrimitiveType[] TYPES = new PrimitiveType[]{PrimitiveType.INT, PrimitiveType.STRING, PrimitiveType.INT, PrimitiveType.STRING, PrimitiveType.BOOLEAN};
+    private static final TupleType TUPLE = new TupleType(new TupleType(PrimitiveType.INT.INSTANCE, PrimitiveType.STRING.INSTANCE), PrimitiveType.INT.INSTANCE, new TupleType(PrimitiveType.STRING.INSTANCE, PrimitiveType.BOOLEAN.INSTANCE));
+    private static final PrimitiveType<?>[] TYPES = new PrimitiveType[]{PrimitiveType.INT.INSTANCE, PrimitiveType.STRING.INSTANCE, PrimitiveType.INT.INSTANCE, PrimitiveType.STRING.INSTANCE, PrimitiveType.BOOLEAN.INSTANCE};
 
     @Test
     void testFlattening() {
@@ -33,8 +33,8 @@ class TupleTypeTest {
 
     @Test
     void testRepresentation() {
-        assertEquals("int,int", new TupleType(PrimitiveType.INT, PrimitiveType.INT).getRepresentation());
-        assertEquals("int,string,string", new TupleType(PrimitiveType.INT, PrimitiveType.STRING, new TupleType(PrimitiveType.STRING)).getRepresentation());
+        assertEquals("int,int", new TupleType(PrimitiveType.INT.INSTANCE, PrimitiveType.INT.INSTANCE).getRepresentation());
+        assertEquals("int,string,string", new TupleType(PrimitiveType.INT.INSTANCE, PrimitiveType.STRING.INSTANCE, new TupleType(PrimitiveType.STRING.INSTANCE)).getRepresentation());
     }
 
     @Test

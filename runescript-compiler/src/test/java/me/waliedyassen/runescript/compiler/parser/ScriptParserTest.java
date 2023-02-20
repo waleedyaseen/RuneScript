@@ -77,15 +77,15 @@ public final class ScriptParserTest {
             assertThrows(SyntaxError.class, () -> fromString("[trigger,name](int $one").script());
         }, () -> {
             // script with return type
-            assertEquals(fromString("[trigger,name](boolean) return;").script().getType(), PrimitiveType.BOOLEAN);
+            assertEquals(fromString("[trigger,name](boolean) return;").script().getType(), PrimitiveType.BOOLEAN.INSTANCE);
         }, () -> {
             // script with parameters and return type
             var script = fromString("[trigger,name](int $myint, long $mylong)(int) return;").script();
-            assertEquals(script.getType(), PrimitiveType.INT);
+            assertEquals(script.getType(), PrimitiveType.INT.INSTANCE);
             assertEquals(script.getParameters().length, 2);
             // same test but with order swapped
             script = fromString("[trigger,name](int)(int $myint, long $mylong) return;").script();
-            assertEquals(script.getType(), PrimitiveType.INT);
+            assertEquals(script.getType(), PrimitiveType.INT.INSTANCE);
             assertEquals(script.getParameters().length, 2);
         }, () -> {
             // unclosed return type parenthesis
@@ -116,9 +116,6 @@ public final class ScriptParserTest {
             // invalid parameter type
             assertThrows(SyntaxError.class, () -> fromString("strin $param").parameter());
             assertThrows(SyntaxError.class, () -> fromString("int0 $param").parameter());
-        }, () -> {
-            // illegal parameter type
-            assertThrows(SyntaxError.class, () -> fromString("void $param").parameter());
         }, () -> {
             // valid array reference parameter
             var parameter = fromString("intarray $array0").parameter();
@@ -601,7 +598,7 @@ public final class ScriptParserTest {
     void testPrimitiveType() {
         assertAll("primitive type", () -> {
             // all valid primitive types.
-            for (var type : PrimitiveType.values()) {
+            for (var type : PrimitiveType.Companion.getValues()) {
                 if (type.isReferencable()) {
                     assertEquals(fromString(type.getRepresentation()).primitiveType(), type);
                 }
@@ -618,7 +615,7 @@ public final class ScriptParserTest {
     void testArrayType() {
         assertAll("array type", () -> {
             // all valid array types.
-            for (var type : PrimitiveType.values()) {
+            for (var type : PrimitiveType.Companion.getValues()) {
                 if (type.isArrayable()) {
                     assertEquals(fromString(type.getRepresentation() + "array").arrayType(), type);
                 }

@@ -175,13 +175,15 @@ open class PrimitiveType<T : Symbol>(
             NPC_UID,
             LOC_SHAPE,
         )
-        private val referencibleLookup = values
-            .filter { it.isReferencable }
-            .associateBy { it.representation!! }
+        private val referencibleLookup by lazy {
+            values.filter { it.isReferencable }
+                .associateBy { it.representation!! }
+        }
 
-        private val literalLookup = values
-            .filter { it.representation != null }
-            .associateBy { it.representation!! }
+        private val literalLookup by lazy {
+            values.filter { it.representation != null }
+                .associateBy { it.representation!! }
+        }
 
         @JvmStatic
         fun forRepresentation(representation: String): PrimitiveType<*>? {

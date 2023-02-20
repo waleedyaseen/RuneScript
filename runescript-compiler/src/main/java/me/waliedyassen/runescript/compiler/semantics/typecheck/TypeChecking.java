@@ -190,7 +190,7 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
      */
     @Override
     public TypeCheckAction visit(VariableExpressionSyntax variableExpression) {
-        return variableExpression.hasType() ? TypeCheckAction.CONTINUE : TypeCheckAction.SKIP;
+        return variableExpression.hasType() && variableExpression.getType() != PrimitiveType.UNDEFINED.INSTANCE ? TypeCheckAction.CONTINUE : TypeCheckAction.SKIP;
     }
 
     /**

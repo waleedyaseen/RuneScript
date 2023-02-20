@@ -48,6 +48,7 @@ class TypeCheckingTest {
         checker = new SemanticChecker(null, environment, table, false);
     }
 
+
     @Test
     void testScriptDeclaration() throws IOException {
         checkString("[proc,test]");
@@ -105,7 +106,7 @@ class TypeCheckingTest {
 
     @Test
     void testTriggerParametersTypes() throws IOException {
-        final var TRIGGER_TYPE = new TriggerTypeImpl("paramtest", null, null, true, new Type[]{PrimitiveType.INT, PrimitiveType.STRING}, false, null);
+        final var TRIGGER_TYPE = new TriggerTypeImpl("paramtest", null, null, true, new Type[]{PrimitiveType.INT.INSTANCE, PrimitiveType.STRING.INSTANCE}, false, null);
         environment.registerTrigger(TRIGGER_TYPE);
         checkString("[paramtest,erroring](int $test)");
         assertEquals(1, checker.getErrors().size());
@@ -125,7 +126,7 @@ class TypeCheckingTest {
 
     @Test
     void testTriggerReturnsTypes() throws IOException {
-        final var TRIGGER_TYPE = new TriggerTypeImpl("returntest", null, null, false, null, true, new Type[]{PrimitiveType.INT, PrimitiveType.STRING});
+        final var TRIGGER_TYPE = new TriggerTypeImpl("returntest", null, null, false, null, true, new Type[]{PrimitiveType.INT.INSTANCE, PrimitiveType.STRING.INSTANCE});
         environment.registerTrigger(TRIGGER_TYPE);
         checkString("[returntest,erroring](int)");
         assertEquals(1, checker.getErrors().size());
@@ -141,6 +142,20 @@ class TypeCheckingTest {
         checkString("[paramtest,erroring](int)");
         assertEquals(1, checker.getErrors().size());
         checkString("[paramtest,working]");
+        assertEquals(0, checker.getErrors().size());
+    }
+
+    @Test
+    void testOperatorBitwiseAnd() throws IOException {
+        checkResource("operator_bitwise_and.rs2");
+        checker.getErrors().forEach(System.out::println);
+        assertEquals(0, checker.getErrors().size());
+    }
+
+    @Test
+    void testOperatorBitwiseOr() throws IOException {
+        checkResource("operator_bitwise_or.rs2");
+        checker.getErrors().forEach(System.out::println);
         assertEquals(0, checker.getErrors().size());
     }
 

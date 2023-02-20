@@ -26,6 +26,8 @@ class CoreOpcodeTest {
                 case MUL:
                 case DIV:
                 case MOD:
+                case AND:
+                case OR:
                     assertFalse(opcode.isLargeOperand());
                     break;
                 default:
