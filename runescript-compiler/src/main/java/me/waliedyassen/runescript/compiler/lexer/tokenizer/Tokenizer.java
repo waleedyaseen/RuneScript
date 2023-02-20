@@ -279,6 +279,7 @@ public final class Tokenizer extends TokenizerBase<Kind, SyntaxToken> {
                             builder.append(current);
                             state.mode = Mode.IDENTIFIER;
                             stream.mark();
+                            continue;
                         } else if (current != NULL) {
                             stream.reset();
                         }
