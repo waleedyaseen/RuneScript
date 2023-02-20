@@ -256,6 +256,16 @@ public enum Kind {
     LOGICAL_AND,
 
     /**
+     * The bitwise "and" operator token kind.
+     */
+    BITWISE_OR,
+
+    /**
+     * The bitwise "or" operator token kind.
+     */
+    BITWISE_AND,
+
+    /**
      * The arithmetic addition operator token.
      */
     ADD,

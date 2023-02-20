@@ -252,7 +252,17 @@ public enum CoreOpcode {
     /**
      * The arithmetic modulo command instruction opcode.
      */
-    MOD;
+    MOD,
+
+    /**
+     * The bitwise AND command instruction opcode.
+     */
+    AND,
+
+    /**
+     * The bitwise OR command instruction opcode.
+     */
+    OR;
 
     /**
      * Checks whether or not this opcode requires a large operand (32-bit) and not a small operand (8-bit).
@@ -269,6 +279,8 @@ public enum CoreOpcode {
             case MUL:
             case DIV:
             case MOD:
+            case AND:
+            case OR:
                 return false;
             default:
                 return true;

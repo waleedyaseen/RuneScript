@@ -36,6 +36,16 @@ public enum Operator {
     LOGICAL_AND(3, "&", Kind.LOGICAL_AND, Associativity.LEFT),
 
     /**
+     * The bitwise OR operator type.
+     */
+    BITWISE_OR(5, null, Kind.BITWISE_OR, Associativity.LEFT),
+
+    /**
+     * The bitwise AND operator type.
+     */
+    BITWISE_AND(7, null, Kind.BITWISE_AND, Associativity.LEFT),
+
+    /**
      * The equals operator type.
      */
     EQUAL(8, "=", Kind.EQUALS, Associativity.LEFT),
@@ -93,7 +103,9 @@ public enum Operator {
     /**
      * The operators look-up map.
      */
-    private static final Map<Kind, Operator> lookupMap = Arrays.stream(values()).collect(Collectors.toMap(Operator::getKind, operator -> operator));
+    private static final Map<Kind, Operator> lookupMap = Arrays.stream(values())
+            .filter(operator -> operator.getRepresentation() != null)
+            .collect(Collectors.toMap(Operator::getKind, operator -> operator));
 
     /**
      * The operator precedence.
@@ -178,6 +190,8 @@ public enum Operator {
             case MUL:
             case DIV:
             case MOD:
+            case BITWISE_AND:
+            case BITWISE_OR:
                 return true;
             default:
                 return false;

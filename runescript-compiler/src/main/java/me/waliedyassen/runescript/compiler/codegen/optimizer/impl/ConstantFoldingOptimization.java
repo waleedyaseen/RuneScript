@@ -36,6 +36,8 @@ public final class ConstantFoldingOptimization extends BlockOptimization {
         arithmetics.put(CoreOpcode.MUL, (lhs, rhs) -> lhs * rhs);
         arithmetics.put(CoreOpcode.DIV, (lhs, rhs) -> lhs / rhs);
         arithmetics.put(CoreOpcode.MOD, (lhs, rhs) -> lhs % rhs);
+        arithmetics.put(CoreOpcode.AND, (lhs, rhs) -> lhs & rhs);
+        arithmetics.put(CoreOpcode.OR, (lhs, rhs) -> lhs | rhs);
     }
 
     /**

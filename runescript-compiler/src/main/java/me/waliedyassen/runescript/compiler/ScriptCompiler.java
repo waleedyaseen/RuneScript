@@ -287,7 +287,9 @@ public final class ScriptCompiler extends CompilerBase<ScriptSyntax, CompiledScr
         table.registerSeparator('#', Kind.HASH);
         // register all of the operators.
         for (var operator : Operator.values()) {
-            table.registerOperator(operator.getRepresentation(), operator.getKind());
+            if (operator.getRepresentation() != null) {
+                table.registerOperator(operator.getRepresentation(), operator.getKind());
+            }
         }
         return table;
     }

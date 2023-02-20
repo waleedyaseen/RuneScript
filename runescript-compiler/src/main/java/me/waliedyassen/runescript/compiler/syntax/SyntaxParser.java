@@ -63,6 +63,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      * The scripts type that we are parsing.
      */
     private final String type;
+    private boolean inCalc;
 
     /**
      * Constructs a new {@link SyntaxParser} type object instance.
@@ -254,6 +255,10 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
             var op = Operator.lookup(peekKind());
             if (op == null) {
                 return tree;
+            }
+            if (inCalc) {
+                if (op == Operator.LOGICAL_AND) op = Operator.BITWISE_AND;
+                if (op == Operator.LOGICAL_OR) op = Operator.BITWISE_OR;
             }
             if (precedence < op.getPrecedence()) {
                 consume();
@@ -1111,9 +1116,12 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
      * @return the parsed {@link CalcSyntax} object.
      */
     public CalcSyntax calc() {
+        var wasInCalc = inCalc;
         pushRange();
         consume(CALC);
+        inCalc = true;
         var expr = parExpression();
+        inCalc = wasInCalc;
         return new CalcSyntax(popRange(), expr);
     }
 

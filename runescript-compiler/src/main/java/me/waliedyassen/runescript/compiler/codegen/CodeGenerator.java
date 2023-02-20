@@ -450,6 +450,12 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             case MOD:
                 opcode = MOD;
                 break;
+            case BITWISE_AND:
+                opcode = AND;
+                break;
+            case BITWISE_OR:
+                opcode = OR;
+                break;
             default:
                 throw new UnsupportedOperationException("Cannot generate code for operator: " + binaryOperation.getOperator());
         }
