@@ -1084,12 +1084,14 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
                     } while (consumeIf(COMMA));
                 }
                 consume(RPAREN);
-                if (consumeIf(LBRACE)) {
+            }
+            if (consumeIf(LBRACE)) {
+                if (isExpression()) {
                     do {
                         transmits.add(expression());
                     } while (consumeIf(COMMA));
-                    consume(RBRACE);
                 }
+                consume(RBRACE);
             }
             popLexer();
             return new HookSyntax(popRange(), name, arguments.toArray(new ExpressionSyntax[0]), transmits.toArray(new ExpressionSyntax[0]));

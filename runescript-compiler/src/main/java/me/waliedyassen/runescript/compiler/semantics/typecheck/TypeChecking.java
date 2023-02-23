@@ -225,14 +225,10 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
                 var expected = parentInfo.getTransmits();
                 var transmits = hook.getTransmits();
                 if (expected != null) {
-                    if (transmits.length == 0) {
-                        checker.reportError(new SemanticError(hook, String.format("Expected a transmit list of type '%s'", expected.getRepresentation())));
-                    } else {
-                        for (var transmit : transmits) {
-                            transmit.setHintType(expected);
-                            if (transmit.accept(this).isContinue()) {
-                                checkTypeMatching(transmit, expected, transmit.getType());
-                            }
+                    for (var transmit : transmits) {
+                        transmit.setHintType(expected);
+                        if (transmit.accept(this).isContinue()) {
+                            checkTypeMatching(transmit, expected, transmit.getType());
                         }
                     }
                 } else if (transmits.length != 0) {
