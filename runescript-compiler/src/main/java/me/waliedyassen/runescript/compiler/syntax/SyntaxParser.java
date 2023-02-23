@@ -334,6 +334,28 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         }
     }
 
+    private boolean isSimpleExpression() {
+        switch (peekKind()) {
+            case LPAREN:
+            case INTEGER:
+            case STRING:
+            case LONG:
+            case BOOL:
+            case COORDGRID:
+            case NULL:
+            case TYPE:
+            case CONCATB:
+            case DOLLAR:
+            case MOD:
+            case CARET:
+            case DOT:
+            case CALC:
+                return true;
+            default:
+                return isAdvancedIdentifier() || isCall();
+        }
+    }
+
     /**
      * Attempts to match the next token set to any valid {@link StatementSyntax} types.
      *
@@ -832,8 +854,8 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         pushRange();
         consume(CONCATB);
         var expressions = new ArrayList<ExpressionSyntax>();
-        while (isExpression()) {
-            expressions.add(expression());
+        while (isSimpleExpression()) {
+            expressions.add(simpleExpression());
         }
         consume(CONCATE);
         return new ConcatenationSyntax(popRange(), expressions.toArray(new ExpressionSyntax[0]));
