@@ -57,7 +57,8 @@ data class ConstantSymbol(
 enum class DbColumnProp {
     REQUIRED,
     INDEXED,
-    CLIENTSIDE
+    CLIENTSIDE,
+    LIST
 }
 
 /**
