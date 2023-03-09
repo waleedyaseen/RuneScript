@@ -388,9 +388,11 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
         if (check) {
             var actualType = collectType(arguments);
             var expectedTypes = processCommandExpectedArguments(info, arguments);
-            var expectedType = new TupleType(expectedTypes);
-            if (!checkTypeMatching(commandSyntax, expectedType, actualType, false)) {
-                checker.reportError(new SemanticError(commandSyntax, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), actualType.getRepresentation(), expectedType.getRepresentation())));
+            if (expectedTypes != null) {
+                var expectedType = new TupleType(expectedTypes);
+                if (!checkTypeMatching(commandSyntax, expectedType, actualType, false)) {
+                    checker.reportError(new SemanticError(commandSyntax, String.format("The command %s(%s) is not applicable for the arguments (%s)", name.getText(), actualType.getRepresentation(), expectedType.getRepresentation())));
+                }
             }
         }
         var returnType = processCommandExpectedReturns(info, arguments);
@@ -418,6 +420,18 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
                 expectedTypes = Arrays.copyOf(expectedTypes, expectedTypes.length);
                 expectedTypes[3] = literal.getValue();
             }
+        } else if (info.isDbFind()) {
+            if (actual.length > 0 && actual[0] instanceof DynamicSyntax columnNameDyn) {
+                // argument 1 is "column: dbcolumn"
+                // argument 2 is "value: any"
+                var columnName = columnNameDyn.getName().getText();
+                var columnSym = symbolTable.lookupConfig(PrimitiveType.DBCOLUMN.INSTANCE, columnName);
+                if (columnSym == null) {
+                    checker.reportError(new SemanticError(columnNameDyn, String.format("Could not resolve %s to a dbtable column", columnName)));
+                    return null;
+                }
+                expectedTypes[1] = columnSym.getTypes().get(0);
+            }
         }
         return expectedTypes;
     }
@@ -444,6 +458,19 @@ public final class TypeChecking implements SyntaxVisitor<TypeCheckAction> {
                     return symbol.getType();
                 }
                 return null;
+            }
+        } else if (info.isDbGetField()) {
+            if (actual.length > 1 && actual[1] instanceof DynamicSyntax columnNameDyn) {
+                // argument 1 is "row: dbrow"
+                // argument 2 is "column: dbcolumn"
+                // argument 3 is "field: int"
+                var columnName = columnNameDyn.getName().getText();
+                var columnSym = symbolTable.lookupConfig(PrimitiveType.DBCOLUMN.INSTANCE, columnName);
+                if (columnSym == null) {
+                    checker.reportError(new SemanticError(columnNameDyn, String.format("Could not resolve %s to a dbtable column", columnName)));
+                    return null;
+                }
+                return new TupleType(columnSym.getTypes().toArray(PrimitiveType[]::new));
             }
         }
         return info.getType();

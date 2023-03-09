@@ -275,7 +275,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
         var name = variableExpression.getName().getText();
         if (variableExpression.getScope() == VariableScope.LOCAL) {
             var local = localMap.lookup(name);
-            return instruction(getPushVariableOpcode(variableExpression.getScope(), null,(PrimitiveType) local.getType()), local);
+            return instruction(getPushVariableOpcode(variableExpression.getScope(), null, (PrimitiveType) local.getType()), local);
         } else {
             var config = symbolTable.lookupVariable(name);
             var type = symbolTable.lookupVariableType(name);
@@ -355,7 +355,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
             if (commandInfo != null) {
                 return generateCommand(commandInfo, false);
             }
-            var configInfo = symbolTable.lookupConfig((PrimitiveType<?>)dynamic.getType(), name);
+            var configInfo = symbolTable.lookupConfig((PrimitiveType<?>) dynamic.getType(), name);
             if (configInfo != null) {
                 return instruction(PUSH_INT_CONSTANT, configInfo);
             }
@@ -400,10 +400,21 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * {@inheritDoc}
      */
     public Instruction visit(CommandSyntax command) {
-        for (var argument : command.getArguments()) {
-            argument.accept(this);
+        var info = symbolTable.lookupCommand(command.getName().getText());
+        if (info.isDbFind()) {
+            var columnName = (DynamicSyntax) command.getArguments()[0];
+            var columnSymbol = symbolTable.lookupConfig(PrimitiveType.DBCOLUMN.INSTANCE, columnName.getName().getText());
+            var value = command.getArguments()[1];
+            System.out.println("Gen");
+            instruction(PUSH_INT_CONSTANT, columnSymbol.getId());
+            value.accept(this);
+            instruction(PUSH_INT_CONSTANT, value.getType() == PrimitiveType.STRING.INSTANCE ? 2 : 0);
+        }  else {
+            for (var argument : command.getArguments()) {
+                argument.accept(this);
+            }
         }
-        return generateCommand(symbolTable.lookupCommand(command.getName().getText()), command.isAlternative());
+        return generateCommand(info, command.isAlternative());
     }
 
     /**
@@ -987,7 +998,7 @@ public final class CodeGenerator implements SyntaxVisitor<Object> {
      * @param type  the type of the variable we want the opcode for,
      * @return the push {@link CoreOpcode opcode} enum constant.
      */
-    private static CoreOpcode getPushVariableOpcode(VariableScope scope,PrimitiveType domain, PrimitiveType type) {
+    private static CoreOpcode getPushVariableOpcode(VariableScope scope, PrimitiveType domain, PrimitiveType type) {
         switch (scope) {
             case LOCAL:
                 switch (type.getStackType()) {

@@ -65,6 +65,22 @@ public final class CommandInfo {
         return name.equals("enum");
     }
 
+    public boolean isDbFind() {
+        switch (name) {
+            case "db_find":
+            case "db_find_filter":
+            case "db_find_with_count":
+            case "db_find_filter_with_count":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public boolean isDbGetField() {
+        return name.equals("db_getfield");
+    }
+
     /**
      * Checks whether or not this command information is for the param commands.
      *

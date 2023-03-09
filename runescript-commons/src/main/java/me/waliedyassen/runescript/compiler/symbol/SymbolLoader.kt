@@ -53,3 +53,22 @@ object ConstantSymbolLoader : SymbolLoader<ConstantSymbol> {
         return ConstantSymbol(name, id, value)
     }
 }
+
+object DbColumnSymbolLoader : SymbolLoader<DbColumnSymbol> {
+
+    override fun load(line: String): DbColumnSymbol {
+        val parts = line.split("!")
+        val name = parts[0]
+        val id = parts[1].toInt()
+        val types = if (parts[2].isBlank()) {
+            emptyList()
+        } else
+            parts[2].splitToSequence(",").map { PrimitiveType.forLiteral(it) }.toList()
+        val props = if (parts[3].isBlank()) {
+            emptySet()
+        } else {
+            parts[3].splitToSequence(",").map { DbColumnProp.valueOf(it) }.toSet()
+        }.toSet()
+        return DbColumnSymbol(name, id, types, props)
+    }
+}

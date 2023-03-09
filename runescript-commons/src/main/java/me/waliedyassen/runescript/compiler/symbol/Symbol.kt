@@ -53,3 +53,19 @@ data class ConstantSymbol(
     override val id: Int,
     val literal: String,
 ) : Symbol()
+
+enum class DbColumnProp {
+    REQUIRED,
+    INDEXED,
+    CLIENTSIDE
+}
+
+/**
+ * A [Symbol] implementation for constants, which store the value as is, in string form.
+ */
+data class DbColumnSymbol(
+    override val name: String,
+    override val id: Int,
+    val types: List<PrimitiveType<*>>,
+    val props: Set<DbColumnProp>
+) : Symbol()

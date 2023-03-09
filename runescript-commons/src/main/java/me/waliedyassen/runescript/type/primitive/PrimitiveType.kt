@@ -1,15 +1,6 @@
 package me.waliedyassen.runescript.type.primitive
 
-import me.waliedyassen.runescript.compiler.symbol.BasicSymbol
-import me.waliedyassen.runescript.compiler.symbol.BasicSymbolLoader
-import me.waliedyassen.runescript.compiler.symbol.ConfigSymbol
-import me.waliedyassen.runescript.compiler.symbol.ConfigSymbolLoader
-import me.waliedyassen.runescript.compiler.symbol.ConstantSymbol
-import me.waliedyassen.runescript.compiler.symbol.ConstantSymbolLoader
-import me.waliedyassen.runescript.compiler.symbol.Symbol
-import me.waliedyassen.runescript.compiler.symbol.SymbolLoader
-import me.waliedyassen.runescript.compiler.symbol.TypedSymbol
-import me.waliedyassen.runescript.compiler.symbol.TypedSymbolLoader
+import me.waliedyassen.runescript.compiler.symbol.*
 import me.waliedyassen.runescript.type.Type
 import me.waliedyassen.runescript.type.stack.StackType
 
@@ -71,12 +62,14 @@ open class PrimitiveType<T : Symbol>(
     object NEWVAR : PrimitiveType<BasicSymbol>('-', "newvar", StackType.INT, -1, BasicSymbolLoader)
     object NPC_UID : PrimitiveType<BasicSymbol>('u', "npc_uid", StackType.INT, -1, BasicSymbolLoader)
     object LOC_SHAPE : PrimitiveType<BasicSymbol>('H', "locshape", StackType.INT, -1, BasicSymbolLoader)
+    object DBTABLE : PrimitiveType<BasicSymbol>('\u00D0', "dbtable", StackType.INT, -1, BasicSymbolLoader)
+    object DBCOLUMN : PrimitiveType<DbColumnSymbol>('\u00D0', "dbcolumn", StackType.INT, -1, DbColumnSymbolLoader)
 
     override fun toString() = javaClass.simpleName
 
     val isReferencable: Boolean
         get() = when (this) {
-            is TYPE -> false
+            is TYPE, is DBCOLUMN -> false
             else -> representation != null
         }
 
@@ -149,6 +142,8 @@ open class PrimitiveType<T : Symbol>(
             NEWVAR,
             NPC_UID,
             LOC_SHAPE,
+            DBTABLE,
+            DBCOLUMN
         )
         private val referencibleLookup by lazy {
             values.filter { it.isReferencable }
@@ -164,14 +159,15 @@ open class PrimitiveType<T : Symbol>(
         fun forRepresentation(representation: String): PrimitiveType<*>? {
             return referencibleLookup[representation]
         }
+
         @JvmStatic
         fun forLiteralOrNull(literal: String): PrimitiveType<*>? {
             return literalLookup[literal]
         }
+
         @JvmStatic
         fun forLiteral(literal: String): PrimitiveType<*> {
             return literalLookup[literal] ?: error("No type could be found for the literal '$literal'")
         }
-
     }
 }
