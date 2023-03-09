@@ -88,31 +88,6 @@ open class PrimitiveType<T : Symbol>(
             false
         } else stackType == StackType.INT
 
-    val isConfigType: Boolean
-        get() = when (this) {
-            is SEQ,
-            is STAT,
-            is MAPAREA,
-            is ENUM,
-            is NPC,
-            is CATEGORY,
-            is NAMEDOBJ,
-            is OBJ,
-            is INV,
-            is MAPELEMENT,
-            is VARP,
-            is VARBIT,
-            is VARC,
-            is STRUCT,
-            is LOC,
-            is PARAM,
-            is FLO,
-            is FLU,
-            is SPOTANIM -> true
-
-            else -> false
-        }
-
     val isNullable: Boolean
         get() = if (stackType != StackType.INT) {
             false

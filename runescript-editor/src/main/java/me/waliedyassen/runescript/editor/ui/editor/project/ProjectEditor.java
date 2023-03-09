@@ -248,32 +248,4 @@ public final class ProjectEditor extends Editor<Path> {
             panel.add(browseButton, "wrap");
         }
     }
-
-    public static void main(String[] args) {
-
-    }
-
-    /**
-     * Checks whether or not the specified {@link PrimitiveType type} can be predefined.
-     *
-     * @param type the type to check if it can.
-     * @return <code>true</code> if it can otherwise <code>false</code>.
-     */
-    public static boolean isPredefinable(PrimitiveType type) {
-        if (type.isConfigType()) {
-            return true;
-        }
-        if (PrimitiveType.GRAPHIC.INSTANCE.equals(type)
-                || PrimitiveType.SYNTH.INSTANCE.equals(type)
-                || PrimitiveType.INTERFACE.INSTANCE.equals(type)
-                || PrimitiveType.TOPLEVELINTERFACE.INSTANCE.equals(type)
-                || PrimitiveType.CLIENTINTERFACE.INSTANCE.equals(type)
-                || PrimitiveType.OVERLAYINTERFACE.INSTANCE.equals(type)
-                || PrimitiveType.COMPONENT.INSTANCE.equals(type)
-                || PrimitiveType.FONTMETRICS.INSTANCE.equals(type)
-                || PrimitiveType.TEXTURE.INSTANCE.equals(type)) {
-            return true;
-        }
-        return false;
-    }
 }
