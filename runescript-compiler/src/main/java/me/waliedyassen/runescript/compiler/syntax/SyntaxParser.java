@@ -682,7 +682,7 @@ public final class SyntaxParser extends ParserBase<Kind, SyntaxToken> {
         if (scope == null) {
             throw createError(token, "Expecting a variable");
         }
-        var name = identifier();
+        var name = advancedIdentifier();
         if (consumeIf(LPAREN)) {
             if (scope != VariableScope.LOCAL) {
                 throw createError(token, "Unrecognised scope for array variable expression");
