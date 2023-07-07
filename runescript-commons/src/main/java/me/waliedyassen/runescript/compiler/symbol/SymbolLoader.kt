@@ -48,9 +48,8 @@ object ConstantSymbolLoader : SymbolLoader<ConstantSymbol> {
     override fun load(line: String): ConstantSymbol {
         val parts = line.split("!", limit = 3)
         val name = parts[0]
-        val id = parts[1].toInt()
-        val value = parts[2]
-        return ConstantSymbol(name, id, value)
+        val value = parts[1]
+        return ConstantSymbol(name, -1, value)
     }
 }
 
