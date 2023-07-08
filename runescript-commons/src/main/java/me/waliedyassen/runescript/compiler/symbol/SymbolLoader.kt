@@ -16,7 +16,7 @@ interface SymbolLoader<T : Symbol> {
 
 object BasicSymbolLoader : SymbolLoader<BasicSymbol> {
     override fun load(line: String): BasicSymbol {
-        val split = line.split("!", limit = 2)
+        val split = line.split("\t", limit = 2)
         val name = split[0]
         val id = split[1].toInt()
         return BasicSymbol(name, id)
@@ -25,7 +25,7 @@ object BasicSymbolLoader : SymbolLoader<BasicSymbol> {
 
 object TypedSymbolLoader : SymbolLoader<TypedSymbol> {
     override fun load(line: String): TypedSymbol {
-        val split = line.split("!", limit = 3)
+        val split = line.split("\t", limit = 3)
         val name = split[0]
         val id = split[1].toInt()
         val type = PrimitiveType.forLiteral(split[2])
@@ -35,7 +35,7 @@ object TypedSymbolLoader : SymbolLoader<TypedSymbol> {
 
 object ConfigSymbolLoader : SymbolLoader<ConfigSymbol> {
     override fun load(line: String): ConfigSymbol {
-        val parts = line.split("!", limit = 4)
+        val parts = line.split("\t", limit = 4)
         val name = parts[0]
         val id = parts[1].toInt()
         val type = PrimitiveType.forLiteral(parts[2])
@@ -46,7 +46,7 @@ object ConfigSymbolLoader : SymbolLoader<ConfigSymbol> {
 
 object ConstantSymbolLoader : SymbolLoader<ConstantSymbol> {
     override fun load(line: String): ConstantSymbol {
-        val parts = line.split("!", limit = 3)
+        val parts = line.split("\t", limit = 3)
         val name = parts[0]
         val value = parts[1]
         return ConstantSymbol(name, -1, value)
@@ -56,7 +56,7 @@ object ConstantSymbolLoader : SymbolLoader<ConstantSymbol> {
 object DbColumnSymbolLoader : SymbolLoader<DbColumnSymbol> {
 
     override fun load(line: String): DbColumnSymbol {
-        val parts = line.split("!")
+        val parts = line.split("\t")
         val name = parts[0]
         val id = parts[1].toInt()
         val types = if (parts[2].isBlank()) {

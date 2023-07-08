@@ -553,7 +553,7 @@ public final class Project {
     private void loadSym() {
         var rootPath = directory;
         var symPath = rootPath.resolve("sym");
-        var pattern = Pattern.compile("(\\w+)\\.sym");
+        var pattern = Pattern.compile("(\\w+)\\.tsv");
         try {
             Files.list(symPath).forEach(file -> {
                 var matcher = pattern.matcher(file.getFileName().toString());
